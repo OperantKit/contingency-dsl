@@ -78,8 +78,10 @@ to the same AST node and do not affect equivalence judgment. See
 |---------|---------|---------|
 | `@reinforcer` | Declares a reinforcer (primary form) | `@reinforcer("food", type="unconditioned")` |
 | `@sd` | Discriminative stimulus identity | `@sd("red_light", component=1)` |
-| `@operandum` | Response device identity | `@operandum("left_lever")` |
 | `@brief` | Brief stimulus in second-order schedules | `@brief("light", duration=2)` |
+
+Note: `@operandum` (response device identity) was previously listed here but
+moved to **apparatus-annotator** on 2026-04-12. See the Apparatus section below.
 
 **Example: Concurrent schedule with identified components**
 
@@ -205,7 +207,7 @@ Conc(VI30s, VI60s, COD=2s)
 - `@hw("virtual")` selects the software simulation backend instead of physical hardware
 
 **What does NOT belong here:**
-- Logical names for response devices ("left_lever") → stimulus-annotator (`@operandum`)
+- Logical names for response devices ("left_lever") → apparatus-annotator (`@operandum`)
 - Measured response latency / jitter → contingency-bench output, not a declaration
 - Software configuration (log paths, output directories) → outside DSL scope
 

@@ -197,7 +197,8 @@ Each annotator is named with the `-annotator` suffix, meaning: *an annotation mo
 
 | Annotator | Dimension | Annotation Keywords | Purpose |
 |-----------|-----------|-------------------|---------|
-| `stimulus-annotator` | Stimulus identity | `@reinforcer`, `@sd`, `@operandum`, `@brief` | Three-term contingency explicit modeling, reinforcer identity, second-order brief stimuli |
+| `stimulus-annotator` | Stimulus identity | `@reinforcer`, `@sd`, `@brief` | Three-term contingency explicit modeling, reinforcer identity, second-order brief stimuli |
+| `apparatus-annotator` | Physical apparatus | `@chamber`, `@operandum`, `@interface`, `@hw` | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
 | `social-annotator` | Subject | `@subject`, `@interlocking` | Multi-subject contingencies, cooperation tasks, interlocking contingencies |
 | `temporal-annotator` | Session time | `@clock`, `@warmup` | Time unit declaration, warm-up intervals. Note: `@blackout` promoted to core grammar as `BO` keyword arg (v1.1) |
 | `clinical-annotator` | Clinical metadata | `@function`, `@target`, `@replacement` | FBA function labels, target/replacement behavior, ABA intervention metadata |
@@ -223,9 +224,14 @@ contingency-dsl (base CFG)
         │  StimulusManager, OfflineRunner
         │
         ├── stimulus_annotator/ (DSL annotation module)
-        │     + @reinforcer, @sd, @operandum, @brief annotations
+        │     + @reinforcer, @sd, @brief annotations
         │     + Reinforcer identity in DSL expressions
         │     + S-S / S-R association formal descriptions
+        │     + Note: @operandum moved to apparatus_annotator on 2026-04-12
+        │
+        ├── apparatus_annotator/ (DSL annotation module)
+        │     + @chamber, @operandum, @interface, @hw annotations
+        │     + Physical chamber, response device, HW interface identity
         │
         ├── social_annotator/ (DSL annotation module)
         │     + @subject, @interlocking annotations
@@ -340,7 +346,7 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <annotation_kv>        ::= <ident> "=" (<string_literal> | <value>)
 
 -- stimulus-annotator adds:
-<annotation_name>      ::= "reinforcer" | "sd" | "operandum" | "brief"
+<annotation_name>      ::= "reinforcer" | "sd" | "brief"
 
 -- subject-annotator adds:
 <annotation_name>      ::= "species" | "strain" | "deprivation" | "history" | "n"
@@ -349,7 +355,7 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <annotation_name>      ::= "clock" | "warmup" | "algorithm"
 
 -- apparatus-annotator adds:
-<annotation_name>      ::= "chamber" | "interface" | "hw"
+<annotation_name>      ::= "chamber" | "operandum" | "interface" | "hw"
 
 -- social-annotator adds:
 <annotation_name>      ::= "subject" | "interlocking"
@@ -401,19 +407,21 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 ### 4.7.10 Three-Term Contingency Modeling Scope
 
-| Element | Base CFG | stimulus-annotator | social-annotator | temporal-annotator | clinical-annotator |
-|---------|----------|-------------|------------|-------------|-------------|
-| S^D (discriminative stimulus) | Implicit in Chain/Mult | `@sd("light")` explicit | — | — | — |
-| R (response) | Implicit as operandum | `@operandum("lever")` | — | — | `@target("hand-flap")` |
-| S^R (reinforcer) | Not modeled | `Reinforcer` type + `@reinforcer` | — | — | — |
-| Subject | Single, implicit | — | `@subject("A")` | — | — |
-| S-S / S-R associations | Not modeled | Formal description | — | — | — |
-| Inter-subject contingencies | Not modeled | — | Interlocking contingency | — | — |
-| Time source / unit | Not modeled | — | — | `@clock("real")` | — |
-| Blackout (inter-component) | `BO=5s` (Mult/Mix kw_arg) | — | — | — | — |
-| Session temporal structure | Not modeled | — | — | `@warmup` | — |
-| Behavior function | Not modeled | — | — | — | `@function("escape")` |
-| Replacement behavior | Not modeled | — | — | — | `@replacement("mand")` |
+| Element | Base CFG | stimulus-annotator | apparatus-annotator | social-annotator | temporal-annotator | clinical-annotator |
+|---------|----------|-------------|-------------|------------|-------------|-------------|
+| S^D (discriminative stimulus) | Implicit in Chain/Mult | `@sd("light")` explicit | — | — | — | — |
+| R (response) | Implicit as operandum | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
+| S^R (reinforcer) | Not modeled | `Reinforcer` type + `@reinforcer` | — | — | — | — |
+| Subject | Single, implicit | — | — | `@subject("A")` | — | — |
+| S-S / S-R associations | Not modeled | Formal description | — | — | — | — |
+| Inter-subject contingencies | Not modeled | — | — | Interlocking contingency | — | — |
+| Time source / unit | Not modeled | — | — | — | `@clock("real")` | — |
+| Blackout (inter-component) | `BO=5s` (Mult/Mix kw_arg) | — | — | — | — | — |
+| Session temporal structure | Not modeled | — | — | — | `@warmup` | — |
+| Physical chamber | Not modeled | — | `@chamber("ENV-007")` | — | — | — |
+| Hardware backend | Not modeled | — | `@hw("teensy41")` | — | — | — |
+| Behavior function | Not modeled | — | — | — | — | `@function("escape")` |
+| Replacement behavior | Not modeled | — | — | — | — | `@replacement("mand")` |
 
 ## 4.8 Expressiveness Boundaries
 

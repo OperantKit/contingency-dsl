@@ -8,8 +8,13 @@
 |---|---|---|
 | @reinforcer | 強化子の同定・分類（基本形） | `@reinforcer("food", type="unconditioned")` |
 | @sd | 弁別刺激の同定 | `@sd("red_light", component=1)` |
-| @operandum | 反応装置の同定 | `@operandum("left_lever")` |
 | @brief | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
+
+**注記:** `@operandum`（反応装置の同定）は以前このモジュールに属していたが、
+2026-04-12 に **apparatus-annotator** へ移管された。操作体（レバー、キー等）は
+JEAB Method 節の Apparatus セクションで記述されるのが伝統的であり、その慣習に
+合わせた再分類である。詳細は
+[spec/annotation-design.md §3.6](../../spec/annotation-design.md) を参照。
 
 ## Keyword Aliases — `@reinforcer` / `@punisher` / `@consequentStimulus`
 

@@ -7,8 +7,15 @@
 | Keyword | Purpose | Example |
 |---|---|---|
 | @chamber | 実験チャンバーのモデル | `@chamber("med-associates", model="ENV-007")` |
+| @operandum | 反応装置（レバー、キー等）の同定 | `@operandum("left_lever", component=1)` |
 | @interface | HW インターフェース | `@interface("serial", port="/dev/ttyUSB0")` |
 | @hw | ハードウェアバックエンド | `@hw("teensy41")` or `@hw("virtual")` |
+
+**注記:** `@operandum` は 2026-04-12 に stimulus-annotator から apparatus-annotator
+へ移管された。操作体（response device）は物理的装置であり、JEAB Method 節の
+伝統的区分では Apparatus セクションで記述される。`component=N` のように schedule
+成分への割当を示す用法も、apparatus 情報の procedural な適用として自然。
+詳細は [spec/annotation-design.md §3.6](../../spec/annotation-design.md) を参照。
 
 ## Boundary Justification
 
@@ -30,7 +37,6 @@
 
 ## Exclusion Criteria
 
-- 反応装置の **論理名**（"left_lever"）→ stimulus-annotator (@operandum)。
 - 装置の **応答精度**（ms 単位のジッタ）→ contingency-bench の測定対象であり宣言ではない。
 - ソフトウェアの設定（ログレベル、出力ディレクトリ）→ DSL の範囲外。
 

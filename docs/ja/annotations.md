@@ -71,8 +71,10 @@ contingency-dsl プロジェクトは、実験手続きの普遍的な4次元を
 |-----------|------|-----|
 | `@reinforcer` | 強化子の宣言（基本形） | `@reinforcer("food", type="unconditioned")` |
 | `@sd` | 弁別刺激の同定 | `@sd("red_light", component=1)` |
-| `@operandum` | 反応装置の同定 | `@operandum("left_lever")` |
 | `@brief` | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
+
+注: `@operandum`（反応装置の同定）は以前ここに列挙されていたが、2026-04-12 に
+**apparatus-annotator** へ移管された。下記の Apparatus セクションを参照。
 
 **`@reinforcer` の別名:** `@punisher` と `@consequentStimulus` は `@reinforcer` の
 等価な alias。実験者の意図を source に明示したい場合に使用する（例:
@@ -204,7 +206,7 @@ Conc(VI30s, VI60s, COD=2s)
 - `@hw("virtual")` でハードウェアなしのシミュレーション・バックエンドを選択
 
 **ここに属さないもの:**
-- 反応装置の論理名（"left_lever"）→ stimulus-annotator（`@operandum`）
+- 反応装置の論理名（"left_lever"）→ apparatus-annotator（`@operandum`）
 - 測定された応答遅延/ジッタ → contingency-bench の出力であり宣言ではない
 - ソフトウェアの設定（ログパス、出力ディレクトリ）→ DSL の範囲外
 

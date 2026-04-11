@@ -153,7 +153,8 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 | Annotator | 次元 | アノテーションキーワード | 用途 |
 |-----------|------|----------------------|------|
-| `stimulus-annotator` | 刺激同一性 | `@reinforcer`, `@sd`, `@operandum`, `@brief` | 三項随伴性の明示的モデル化、強化子同一性、二次スケジュールの brief stimulus |
+| `stimulus-annotator` | 刺激同一性 | `@reinforcer`, `@sd`, `@brief` | 三項随伴性の明示的モデル化、強化子同一性、二次スケジュールの brief stimulus |
+| `apparatus-annotator` | 物理的装置 | `@chamber`, `@operandum`, `@interface`, `@hw` | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管（JEAB Method 節の Apparatus 区分に整合）。 |
 | `social-annotator` | 被験体 | `@subject`, `@interlocking` | 多被験体随伴性、協力課題、インターロッキング随伴性 |
 | `temporal-annotator` | セッション時間 | `@clock`, `@warmup` | 時間単位宣言、準備期間。注: `@blackout` は v1.1 でコア文法の `BO` keyword arg に昇格 |
 | `clinical-annotator` | 臨床メタデータ | `@function`, `@target`, `@replacement` | FBA 機能ラベル、標的/代替行動、ABA 介入メタデータ |
@@ -179,9 +180,14 @@ contingency-dsl（基底 CFG）
         │  StimulusManager、OfflineRunner
         │
         ├── stimulus_annotator/（DSL アノテーションモジュール）
-        │     + @reinforcer, @sd, @operandum, @brief 注釈
+        │     + @reinforcer, @sd, @brief 注釈
         │     + DSL 式における強化子同一性
         │     + S-S / S-R 連合の形式的記述
+        │     + 注: @operandum は 2026-04-12 に apparatus_annotator に移管
+        │
+        ├── apparatus_annotator/（DSL アノテーションモジュール）
+        │     + @chamber, @operandum, @interface, @hw 注釈
+        │     + 物理チャンバー・反応装置・HW インターフェースの同定
         │
         ├── social_annotator/（DSL アノテーションモジュール）
         │     + @subject, @interlocking 注釈
@@ -291,7 +297,10 @@ class AnnotationRegistry:
 <annotation_kv>      ::= <ident> "=" (<string_literal> | <value>)
 
 -- stimulus-annotator が追加:
-<annotation_name>    ::= "reinforcer" | "sd" | "operandum" | "brief"
+<annotation_name>    ::= "reinforcer" | "sd" | "brief"
+
+-- apparatus-annotator が追加:
+<annotation_name>    ::= "chamber" | "operandum" | "interface" | "hw"
 
 -- social-annotator が追加:
 <annotation_name>    ::= "subject" | "interlocking"
@@ -346,19 +355,21 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 #### 4.7.10 三項随伴性のモデル化スコープ
 
-| 要素 | 基底 CFG | stimulus-annotator | social-annotator | temporal-annotator | clinical-annotator |
-|------|---------|-------------|------------|-------------|-------------|
-| S^D（弁別刺激） | Chain/Mult に暗黙的 | `@sd("light")` で明示 | — | — | — |
-| R（反応） | 操作体として暗黙的 | `@operandum("lever")` | — | — | `@target("hand-flap")` |
-| S^R（強化子） | モデル化なし | `Reinforcer` 型 + `@reinforcer` | — | — | — |
-| 被験体 | 単一・暗黙的 | — | `@subject("A")` | — | — |
-| S-S / S-R 連合 | モデル化なし | 形式的記述 | — | — | — |
-| 被験体間随伴性 | モデル化なし | — | interlocking contingency | — | — |
-| 時間ソース / 単位 | モデル化なし | — | — | `@clock("real")` | — |
-| ブラックアウト（成分間） | `BO=5s`（Mult/Mix kw_arg） | — | — | — | — |
-| セッション時間構造 | モデル化なし | — | — | `@warmup` | — |
-| 行動の機能 | モデル化なし | — | — | — | `@function("escape")` |
-| 代替行動 | モデル化なし | — | — | — | `@replacement("mand")` |
+| 要素 | 基底 CFG | stimulus-annotator | apparatus-annotator | social-annotator | temporal-annotator | clinical-annotator |
+|------|---------|-------------|-------------|------------|-------------|-------------|
+| S^D（弁別刺激） | Chain/Mult に暗黙的 | `@sd("light")` で明示 | — | — | — | — |
+| R（反応） | 操作体として暗黙的 | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
+| S^R（強化子） | モデル化なし | `Reinforcer` 型 + `@reinforcer` | — | — | — | — |
+| 被験体 | 単一・暗黙的 | — | — | `@subject("A")` | — | — |
+| S-S / S-R 連合 | モデル化なし | 形式的記述 | — | — | — | — |
+| 被験体間随伴性 | モデル化なし | — | — | interlocking contingency | — | — |
+| 時間ソース / 単位 | モデル化なし | — | — | — | `@clock("real")` | — |
+| ブラックアウト（成分間） | `BO=5s`（Mult/Mix kw_arg） | — | — | — | — | — |
+| セッション時間構造 | モデル化なし | — | — | — | `@warmup` | — |
+| 物理チャンバー | モデル化なし | — | `@chamber("ENV-007")` | — | — | — |
+| HW バックエンド | モデル化なし | — | `@hw("teensy41")` | — | — | — |
+| 行動の機能 | モデル化なし | — | — | — | — | `@function("escape")` |
+| 代替行動 | モデル化なし | — | — | — | — | `@replacement("mand")` |
 
 ### 4.8 表現力の境界
 
