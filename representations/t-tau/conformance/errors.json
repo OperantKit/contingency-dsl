@@ -1,0 +1,94 @@
+[
+  {
+    "id": "error_ttau_T_zero",
+    "description": "T=0 is invalid (cycle must have positive duration)",
+    "input": {
+      "T": 0.0,
+      "tau": 0.0
+    },
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "T must be"
+    }
+  },
+  {
+    "id": "error_ttau_T_negative",
+    "description": "T < 0 is invalid",
+    "input": {
+      "T": -10.0,
+      "tau": 5.0
+    },
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "T must be"
+    }
+  },
+  {
+    "id": "error_ttau_tau_zero",
+    "description": "τ=0 is invalid (reinforcement window must be positive)",
+    "input": {
+      "T": 10.0,
+      "tau": 0.0
+    },
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "tau must be"
+    }
+  },
+  {
+    "id": "error_ttau_tau_exceeds_T",
+    "description": "τ > T is invalid (window cannot exceed cycle)",
+    "input": {
+      "T": 10.0,
+      "tau": 15.0
+    },
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "tau must be"
+    }
+  },
+  {
+    "id": "error_to_ttau_value_zero",
+    "description": "Schedule with value=0 → ValueError (no valid T-tau for zero interval)",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 0.0
+    },
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "positive"
+    }
+  },
+  {
+    "id": "error_approximate_irt_zero",
+    "description": "approximate_ttau with irt=0 → ValueError",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "R",
+      "value": 5.0
+    },
+    "approximate_irt": 0.0,
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "irt must be"
+    }
+  },
+  {
+    "id": "error_approximate_irt_negative",
+    "description": "approximate_ttau with irt < 0 → ValueError",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "R",
+      "value": 5.0
+    },
+    "approximate_irt": -1.0,
+    "expected_error": {
+      "type": "ValueError",
+      "message_contains": "irt must be"
+    }
+  }
+]

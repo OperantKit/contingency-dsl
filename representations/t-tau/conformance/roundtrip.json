@@ -1,0 +1,75 @@
+[
+  {
+    "id": "roundtrip_fi30",
+    "description": "FI(30) → TTau → FI(30): lossless round-trip",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 30.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true,
+    "note": "time_unit is not preserved through T-tau (T-tau is unit-agnostic)"
+  },
+  {
+    "id": "roundtrip_ft60",
+    "description": "FT(60) → TTau → FT(60): lossless when domain is preserved",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "T",
+      "value": 60.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true
+  },
+  {
+    "id": "roundtrip_vi30",
+    "description": "VI(30) → TTau → VI(30): lossless when distribution is preserved",
+    "input": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "I",
+      "value": 30.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true
+  },
+  {
+    "id": "roundtrip_vt45",
+    "description": "VT(45) → TTau → VT(45)",
+    "input": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "T",
+      "value": 45.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true
+  },
+  {
+    "id": "roundtrip_ri20",
+    "description": "RI(20) → TTau → RI(20)",
+    "input": {
+      "type": "Atomic",
+      "dist": "R",
+      "domain": "I",
+      "value": 20.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true
+  },
+  {
+    "id": "roundtrip_rt10",
+    "description": "RT(10) → TTau → RT(10)",
+    "input": {
+      "type": "Atomic",
+      "dist": "R",
+      "domain": "T",
+      "value": 10.0,
+      "time_unit": "s"
+    },
+    "expected_identical": true
+  }
+]

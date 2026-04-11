@@ -1,0 +1,182 @@
+[
+  {
+    "id": "error_empty_input",
+    "description": "Empty input is a parse error",
+    "input": "",
+    "error": { "type": "ParseError", "code": "UNEXPECTED_EOF" }
+  },
+  {
+    "id": "error_invalid_char",
+    "description": "Invalid character in input",
+    "input": "FR5 & VI30",
+    "error": { "type": "LexError", "code": "UNEXPECTED_CHARACTER" }
+  },
+  {
+    "id": "error_compound_one_component",
+    "description": "Compound schedule with only one component",
+    "input": "Conc(FR5)",
+    "error": { "type": "ParseError", "code": "INSUFFICIENT_COMPONENTS" }
+  },
+  {
+    "id": "error_undefined_ident",
+    "description": "Reference to undefined identifier",
+    "input": "foo",
+    "error": { "type": "SemanticError", "code": "UNDEFINED_IDENTIFIER" }
+  },
+  {
+    "id": "error_forward_reference",
+    "description": "Forward reference in let binding",
+    "input": "let a = b\nlet b = FR5\na",
+    "error": { "type": "SemanticError", "code": "FORWARD_REFERENCE" }
+  },
+  {
+    "id": "error_shadowing",
+    "description": "Duplicate binding name (shadowing prohibited)",
+    "input": "let x = FR5\nlet x = VI30\nx",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_BINDING" }
+  },
+  {
+    "id": "error_reserved_word_as_ident",
+    "description": "Reserved word used as identifier",
+    "input": "let let = FR5\nlet",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_missing_value",
+    "description": "Schedule type without value",
+    "input": "FR",
+    "error": { "type": "ParseError", "code": "EXPECTED_VALUE" }
+  },
+  {
+    "id": "error_unclosed_paren",
+    "description": "Unclosed parenthesis in compound",
+    "input": "Conc(FR5, VI30",
+    "error": { "type": "ParseError", "code": "EXPECTED_RPAREN" }
+  },
+  {
+    "id": "error_second_order_ext_overall",
+    "description": "EXT cannot be second-order overall (not parametric)",
+    "input": "EXT(FR5)",
+    "error": { "type": "ParseError", "code": "INVALID_SECOND_ORDER_OVERALL" }
+  },
+  {
+    "id": "error_lh_negative",
+    "description": "Negative LH duration",
+    "input": "FI30 LH-5",
+    "error": { "type": "ParseError", "code": "EXPECTED_VALUE" }
+  },
+  {
+    "id": "error_missing_comma",
+    "description": "Missing comma between compound components",
+    "input": "Conc(FR5 VI30)",
+    "error": { "type": "ParseError", "code": "EXPECTED_COMMA_OR_RPAREN" }
+  },
+  {
+    "id": "error_cod_on_chain",
+    "description": "COD keyword argument is only valid on Conc combinator",
+    "input": "Chain(FR5, FI30s, COD=2s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_cod_on_alt",
+    "description": "COD keyword argument is only valid on Conc combinator",
+    "input": "Alt(FR10, FI5min, COD=2s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_keyword_before_positional",
+    "description": "Keyword arguments must follow all positional arguments",
+    "input": "Conc(COD=2s, VI30s, VI60s)",
+    "error": { "type": "ParseError", "code": "KEYWORD_BEFORE_POSITIONAL" }
+  },
+  {
+    "id": "error_duplicate_keyword",
+    "description": "Duplicate keyword argument",
+    "input": "Conc(VI30s, VI60s, COD=2s, COD=5s)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_self_referential_binding",
+    "description": "Self-referential binding is a degenerate forward reference (Issue #36 case 2)",
+    "input": "let a = a\na",
+    "error": { "type": "SemanticError", "code": "FORWARD_REFERENCE" }
+  },
+  {
+    "id": "error_reserved_pr_step_hodos",
+    "description": "Reserved word 'hodos' (PR step function) cannot be used as identifier (Issue #36 case 3)",
+    "input": "let hodos = FR5\nhodos",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_reserved_pr_param_start",
+    "description": "Reserved word 'start' (PR parameter) cannot be used as identifier (Issue #36 case 4)",
+    "input": "let start = FR5\nstart",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_reserved_pr_step_linear",
+    "description": "Reserved word 'linear' (PR step function) cannot be used as identifier",
+    "input": "let linear = FR5\nlinear",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_reserved_pr_step_exponential",
+    "description": "Reserved word 'exponential' (PR step function) cannot be used as identifier",
+    "input": "let exponential = FR5\nexponential",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_reserved_pr_param_increment",
+    "description": "Reserved word 'increment' (PR parameter) cannot be used as identifier",
+    "input": "let increment = FR5\nincrement",
+    "error": { "type": "ParseError", "code": "RESERVED_WORD" }
+  },
+  {
+    "id": "error_paren_as_second_order",
+    "description": "Parenthesized expression cannot be second-order overall (Issue #36 case 5)",
+    "input": "(FR5)(FI30)",
+    "error": { "type": "ParseError", "code": "UNEXPECTED_TOKEN" }
+  },
+  {
+    "id": "error_crf_second_order_overall",
+    "description": "CRF cannot be second-order overall (not parametric, mirrors EXT)",
+    "input": "CRF(FI30)",
+    "error": { "type": "ParseError", "code": "INVALID_SECOND_ORDER_OVERALL" }
+  },
+  {
+    "id": "error_cor_on_tand",
+    "description": "COR keyword argument is only valid on Conc combinator",
+    "input": "Tand(FR5, FI30s, COR=3)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_bo_on_conc",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators (v1.1 constraint §8)",
+    "input": "Conc(VI30s, VI60s, COD=2s, BO=5s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_bo_on_chain",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators",
+    "input": "Chain(FR5, FI30s, BO=5s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_bo_on_tand",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators",
+    "input": "Tand(FR5, FI30s, BO=5s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_bo_on_alt",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators",
+    "input": "Alt(FR5, FI30s, BO=5s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_duplicate_bo",
+    "description": "Duplicate BO keyword argument",
+    "input": "Mult(FR5, EXT, BO=5s, BO=3s)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_KEYWORD_ARG" }
+  }
+]

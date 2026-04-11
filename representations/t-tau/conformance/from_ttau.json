@@ -1,0 +1,170 @@
+[
+  {
+    "id": "from_ttau_fi30",
+    "description": "TTau(T=30, τ=30) + Interval + Fixed → FI(30)",
+    "input": {
+      "T": 30.0,
+      "tau": 30.0
+    },
+    "disambiguation": {
+      "domain": "I",
+      "distribution": "F"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 30.0
+    }
+  },
+  {
+    "id": "from_ttau_ft30",
+    "description": "TTau(T=30, τ=30) + Time + Fixed → FT(30)",
+    "input": {
+      "T": 30.0,
+      "tau": 30.0
+    },
+    "disambiguation": {
+      "domain": "T",
+      "distribution": "F"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "T",
+      "value": 30.0
+    }
+  },
+  {
+    "id": "from_ttau_vi60",
+    "description": "TTau(T=60, τ=60) + Interval + Variable → VI(60)",
+    "input": {
+      "T": 60.0,
+      "tau": 60.0
+    },
+    "disambiguation": {
+      "domain": "I",
+      "distribution": "V"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "I",
+      "value": 60.0
+    }
+  },
+  {
+    "id": "from_ttau_vt60",
+    "description": "TTau(T=60, τ=60) + Time + Variable → VT(60)",
+    "input": {
+      "T": 60.0,
+      "tau": 60.0
+    },
+    "disambiguation": {
+      "domain": "T",
+      "distribution": "V"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "T",
+      "value": 60.0
+    }
+  },
+  {
+    "id": "from_ttau_ri10",
+    "description": "TTau(T=10, τ=10) + Interval + Random → RI(10)",
+    "input": {
+      "T": 10.0,
+      "tau": 10.0
+    },
+    "disambiguation": {
+      "domain": "I",
+      "distribution": "R"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "R",
+      "domain": "I",
+      "value": 10.0
+    }
+  },
+  {
+    "id": "from_ttau_rt15",
+    "description": "TTau(T=15, τ=15) + Time + Random → RT(15)",
+    "input": {
+      "T": 15.0,
+      "tau": 15.0
+    },
+    "disambiguation": {
+      "domain": "T",
+      "distribution": "R"
+    },
+    "expected": {
+      "type": "Atomic",
+      "dist": "R",
+      "domain": "T",
+      "value": 15.0
+    }
+  },
+  {
+    "id": "from_ttau_sub_unity_fi_lh",
+    "description": "TTau(T=60, τ=30) + Interval + Fixed → FI(60) LH(30)",
+    "input": {
+      "T": 60.0,
+      "tau": 30.0
+    },
+    "disambiguation": {
+      "domain": "I",
+      "distribution": "F"
+    },
+    "expected": {
+      "type": "LimitedHold",
+      "hold_duration": 30.0,
+      "inner": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 60.0
+      }
+    }
+  },
+  {
+    "id": "from_ttau_sub_unity_vt_lh",
+    "description": "TTau(T=90, τ=45) + Time + Variable → VT(90) LH(45)",
+    "input": {
+      "T": 90.0,
+      "tau": 45.0
+    },
+    "disambiguation": {
+      "domain": "T",
+      "distribution": "V"
+    },
+    "expected": {
+      "type": "LimitedHold",
+      "hold_duration": 45.0,
+      "inner": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "T",
+        "value": 90.0
+      }
+    }
+  },
+  {
+    "id": "from_ttau_ratio_domain_error",
+    "description": "TTau + Ratio domain → RatioScheduleError",
+    "input": {
+      "T": 30.0,
+      "tau": 30.0
+    },
+    "disambiguation": {
+      "domain": "R",
+      "distribution": "F"
+    },
+    "expected_error": {
+      "type": "RatioScheduleError",
+      "message_contains": "Ratio"
+    }
+  }
+]

@@ -1,0 +1,220 @@
+; contingency-dsl v1.0 — Formal Grammar
+;
+; A context-free grammar (CFG) for declaring reinforcement contingencies.
+; Non-Turing-complete. Parseable by recursive descent in O(n).
+;
+; Reference: theory.md (Ferster & Skinner, 1957; Catania, 2013)
+;
+; Notation:
+;   ::=    definition
+;   |      alternation
+;   *      zero or more
+;   +      one or more
+;   ?      optional
+;   "x"    terminal literal
+;   [...]  character class
+;   --     comment
+
+; === Top-level ===
+
+program       ::= program_annotation* param_decl* binding* annotated_schedule
+
+; Program-level annotations: session-wide metadata (subjects, apparatus, temporal).
+; Positional scoping: any "@" before the first param_decl/binding/schedule is
+; a program-level annotation. LL(1) decidable: peek next token; if "@" consume
+; program_annotation, otherwise fall through to param_decl*.
+;
+; Scoping semantics:
+;   resolve(key, S) = S.annotations[key]  if key in S.annotations
+;                     program.annotations[key]  otherwise
+; Program-level annotations act as defaults; schedule-level annotations override.
+; Same keyword may appear at both levels (e.g. @reinforcer at program level as
+; default, overridden on a specific schedule in a choice procedure).
+
+program_annotation ::= annotation
+
+param_decl    ::= param_name "=" value
+param_name    ::= "LH" | "LimitedHold"
+                | "COD" | "ChangeoverDelay"
+                | "COR" | "ChangeoverResponse"
+                | "BO"  | "Blackout"
+
+binding       ::= "let" ident "=" schedule
+
+; === Schedule expressions ===
+
+schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
+
+base_schedule ::= atomic_or_second
+                | compound
+                | modifier
+                | ident
+                | "(" schedule ")"
+
+; === Atomic and second-order schedules ===
+;
+; Second-order: FR5(FI30) = "5 completions of FI30 produce reinforcement"
+; Resolved by LL(2): parse atomic, then peek for "(".
+
+atomic_or_second ::= parametric_atomic ("(" simple_schedule ")")?
+                   | "EXT"
+                   | "CRF"
+
+parametric_atomic ::= dist domain ws? value
+
+simple_schedule   ::= parametric_atomic
+
+; === Atomic components ===
+
+dist          ::= "F" | "V" | "R"
+domain        ::= "R" | "I" | "T"
+ws            ::= " "+
+value         ::= number time_unit?
+time_unit     ::= "s" | "ms" | "min"
+number        ::= [0-9]+ ("." [0-9]+)?
+
+; === Identifiers ===
+;
+; Must begin with lowercase letter or underscore.
+; Lexically disjoint from all DSL keywords (uppercase-initial).
+
+ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
+
+reserved      ::= "let" | "def"
+                | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
+                | "EXT" | "CRF"
+                | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
+                | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
+                | "COD" | "ChangeoverDelay"    -- v1.1: changeover delay
+                | "COR" | "ChangeoverResponse" -- v1.1: changeover response
+                | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix)
+                | "PR" | "Repeat"
+                | "hodos" | "exponential" | "linear"
+                | "start" | "increment"
+
+; === Compound schedules ===
+;
+; Keyword arguments (COD=2s, COR=5, BO=5s) follow all positional (schedule) arguments.
+; LL(2) parseable: kw_name followed by "=" disambiguates keyword from schedule.
+; Parser accepts keyword args syntactically; semantic pass validates per-combinator:
+;   - Conc: COD (optional, linter warning if omitted), COR (optional). Mult/Mix: BO (optional). Others: keyword args → SemanticError.
+
+compound      ::= combinator "(" arg_list ")"
+combinator    ::= "Conc" | "Alt" | "Conj"
+                | "Chain" | "Tand"
+                | "Mult" | "Mix"
+arg_list      ::= positional_args ("," keyword_arg)*
+positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
+keyword_arg   ::= kw_name "=" value
+kw_name       ::= "COD" | "ChangeoverDelay"
+                 | "COR" | "ChangeoverResponse"
+                 | "BO" | "Blackout"
+
+; === Modifiers ===
+
+modifier      ::= dr_mod | pr_mod | repeat
+
+dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
+
+pr_mod        ::= "PR" ("(" pr_opts ")")?
+pr_opts       ::= pr_step ("," pr_param)*
+pr_step       ::= "hodos" | "exponential" | "linear"
+pr_param      ::= "start" "=" number
+                | "increment" "=" number
+
+repeat        ::= "Repeat" "(" number "," schedule ")"
+
+; === Comments (line-level, not in BNF productions) ===
+;
+; "--" begins a line comment extending to end of line.
+; Comments are stripped during lexing.
+
+; === Annotations (§4.7 — annotation system, program-scoped closure) ===
+;
+; Annotations are parsed against an AnnotationRegistry that is provided
+; by the receiving program (runtime / interpreter), NOT by the DSL spec
+; itself. Within a given program's registry, closure holds: unknown
+; annotation names raise a parse error in that program. Across programs,
+; registries may differ — this is the mechanism by which 3rd-party
+; extensions and opposing theoretical frameworks are supported without
+; modifying Core DSL.
+;
+; Core grammar (this file) remains CFG / non-TC / LL(1)-LL(2) decidable
+; regardless of which registry is used. Static verification of Core
+; structure (reachability, type consistency) is decidable at the DSL
+; level; static verification of annotation names is decidable at the
+; program level only.
+;
+; See spec/ja/design-philosophy.md §4.2 (categories are recommendations,
+; not enforced) and §4.3 (category-neutral program equivalence).
+;
+; Two scoping levels:
+;   1. Program-level (program_annotation): appears before param_decl*.
+;      Acts as session-wide default. Typical: @species, @strain, @n, @history,
+;      @deprivation, @chamber, @hw, @interface, @clock, @warmup, @algorithm.
+;   2. Schedule-level (in annotated_schedule): attached to a schedule expression.
+;      Overrides program-level for that expression. Typical: @operandum, @sd, @brief.
+;   Some keywords (e.g. @reinforcer) may appear at either level.
+;
+; Scoping resolution:
+;   resolve(key, S) = S.annotations[key]  if key in S.annotations
+;                     program.annotations[key]  otherwise
+
+annotated_schedule ::= schedule annotation*
+annotation         ::= "@" annotation_name ("(" annotation_args ")")?
+annotation_args    ::= annotation_val ("," annotation_kv)*
+annotation_kv      ::= ident "=" annotation_val
+annotation_val     ::= string_literal | number
+string_literal     ::= '"' [^"]* '"'
+
+; annotation_name is defined per annotator. The following are the DSL
+; project's RECOMMENDED annotators; a program's registry MAY replace,
+; extend, or ignore these. Registry composition is program-scoped and
+; not enforced by this grammar. See design-philosophy.md §4.2.
+;
+; These annotator modules can be mapped to the recommended JEAB-aligned
+; categories (Procedure / Subjects / Apparatus / Measurement) as follows,
+; but programs MAY categorize them differently:
+;   stimulus-annotator   → Procedure   : "reinforcer" | "sd" | "operandum" | "brief"
+;   temporal-annotator   → Procedure   : "clock" | "warmup" | "algorithm"
+;   subject-annotator    → Subjects    : "species" | "strain" | "deprivation" | "history" | "n"
+;   apparatus-annotator  → Apparatus   : "chamber" | "interface" | "hw"
+;   social-annotator     → (extension) : "subject" | "interlocking"
+;   clinical-annotator   → (extension) : "function" | "target" | "replacement"
+
+; === Semantic constraints (enforced post-parse) ===
+;
+; 1. let bindings: no shadowing, no forward references, top-level only.
+; 2. Repeat(n, S) expands to Tand(S, ..., S) [n copies].
+; 3. Program-level LH default applies to all leaf base_schedules.
+; 4. second-order overall: parametric atomics only (no EXT, CRF).
+; 5. second-order unit (v1.0): simple schedules only (no compounds).
+; 6. def: reserved keyword, not implemented in v1.0.
+; 7. Conc combinator: COD specification is optional (implicit default: COD=0s).
+;    Conc without COD (neither expression-level keyword arg nor program-level
+;    param_decl) → Linter WARNING (MISSING_COD). Not a SemanticError.
+;    COD=0s (explicit) is legal and does NOT trigger the warning.
+;    Rationale: COD is procedurally essential (Herrnstein, 1961) but
+;    omission is permitted for conceptual/pedagogical use.
+; 8. COD/COR keyword args: valid on Conc only.
+;    BO keyword arg: valid on Mult/Mix only.
+;    Other combinators with keyword args → SemanticError (INVALID_KEYWORD_ARG).
+; 9. COR keyword arg: optional, Conc only. Value is integer (response count).
+; 10. Keyword arg ordering: must follow all positional schedule args.
+;     Keyword before positional → ParseError (KEYWORD_BEFORE_POSITIONAL).
+; 11. Duplicate keyword args → SemanticError (DUPLICATE_KEYWORD_ARG).
+; 12. Program-level COD/COR param_decl applies to all Conc combinators.
+;     Expression-level keyword args override program-level defaults.
+; 13. BO keyword arg: valid on Mult/Mix only. Optional (unlike COD).
+;     Omission of BO → no blackout (immediate component transition).
+;     BO=0 is legal (explicit no-blackout; equivalent to omission).
+;     Value must include a time unit (e.g., BO=5s, BO=2000ms).
+; 14. Program-level BO param_decl applies to all Mult/Mix combinators.
+;     Expression-level BO overrides program-level default.
+; 15. Program-level annotations (program_annotation) establish defaults for
+;     all schedule expressions in the program. Schedule-level annotations
+;     (in annotated_schedule) override for the attached expression only.
+;     Same keyword may appear at both levels.
+; 16. Annotations with component-specific parameters (e.g. @operandum with
+;     component=N) at program level → SemanticError (PROGRAM_ANNOTATION_COMPONENT).
+;     Component indexing requires schedule-level context.

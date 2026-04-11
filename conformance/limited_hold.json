@@ -1,0 +1,247 @@
+[
+  {
+    "id": "lh_fi30_lh10",
+    "description": "FI 30s with 10s limited hold (Ferster & Skinner, 1957)",
+    "input": "FI30 LH10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_vi60_lh5",
+    "description": "VI 60s with 5s limited hold",
+    "input": "VI60 LH5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 5.0,
+        "inner": {
+          "type": "Atomic",
+          "dist": "V",
+          "domain": "I",
+          "value": 60.0
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_drl3_lh8",
+    "description": "DRL 3s with 8s hold (Kramer & Rilling, 1970)",
+    "input": "DRL3 LH8",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 8.0,
+        "inner": {
+          "type": "Modifier",
+          "modifier": "DRL",
+          "value": 3.0
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_with_time_unit",
+    "description": "LH with explicit time unit",
+    "input": "FI30s LH10s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_conc_per_component",
+    "description": "Concurrent with per-component LH",
+    "input": "Conc(VI30 LH5, VI60 LH10)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 5.0,
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0 }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0 }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "lh_on_chain",
+    "description": "LH applied to entire chain expression",
+    "input": "Chain(FR5, FI30) LH10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": {
+          "type": "Compound",
+          "combinator": "Chain",
+          "components": [
+            { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+            { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_parenthesised",
+    "description": "LH on parenthesised expression",
+    "input": "(Conc(VI30, VI60)) LH10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": {
+          "type": "Compound",
+          "combinator": "Conc",
+          "components": [
+            { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0 },
+            { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0 }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_alias_param_decl",
+    "description": "LimitedHold (full name alias) as program-level default",
+    "input": "LimitedHold = 10s\nFI30",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "LH",
+          "value": 10.0,
+          "time_unit": "s"
+        }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0
+      }
+    }
+  },
+  {
+    "id": "lh_alias_expression",
+    "description": "LimitedHold (full name alias) as expression-level modifier — same AST as LH",
+    "input": "FI30 LimitedHold10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_on_ext",
+    "description": "LH applied to EXT — syntactically valid per grammar (Issue #36 case 6)",
+    "_note": "Semantically vacuous: EXT never produces reinforcement, so a temporal availability window is meaningless. Future spec may classify as SemanticWarning.",
+    "input": "EXT LH10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": { "type": "Special", "kind": "EXT" }
+      }
+    }
+  },
+  {
+    "id": "lh_on_crf",
+    "description": "LH applied to CRF with time unit",
+    "input": "CRF LH10s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": { "type": "Special", "kind": "CRF" }
+      }
+    }
+  },
+  {
+    "id": "lh_on_second_order",
+    "description": "LH applied to second-order schedule FR5(FI30)",
+    "input": "FR5(FI30) LH10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": {
+          "type": "SecondOrder",
+          "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+        }
+      }
+    }
+  }
+]

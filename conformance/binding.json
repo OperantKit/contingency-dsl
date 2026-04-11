@@ -1,0 +1,224 @@
+[
+  {
+    "id": "let_simple",
+    "description": "Simple let binding",
+    "input": "let baseline = VI60s\nbaseline",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "baseline",
+          "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        }
+      ],
+      "schedule": { "type": "IdentifierRef", "name": "baseline" }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+    }
+  },
+  {
+    "id": "let_two_bindings",
+    "description": "Two let bindings composed in Conc",
+    "input": "let baseline = VI60s\nlet probe = Conc(VI30s, VI60s)\nConc(baseline, probe)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "baseline",
+          "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        },
+        {
+          "type": "Binding",
+          "name": "probe",
+          "value": {
+            "type": "Compound",
+            "combinator": "Conc",
+            "components": [
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+            ]
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "IdentifierRef", "name": "baseline" },
+          { "type": "IdentifierRef", "name": "probe" }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "let_transitive",
+    "description": "Transitive binding: b references a",
+    "input": "let a = FR5\nlet b = Chain(a, VI30s)\nb",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Chain",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "let_underscore_name",
+    "description": "Binding with underscore-prefixed name",
+    "input": "let _phase1 = FR10\n_phase1",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+    }
+  },
+  {
+    "id": "let_three_bindings",
+    "description": "Three bindings composed in Tand with expansion",
+    "input": "let a = FR5\nlet b = VI30s\nlet c = FI60s\nTand(a, b, c)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        { "type": "Binding", "name": "a", "value": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 } },
+        { "type": "Binding", "name": "b", "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" } },
+        { "type": "Binding", "name": "c", "value": { "type": "Atomic", "dist": "F", "domain": "I", "value": 60.0, "time_unit": "s" } }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "IdentifierRef", "name": "a" },
+          { "type": "IdentifierRef", "name": "b" },
+          { "type": "IdentifierRef", "name": "c" }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "let_binding_in_compound",
+    "description": "Binding referencing a compound schedule",
+    "warnings": ["MISSING_COD"],
+    "input": "let inner = Chain(FR5, FI30s)\nConc(inner, VR20)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "inner",
+          "value": {
+            "type": "Compound",
+            "combinator": "Chain",
+            "components": [
+              { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+              { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+            ]
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "IdentifierRef", "name": "inner" },
+          { "type": "Atomic", "dist": "V", "domain": "R", "value": 20.0 }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Compound",
+            "combinator": "Chain",
+            "components": [
+              { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+              { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+            ]
+          },
+          { "type": "Atomic", "dist": "V", "domain": "R", "value": 20.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "let_binding_with_lh",
+    "description": "Binding with LimitedHold schedule",
+    "input": "let base = FI30 LH10\nbase",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "base",
+          "value": {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+          }
+        }
+      ],
+      "schedule": { "type": "IdentifierRef", "name": "base" }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+      }
+    }
+  }
+]

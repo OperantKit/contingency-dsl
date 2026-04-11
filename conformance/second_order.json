@@ -1,0 +1,77 @@
+[
+  {
+    "id": "second_order_fr5_fi30",
+    "description": "FR5(FI30) — 5 completions of FI30 produce reinforcement (Kelleher, 1966)",
+    "input": "FR5(FI30)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+      }
+    }
+  },
+  {
+    "id": "second_order_fi120_fr10",
+    "description": "FI120(FR10) — after 120s, next FR10 completion produces reinforcement",
+    "input": "FI120(FR10)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "I", "value": 120.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+      }
+    }
+  },
+  {
+    "id": "second_order_vi60_fr10",
+    "description": "VI60(FR10) — variable interval overall with FR10 unit",
+    "input": "VI60(FR10)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+      }
+    }
+  },
+  {
+    "id": "second_order_with_units",
+    "description": "Second-order with time units on both overall and unit",
+    "input": "FI120s(FI30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "I", "value": 120.0, "time_unit": "s" },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "second_order_rr_ft",
+    "description": "RR5(FT20s) — Random Ratio overall with Fixed Time unit",
+    "input": "RR5(FT20s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "R", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "T", "value": 20.0, "time_unit": "s" }
+      }
+    }
+  }
+]

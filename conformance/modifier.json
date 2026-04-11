@@ -1,0 +1,307 @@
+[
+  {
+    "id": "drl_5s",
+    "description": "Differential Reinforcement of Low rate, 5 seconds",
+    "input": "DRL5s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "dro_10s",
+    "description": "Differential Reinforcement of Other behavior, 10 seconds",
+    "input": "DRO10s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRO",
+        "value": 10.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "drh_2s",
+    "description": "Differential Reinforcement of High rate, 2 seconds",
+    "input": "DRH2s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRH",
+        "value": 2.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "drl_space",
+    "description": "DRL with whitespace before value",
+    "input": "DRL 5s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "pr_hodos",
+    "description": "Progressive Ratio with Hodos step function",
+    "input": "PR(hodos)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "hodos"
+      }
+    }
+  },
+  {
+    "id": "pr_linear",
+    "description": "Progressive Ratio with linear step (start=1, increment=5)",
+    "input": "PR(linear, start=1, increment=5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "linear",
+        "pr_start": 1.0,
+        "pr_increment": 5.0
+      }
+    }
+  },
+  {
+    "id": "pr_exponential",
+    "description": "Progressive Ratio with exponential step",
+    "input": "PR(exponential)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "exponential"
+      }
+    }
+  },
+  {
+    "id": "pr_bare",
+    "description": "Progressive Ratio bare (default step = hodos)",
+    "input": "PR",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "hodos"
+      }
+    }
+  },
+  {
+    "id": "repeat_3_fr10",
+    "description": "Repeat(3, FR10) — syntactic sugar for Tand(FR10, FR10, FR10)",
+    "input": "Repeat(3, FR10)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Repeat",
+        "value": 3.0,
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "R",
+          "value": 10.0
+        }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "tand_repeat_vi",
+    "description": "Tand(Repeat(3, FR10), VI60s) — Repeat expanded and Tand flattened",
+    "input": "Tand(Repeat(3, FR10), VI60s)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          {
+            "type": "Modifier",
+            "modifier": "Repeat",
+            "value": 3.0,
+            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+          },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "repeat_nested",
+    "description": "Repeat(2, Repeat(3, FR5)) — flattened to Tand(FR5 x6) via inside-out expansion + associativity (Issue #10)",
+    "input": "Repeat(2, Repeat(3, FR5))",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Repeat",
+        "value": 2.0,
+        "inner": {
+          "type": "Modifier",
+          "modifier": "Repeat",
+          "value": 3.0,
+          "inner": {
+            "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "repeat_1_identity",
+    "description": "Repeat(1, FR10) ≡ FR10 — identity property (I-5)",
+    "input": "Repeat(1, FR10)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Repeat",
+        "value": 1.0,
+        "inner": {
+          "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0
+        }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0
+      }
+    }
+  },
+  {
+    "id": "tand_repeat_repeat_flat",
+    "description": "Tand(Repeat(2, FR5), Repeat(3, VI60s)) — both Repeats expanded, outer Tand flattened",
+    "input": "Tand(Repeat(2, FR5), Repeat(3, VI60s))",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          {
+            "type": "Modifier", "modifier": "Repeat", "value": 2.0,
+            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+          },
+          {
+            "type": "Modifier", "modifier": "Repeat", "value": 3.0,
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Tand",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  }
+]

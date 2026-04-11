@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/ast-schema.json",
+  "title": "contingency-dsl AST",
+  "description": "Abstract Syntax Tree schema for contingency-dsl v1.0. Language-independent; used by conformance test suites.",
+
+  "$defs": {
+    "Program": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "Program" },
+        "program_annotations": {
+          "type": "array",
+          "description": "Session-wide annotation defaults. Appear before param_decls in source. Schedule-level annotations override these for the attached expression. Optional field: absent ≡ empty array (unannotated program).",
+          "items": { "$ref": "#/$defs/Annotation" }
+        },
+        "param_decls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ParamDecl" }
+        },
+        "bindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Binding" }
+        },
+        "schedule": { "$ref": "#/$defs/ScheduleExpr" }
+      },
+      "required": ["type", "param_decls", "bindings", "schedule"],
+      "additionalProperties": false
+    },
+
+    "Annotation": {
+      "type": "object",
+      "description": "A single annotation instance. Keyword is defined by the annotator that owns it.",
+      "properties": {
+        "type": { "const": "Annotation" },
+        "keyword": { "type": "string" },
+        "positional": {
+          "description": "First positional argument (string or number), if any.",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "params": {
+          "type": "object",
+          "description": "Named parameters (key=value pairs).",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "number" }
+            ]
+          }
+        }
+      },
+      "required": ["type", "keyword"],
+      "additionalProperties": false
+    },
+
+    "ParamDecl": {
+      "type": "object",
+      "description": "Program-level parameter declaration. LH applies to all leaf schedules. COD/COR apply to all Conc combinators. BO applies to all Mult/Mix combinators. Expression-level overrides program-level.",
+      "properties": {
+        "type": { "const": "ParamDecl" },
+        "name": { "type": "string", "enum": ["LH", "COD", "COR", "BO"] },
+        "value": { "type": "number" },
+        "time_unit": { "$ref": "#/$defs/TimeUnit" }
+      },
+      "required": ["type", "name", "value"],
+      "additionalProperties": false
+    },
+
+    "Binding": {
+      "type": "object",
+      "properties": {
+        "type": { "const": "Binding" },
+        "name": { "type": "string", "pattern": "^[a-z_][a-zA-Z0-9_]*$" },
+        "value": { "$ref": "#/$defs/ScheduleExpr" }
+      },
+      "required": ["type", "name", "value"],
+      "additionalProperties": false
+    },
+
+    "ScheduleExpr": {
+      "oneOf": [
+        { "$ref": "#/$defs/Atomic" },
+        { "$ref": "#/$defs/Special" },
+        { "$ref": "#/$defs/Compound" },
+        { "$ref": "#/$defs/Modifier" },
+        { "$ref": "#/$defs/LimitedHold" },
+        { "$ref": "#/$defs/SecondOrder" },
+        { "$ref": "#/$defs/IdentifierRef" }
+      ]
+    },
+
+    "Atomic": {
+      "type": "object",
+      "description": "Parametric atomic schedule: dist × domain with a numeric value. Examples: FR5, VI60s, RT20ms",
+      "properties": {
+        "type": { "const": "Atomic" },
+        "dist": { "$ref": "#/$defs/Distribution" },
+        "domain": { "$ref": "#/$defs/Domain" },
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "time_unit": { "$ref": "#/$defs/TimeUnit" }
+      },
+      "required": ["type", "dist", "domain", "value"],
+      "additionalProperties": false
+    },
+
+    "Special": {
+      "type": "object",
+      "description": "Boundary schedules with no parameters: EXT (zero element) or CRF (identity = FR1).",
+      "properties": {
+        "type": { "const": "Special" },
+        "kind": { "type": "string", "enum": ["EXT", "CRF"] }
+      },
+      "required": ["type", "kind"],
+      "additionalProperties": false
+    },
+
+    "Compound": {
+      "type": "object",
+      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. v1.1: COD and COR for Conc.",
+      "properties": {
+        "type": { "const": "Compound" },
+        "combinator": { "$ref": "#/$defs/Combinator" },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ScheduleExpr" },
+          "minItems": 2
+        },
+        "params": { "$ref": "#/$defs/CombinatorParams" }
+      },
+      "required": ["type", "combinator", "components"],
+      "additionalProperties": false
+    },
+
+    "CombinatorParams": {
+      "type": "object",
+      "description": "Keyword arguments for compound schedule combinators. COD/COR: Conc-only. BO: Mult/Mix-only. Semantic pass validates per-combinator validity.",
+      "properties": {
+        "COD": {
+          "type": "object",
+          "description": "Changeover Delay: minimum time after operandum switch before reinforcement is available (Catania, 1966). Conc-only, mandatory.",
+          "properties": {
+            "value": { "type": "number", "minimum": 0 },
+            "time_unit": { "$ref": "#/$defs/TimeUnit" }
+          },
+          "required": ["value"],
+          "additionalProperties": false
+        },
+        "COR": {
+          "type": "object",
+          "description": "Changeover Response: number of responses required on new operandum before reinforcement is available (Findley, 1958). Conc-only, optional.",
+          "properties": {
+            "value": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["value"],
+          "additionalProperties": false
+        },
+        "BO": {
+          "type": "object",
+          "description": "Blackout: response-independent dark period between component transitions (Reynolds, 1961). Mult/Mix-only, optional. Omission = no blackout (immediate transition).",
+          "properties": {
+            "value": { "type": "number", "minimum": 0 },
+            "time_unit": { "$ref": "#/$defs/TimeUnit" }
+          },
+          "required": ["value"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+
+    "Modifier": {
+      "type": "object",
+      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), or Repeat (with count + inner).",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": {
+          "type": "string",
+          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat"]
+        },
+        "value": { "type": "number" },
+        "time_unit": { "$ref": "#/$defs/TimeUnit" },
+        "inner": { "$ref": "#/$defs/ScheduleExpr" },
+        "pr_step": {
+          "type": "string",
+          "enum": ["hodos", "exponential", "linear"]
+        },
+        "pr_start": { "type": "number" },
+        "pr_increment": { "type": "number" }
+      },
+      "required": ["type", "modifier"],
+      "additionalProperties": false
+    },
+
+    "LimitedHold": {
+      "type": "object",
+      "description": "Temporal availability window. FI30 LH10 = FI 30s with 10s hold.",
+      "properties": {
+        "type": { "const": "LimitedHold" },
+        "hold_duration": { "type": "number", "minimum": 0 },
+        "time_unit": { "$ref": "#/$defs/TimeUnit" },
+        "inner": { "$ref": "#/$defs/ScheduleExpr" }
+      },
+      "required": ["type", "hold_duration", "inner"],
+      "additionalProperties": false
+    },
+
+    "SecondOrder": {
+      "type": "object",
+      "description": "Second-order schedule. FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple schedule (v1.0).",
+      "properties": {
+        "type": { "const": "SecondOrder" },
+        "overall": { "$ref": "#/$defs/Atomic" },
+        "unit": { "$ref": "#/$defs/Atomic" }
+      },
+      "required": ["type", "overall", "unit"],
+      "additionalProperties": false
+    },
+
+    "IdentifierRef": {
+      "type": "object",
+      "description": "Reference to a let-bound name. Present only in pre-expansion AST; removed after semantic analysis.",
+      "properties": {
+        "type": { "const": "IdentifierRef" },
+        "name": { "type": "string", "pattern": "^[a-z_][a-zA-Z0-9_]*$" }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+
+    "Distribution": {
+      "type": "string",
+      "enum": ["F", "V", "R"],
+      "description": "F=Fixed, V=Variable (Fleshler-Hoffman), R=Random"
+    },
+
+    "Domain": {
+      "type": "string",
+      "enum": ["R", "I", "T"],
+      "description": "R=Ratio (response count), I=Interval (time + response), T=Time (response-independent)"
+    },
+
+    "Combinator": {
+      "type": "string",
+      "enum": ["Conc", "Alt", "Conj", "Chain", "Tand", "Mult", "Mix"]
+    },
+
+    "TimeUnit": {
+      "type": "string",
+      "enum": ["s", "ms", "min"],
+      "description": "Declared time unit. null = dimensionless (ratio schedules)."
+    }
+  },
+
+  "$ref": "#/$defs/Program"
+}

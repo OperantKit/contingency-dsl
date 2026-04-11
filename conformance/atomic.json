@@ -1,0 +1,245 @@
+[
+  {
+    "id": "atomic_fr5",
+    "description": "Fixed Ratio 5 (compact form)",
+    "input": "FR5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "atomic_fr_space",
+    "description": "Fixed Ratio with whitespace separator (Ferster & Skinner, 1957 style)",
+    "input": "FR 5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "atomic_vi60s",
+    "description": "Variable Interval 60 seconds",
+    "input": "VI60s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_vi_ms",
+    "description": "Variable Interval in milliseconds",
+    "input": "VI3000ms",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 3000.0,
+        "time_unit": "ms"
+      }
+    }
+  },
+  {
+    "id": "atomic_fi_min",
+    "description": "Fixed Interval in minutes",
+    "input": "FI5min",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 5.0,
+        "time_unit": "min"
+      }
+    }
+  },
+  {
+    "id": "atomic_rr20",
+    "description": "Random Ratio 20",
+    "input": "RR20",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "R",
+        "value": 20.0
+      }
+    }
+  },
+  {
+    "id": "atomic_ri10s",
+    "description": "Random Interval 10 seconds",
+    "input": "RI10s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "I",
+        "value": 10.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_ft30s",
+    "description": "Fixed Time 30 seconds (response-independent)",
+    "input": "FT30s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "T",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_vt60s",
+    "description": "Variable Time 60 seconds",
+    "input": "VT60s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "T",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_rt15s",
+    "description": "Random Time 15 seconds",
+    "input": "RT15s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "T",
+        "value": 15.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_vr10",
+    "description": "Variable Ratio 10",
+    "input": "VR10",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "R",
+        "value": 10.0
+      }
+    }
+  },
+  {
+    "id": "atomic_fr_float",
+    "description": "Fixed Ratio with float (edge case: 5.0)",
+    "input": "FR5.0",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "special_ext",
+    "description": "Extinction (zero element)",
+    "input": "EXT",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Special",
+        "kind": "EXT"
+      }
+    }
+  },
+  {
+    "id": "special_crf",
+    "description": "Continuous Reinforcement (identity element = FR1)",
+    "input": "CRF",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Special",
+        "kind": "CRF"
+      }
+    }
+  },
+  {
+    "id": "atomic_with_comment",
+    "description": "Atomic schedule followed by line comment",
+    "input": "FR5 -- fixed ratio 5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  }
+]
