@@ -63,7 +63,12 @@ class LimitedHoldSchedule:
     inner: ScheduleExpr
     hold_duration: float  # 秒; 負値は構築時に ValueError
 
-ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule]
+@dataclass(frozen=True)
+class AversiveSchedule:
+    kind: str  # "Sidman" (v1.x); 将来: "DiscrimAv", "Escape", ...
+    params: dict[str, Any]  # v1.x Sidman: {"SSI": {"value": 20.0, "time_unit": "s"}, "RSI": {"value": 5.0, "time_unit": "s"}}
+
+ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule, AversiveSchedule]
 ```
 
 ### 5.3 `to_schedule()` ブリッジ

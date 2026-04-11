@@ -61,7 +61,12 @@ class LimitedHoldSchedule:
     hold_duration: float      # seconds; must be >= 0
     inner: ScheduleExpr       # the wrapped schedule
 
-ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule]
+@dataclass(frozen=True)
+class AversiveSchedule:
+    kind: str  # "Sidman" (v1.x); future: "DiscrimAv", "Escape", ...
+    params: dict[str, Any]  # v1.x Sidman: {"SSI": {"value": 20.0, "time_unit": "s"}, "RSI": {"value": 5.0, "time_unit": "s"}}
+
+ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule, AversiveSchedule]
 ```
 
 ## 5.3 The `to_schedule()` Bridge

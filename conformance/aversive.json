@@ -1,0 +1,144 @@
+[
+  {
+    "id": "sidman_basic",
+    "description": "Sidman free-operant avoidance with SSI=20s and RSI=5s (Sidman, 1953)",
+    "input": "Sidman(SSI=20s, RSI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "sidman_rsi_ssi_order_swapped",
+    "description": "Sidman parameter order does not matter (keyword arguments)",
+    "input": "Sidman(RSI=5s, SSI=20s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "sidman_verbose_alias",
+    "description": "Verbose alias SidmanAvoidance with verbose parameter names",
+    "input": "SidmanAvoidance(ShockShockInterval=20s, ResponseShockInterval=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "sidman_mixed_alias",
+    "description": "Mixed short and verbose parameter names are parsed equivalently",
+    "input": "Sidman(SSI=20s, ResponseShockInterval=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "sidman_milliseconds",
+    "description": "Sidman with millisecond time unit (fine-grained avoidance)",
+    "input": "Sidman(SSI=200ms, RSI=50ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 200.0, "time_unit": "ms" },
+          "RSI": { "value": 50.0, "time_unit": "ms" }
+        }
+      }
+    }
+  },
+  {
+    "id": "sidman_in_chain",
+    "description": "Sidman as a link in a chained schedule (de Waard, Galizio, & Baron, 1979)",
+    "input": "Chain(FR10, Sidman(SSI=20s, RSI=5s))",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Chain",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 },
+          {
+            "type": "AversiveSchedule",
+            "kind": "Sidman",
+            "params": {
+              "SSI": { "value": 20.0, "time_unit": "s" },
+              "RSI": { "value": 5.0, "time_unit": "s" }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "sidman_let_binding",
+    "description": "Sidman bound to an identifier via let",
+    "input": "let av = Sidman(SSI=20s, RSI=5s)\nav",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "av",
+          "value": {
+            "type": "AversiveSchedule",
+            "kind": "Sidman",
+            "params": {
+              "SSI": { "value": 20.0, "time_unit": "s" },
+              "RSI": { "value": 5.0, "time_unit": "s" }
+            }
+          }
+        }
+      ],
+      "schedule": {
+        "type": "IdentifierRef",
+        "name": "av"
+      }
+    }
+  }
+]

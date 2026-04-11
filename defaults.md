@@ -115,6 +115,42 @@ References:
 - Bouton, M. E. (2004). Context and behavioral processes in extinction.
   *Learning & Memory*, 11, 485-494.
 
+## Sidman free-operant avoidance (v1.x)
+
+**v1.x:** Sidman is a dedicated aversive-schedule primitive
+(see grammar.ebnf `aversive_schedule` production and
+[spec/en/theory.md §2.7](spec/en/theory.md)). Both parameters are
+mandatory; **there is no default value**.
+
+| Parameter | Alias | Syntax | Dimension |
+|-----------|-------|--------|-----------|
+| SSI | ShockShockInterval | `Sidman(SSI=20s, ...)` | Time (s/ms/min), strictly positive, unit required |
+| RSI | ResponseShockInterval | `Sidman(..., RSI=5s)` | Time (s/ms/min), strictly positive, unit required |
+
+- Both SSI and RSI must be specified. Missing either → `MISSING_SIDMAN_PARAM`.
+- Time unit is mandatory for each parameter. Dimensionless → `SIDMAN_TIME_UNIT_REQUIRED`.
+- Values must be strictly positive. Non-positive → `SIDMAN_NONPOSITIVE_PARAM`.
+- `RSI > SSI` is legal but triggers a linter WARNING `RSI_EXCEEDS_SSI`:
+  when RSI exceeds SSI, responses cannot actually postpone shocks below
+  the SSI baseline (Sidman, 1953; Hineline, 1977).
+- Duplicate SSI or RSI → `DUPLICATE_SIDMAN_PARAM` (aliases count as duplicate,
+  e.g., `SSI` and `ShockShockInterval` in the same expression).
+
+**Semantics.** In the absence of responses, shocks occur every SSI seconds.
+Each response resets the next shock to occur at `last_response + RSI`:
+
+```
+next_shock(t) = max(last_shock_time + SSI, last_response_time + RSI)
+```
+
+References:
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance
+  behavior by the white rat. *Journal of Comparative and Physiological
+  Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
+- Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig
+  & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414).
+  Prentice-Hall.
+
 ## Timeout (TO) — design memo (v2.0 planned)
 
 TO is deferred to v2.0. When implemented, the following constraints apply

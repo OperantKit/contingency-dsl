@@ -151,7 +151,43 @@ PR(hodos)
 
 ---
 
-## 8. 複合的な実験プログラム
+## 8. Sidman 自由オペラント回避
+
+**シナリオ:** 負の強化によって維持される回避行動の測定。反応が次の shock を postpone する手続き。
+
+```
+Sidman(SSI=20s, RSI=5s)
+  @punisher("shock", intensity="0.5mA")
+  @operandum("lever")
+```
+
+**何をするか:** 反応がない場合、20 秒ごとに shock が発生する（SSI = Shock-Shock Interval）。レバー押し反応ごとに次の shock が 5 秒後に postpone される（RSI = Response-Shock Interval）。形式的には `next_shock = max(last_shock + SSI, last_response + RSI)`。十分訓練されたラットは反応を維持し続け、反応間間隔を RSI より少し短く保つ。
+
+**なぜ存在するか:** Sidman (1953) は、明示的な warning 刺激なしでも時間的随伴性だけで回避行動が維持されることを示した。これは嫌悪制御・不安モデル・行動薬理における負の強化研究の基礎手続きとなった。Sidman 回避は強化スケジュール F/V/R × R/I/T マトリクスでは表現できない — **2 つの独立した時間パラメータ** と反応随伴的な再スケジュール規則を持つため、専用の primitive が必要。
+
+**Alias の等価性:** `@punisher` は実験者の意図を明示するために使用するが、`@reinforcer` も等価な alias:
+
+```
+Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- 等価
+```
+
+両形式は同じ AST ノードに解決される。
+
+**他スケジュールとの合成:** Sidman は任意の複合コンビネータに入れられる。例えば連鎖スケジュールのリンクとして（de Waard, Galizio, & Baron, 1979）:
+
+```
+Chain(FR10 @reinforcer("food"),
+      Sidman(SSI=20s, RSI=5s) @punisher("shock"))
+```
+
+**参考文献:**
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, *46*(4), 253-261. https://doi.org/10.1037/h0060730
+- Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
+- de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance. *JEAB*, *32*(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
+
+---
+
+## 9. 複合的な実験プログラム
 
 **シナリオ:** 一方の成分で並行配置、他方で連鎖手続きを使う2成分多元スケジュール。プログラムレベルのデフォルト付き。
 
@@ -187,6 +223,7 @@ Mult(choice_component, chain_component)
 | `LH` | 時間的利用可能窓 | 無制限の反応機会がデータを歪める |
 | `PR` | 強化子効力測定 | 定量的ブレイクポイント指標がない |
 | `COD` / `FRCO` | クリーンな並行データ | 高速切替による強化率膨張 |
+| `Sidman` | 自由オペラント回避、嫌悪制御 | 無弁別回避手続きを表現できない |
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
 
 ---

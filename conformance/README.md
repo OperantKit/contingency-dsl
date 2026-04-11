@@ -59,4 +59,5 @@ Explicit `COD=0s` does NOT trigger the warning.
 | `second_order.json` | 5 | FR5(FI30), VI60(FR10), RR5(FT20s) |
 | `binding.json` | 7 | let bindings, expansion, compound refs, LH bindings |
 | `program.json` | 4 | Complete programs with param_decls + bindings |
-| `errors.json` | 25 | Lex errors, parse errors, semantic errors, reserved words, self-reference |
+| `aversive.json` | 7 | Sidman free-operant avoidance (v1.x), verbose aliases, composition with Chain, let binding |
+| `errors.json` | 31 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors |

@@ -48,6 +48,7 @@ schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
 base_schedule ::= atomic_or_second
                 | compound
                 | modifier
+                | aversive_schedule
                 | ident
                 | "(" schedule ")"
 
@@ -91,6 +92,9 @@ reserved      ::= "let" | "def"
                 | "PR" | "Repeat"
                 | "hodos" | "exponential" | "linear"
                 | "start" | "increment"
+                | "Sidman" | "SidmanAvoidance" -- v1.x: Sidman free-operant avoidance (Sidman, 1953)
+                | "SSI" | "ShockShockInterval"
+                | "RSI" | "ResponseShockInterval"
 
 ; === Compound schedules ===
 ;
@@ -125,6 +129,34 @@ pr_param      ::= "start" "=" number
                 | "increment" "=" number
 
 repeat        ::= "Repeat" "(" number "," schedule ")"
+
+; === Aversive schedules (v1.x) ===
+;
+; Schedules in which the consequent stimulus is aversive and the contingency
+; structure differs from the F/V/R × R/I/T reinforcement matrix.
+;
+; v1.x currently introduces Sidman free-operant avoidance only.
+; Future extensions (additive): discriminated avoidance, escape, punishment
+; overlay (requires new combinator).
+;
+; Sidman free-operant avoidance (Sidman, 1953):
+;   Two temporal parameters with distinct semantics:
+;     SSI (Shock-Shock Interval): baseline time between shocks in absence of response
+;     RSI (Response-Shock Interval): postponement time triggered by each response
+;   Formally: next_shock(t) = max(last_shock + SSI, last_response + RSI)
+;
+; Reference: Sidman, M. (1953). Two temporal parameters of the maintenance of
+;   avoidance behavior by the white rat. Journal of Comparative and Physiological
+;   Psychology, 46(4), 253-261. https://doi.org/10.1037/h0060730
+
+aversive_schedule ::= sidman_avoidance
+
+sidman_avoidance  ::= ("Sidman" | "SidmanAvoidance") "(" sidman_arg ("," sidman_arg)* ")"
+
+sidman_arg        ::= sidman_kw "=" value
+
+sidman_kw         ::= "SSI" | "ShockShockInterval"
+                    | "RSI" | "ResponseShockInterval"
 
 ; === Comments (line-level, not in BNF productions) ===
 ;
@@ -230,3 +262,20 @@ string_literal     ::= '"' [^"]* '"'
 ; 16. Annotations with component-specific parameters (e.g. @operandum with
 ;     component=N) at program level → SemanticError (PROGRAM_ANNOTATION_COMPONENT).
 ;     Component indexing requires schedule-level context.
+; 17. Sidman primitive: both SSI and RSI are REQUIRED parameters.
+;     Missing either (or specifying only one) → SemanticError (MISSING_SIDMAN_PARAM).
+;     There is no default value — the procedure is undefined without both parameters.
+; 18. Sidman primitive: SSI and RSI values MUST include a time unit (s/ms/min).
+;     Dimensionless values → SemanticError (SIDMAN_TIME_UNIT_REQUIRED).
+;     Rationale: Sidman's procedure is intrinsically temporal; a dimensionless
+;     interval is procedurally meaningless.
+; 19. Sidman primitive: SSI > 0 and RSI > 0 (both strictly positive).
+;     Zero or negative values → SemanticError (SIDMAN_NONPOSITIVE_PARAM).
+; 20. Sidman primitive: RSI <= SSI is recommended.
+;     RSI > SSI → Linter WARNING (RSI_EXCEEDS_SSI). Not a SemanticError.
+;     Rationale: If RSI > SSI, the response postponement effect is subsumed
+;     by the SSI baseline timer — responses never actually postpone shocks
+;     (Sidman, 1953; Hineline, 1977). Useful to flag this as likely user error.
+; 21. Duplicate Sidman parameter keywords → SemanticError (DUPLICATE_SIDMAN_PARAM).
+;     E.g., `Sidman(SSI=20s, SSI=30s)` → error. Verbose alias does not count as
+;     duplicate: `Sidman(SSI=20s, ShockShockInterval=30s)` → error (same parameter).

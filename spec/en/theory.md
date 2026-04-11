@@ -352,6 +352,84 @@ The rationale:
 
 This three-layer separation ensures that the DSL remains a precise notation for contingencies, the runtime faithfully implements those contingencies, and the analyzer characterizes behavioral outcomes without contaminating the procedural specification.
 
+### 2.7 Aversive Schedules — Sidman Free-Operant Avoidance
+
+The reinforcement schedule matrix (dist × domain = F/V/R × R/I/T) captures
+the vast majority of positive reinforcement procedures. However, a class of
+aversive control procedures — most prominently **Sidman (1953) free-operant
+avoidance** — has a contingency structure that does not fit this matrix:
+two temporal parameters with distinct semantics, and a response-contingent
+rescheduling rule that differs from ratio / interval / time schedules.
+
+The DSL therefore introduces a dedicated primitive, `Sidman`, in the
+`aversive_schedule` production (grammar.ebnf). This is an additive Core
+extension under design-philosophy §8.1.
+
+**Procedural definition.** Two temporal parameters:
+
+- **SSI (Shock-Shock Interval)**: baseline time between shocks in the absence
+  of any response.
+- **RSI (Response-Shock Interval)**: postponement time triggered by each response.
+
+The next shock time is computed as:
+
+```
+next_shock(t) = max(last_shock_time + SSI, last_response_time + RSI)
+```
+
+In the absence of responses, shocks occur every SSI seconds. Each response
+resets the next shock to occur at `last_response + RSI`, i.e., at least RSI
+seconds from the response. When RSI ≤ SSI, responses can successfully
+postpone shocks.
+
+**Syntax.**
+
+```
+Sidman(SSI=20s, RSI=5s)                             -- primary form
+SidmanAvoidance(SSI=20s, RSI=5s)                    -- verbose alias
+Sidman(ShockShockInterval=20s, ResponseShockInterval=5s)  -- verbose params
+```
+
+Both parameters are required; there is no default. Time units are mandatory.
+
+**Composition with other schedules.** `Sidman` is a `base_schedule` and may
+appear inside any compound combinator:
+
+```
+Chain(FR10 @punisher("food"), Sidman(SSI=20s, RSI=5s) @punisher("shock"))
+```
+
+This is a chained schedule in which completing an FR10 for food transitions
+the subject into a free-operant avoidance component (de Waard, Galizio, &
+Baron, 1979).
+
+**Semantic constraints.**
+
+- Both `SSI` and `RSI` must be specified. Missing either → `MISSING_SIDMAN_PARAM`.
+- Both must carry a time unit. Dimensionless values → `SIDMAN_TIME_UNIT_REQUIRED`.
+- Both must be strictly positive. Non-positive → `SIDMAN_NONPOSITIVE_PARAM`.
+- `RSI > SSI` triggers a linter WARNING `RSI_EXCEEDS_SSI`: when RSI exceeds
+  SSI, responses cannot actually postpone shocks below the SSI baseline
+  (Sidman, 1953; Hineline, 1977).
+
+**Stimulus annotation.** Sidman procedures are aversive by definition. The
+recommended practice is to use `@punisher` to make the experimenter's intent
+explicit in source, though `@reinforcer` is accepted as an equivalent alias
+(see annotation-design.md §3.5):
+
+```
+Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
+Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
+```
+
+**Scope of v1.x aversive schedules.** The `aversive_schedule` production is
+additive: future versions may introduce discriminated avoidance, escape, or
+punishment overlays. v1.x includes only `Sidman` because it is the
+historically foundational aversive contingency that cannot be expressed in
+the reinforcement schedule matrix. Simple punishment (e.g., FR3 of shock on
+a single operandum) and escape (response terminates ongoing shock) can be
+approximated with existing constructs using stimulus annotations.
+
 ---
 
 ## References
@@ -372,5 +450,8 @@ This three-layer separation ensures that the DSL remains a precise notation for 
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
 - Schoenfeld, W. N., & Cole, B. K. (1972). *Stimulus schedules: The t-τ systems*. Harper & Row.
 - Reynolds, G. S. (1961). Behavioral contrast. *Journal of the Experimental Analysis of Behavior*, 4(1), 57-71. https://doi.org/10.1901/jeab.1961.4-57
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
+- Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
+- de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance: Reinforcement within and by avoidance situations. *Journal of the Experimental Analysis of Behavior*, 32(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
 - Skinner, B. F. (1948). 'Superstition' in the pigeon. *Journal of Experimental Psychology*, 38(2), 168-172. https://doi.org/10.1037/h0055873
 - Wagner, A. R. (1981). SOP: A model of automatic memory processing in animal behavior. In N. E. Spear & R. R. Miller (Eds.), *Information processing in animals: Memory mechanisms* (pp. 5-47). Erlbaum.

@@ -27,6 +27,7 @@ The DSL grammar satisfies four criteria:
 <base_schedule> ::= <atomic>
                   | <compound>
                   | <modifier>
+                  | <aversive_schedule>
                   | <ident>
                   | "(" <schedule> ")"
 
@@ -51,6 +52,9 @@ The DSL grammar satisfies four criteria:
                   | "PR" | "Repeat"
                   | "hodos" | "exponential" | "linear"
                   | "start" | "increment"
+                  | "Sidman" | "SidmanAvoidance"
+                  | "SSI" | "ShockShockInterval"
+                  | "RSI" | "ResponseShockInterval"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
 <combinator>    ::= "Conc" | "Alt" | "Conj"
@@ -70,6 +74,12 @@ The DSL grammar satisfies four criteria:
 <pr_param>      ::= "start" "=" <number>
                   | "increment" "=" <number>
 <repeat>        ::= "Repeat" "(" <number> "," <schedule> ")"
+
+<aversive_schedule> ::= <sidman_avoidance>
+<sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
+<sidman_arg>        ::= <sidman_kw> "=" <value>
+<sidman_kw>         ::= "SSI" | "ShockShockInterval"
+                      | "RSI" | "ResponseShockInterval"
 ```
 
 **Identifier naming constraint.** Identifiers must begin with a lowercase ASCII letter or underscore (`[a-z_]`), followed by any combination of ASCII letters, digits, or underscores. This ensures lexical disjointness from DSL keywords and schedule type prefixes, all of which begin with an uppercase letter. The `<reserved>` production additionally prevents lowercase keywords (`let`, `def`, `hodos`, etc.) from being used as identifiers. `def` is reserved for future use (see [architecture.md §4.4](architecture.md)).
@@ -194,6 +204,12 @@ Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both COD and FRCO
 
 -- Repeat (syntactic sugar)
 Tand(Repeat(3, FR10), VI60s)          -- FR10 × 3 then VI60
+
+-- Sidman free-operant avoidance (§2.7)
+Sidman(SSI=20s, RSI=5s)                              -- basic Sidman avoidance (Sidman, 1953)
+SidmanAvoidance(SSI=20s, RSI=5s)                     -- verbose alias
+Sidman(ShockShockInterval=20s, ResponseShockInterval=5s) -- verbose parameter names
+Chain(FR10, Sidman(SSI=20s, RSI=5s))                 -- chained schedule with avoidance link
 
 -- let bindings (macro expansion)
 let baseline = VI60s

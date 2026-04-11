@@ -151,7 +151,43 @@ PR(hodos)
 
 ---
 
-## 8. Complex Real-World Experiment
+## 8. Sidman Free-Operant Avoidance
+
+**Scenario:** Measuring avoidance behavior maintained by negative reinforcement, where responses postpone an otherwise scheduled shock.
+
+```
+Sidman(SSI=20s, RSI=5s)
+  @punisher("shock", intensity="0.5mA")
+  @operandum("lever")
+```
+
+**What this does:** In the absence of responses, shocks are delivered every 20 seconds (SSI = Shock-Shock Interval). Each lever press postpones the next shock by 5 seconds (RSI = Response-Shock Interval). Formally, `next_shock = max(last_shock + SSI, last_response + RSI)`. Well-trained rats maintain responding indefinitely, keeping the interval between responses slightly shorter than RSI.
+
+**Why it exists:** Sidman (1953) demonstrated that avoidance behavior can be maintained without any explicit warning stimulus — the temporal contingency alone suffices. This became a foundational procedure for studying aversive control, anxiety models, and negative reinforcement in behavioral pharmacology. Sidman avoidance cannot be expressed in the F/V/R × R/I/T reinforcement schedule matrix because it has **two independent temporal parameters** with distinct semantics and a response-contingent rescheduling rule.
+
+**Alias equivalence.** `@punisher` is used here to make the experimenter's intent explicit, but `@reinforcer` is an equivalent alias:
+
+```
+Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
+```
+
+Both forms produce the same AST node.
+
+**Composition with other schedules.** Sidman can appear inside any compound combinator, e.g., as a link in a chained schedule (de Waard, Galizio, & Baron, 1979):
+
+```
+Chain(FR10 @reinforcer("food"),
+      Sidman(SSI=20s, RSI=5s) @punisher("shock"))
+```
+
+**References:**
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, *46*(4), 253-261. https://doi.org/10.1037/h0060730
+- Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
+- de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance. *JEAB*, *32*(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
+
+---
+
+## 9. Complex Real-World Experiment
 
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
@@ -187,6 +223,7 @@ Mult(choice_component, chain_component)
 | `LH` | Temporal availability windows | Unlimited response opportunity distorts data |
 | `PR` | Reinforcer efficacy measurement | No quantitative breakpoint metric |
 | `COD` / `FRCO` | Clean concurrent data | Inflated reinforcement from rapid switching |
+| `Sidman` | Free-operant avoidance, aversive control | Cannot express unsignaled avoidance procedures |
 | `let` | Readable complex programs | Unreadable nested expressions |
 
 ---

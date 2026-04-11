@@ -178,5 +178,41 @@
     "description": "Duplicate BO keyword argument",
     "input": "Mult(FR5, EXT, BO=5s, BO=3s)",
     "error": { "type": "SemanticError", "code": "DUPLICATE_KEYWORD_ARG" }
+  },
+  {
+    "id": "error_sidman_missing_rsi",
+    "description": "Sidman primitive requires both SSI and RSI parameters",
+    "input": "Sidman(SSI=20s)",
+    "error": { "type": "SemanticError", "code": "MISSING_SIDMAN_PARAM" }
+  },
+  {
+    "id": "error_sidman_missing_ssi",
+    "description": "Sidman primitive requires both SSI and RSI parameters (missing SSI)",
+    "input": "Sidman(RSI=5s)",
+    "error": { "type": "SemanticError", "code": "MISSING_SIDMAN_PARAM" }
+  },
+  {
+    "id": "error_sidman_no_time_unit",
+    "description": "Sidman parameters must include time units (Sidman's procedure is intrinsically temporal)",
+    "input": "Sidman(SSI=20, RSI=5)",
+    "error": { "type": "SemanticError", "code": "SIDMAN_TIME_UNIT_REQUIRED" }
+  },
+  {
+    "id": "error_sidman_zero_ssi",
+    "description": "Sidman SSI must be strictly positive",
+    "input": "Sidman(SSI=0s, RSI=5s)",
+    "error": { "type": "SemanticError", "code": "SIDMAN_NONPOSITIVE_PARAM" }
+  },
+  {
+    "id": "error_sidman_duplicate_ssi",
+    "description": "Duplicate SSI parameter in Sidman",
+    "input": "Sidman(SSI=20s, SSI=30s, RSI=5s)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_SIDMAN_PARAM" }
+  },
+  {
+    "id": "error_sidman_duplicate_alias",
+    "description": "Using both SSI and ShockShockInterval counts as duplicate (same parameter)",
+    "input": "Sidman(SSI=20s, ShockShockInterval=30s, RSI=5s)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_SIDMAN_PARAM" }
   }
 ]
