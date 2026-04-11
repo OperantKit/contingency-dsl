@@ -186,7 +186,7 @@ Mult(choice_component, chain_component)
 | `DRL` / `DRH` / `DRO` | IRT control, timing, omission training | Cannot reinforce temporal properties |
 | `LH` | Temporal availability windows | Unlimited response opportunity distorts data |
 | `PR` | Reinforcer efficacy measurement | No quantitative breakpoint metric |
-| `COD` / `COR` | Clean concurrent data | Inflated reinforcement from rapid switching |
+| `COD` / `FRCO` | Clean concurrent data | Inflated reinforcement from rapid switching |
 | `let` | Readable complex programs | Unreadable nested expressions |
 
 ---

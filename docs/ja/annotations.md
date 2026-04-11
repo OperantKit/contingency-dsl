@@ -69,10 +69,16 @@ contingency-dsl プロジェクトは、実験手続きの普遍的な4次元を
 
 | キーワード | 目的 | 例 |
 |-----------|------|-----|
-| `@reinforcer` | 結果として提示されるもの | `@reinforcer("food", type="unconditioned")` |
+| `@reinforcer` | 強化子の宣言（基本形） | `@reinforcer("food", type="unconditioned")` |
 | `@sd` | 弁別刺激の同定 | `@sd("red_light", component=1)` |
 | `@operandum` | 反応装置の同定 | `@operandum("left_lever")` |
 | `@brief` | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
+
+**`@reinforcer` の別名:** `@punisher` と `@consequentStimulus` は `@reinforcer` の
+等価な alias。実験者の意図を source に明示したい場合に使用する（例:
+`FR3 @punisher("shock")`）。AST レベルでは 3 者とも同一ノードに collapse され、
+等価性判定に影響しない。詳細は
+[annotation-design.md §3.5](../../spec/annotation-design.md) を参照。
 
 **例: 成分を同定した並行スケジュール**
 
@@ -270,7 +276,7 @@ DSL プロジェクトの推奨集合には含まれない。これらは次の 
 
 **境界テスト（簡易版）:** `@X` を除去するとスケジュールの理論的議論が
 不完全になるなら、それはアノテーションではなくコア文法に属する可能性がある
-（design-philosophy §7 の制約下でのみ Core への追加を検討）。
+（design-philosophy §8 の制約下でのみ Core への追加を検討）。
 
 ---
 

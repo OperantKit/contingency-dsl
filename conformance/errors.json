@@ -144,9 +144,9 @@
     "error": { "type": "ParseError", "code": "INVALID_SECOND_ORDER_OVERALL" }
   },
   {
-    "id": "error_cor_on_tand",
-    "description": "COR keyword argument is only valid on Conc combinator",
-    "input": "Tand(FR5, FI30s, COR=3)",
+    "id": "error_frco_on_tand",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Tand(FR5, FI30s, FRCO=3)",
     "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
   },
   {

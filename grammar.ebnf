@@ -36,7 +36,7 @@ program_annotation ::= annotation
 param_decl    ::= param_name "=" value
 param_name    ::= "LH" | "LimitedHold"
                 | "COD" | "ChangeoverDelay"
-                | "COR" | "ChangeoverResponse"
+                | "FRCO" | "FixedRatioChangeover"
                 | "BO"  | "Blackout"
 
 binding       ::= "let" ident "=" schedule
@@ -85,19 +85,21 @@ reserved      ::= "let" | "def"
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
                 | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
-                | "COD" | "ChangeoverDelay"    -- v1.1: changeover delay
-                | "COR" | "ChangeoverResponse" -- v1.1: changeover response
-                | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix)
+                | "COD" | "ChangeoverDelay"    -- v1.1: changeover delay (Herrnstein, 1961)
+                | "FRCO" | "FixedRatioChangeover" -- v1.1: fixed-ratio changeover (Hunter & Davison, 1985)
+                | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix; Reynolds, 1961)
                 | "PR" | "Repeat"
                 | "hodos" | "exponential" | "linear"
                 | "start" | "increment"
 
 ; === Compound schedules ===
 ;
-; Keyword arguments (COD=2s, COR=5, BO=5s) follow all positional (schedule) arguments.
+; Keyword arguments (COD=2s, FRCO=5, BO=5s) follow all positional (schedule) arguments.
 ; LL(2) parseable: kw_name followed by "=" disambiguates keyword from schedule.
 ; Parser accepts keyword args syntactically; semantic pass validates per-combinator:
-;   - Conc: COD (optional, linter warning if omitted), COR (optional). Mult/Mix: BO (optional). Others: keyword args → SemanticError.
+;   - Conc: COD (optional, linter warning if omitted), FRCO (optional — fixed-ratio
+;           changeover, Hunter & Davison, 1985). Mult/Mix: BO (optional). Others:
+;           keyword args → SemanticError.
 
 compound      ::= combinator "(" arg_list ")"
 combinator    ::= "Conc" | "Alt" | "Conj"
@@ -107,7 +109,7 @@ arg_list      ::= positional_args ("," keyword_arg)*
 positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
 keyword_arg   ::= kw_name "=" value
 kw_name       ::= "COD" | "ChangeoverDelay"
-                 | "COR" | "ChangeoverResponse"
+                 | "FRCO" | "FixedRatioChangeover"
                  | "BO" | "Blackout"
 
 ; === Modifiers ===
@@ -175,12 +177,20 @@ string_literal     ::= '"' [^"]* '"'
 ; These annotator modules can be mapped to the recommended JEAB-aligned
 ; categories (Procedure / Subjects / Apparatus / Measurement) as follows,
 ; but programs MAY categorize them differently:
-;   stimulus-annotator   → Procedure   : "reinforcer" | "sd" | "operandum" | "brief"
+;   stimulus-annotator   → Procedure   : "reinforcer" (aliases: "punisher",
+;                                         "consequentStimulus") | "sd"
+;                                       | "operandum" | "brief"
 ;   temporal-annotator   → Procedure   : "clock" | "warmup" | "algorithm"
-;   subject-annotator    → Subjects    : "species" | "strain" | "deprivation" | "history" | "n"
+;   subject-annotator    → Subjects    : "species" | "strain" | "deprivation"
+;                                       | "history" | "n"
 ;   apparatus-annotator  → Apparatus   : "chamber" | "interface" | "hw"
 ;   social-annotator     → (extension) : "subject" | "interlocking"
 ;   clinical-annotator   → (extension) : "function" | "target" | "replacement"
+;
+; Annotation aliases: within an annotator, multiple keywords may map to the
+; same AST node ("type alias"). Alias relationships are declared by the
+; annotator module and do not affect equivalence judgment. See
+; spec/annotation-design.md §3.5 for the general principle.
 
 ; === Semantic constraints (enforced post-parse) ===
 ;
@@ -196,14 +206,16 @@ string_literal     ::= '"' [^"]* '"'
 ;    COD=0s (explicit) is legal and does NOT trigger the warning.
 ;    Rationale: COD is procedurally essential (Herrnstein, 1961) but
 ;    omission is permitted for conceptual/pedagogical use.
-; 8. COD/COR keyword args: valid on Conc only.
+; 8. COD/FRCO keyword args: valid on Conc only.
 ;    BO keyword arg: valid on Mult/Mix only.
 ;    Other combinators with keyword args → SemanticError (INVALID_KEYWORD_ARG).
-; 9. COR keyword arg: optional, Conc only. Value is integer (response count).
+; 9. FRCO keyword arg: optional, Conc only. Value is integer (response count).
+;    Origin: Hunter & Davison (1985). Pliskoff & Fetterman (1981) used the
+;    descriptive term "changeover requirement"; FRCO is the standard abbreviation.
 ; 10. Keyword arg ordering: must follow all positional schedule args.
 ;     Keyword before positional → ParseError (KEYWORD_BEFORE_POSITIONAL).
 ; 11. Duplicate keyword args → SemanticError (DUPLICATE_KEYWORD_ARG).
-; 12. Program-level COD/COR param_decl applies to all Conc combinators.
+; 12. Program-level COD/FRCO param_decl applies to all Conc combinators.
 ;     Expression-level keyword args override program-level defaults.
 ; 13. BO keyword arg: valid on Mult/Mix only. Optional (unlike COD).
 ;     Omission of BO → no blackout (immediate component transition).

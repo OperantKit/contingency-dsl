@@ -58,10 +58,10 @@
 
     "ParamDecl": {
       "type": "object",
-      "description": "Program-level parameter declaration. LH applies to all leaf schedules. COD/COR apply to all Conc combinators. BO applies to all Mult/Mix combinators. Expression-level overrides program-level.",
+      "description": "Program-level parameter declaration. LH applies to all leaf schedules. COD/FRCO apply to all Conc combinators. BO applies to all Mult/Mix combinators. Expression-level overrides program-level.",
       "properties": {
         "type": { "const": "ParamDecl" },
-        "name": { "type": "string", "enum": ["LH", "COD", "COR", "BO"] },
+        "name": { "type": "string", "enum": ["LH", "COD", "FRCO", "BO"] },
         "value": { "type": "number" },
         "time_unit": { "$ref": "#/$defs/TimeUnit" }
       },
@@ -119,7 +119,7 @@
 
     "Compound": {
       "type": "object",
-      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. v1.1: COD and COR for Conc.",
+      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. v1.1: COD and FRCO for Conc, BO for Mult/Mix.",
       "properties": {
         "type": { "const": "Compound" },
         "combinator": { "$ref": "#/$defs/Combinator" },
@@ -136,7 +136,7 @@
 
     "CombinatorParams": {
       "type": "object",
-      "description": "Keyword arguments for compound schedule combinators. COD/COR: Conc-only. BO: Mult/Mix-only. Semantic pass validates per-combinator validity.",
+      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. Semantic pass validates per-combinator validity.",
       "properties": {
         "COD": {
           "type": "object",
@@ -148,9 +148,9 @@
           "required": ["value"],
           "additionalProperties": false
         },
-        "COR": {
+        "FRCO": {
           "type": "object",
-          "description": "Changeover Response: number of responses required on new operandum before reinforcement is available (Findley, 1958). Conc-only, optional.",
+          "description": "Fixed-Ratio Changeover: number of responses required on new operandum before reinforcement is available (Hunter & Davison, 1985; Pliskoff & Fetterman, 1981). Conc-only, optional.",
           "properties": {
             "value": { "type": "integer", "minimum": 1 }
           },

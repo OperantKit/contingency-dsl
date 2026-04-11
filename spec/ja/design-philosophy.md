@@ -19,7 +19,7 @@
 本 DSL ではこの経験を踏まえ、**基本設計をより一層強固な基盤とし、破壊的変更が
 起こらないようにする**ことを原則とする。
 
-## 2. 経験的に安定な基礎 — Core / Annotation 二層構造
+## 2. 経験的に安定な基礎 — Core / Schedule Extension / Annotation 三層構造
 
 実験的行動分析の歴史は、多少の理論解釈や刺激解釈の違いはあれど、
 **三項随伴性の基礎と強化スケジュールはこれまで破綻することなく、学派として
@@ -30,16 +30,21 @@
 例外的な変更が必要となりうる。本 DSL は「現在のところ最も安定な層」を Core
 として固定するのであって、「永久不変の真理」を主張するものではない。
 
-したがって本 DSL は次の二層構造を取る:
+したがって本 DSL は次の **三層構造** を取る:
 
 | 層 | 内容 | 変化の許容度 |
 |---|---|---|
-| **Core（経験的に安定）** | 三項随伴性・強化スケジュール・複合スケジュール・修飾子 | 破壊的変更は原則として避ける（例外は §7 参照） |
-| **Annotation（可変）** | 拡張理論・詳細手続き・解釈依存の付加情報 | 理論の発展・衰退に追従して自由に増減 |
+| **Core（経験的に安定）** | 三項随伴性・強化スケジュール・複合スケジュール・修飾子 | 破壊的変更は原則として避ける（例外は §8 参照） |
+| **Schedule Extension（拡張 schedule 文法）** | 動的・TC 近傍の schedule 構成素（例: percentile, adjusting）。program-scoped で追加される新 schedule primitive | 各プログラムが自身の registry に extension module をロードすることで拡張 |
+| **Annotation（metadata）** | 拡張理論・詳細手続き・解釈依存の付加情報 | 理論の発展・衰退に追従して自由に増減。program-scoped |
 
-根底の安定な基礎を Core DSL として固定し、拡張理論や詳細手続きを annotation
-として付与することで、**学術的堅牢性を保ちつつ、理論の発展・衰退に追従できる**
-DSL を実現する。
+根底の安定な基礎を Core DSL として固定し、動的・TC 近傍の schedule 構成素を
+Schedule Extension 層で、metadata 情報を Annotation 層でそれぞれ追加することで、
+**学術的堅牢性を保ちつつ、理論の発展・衰退に追従できる** DSL を実現する。
+
+Schedule Extension と Annotation はいずれも **program-scoped** で、各プログラムが
+独自の registry を定義・採用・拒否できる。詳細は §4（Annotation）および §5
+（Schedule Extension）を参照。
 
 ## 3. 使い手の構造
 
@@ -164,7 +169,117 @@ JEAB Method 節の構造に直接対応しないが、将来的に 3rd-party に
 - **ドメイン固有拡張** — 行動薬理・神経科学・社会的行動等、特定の
   研究領域が必要とする情報。
 
-## 5. 実装言語戦略
+## 5. Schedule Extension 層 — 動的・TC 近傍の schedule 構成素
+
+### 5.1 Annotation とは別次元の拡張機構
+
+Annotation 層は **metadata**（手続きに付加する情報）を扱う層である。しかし
+実験手続きには、metadata ではなく **schedule 構造そのものの拡張** が必要な
+ものも存在する。代表例は次の通り:
+
+- **Percentile schedules** (Platt, 1973; Galbicka, 1994) — 反応分布の Nth
+  percentile を動的に算出し、それを下回る反応のみを強化する。閾値が
+  schedule の一部として時々刻々変化する。
+- **Adjusting schedules / titration** — 被験体の反応履歴に応じて schedule
+  パラメータを動的に変化させる。遅延割引研究の indifference point 探索等で
+  使用される。
+- **Conjugate reinforcement** — 反応量に比例して強化子が連続的に提示される。
+  反応と強化の関係が離散的な schedule event ではない。
+
+これらは **metadata ではなく schedule 構造そのもの** であり、§4 の annotation
+境界原則（§2 の「annotation はコアの意味を変えない」）に抵触する。一方で、
+**TC 近傍**（動的計算・状態保持・履歴参照が必要）の性質を持つため、Core DSL の
+CFG / 非 TC 方針にもそのまま組み込むことはできない。
+
+この「Core に含められない、かつ annotation でもない」構成素を収容するため、
+本 DSL は **Schedule Extension 層** を第 3 のレイヤーとして定義する。
+
+### 5.2 Schedule Extension の位置付け
+
+| 層 | 役割 | closure | 例 |
+|---|---|---|---|
+| Core | 不変の schedule 基盤 | 全プログラム共通 | `FR5`, `Conc(VI30, VI60)`, `Chain(FR5, FI30)` |
+| **Schedule Extension** | schedule 文法の拡張（動的・TC 近傍） | program-scoped | `Percentile(target="IRT", n=50)`, `Adjusting(start=FR1, step="titrate")` |
+| Annotation | metadata | program-scoped | `@reinforcer`, `@species`, `@chamber` |
+
+Schedule Extension は annotation と並ぶ **第 2 の program-scoped 拡張次元**
+だが、役割が異なる:
+
+- **Annotation** は schedule 式に付加情報を載せる（metadata）
+- **Schedule Extension** は schedule 式そのものの**新 construct を追加する**
+  （grammar-level）
+
+### 5.3 Schedule Extension の性質
+
+1. **Core 文法は不変のまま**
+   Schedule Extension は Core の文法生成規則を追加する形で実現されるが、
+   Core 既存ルールを書き換えない。新 extension をロードしないプログラムでは
+   その構成素は未知語として parse error になる。
+
+2. **Program-scoped closure**
+   各プログラム（runtime / interpreter）は自身の extension registry を持つ。
+   プログラム A が `Percentile` を解釈できても、プログラム B は解釈できない
+   場合がある。両プログラムとも Core 部分は同一の parser で処理できる。
+
+3. **静的検証の境界**
+   Core 内の schedule 構造は完全に静的検証可能（reachability, dead code 等）。
+   Schedule Extension は各 extension モジュールが自身の検証規則を提供する。
+   Core + 特定プログラムの extension registry の組で、決定可能な静的検証範囲が
+   定まる。
+
+4. **TC 境界の保護**
+   Schedule Extension モジュールが TC 近傍の機能（動的計算、状態、履歴）を
+   導入することは許容される。**Core が TC を持ち込まない** ことが重要であり、
+   extension 層への TC 機能の委譲は方針と整合する。
+
+5. **等価性判定は extension の責務**
+   同一 Schedule Extension 構成素の等価性（例: 2 つの `Percentile` 式が等価か）
+   は extension モジュールが判定ルールを提供する。Core 側の等価性規則は
+   extension 構成素に対して適用されない。
+
+### 5.4 Annotation との境界
+
+「それは annotation か、Schedule Extension か」の判定基準:
+
+| 問い | Annotation | Schedule Extension |
+|---|---|---|
+| 手続きの structure を変えるか | No（metadata のみ） | Yes（新 schedule 構成素） |
+| 動的な計算・状態保持を要するか | No（静的宣言のみ） | Yes の場合が多い |
+| Core 既存の schedule 式の評価結果を変えるか | No | Yes（新しい評価を導入する） |
+| Source の構文位置 | 式に後置（`FR5 @name(...)`） | 式そのものの形（`Name(...)`） |
+
+Percentile schedule は「DRL の閾値を動的に計算する」ものであり、**schedule 式の
+評価結果を変える**ため annotation では扱えない。独自の構成素として Schedule
+Extension 層に属する。
+
+一方 `@reinforcer("food")` は、schedule の評価には影響しない metadata の
+付加であり、annotation 層に属する。
+
+### 5.5 3rd-party による拡張
+
+プログラムは自由に Schedule Extension モジュールを作成・ロード・省略できる:
+
+- ある研究室が独自の `TitrationSchedule(...)` を定義してプログラムに組み込む
+- 別の研究室が全く異なる設計の `AdaptiveFR(...)` を定義する
+- 基本的な実験のみ行うプログラムは extension を一切ロードしない
+
+いずれも Core DSL の変更は不要である。design-philosophy §4.2 の
+program-scoped closure 原則が、schedule 文法レベルにまで拡張されていると
+考えればよい。
+
+### 5.6 本 DSL プロジェクトの Schedule Extension 候補
+
+本 DSL プロジェクトは当面 Schedule Extension を**提供しない**。将来的に
+必要性が明確になれば推奨 extension モジュールとして整備する候補:
+
+- `percentile-extension` — Platt (1973) / Galbicka (1994) の percentile schedules
+- `adjusting-extension` — 遅延割引等の titration 手続き
+- `conjugate-extension` — Rovee-Collier 系の連続強化手続き
+
+これらはいずれも v1.0 Core 凍結後の追加候補であり、design-philosophy §8.1 の
+additive extension 手順に従って追加する。
+
+## 6. 実装言語戦略
 
 **Python と Rust の両方を初期から並立実装する。**
 
@@ -178,15 +293,15 @@ annotation 定義）が両実装を駆動できなければならない。
 **含意:** 言語非依存性（language independence）は本 DSL の実質的要件である。
 Annotation の値表現を特定言語の型システムに依存させる設計は許容しない。
 
-## 6. 近期ゴールと後回しにできること
+## 7. 近期ゴールと後回しにできること
 
-### 6.1 近期ゴール
+### 7.1 近期ゴール
 
 - **現行の実験手続きを理論上 DSL に記述できる**状態に到達する。
 - Core 文法の堅牢性を確保し、これ以降の破壊的変更を不要にする。
 - Python / Rust 両実装が同じ仕様から駆動される体制を確立する。
 
-### 6.2 後回しにできること
+### 7.2 後回しにできること
 
 以下は DSL の基盤が堅牢であれば、いつでも着手できる。
 基盤確立が先で、これらは優先度を下げる:
@@ -195,20 +310,22 @@ Annotation の値表現を特定言語の型システムに依存させる設計
 - 論文の図の再現パイプライン
 - 学生向け教材・チュートリアル
 
-## 7. 破壊的変更の回避と例外条件
+## 8. 破壊的変更の回避と例外条件
 
 Core 文法に対する破壊的変更は **原則として避ける**。ただし §2 で述べた通り、
 Core の安定性は経験的観察に基づくものであり、絶対的な保証ではない。
 したがって例外条件を明示的に認める。
 
-### 7.1 通常時の手順
+### 8.1 通常時の手順
 
-1. 新たな実験手続きを表現する必要が生じた場合、**まず annotation で
-   吸収できないかを検討する**。
-2. Annotation で吸収できない場合に限り Core への追加を検討し、
-   追加は **additive only**（既存の構文・意味を変更しない）とする。
+1. 新たな実験手続きを表現する必要が生じた場合、次の順で検討する:
+   a. **Annotation 層で吸収できるか**（metadata 層、§4）
+   b. **Schedule Extension 層で吸収できるか**（新 schedule 構成素、§5）
+   c. Core 文法への追加を検討（最終手段）
+2. Core への追加が必要な場合は **additive only**（既存の構文・意味を
+   変更しない）とする。
 
-### 7.2 例外として破壊的変更が許される条件
+### 8.2 例外として破壊的変更が許される条件
 
 次のいずれかに該当する場合、破壊的変更を検討してよい:
 
@@ -216,17 +333,17 @@ Core の安定性は経験的観察に基づくものであり、絶対的な保
   将来の理論的発展によって成立しないと判明した場合。
 - **Core 文法の重大な誤り**: 現在の Core 文法が、表現しようとしている
   行動分析学的概念を正しく反映できていないと判明した場合。
-- **追加では原理的に吸収不能**: Annotation でも additive only でも
-  表現できない構造的問題が発見された場合。
+- **追加では原理的に吸収不能**: Annotation でも Schedule Extension でも
+  additive only でも表現できない構造的問題が発見された場合。
 
-### 7.3 破壊的変更時の義務
+### 8.3 破壊的変更時の義務
 
 破壊的変更が避けられないと判断された場合:
 
 1. メジャーバージョンを上げる。
 2. 変換ツールを同時に提供し、旧バージョンで書かれた DSL を新バージョンに
    機械的に移行可能にする。
-3. 変更の動機を本文書（§7.2 のいずれに該当するか）に照らして記録する。
+3. 変更の動機を本文書（§8.2 のいずれに該当するか）に照らして記録する。
 
 ---
 

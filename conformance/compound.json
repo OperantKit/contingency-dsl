@@ -222,9 +222,9 @@
     }
   },
   {
-    "id": "conc_with_cor",
-    "description": "Concurrent with changeover response requirement (Findley, 1958)",
-    "input": "Conc(VI30s, VI60s, COR=5)",
+    "id": "conc_with_frco",
+    "description": "Concurrent with fixed-ratio changeover requirement (Hunter & Davison, 1985)",
+    "input": "Conc(VI30s, VI60s, FRCO=5)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -237,15 +237,15 @@
           { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
         ],
         "params": {
-          "COR": { "value": 5 }
+          "FRCO": { "value": 5 }
         }
       }
     }
   },
   {
-    "id": "conc_cod_and_cor",
-    "description": "Concurrent with both COD and COR",
-    "input": "Conc(VI30s, VI60s, COD=2s, COR=1)",
+    "id": "conc_cod_and_frco",
+    "description": "Concurrent with both COD and FRCO",
+    "input": "Conc(VI30s, VI60s, COD=2s, FRCO=1)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -259,7 +259,7 @@
         ],
         "params": {
           "COD": { "value": 2.0, "time_unit": "s" },
-          "COR": { "value": 1 }
+          "FRCO": { "value": 1 }
         }
       }
     }

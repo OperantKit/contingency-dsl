@@ -6,10 +6,56 @@
 
 | Keyword | Purpose | Example |
 |---|---|---|
-| @reinforcer | 強化子の同定・分類 | `@reinforcer("food", type="unconditioned")` |
+| @reinforcer | 強化子の同定・分類（基本形） | `@reinforcer("food", type="unconditioned")` |
 | @sd | 弁別刺激の同定 | `@sd("red_light", component=1)` |
 | @operandum | 反応装置の同定 | `@operandum("left_lever")` |
 | @brief | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
+
+## Keyword Aliases — `@reinforcer` / `@punisher` / `@consequentStimulus`
+
+`@reinforcer` には 2 つの等価な type alias が用意されている。3 つのキーワードは
+**AST レベルで同一のノードに collapse される** が、source 上では実験者の意図を
+明示的に区別できる。`@reinforcer` が基本形（primary form）であり、行動分析学の
+標準的な用語として最も確立されているため、通常はこれを使用する。
+
+| Keyword | 用途 | 例 |
+|---|---|---|
+| `@reinforcer` | **基本形 (primary)** — 強化子の宣言（標準） | `@reinforcer("food")` |
+| `@punisher` | alias — 罰子としての使用意図を明示 | `@punisher("shock", intensity="0.5mA")` |
+| `@consequentStimulus` | alias — 理論的に中立な表記 | `@consequentStimulus("tone", duration=2)` |
+
+### 等価性の保証
+
+```
+FR3 @reinforcer("shock")         -- equivalent
+FR3 @punisher("shock")           -- equivalent
+FR3 @consequentStimulus("shock") -- equivalent
+```
+
+3 者は AST 上で同じ `Reinforcer(stimulus="shock", label=...)` ノードに
+変換される。`label` フィールドは source の表記を保持するが、等価性判定では
+**pragmatic hint** として扱われ、semantic 等価性に影響しない。
+
+### 設計根拠
+
+Radical behaviorism の立場では reinforcer / punisher は **機能的（効果による
+事後的）定義** を持つため、a priori にラベル付けすることには批判がある。
+しかし本 DSL は **手続き記述言語** であり、実験者の意図を記述するものである。
+「この刺激を罰子として使う意図で提示する」という宣言は手続き的に正当であり、
+論文コンパイル時に Methods セクションの文言選択に使用できる。
+
+基本形（primary form）が `@reinforcer` である理由:
+- **EAB 文献で最も確立された用語**。行動分析学の中核概念は「強化」であり、
+  強化子の宣言は実験記述の出発点である。
+- 既存の stimulus-annotator 実装がこの keyword を中心に構築されている
+- `@punisher` / `@consequentStimulus` は後発の拡張であり、alias として
+  実装コストが最小
+
+### 用語選択の注記
+
+「基本形」という表現は `primary form` または `base form` の訳語として用いる。
+`canonical form` は、プログラミング/型理論から借用した用語で JEAB 文献の
+普遍的術語ではないため、本文書では避ける。
 
 ## Boundary Justification
 

@@ -22,7 +22,7 @@ DSL の文法は4つの基準を満たす:
 <param_decl>    ::= <param_name> "=" <value>
 <param_name>    ::= "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
-                  | "COR" | "ChangeoverResponse"
+                  | "FRCO" | "FixedRatioChangeover"
 <binding>       ::= "let" <ident> "=" <schedule>
 
 <schedule>      ::= <base_schedule> ("LH" <ws>? <value>)?
@@ -49,7 +49,7 @@ DSL の文法は4つの基準を満たす:
                   | <combinator>
                   | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
-                  | "COR" | "ChangeoverResponse"
+                  | "FRCO" | "FixedRatioChangeover"
                   | "PR" | "Repeat"
                   | "hodos" | "exponential" | "linear"
                   | "start" | "increment"
@@ -62,7 +62,7 @@ DSL の文法は4つの基準を満たす:
 <positional_args> ::= <schedule> ("," <schedule>)+
 <keyword_arg>   ::= <kw_name> "=" <value>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
-                   | "COR" | "ChangeoverResponse"
+                   | "FRCO" | "FixedRatioChangeover"
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -188,11 +188,11 @@ Conc(VI30s, VI60s, COD=2s)
 -- ↑ 各成分に個別適用: Conc(VI30s LH10s, VI60s LH10s, COD=2s) と等価
 -- ローカル指定が優先: Conc(VI30s LH5s, VI60s) では VI30 は LH5s、VI60 はデフォルト値
 
--- 切替遅延・切替反応（§2.4）
+-- 切替遅延・固定比切替（§2.4）
 Conc(VI30s, VI60s, COD=2s)           -- 2秒の切替遅延（Herrnstein, 1961）
 Conc(VI30s, VI60s, COD=0s)           -- 明示的ゼロ遅延（統制条件）
-Conc(VI30s, VI60s, COR=5)            -- 切替反応 5 回（Findley, 1958）
-Conc(VI30s, VI60s, COD=2s, COR=5)   -- COD と COR の共存
+Conc(VI30s, VI60s, FRCO=5)           -- 固定比切替 5 反応（Hunter & Davison, 1985）
+Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- COD と FRCO の共存
 
 -- プログラムレベルの COD デフォルト（全 Conc に適用）
 -- COD = 2s

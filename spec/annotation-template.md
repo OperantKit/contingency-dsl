@@ -71,7 +71,7 @@ Fill this in when proposing a new keyword `@X`:
 - [ ] `@X` なしでスケジュールの理論的性質を議論できるか → YES なら annotation OK
 - [ ] `@X` は schedule 式の評価結果を変えるか → NO なら annotation OK
 - [ ] `@X` を Core 文法に昇格すべきか → NO なら annotation OK
-      (昇格する場合は design-philosophy §7 の制約下でのみ可)
+      (昇格する場合は design-philosophy §8 の制約下でのみ可)
 
 ### 2. Category fit
 - [ ] `@X` は選択したカテゴリ（Procedure / Subjects / Apparatus / Measurement / 拡張）と整合するか

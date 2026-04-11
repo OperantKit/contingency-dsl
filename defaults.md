@@ -46,7 +46,7 @@ Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 | `LimitedHold = 10s` (program-level) | Applied individually to all leaf base_schedules |
 | `FI30 LH10` (expression-level) | Overrides program-level default for that expression |
 
-## Concurrent changeover delay (COD) and changeover response (COR)
+## Concurrent changeover delay (COD) and fixed-ratio changeover (FRCO)
 
 **v1.0:** COD is optional for `Conc`. Omitting COD emits a linter WARNING
 (code `MISSING_COD`), recommending explicit specification per Herrnstein (1961).
@@ -58,24 +58,37 @@ bridge layer — the AST does not contain an implicit COD.
 | Parameter | Alias | Syntax (expression) | Syntax (param_decl) | Dimension |
 |-----------|-------|---------------------|---------------------|-----------|
 | COD | ChangeoverDelay | `Conc(VI30s, VI60s, COD=2s)` | `COD = 2s` | Time (s/ms/min) |
-| COR | ChangeoverResponse | `Conc(VI30s, VI60s, COR=5)` | `COR = 5` | Responses (dimensionless) |
+| FRCO | FixedRatioChangeover | `Conc(VI30s, VI60s, FRCO=5)` | `FRCO = 5` | Responses (dimensionless) |
 
 - Expression-level keyword argument overrides program-level `param_decl`
   (same priority rule as LH).
 - `COD=0s` is legal (explicit no-delay), but parsers SHOULD emit a lint
   WARNING for VI-VI concurrent schedules (Shull & Pliskoff, 1967).
 - Default behavior: symmetric, non-resetting.
-- COD and COR may coexist: `Conc(VI30s, VI60s, COD=2s, COR=5)`.
+- COD and FRCO may coexist: `Conc(VI30s, VI60s, COD=2s, FRCO=5)`.
+
+**Terminology note.** Earlier drafts used the abbreviation `COR` (Changeover
+Response), but this abbreviation is not established in the EAB literature.
+The standard abbreviation is **FRCO** (Fixed-Ratio Changeover), introduced
+by Hunter & Davison (1985). Pliskoff & Fetterman (1981) used the descriptive
+term "changeover requirement" without a fixed abbreviation.
 
 References:
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a
   function of frequency of reinforcement. *JEAB*, 4(3), 267-272.
+  https://doi.org/10.1901/jeab.1961.4-267
 - Catania, A. C. (1966). Concurrent operants. In W. K. Honig (Ed.),
   *Operant behavior: Areas of research and application* (pp. 213-270).
 - Shull, R. L., & Pliskoff, S. S. (1967). Changeover delay and concurrent
   performances. *JEAB*, 10(6), 517-527.
-- Findley, J. D. (1958). Preference and switching under concurrent scheduling.
-  *JEAB*, 1(2), 123-144.
+  https://doi.org/10.1901/jeab.1967.10-517
+- Pliskoff, S. S., & Fetterman, J. G. (1981). Undermatching and overmatching:
+  The fixed-ratio changeover requirement. *JEAB*, 36(1), 21-27.
+  https://doi.org/10.1901/jeab.1981.36-21
+- Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer
+  function: White-noise analysis of session-to-session response-ratio
+  dynamics on concurrent VI VI schedules. *Animal Learning & Behavior*,
+  13(3), 293-299. https://doi.org/10.3758/BF03197983
 
 ## Blackout (BO) — Multiple/Mixed schedules
 

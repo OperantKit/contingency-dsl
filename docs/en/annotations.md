@@ -67,9 +67,16 @@ or replace them (see [design-philosophy.md §4.2](../../spec/ja/design-philosoph
 
 Declares the **identity and function** of stimuli in the experiment.
 
+**`@reinforcer` aliases:** `@reinforcer` is the **primary form** (the most
+established term in EAB literature). `@punisher` and `@consequentStimulus`
+are equivalent aliases — use them when you want to make the experimenter's
+intent explicit in source (e.g., `FR3 @punisher("shock")`). All three collapse
+to the same AST node and do not affect equivalence judgment. See
+[annotation-design.md §3.5](../../spec/annotation-design.md) for details.
+
 | Keyword | Purpose | Example |
 |---------|---------|---------|
-| `@reinforcer` | What is delivered as consequence | `@reinforcer("food", type="unconditioned")` |
+| `@reinforcer` | Declares a reinforcer (primary form) | `@reinforcer("food", type="unconditioned")` |
 | `@sd` | Discriminative stimulus identity | `@sd("red_light", component=1)` |
 | `@operandum` | Response device identity | `@operandum("left_lever")` |
 | `@brief` | Brief stimulus in second-order schedules | `@brief("light", duration=2)` |
@@ -271,7 +278,7 @@ in the project-wide recommended set (see
 
 **Boundary test (quick version):** If removing `@X` makes the schedule
 theoretically incomplete, it may belong in the core grammar rather than
-as an annotation (though core changes are restricted by design-philosophy §7).
+as an annotation (though core changes are restricted by design-philosophy §8).
 
 ---
 

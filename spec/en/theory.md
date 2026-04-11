@@ -270,7 +270,7 @@ Conc(Chain(FR5, VI60), Alt(FR10, FT30))
 
 is a concurrent schedule where operandum 1 presents a chained FR5-then-VI60, and operandum 2 presents an alternative FR10-or-FT30.
 
-### 2.4 Changeover Delay (COD) and Changeover Response (COR)
+### 2.4 Changeover Delay (COD) and Fixed-Ratio Changeover (FRCO)
 
 The Changeover Delay (COD) specifies a minimum time after an operandum switch before reinforcement becomes available on the new operandum (Catania, 1966). COD is a **definitional parameter** of `Conc`, not optional metadata:
 
@@ -284,19 +284,21 @@ Conc(VI30s, VI60s, COD=0s)           -- explicit no-delay (control condition)
 
 **Default behavior:** Symmetric (same delay regardless of switch direction), non-resetting (switching again during active COD does not restart the timer).
 
-**Changeover Response (COR):** An alternative to time-based COD. COR requires N responses on the new operandum before reinforcement becomes available (Findley, 1958). COR and COD may coexist:
+**Fixed-Ratio Changeover (FRCO):** A response-based alternative to time-based COD. FRCO requires N responses on the new operandum before reinforcement becomes available (Hunter & Davison, 1985; Pliskoff & Fetterman, 1981). FRCO and COD may coexist:
 
 ```
-Conc(VI30s, VI60s, COR=5)            -- 5 responses required after switch
-Conc(VI30s, VI60s, COD=2s, COR=5)   -- both time and response requirements
+Conc(VI30s, VI60s, FRCO=5)            -- 5 responses required after switch
+Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both time and response requirements
 ```
 
 | Parameter | Alias | Dimension | Reference |
 |-----------|-------|-----------|-----------|
-| COD | ChangeoverDelay | Time (s/ms/min) | Catania (1966) |
-| COR | ChangeoverResponse | Responses (dimensionless) | Findley (1958) |
+| COD | ChangeoverDelay | Time (s/ms/min) | Herrnstein (1961); Catania (1966) |
+| FRCO | FixedRatioChangeover | Responses (dimensionless) | Hunter & Davison (1985) |
 
-Both COD and COR support program-level defaults via `param_decl` (analogous to `LH = 10s`):
+**Terminology note.** Earlier drafts used the abbreviation `COR` (Changeover Response). The established literature abbreviation is **FRCO**, introduced by Hunter & Davison (1985). Pliskoff & Fetterman (1981) used the descriptive term "changeover requirement" without a fixed abbreviation.
+
+Both COD and FRCO support program-level defaults via `param_decl` (analogous to `LH = 10s`):
 
 ```
 COD = 2s                              -- applies to all Conc in this program
@@ -336,7 +338,7 @@ The rationale:
 
 1. **Procedural completeness.** `Conc(VR20, VR40, COD=2s)` fully specifies the operative contingency: two ratio schedules, simultaneously available, with a 2-second changeover delay. No additional parameter is needed to make this a well-formed procedure.
 
-2. **Empirical contingency of the effect.** Whether exclusive choice actually occurs depends on parameters that the DSL already captures (ratio values, COD, COR) as well as factors outside the DSL's scope (training history, session duration, species). Baking `choice_mode = "exclusive"` into the DSL would assert an empirical generalization as if it were a logical entailment of the procedure. It is not.
+2. **Empirical contingency of the effect.** Whether exclusive choice actually occurs depends on parameters that the DSL already captures (ratio values, COD, FRCO) as well as factors outside the DSL's scope (training history, session duration, species). Baking `choice_mode = "exclusive"` into the DSL would assert an empirical generalization as if it were a logical entailment of the procedure. It is not.
 
 3. **Mechanistic derivability.** The VI-VI / VR-VR difference arises from the molecular contingency structure: VI schedules differentially reinforce longer inter-response times (IRTs), while VR schedules reinforce independently of IRT. This makes switching profitable under VI (uncollected reinforcers accumulate on the unattended alternative) but not under VR. Since the component schedule types are already encoded in the DSL expression, a downstream analysis layer can derive the expected choice pattern without redundant annotation.
 

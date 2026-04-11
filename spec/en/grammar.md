@@ -20,7 +20,7 @@ The DSL grammar satisfies four criteria:
 <param_decl>    ::= <param_name> "=" <value>
 <param_name>    ::= "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
-                  | "COR" | "ChangeoverResponse"
+                  | "FRCO" | "FixedRatioChangeover"
 <binding>       ::= "let" <ident> "=" <schedule>
 
 <schedule>      ::= <base_schedule> ("LH" <ws>? <value>)?
@@ -47,7 +47,7 @@ The DSL grammar satisfies four criteria:
                   | <combinator>
                   | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
-                  | "COR" | "ChangeoverResponse"
+                  | "FRCO" | "FixedRatioChangeover"
                   | "PR" | "Repeat"
                   | "hodos" | "exponential" | "linear"
                   | "start" | "increment"
@@ -60,7 +60,7 @@ The DSL grammar satisfies four criteria:
 <positional_args> ::= <schedule> ("," <schedule>)+
 <keyword_arg>   ::= <kw_name> "=" <value>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
-                   | "COR" | "ChangeoverResponse"
+                   | "FRCO" | "FixedRatioChangeover"
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -182,11 +182,11 @@ Chain(FR5, FI30) LH10                -- Hold on the entire chain expression
 -- LH = 10s
 -- Conc(VI30, VI60, COD=2s)         -- equivalent to Conc(VI30 LH10, VI60 LH10, COD=2s)
 
--- Changeover Delay and Changeover Response (§2.4)
+-- Changeover Delay and Fixed-Ratio Changeover (§2.4)
 Conc(VI30s, VI60s, COD=2s)           -- 2-s changeover delay (Herrnstein, 1961)
 Conc(VI30s, VI60s, COD=0s)           -- explicit no-delay (control condition)
-Conc(VI30s, VI60s, COR=5)            -- 5 changeover responses (Findley, 1958)
-Conc(VI30s, VI60s, COD=2s, COR=5)   -- both COD and COR
+Conc(VI30s, VI60s, FRCO=5)           -- 5 fixed-ratio changeover (Hunter & Davison, 1985)
+Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both COD and FRCO
 
 -- Program-level COD default (applies to all Conc in this program)
 -- COD = 2s
