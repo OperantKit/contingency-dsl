@@ -181,5 +181,108 @@
       }
     },
     "_note": "Schedule-level annotations (@operandum) are attached to the Conc schedule node. Program-level @reinforcer acts as session default. AST here shows parse output; annotation attachment to schedule nodes is handled by a subsequent annotation-binding pass."
+  },
+  {
+    "id": "measurement_session_end_first",
+    "description": "@session_end with rule=first (keyword-only annotation form)",
+    "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": { "rule": "first", "time": { "value": 60, "time_unit": "min" }, "reinforcers": 60 }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    },
+    "_note": "Keyword-only annotation form. Requires measurement-annotator in registry. Validates that first-rule requires both time and reinforcers."
+  },
+  {
+    "id": "measurement_session_end_time_only",
+    "description": "@session_end with rule=time_only (time required, reinforcers forbidden)",
+    "input": "@session_end(rule=\"time_only\", time=60min)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": { "rule": "time_only", "time": { "value": 60, "time_unit": "min" } }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+    }
+  },
+  {
+    "id": "measurement_baseline_default_measure",
+    "description": "@baseline with only pre_training_sessions (measure defaults to 'operant_level')",
+    "input": "@baseline(pre_training_sessions=3)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "baseline",
+          "params": { "pre_training_sessions": 3 }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    },
+    "_note": "measure defaults to operant_level when omitted. Validator supplies the default; parser AST preserves only the declared fields."
+  },
+  {
+    "id": "measurement_steady_state_full",
+    "description": "@steady_state with all parameters explicit",
+    "input": "@steady_state(window_sessions=5, max_change_pct=10, measure=\"rate\", min_sessions=10)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "steady_state",
+          "params": { "window_sessions": 5, "max_change_pct": 10, "measure": "rate", "min_sessions": 10 }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    }
+  },
+  {
+    "id": "measurement_full_preamble",
+    "description": "Full measurement preamble: all three v1.x keywords as program-level defaults",
+    "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": { "rule": "first", "time": { "value": 60, "time_unit": "min" }, "reinforcers": 60 }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "baseline",
+          "params": { "pre_training_sessions": 3 }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "steady_state",
+          "params": { "window_sessions": 5, "max_change_pct": 10 }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    },
+    "_note": "Demonstrates the standard measurement-annotator preamble: when to stop (session_end), what baseline to measure, what counts as stable (steady_state). Requires measurement-annotator in AnnotationRegistry."
   }
 ]

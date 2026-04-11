@@ -213,7 +213,21 @@ sidman_kw         ::= "SSI" | "ShockShockInterval"
 
 annotated_schedule ::= schedule annotation*
 annotation         ::= "@" annotation_name ("(" annotation_args ")")?
-annotation_args    ::= annotation_val ("," annotation_kv)*
+
+; Annotation argument list: supports three forms.
+;   1. Positional-only:           @species("rat")
+;   2. Positional + keyword args: @chamber("med-associates", model="ENV-007")
+;   3. Keyword-only:              @session_end(rule="first", time=60min)
+;
+; LL(2) decision at the first argument: peek two tokens after "(":
+;   - If next is IDENT followed by "=", parse as keyword-only form.
+;   - Otherwise parse as positional form (optionally followed by keywords).
+; Semantic constraint: within positional form, positional args precede
+; keyword args (no interleaving).
+
+annotation_args    ::= positional_form | keyword_only_form
+positional_form    ::= annotation_val ("," annotation_kv)*
+keyword_only_form  ::= annotation_kv ("," annotation_kv)*
 annotation_kv      ::= ident "=" annotation_val
 annotation_val     ::= string_literal | number
 string_literal     ::= '"' [^"]* '"'

@@ -58,6 +58,6 @@ Explicit `COD=0s` does NOT trigger the warning.
 | `limited_hold.json` | 12 | FI30 LH10, program-level LH default, LH on EXT/CRF/SecondOrder |
 | `second_order.json` | 5 | FR5(FI30), VI60(FR10), RR5(FT20s) |
 | `binding.json` | 7 | let bindings, expansion, compound refs, LH bindings |
-| `program.json` | 4 | Complete programs with param_decls + bindings |
+| `program.json` | 9 | Complete programs with param_decls + bindings; measurement annotation preamble (@session_end, @baseline, @steady_state) |
 | `aversive.json` | 7 | Sidman free-operant avoidance (v1.x), verbose aliases, composition with Chain, let binding |
-| `errors.json` | 38 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors |
+| `errors.json` | 45 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors, measurement annotation param errors |

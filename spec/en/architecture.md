@@ -361,9 +361,17 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 
 -- Shared annotation syntax (both levels use the same production)
 <annotated_schedule>   ::= <schedule> <annotation>*
-<annotation>           ::= "@" <annotation_name> "(" <annotation_args> ")"
-<annotation_args>      ::= <string_literal> ("," <annotation_kv>)*
-<annotation_kv>        ::= <ident> "=" (<string_literal> | <value>)
+<annotation>           ::= "@" <annotation_name> ("(" <annotation_args> ")")?
+
+-- Argument list supports three forms:
+--   1. Positional-only:           @species("rat")
+--   2. Positional + keyword args: @chamber("med-associates", model="ENV-007")
+--   3. Keyword-only:              @session_end(rule="first", time=60min)
+<annotation_args>      ::= <positional_form> | <keyword_only_form>
+<positional_form>      ::= <annotation_val> ("," <annotation_kv>)*
+<keyword_only_form>    ::= <annotation_kv> ("," <annotation_kv>)*
+<annotation_kv>        ::= <ident> "=" <annotation_val>
+<annotation_val>       ::= <string_literal> | <number>
 
 -- procedure-annotator/stimulus adds:
 <annotation_name>      ::= "reinforcer" | "sd" | "brief"

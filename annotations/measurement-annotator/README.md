@@ -29,7 +29,7 @@ reorganization to close this gap.
 |---|---|---|
 | `@session_end` | Session termination rule | `@session_end(rule="first", time=60min, reinforcers=60)` |
 | `@baseline` | Baseline (operant level) measurement | `@baseline(pre_training_sessions=3, measure="operant_level")` |
-| `@steady_state` | Steady-state criterion for phase termination | `@steady_state(criterion="5 sessions < 10% change in rate")` |
+| `@steady_state` | Steady-state criterion for phase termination | `@steady_state(window_sessions=5, max_change_pct=10, measure="rate")` |
 
 Additional keywords under consideration for future minor versions (see
 [annotation-design.md §8](../../spec/annotation-design.md) extension proposals):
@@ -39,6 +39,116 @@ Additional keywords under consideration for future minor versions (see
 - `@logging(resolution="10ms", events=[...])` — data recording specification
 - `@iri_window(last_n=5)` — inter-reinforcement-interval aggregation window
 - `@warmup_exclude(duration=300)` — exclude warmup data from analysis
+
+## Parameter Schemas (v1.x formal specification)
+
+All three v1.x keywords use the **keyword-only** annotation form (no
+positional argument). This requires the `keyword_only_form` production in
+grammar.ebnf (introduced 2026-04-12 to support natural measurement
+annotation syntax).
+
+### `@session_end` — Session termination rule
+
+Declares when a session ends. Supports three termination strategies:
+whichever-first, time-only, or reinforcers-only.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `rule` | string enum | Yes | — | Termination strategy: `"first"` (whichever first), `"time_only"`, `"reinforcers_only"` |
+| `time` | time value (s/ms/min) | If `rule=first` or `rule=time_only` | — | Maximum session duration |
+| `reinforcers` | integer | If `rule=first` or `rule=reinforcers_only` | — | Maximum reinforcer count |
+
+**Semantic constraints:**
+- `rule="first"` requires BOTH `time` and `reinforcers`. Missing either → `SESSION_END_MISSING_PARAM`.
+- `rule="time_only"` requires `time`, forbids `reinforcers`. Violation → `SESSION_END_INVALID_COMBO`.
+- `rule="reinforcers_only"` requires `reinforcers`, forbids `time`. Violation → `SESSION_END_INVALID_COMBO`.
+- `time` must be positive. Non-positive → `SESSION_END_NONPOSITIVE_TIME`.
+- `reinforcers` must be a positive integer. Non-positive → `SESSION_END_NONPOSITIVE_REINFORCERS`.
+- Unknown `rule` value → `SESSION_END_UNKNOWN_RULE`.
+
+**Examples:**
+
+```
+@session_end(rule="first", time=60min, reinforcers=60)
+-- Session ends when first of: 60 minutes elapsed OR 60 reinforcers delivered
+
+@session_end(rule="time_only", time=60min)
+-- Fixed 60-minute session, regardless of reinforcer count
+
+@session_end(rule="reinforcers_only", reinforcers=100)
+-- Session terminates after exactly 100 reinforcers, no time limit
+```
+
+**Reference:** Baron, A., & Perone, M. (1998). Experimental design and
+analysis in the laboratory study of human operant behavior. In K. A.
+Lattal & M. Perone (Eds.), *Handbook of research methods in human operant
+behavior* (pp. 45-91). Plenum.
+
+### `@baseline` — Baseline measurement declaration
+
+Declares the baseline measurement protocol before experimental training
+begins. Used to capture the operant level (Skinner, 1938) of the target
+response.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `pre_training_sessions` | integer (≥1) | Yes | — | Number of sessions allocated to baseline measurement |
+| `measure` | string enum | No | `"operant_level"` | What to measure during baseline: `"operant_level"` (spontaneous rate, no reinforcer), `"no_training"` (response rate with no contingency), `"custom"` |
+
+**Semantic constraints:**
+- `pre_training_sessions` must be a positive integer. Non-positive → `BASELINE_INVALID_SESSIONS`.
+- `measure` value outside the enum → `BASELINE_UNKNOWN_MEASURE`.
+
+**Examples:**
+
+```
+@baseline(pre_training_sessions=3)
+-- 3 pre-training baseline sessions, measuring operant level (default)
+
+@baseline(pre_training_sessions=5, measure="operant_level")
+-- Explicit 5-session operant level baseline
+
+@baseline(pre_training_sessions=1, measure="no_training")
+-- Single session with no contingency (exposure only)
+```
+
+**Reference:** Skinner, B. F. (1938). *The behavior of organisms*.
+Appleton-Century-Crofts.
+
+### `@steady_state` — Steady-state criterion for phase termination
+
+Declares when responding is considered stable enough to end a phase and
+begin the next. This is the Sidman (1960) *Tactics* steady-state strategy:
+phases continue until behavior meets a stability criterion.
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `window_sessions` | integer (≥2) | Yes | — | Number of recent sessions evaluated for stability |
+| `max_change_pct` | number | Yes | — | Maximum percent change in `measure` across the window (e.g., `10` means ±10%) |
+| `measure` | string enum | No | `"rate"` | What to evaluate: `"rate"` (response rate), `"reinforcers"` (reinforcer count), `"iri"` (inter-reinforcement interval), `"latency"`, `"custom"` |
+| `min_sessions` | integer (≥1) | No | `window_sessions` | Minimum total sessions in the phase before stability check applies |
+
+**Semantic constraints:**
+- `window_sessions` must be ≥ 2. Otherwise → `STEADY_STATE_INVALID_WINDOW`.
+- `max_change_pct` must be non-negative. Negative → `STEADY_STATE_NEGATIVE_CHANGE`.
+- `min_sessions` must be ≥ `window_sessions`. Otherwise → `STEADY_STATE_INVALID_MIN_SESSIONS`.
+- `measure` value outside the enum → `STEADY_STATE_UNKNOWN_MEASURE`.
+
+**Examples:**
+
+```
+@steady_state(window_sessions=5, max_change_pct=10)
+-- Phase ends when last 5 sessions show <10% change in response rate (default measure)
+
+@steady_state(window_sessions=5, max_change_pct=10, measure="rate", min_sessions=10)
+-- Same, but requires at least 10 sessions before checking stability
+
+@steady_state(window_sessions=3, max_change_pct=15, measure="iri")
+-- Phase ends when last 3 sessions show <15% change in inter-reinforcement interval
+```
+
+**Reference:** Sidman, M. (1960). *Tactics of scientific research: Evaluating
+experimental data in psychology*. Basic Books.
 
 ## Boundary Justification
 

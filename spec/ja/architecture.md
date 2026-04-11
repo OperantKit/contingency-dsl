@@ -312,9 +312,17 @@ class AnnotationRegistry:
 ```bnf
 -- 共通アノテーション構文（任意の annotator が追加）
 <annotated_schedule> ::= <schedule> <annotation>*
-<annotation>         ::= "@" <annotation_name> "(" <annotation_args> ")"
-<annotation_args>    ::= <string_literal> ("," <annotation_kv>)*
-<annotation_kv>      ::= <ident> "=" (<string_literal> | <value>)
+<annotation>         ::= "@" <annotation_name> ("(" <annotation_args> ")")?
+
+-- 引数リストは 3 形式をサポート:
+--   1. Positional のみ:          @species("rat")
+--   2. Positional + keyword:     @chamber("med-associates", model="ENV-007")
+--   3. Keyword-only:             @session_end(rule="first", time=60min)
+<annotation_args>    ::= <positional_form> | <keyword_only_form>
+<positional_form>    ::= <annotation_val> ("," <annotation_kv>)*
+<keyword_only_form>  ::= <annotation_kv> ("," <annotation_kv>)*
+<annotation_kv>      ::= <ident> "=" <annotation_val>
+<annotation_val>     ::= <string_literal> | <number>
 
 -- procedure-annotator/stimulus が追加:
 <annotation_name>    ::= "reinforcer" | "sd" | "brief"

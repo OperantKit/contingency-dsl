@@ -256,5 +256,47 @@
     "description": "Lag requires a positional n in parenthesized form",
     "input": "Lag(length=8)",
     "error": { "type": "ParseError", "code": "EXPECTED_VALUE" }
+  },
+  {
+    "id": "error_session_end_first_missing_time",
+    "description": "@session_end rule=first requires both time and reinforcers",
+    "input": "@session_end(rule=\"first\", reinforcers=60)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "SESSION_END_MISSING_PARAM" }
+  },
+  {
+    "id": "error_session_end_time_only_with_reinforcers",
+    "description": "@session_end rule=time_only forbids reinforcers parameter",
+    "input": "@session_end(rule=\"time_only\", time=60min, reinforcers=60)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "SESSION_END_INVALID_COMBO" }
+  },
+  {
+    "id": "error_session_end_unknown_rule",
+    "description": "@session_end rule must be one of: first, time_only, reinforcers_only",
+    "input": "@session_end(rule=\"infinite\", time=60min)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "SESSION_END_UNKNOWN_RULE" }
+  },
+  {
+    "id": "error_baseline_invalid_sessions",
+    "description": "@baseline pre_training_sessions must be a positive integer",
+    "input": "@baseline(pre_training_sessions=0)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "BASELINE_INVALID_SESSIONS" }
+  },
+  {
+    "id": "error_steady_state_small_window",
+    "description": "@steady_state window_sessions must be >= 2",
+    "input": "@steady_state(window_sessions=1, max_change_pct=10)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "STEADY_STATE_INVALID_WINDOW" }
+  },
+  {
+    "id": "error_steady_state_negative_change",
+    "description": "@steady_state max_change_pct must be non-negative",
+    "input": "@steady_state(window_sessions=5, max_change_pct=-10)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "STEADY_STATE_NEGATIVE_CHANGE" }
+  },
+  {
+    "id": "error_steady_state_min_sessions_less_than_window",
+    "description": "@steady_state min_sessions must be >= window_sessions",
+    "input": "@steady_state(window_sessions=5, max_change_pct=10, min_sessions=3)\n\nFR5",
+    "error": { "type": "SemanticError", "code": "STEADY_STATE_INVALID_MIN_SESSIONS" }
   }
 ]
