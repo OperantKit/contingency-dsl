@@ -151,13 +151,25 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 各 annotator は `-annotator` サフィックスで命名される。意味: *基底 DSL に直交する次元（座標軸）を追加するアノテーションモジュール*。
 
-| Annotator | 次元 | アノテーションキーワード | 用途 |
-|-----------|------|----------------------|------|
-| `stimulus-annotator` | 刺激同一性 | `@reinforcer`, `@sd`, `@brief` | 三項随伴性の明示的モデル化、強化子同一性、二次スケジュールの brief stimulus |
-| `apparatus-annotator` | 物理的装置 | `@chamber`, `@operandum`, `@interface`, `@hw` | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管（JEAB Method 節の Apparatus 区分に整合）。 |
-| `social-annotator` | 被験体 | `@subject`, `@interlocking` | 多被験体随伴性、協力課題、インターロッキング随伴性 |
-| `temporal-annotator` | セッション時間 | `@clock`, `@warmup` | 時間単位宣言、準備期間。注: `@blackout` は v1.1 でコア文法の `BO` keyword arg に昇格 |
-| `clinical-annotator` | 臨床メタデータ | `@function`, `@target`, `@replacement` | FBA 機能ラベル、標的/代替行動、ABA 介入メタデータ |
+推奨 annotator 名は JEAB Method 節の見出しと 1:1 で一致する
+（[annotation-design.md §3.7](../annotation-design.md) 参照）。
+2026-04-12 の annotator 再編でこの対応関係が確立された。
+
+| Annotator | JEAB カテゴリ | アノテーションキーワード | 用途 |
+|-----------|-------------|----------------------|------|
+| `procedure-annotator` | **Procedure** | (sub-annotator 参照) | Procedure 層の情報。stimulus と temporal の 2 sub-annotator に分割 |
+| &nbsp;&nbsp;└ `procedure-annotator/stimulus` | Procedure | `@reinforcer`, `@sd`, `@brief` | 刺激同一性: 強化子・弁別刺激・二次スケジュールの brief stimulus |
+| &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | セッションレベル時間パラメータ |
+| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（2026-04-12 に `subject-annotator` から改名、JEAB 複数形見出しに整合） |
+| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hw` | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管 |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | セッション終了規則、ベースライン条件、定常性基準 (v1.x minimal set; 2026-04-12 に DIVERGENCE C 解決のため新設) |
+
+**Extensions**（JEAB 4 カテゴリ外、`annotations/extensions/` 配下）:
+
+| Extension | キーワード（候補） | 領域 |
+|---|---|---|
+| `extensions/social-annotator` | `@subject`, `@interlocking` | 多被験体随伴性、協調課題 |
+| `extensions/clinical-annotator` | `@function`, `@target`, `@replacement` | ABA 臨床メタデータ、FBA 結果 |
 
 **直交性の制約:** 全 annotator のアノテーションキーワードは相互に重複しない。同一スケジュール式に複数 annotator のアノテーションを同時付与可能（デカルト積）:
 
@@ -167,40 +179,48 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 #### 4.7.3 パッケージアーキテクチャ
 
-全ての annotator は **contingency-annotator**（既存の `stimulus-annotator` から発展）のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。
+全ての annotator は **contingency-annotator** のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。Annotator 名は JEAB Method 節の見出しと 1:1 で対応する（[annotation-design.md §3.7](../annotation-design.md) 参照）。
 
 ```
 contingency-dsl（基底 CFG）
-  │  = スケジュール構造（3×3 原子 + 7 結合子 + DR + PR + Repeat + let）
+  │  = スケジュール構造（3×3 原子 + 7 結合子 + DR + PR + Repeat + let + aversive）
   │  = contingency-py にのみ依存
   │  = 定義: AnnotationModule Protocol, AnnotatedSchedule, AnnotationRegistry
   │
-  └── contingency-annotator（アノテーションパッケージ — stimulus-annotator から発展）
+  └── contingency-annotator（アノテーションパッケージ）
         │  共有型: Reinforcer 階層、AssociativeState、LearningRule、
         │  StimulusManager、OfflineRunner
         │
-        ├── stimulus_annotator/（DSL アノテーションモジュール）
-        │     + @reinforcer, @sd, @brief 注釈
-        │     + DSL 式における強化子同一性
-        │     + S-S / S-R 連合の形式的記述
-        │     + 注: @operandum は 2026-04-12 に apparatus_annotator に移管
+        ├── procedure_annotator/ （JEAB カテゴリ: Procedure）
+        │     │
+        │     ├── stimulus/（sub-annotator）
+        │     │     + @reinforcer, @sd, @brief 注釈
+        │     │     + 強化子同一性、S-S / S-R 連合の形式的記述
+        │     │     + 注: @operandum は 2026-04-12 に apparatus_annotator に移管
+        │     │
+        │     └── temporal/（sub-annotator）
+        │           + @clock, @warmup, @algorithm 注釈
+        │           + セッションレベルの時間パラメータ宣言
+        │           + 注: BO, COD は v1.1 でコア文法に昇格
         │
-        ├── apparatus_annotator/（DSL アノテーションモジュール）
+        ├── subjects_annotator/ （JEAB カテゴリ: Subjects; 2026-04-12 に subject_annotator から改名）
+        │     + @species, @strain, @deprivation, @history, @n 注釈
+        │
+        ├── apparatus_annotator/ （JEAB カテゴリ: Apparatus）
         │     + @chamber, @operandum, @interface, @hw 注釈
         │     + 物理チャンバー・反応装置・HW インターフェースの同定
         │
-        ├── social_annotator/（DSL アノテーションモジュール）
-        │     + @subject, @interlocking 注釈
-        │     + 被験体間随伴性マッピング
-        │     + インターロッキング随伴性
+        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設）
+        │     + @session_end, @baseline, @steady_state 注釈 (v1.x minimal set)
+        │     + セッション終了、ベースライン、定常性基準
         │
-        ├── temporal_annotator/（DSL アノテーションモジュール）
-        │     + @clock, @warmup 注釈（BO はコア文法に昇格 v1.1）
-        │     + セッションレベルの時間パラメータ宣言
-        │
-        └── clinical_annotator/（DSL アノテーションモジュール）
-              + @function, @target, @replacement 注釈
-              + FBA メタデータ、ABA 介入ラベル
+        └── extensions/ （JEAB 4 カテゴリ外）
+              │
+              ├── social_annotator/ （多被験体・協調）
+              │     + @subject, @interlocking 注釈
+              │
+              └── clinical_annotator/ （ABA 臨床メタデータ）
+                    + @function, @target, @replacement 注釈
 
 social-contingency-sim → contingency-annotator の型を使う側（消費者であり提供者ではない）
 experiment-core → contingency-dsl + contingency-annotator を使用
@@ -221,7 +241,7 @@ annotator の契約は、stimulus-annotator の `LearningRule` / `AssociativeSta
 class AnnotationModule(Protocol):
     """DSL アノテーションモジュールの契約。直交する次元を追加する。"""
 
-    name: ClassVar[str]       # 例: "stimulus-annotator"
+    name: ClassVar[str]       # 例: "procedure-annotator", "subjects-annotator"
     version: ClassVar[str]    # semver
 
     @property
@@ -248,7 +268,7 @@ class AnnotationModule(Protocol):
     @property
     def requires(self) -> FrozenSet[str]:
         """この annotator が依存する他の AnnotationModule の名前。
-        例: social-annotator は stimulus-annotator の @reinforcer を参照する場合あり。"""
+        例: extensions/social-annotator は procedure-annotator/stimulus の @reinforcer を参照する場合あり。"""
         ...
 ```
 
@@ -265,7 +285,7 @@ class AnnotatedSchedule(Generic[T]):
     """
     expr: T
     annotations: Mapping[str, Any] = field(default_factory=dict)
-    # key = annotator 名 ("stimulus-annotator"), value = frozen annotation dataclass
+    # key = annotator 名 ("procedure-annotator", "subjects-annotator" 等), value = frozen annotation dataclass
 ```
 
 #### 4.7.6 AnnotationRegistry — 合成規則
@@ -296,19 +316,25 @@ class AnnotationRegistry:
 <annotation_args>    ::= <string_literal> ("," <annotation_kv>)*
 <annotation_kv>      ::= <ident> "=" (<string_literal> | <value>)
 
--- stimulus-annotator が追加:
+-- procedure-annotator/stimulus が追加:
 <annotation_name>    ::= "reinforcer" | "sd" | "brief"
+
+-- procedure-annotator/temporal が追加:
+<annotation_name>    ::= "clock" | "warmup" | "algorithm"
+
+-- subjects-annotator が追加:
+<annotation_name>    ::= "species" | "strain" | "deprivation" | "history" | "n"
 
 -- apparatus-annotator が追加:
 <annotation_name>    ::= "chamber" | "operandum" | "interface" | "hw"
 
--- social-annotator が追加:
+-- measurement-annotator が追加:
+<annotation_name>    ::= "session_end" | "baseline" | "steady_state"
+
+-- extensions/social-annotator が追加:
 <annotation_name>    ::= "subject" | "interlocking"
 
--- temporal-annotator が追加:
-<annotation_name>    ::= "clock" | "warmup"              -- "blackout" はコア文法に昇格（v1.1、BO keyword arg）
-
--- clinical-annotator が追加:
+-- extensions/clinical-annotator が追加:
 <annotation_name>    ::= "function" | "target" | "replacement"
 ```
 
@@ -317,12 +343,12 @@ class AnnotationRegistry:
 **構文例:**
 
 ```
--- stimulus-annotator
+-- procedure-annotator/stimulus
 FR5 @reinforcer("food-pellet")
 Chain(FR5, FI30) @sd("red-light", component=1)
 FR5(FI30) @brief("light", duration=2)
 
--- social-annotator
+-- extensions/social-annotator
 Conc(VI30, VI60) @subject("A")
 
 -- 合成（複数 annotator）
@@ -331,7 +357,7 @@ Conc(
   VI60 @subject("B") @reinforcer("water")
 )
 
--- 全4 annotator
+-- 複数カテゴリの annotator
 FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
 ```
 
@@ -339,11 +365,13 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 | 規則 | 形式 | 例 |
 |------|------|-----|
-| ユーザー向け名 | kebab-case + `-annotator` サフィックス | `stimulus-annotator` |
-| Python モジュール | `contingency_annotator.<snake>` | `contingency_annotator.stimulus_annotator` |
-| Protocol 実装クラス | PascalCase + `Annotator` | `StimulusAnnotator` |
+| ユーザー向け名 | kebab-case + `-annotator` サフィックス、JEAB カテゴリと一致 | `procedure-annotator`, `subjects-annotator` |
+| Sub-annotator（procedure-annotator 内部） | kebab-case、suffix なし | `procedure-annotator/stimulus`, `procedure-annotator/temporal` |
+| Python モジュール | `contingency_annotator.<snake>` | `contingency_annotator.procedure_annotator.stimulus` |
+| Protocol 実装クラス | PascalCase + `Annotator` | `ProcedureAnnotator` |
 | アノテーション dataclass | PascalCase + `Annotation` | `ReinforcerAnnotation` |
 | DSL 構文 | `@` プレフィックス + 小文字キーワード | `@reinforcer("food")` |
+| Extension annotator | `extensions/` プレフィックス | `extensions/social-annotator` |
 
 #### 4.7.9 設計原則
 
@@ -355,21 +383,24 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 #### 4.7.10 三項随伴性のモデル化スコープ
 
-| 要素 | 基底 CFG | stimulus-annotator | apparatus-annotator | social-annotator | temporal-annotator | clinical-annotator |
-|------|---------|-------------|-------------|------------|-------------|-------------|
-| S^D（弁別刺激） | Chain/Mult に暗黙的 | `@sd("light")` で明示 | — | — | — | — |
-| R（反応） | 操作体として暗黙的 | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
-| S^R（強化子） | モデル化なし | `Reinforcer` 型 + `@reinforcer` | — | — | — | — |
-| 被験体 | 単一・暗黙的 | — | — | `@subject("A")` | — | — |
-| S-S / S-R 連合 | モデル化なし | 形式的記述 | — | — | — | — |
-| 被験体間随伴性 | モデル化なし | — | — | interlocking contingency | — | — |
-| 時間ソース / 単位 | モデル化なし | — | — | — | `@clock("real")` | — |
-| ブラックアウト（成分間） | `BO=5s`（Mult/Mix kw_arg） | — | — | — | — | — |
-| セッション時間構造 | モデル化なし | — | — | — | `@warmup` | — |
-| 物理チャンバー | モデル化なし | — | `@chamber("ENV-007")` | — | — | — |
-| HW バックエンド | モデル化なし | — | `@hw("teensy41")` | — | — | — |
-| 行動の機能 | モデル化なし | — | — | — | — | `@function("escape")` |
-| 代替行動 | モデル化なし | — | — | — | — | `@replacement("mand")` |
+| 要素 | 基底 CFG | procedure/stimulus | procedure/temporal | subjects | apparatus | measurement | ext/social | ext/clinical |
+|------|---------|-----|-----|-----|-----|-----|-----|-----|
+| S^D（弁別刺激） | Chain/Mult に暗黙的 | `@sd("light")` | — | — | — | — | — | — |
+| R（反応） | 操作体として暗黙的 | — | — | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
+| S^R（強化子） | モデル化なし | `@reinforcer` + Reinforcer 型 | — | — | — | — | — | — |
+| 被験体 | 単一・暗黙的 | — | — | — | — | — | `@subject("A")` | — |
+| S-S / S-R 連合 | モデル化なし | 形式的記述 | — | — | — | — | — | — |
+| 被験体間随伴性 | モデル化なし | — | — | — | — | — | interlocking | — |
+| 時間ソース / 単位 | モデル化なし | — | `@clock("real")` | — | — | — | — | — |
+| ブラックアウト（成分間） | `BO=5s`（Mult/Mix kw_arg） | — | — | — | — | — | — | — |
+| セッション時間構造 | モデル化なし | — | `@warmup` | — | — | — | — | — |
+| 被験体種・履歴 | モデル化なし | — | — | `@species`, `@history` | — | — | — | — |
+| 物理チャンバー | モデル化なし | — | — | — | `@chamber("ENV-007")` | — | — | — |
+| HW バックエンド | モデル化なし | — | — | — | `@hw("teensy41")` | — | — | — |
+| セッション終了 | モデル化なし | — | — | — | — | `@session_end` | — | — |
+| 定常性基準 | モデル化なし | — | — | — | — | `@steady_state` | — | — |
+| 行動の機能 | モデル化なし | — | — | — | — | — | — | `@function("escape")` |
+| 代替行動 | モデル化なし | — | — | — | — | — | — | `@replacement("mand")` |
 
 ### 4.8 表現力の境界
 

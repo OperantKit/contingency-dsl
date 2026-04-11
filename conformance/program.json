@@ -128,7 +128,7 @@
         "value": 5.0
       }
     },
-    "_note": "Requires subject-annotator in AnnotationRegistry. @species and @history are program-level defaults."
+    "_note": "Requires subjects-annotator in AnnotationRegistry. @species and @history are program-level defaults."
   },
   {
     "id": "program_annotations_full_preamble",

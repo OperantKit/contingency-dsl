@@ -195,13 +195,25 @@ See [annotation-design.md](../annotation-design.md) §6 for full specification.
 
 Each annotator is named with the `-annotator` suffix, meaning: *an annotation module that adds an orthogonal dimension to the base DSL*.
 
-| Annotator | Dimension | Annotation Keywords | Purpose |
-|-----------|-----------|-------------------|---------|
-| `stimulus-annotator` | Stimulus identity | `@reinforcer`, `@sd`, `@brief` | Three-term contingency explicit modeling, reinforcer identity, second-order brief stimuli |
-| `apparatus-annotator` | Physical apparatus | `@chamber`, `@operandum`, `@interface`, `@hw` | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
-| `social-annotator` | Subject | `@subject`, `@interlocking` | Multi-subject contingencies, cooperation tasks, interlocking contingencies |
-| `temporal-annotator` | Session time | `@clock`, `@warmup` | Time unit declaration, warm-up intervals. Note: `@blackout` promoted to core grammar as `BO` keyword arg (v1.1) |
-| `clinical-annotator` | Clinical metadata | `@function`, `@target`, `@replacement` | FBA function labels, target/replacement behavior, ABA intervention metadata |
+Recommended annotator names match JEAB Method section headings 1:1 (see
+[annotation-design.md §3.7](../annotation-design.md)). The 2026-04-12
+annotator reorganization established this correspondence.
+
+| Annotator | JEAB Category | Annotation Keywords | Purpose |
+|-----------|---------------|---------------------|---------|
+| `procedure-annotator` | **Procedure** | (see sub-annotators below) | Procedure-level information, split into stimulus and temporal sub-annotators |
+| &nbsp;&nbsp;└ `procedure-annotator/stimulus` | Procedure | `@reinforcer`, `@sd`, `@brief` | Stimulus identity: reinforcers, discriminative stimuli, second-order brief stimuli |
+| &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | Session-level temporal parameters |
+| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (renamed from `subject-annotator` on 2026-04-12 to match JEAB plural heading) |
+| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hw` | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | Session termination rules, baseline conditions, steady-state criteria (v1.x minimal set; introduced 2026-04-12 to close DIVERGENCE C). |
+
+**Extensions** (outside the four JEAB categories, under `annotations/extensions/`):
+
+| Extension | Keywords (candidate) | Domain |
+|---|---|---|
+| `extensions/social-annotator` | `@subject`, `@interlocking` | Multi-subject contingencies, cooperation tasks |
+| `extensions/clinical-annotator` | `@function`, `@target`, `@replacement` | ABA intervention metadata, FBA results |
 
 **Orthogonality constraint:** Annotation keywords across all annotators are mutually disjoint. Multiple annotators can annotate the same schedule expression simultaneously:
 
@@ -211,40 +223,48 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 ### 4.7.3 Package Architecture
 
-All annotators live as submodules within **contingency-annotator** (evolving from the existing `stimulus-annotator`). The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package.
+All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotation-design.md §3.7](../annotation-design.md)).
 
 ```
 contingency-dsl (base CFG)
-  │  = Schedule structure (3×3 atomic + 7 combinators + DR + PR + Repeat + let)
+  │  = Schedule structure (3×3 atomic + 7 combinators + DR + PR + Repeat + let + aversive)
   │  = Depends only on contingency-py
   │  = Defines: AnnotationModule Protocol, AnnotatedSchedule, AnnotationRegistry
   │
-  └── contingency-annotator (annotation package — evolved from stimulus-annotator)
+  └── contingency-annotator (annotation package)
         │  Shared types: Reinforcer hierarchy, AssociativeState, LearningRule,
         │  StimulusManager, OfflineRunner
         │
-        ├── stimulus_annotator/ (DSL annotation module)
-        │     + @reinforcer, @sd, @brief annotations
-        │     + Reinforcer identity in DSL expressions
-        │     + S-S / S-R association formal descriptions
-        │     + Note: @operandum moved to apparatus_annotator on 2026-04-12
+        ├── procedure_annotator/ (JEAB category: Procedure)
+        │     │
+        │     ├── stimulus/ (sub-annotator)
+        │     │     + @reinforcer, @sd, @brief annotations
+        │     │     + Reinforcer identity, S-S / S-R formal descriptions
+        │     │     + Note: @operandum moved to apparatus_annotator on 2026-04-12
+        │     │
+        │     └── temporal/ (sub-annotator)
+        │           + @clock, @warmup, @algorithm annotations
+        │           + Session-level temporal parameter declaration
+        │           + Note: BO and COD promoted to core grammar in v1.1
         │
-        ├── apparatus_annotator/ (DSL annotation module)
+        ├── subjects_annotator/ (JEAB category: Subjects; renamed from subject_annotator on 2026-04-12)
+        │     + @species, @strain, @deprivation, @history, @n annotations
+        │
+        ├── apparatus_annotator/ (JEAB category: Apparatus)
         │     + @chamber, @operandum, @interface, @hw annotations
         │     + Physical chamber, response device, HW interface identity
         │
-        ├── social_annotator/ (DSL annotation module)
-        │     + @subject, @interlocking annotations
-        │     + Inter-subject contingency mapping
-        │     + Interlocking contingencies
+        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12)
+        │     + @session_end, @baseline, @steady_state annotations (v1.x minimal set)
+        │     + Session termination, baseline, steady-state criteria
         │
-        ├── temporal_annotator/ (DSL annotation module)
-        │     + @clock, @warmup annotations (BO moved to core grammar v1.1)
-        │     + Session-level temporal parameter declaration
-        │
-        └── clinical_annotator/ (DSL annotation module)
-              + @function, @target, @replacement annotations
-              + FBA metadata, ABA intervention labels
+        └── extensions/ (outside the four JEAB categories)
+              │
+              ├── social_annotator/ (multi-subject / cooperation)
+              │     + @subject, @interlocking annotations
+              │
+              └── clinical_annotator/ (ABA clinical metadata)
+                    + @function, @target, @replacement annotations
 
 social-contingency-sim → uses contingency-annotator types (consumer, not provider)
 experiment-core → uses contingency-dsl + contingency-annotator
@@ -265,7 +285,7 @@ The annotation contract follows the same Protocol-based pattern used by `Learnin
 class AnnotationModule(Protocol):
     """Contract for a DSL annotation module that adds an orthogonal dimension."""
 
-    name: ClassVar[str]       # e.g. "stimulus-annotator"
+    name: ClassVar[str]       # e.g. "procedure-annotator" or "subjects-annotator"
     version: ClassVar[str]    # semver
 
     @property
@@ -293,7 +313,7 @@ class AnnotationModule(Protocol):
     @property
     def requires(self) -> FrozenSet[str]:
         """Names of other AnnotationModules this one depends on.
-        E.g. social-annotator may require stimulus-annotator for reinforcer references."""
+        E.g. extensions/social-annotator may require procedure-annotator/stimulus for reinforcer references."""
         ...
 ```
 
@@ -310,7 +330,7 @@ class AnnotatedSchedule(Generic[T]):
     """
     expr: T
     annotations: Mapping[str, Any] = field(default_factory=dict)
-    # key = annotator name ("stimulus-annotator"), value = frozen annotation dataclass
+    # key = annotator name ("procedure-annotator", "subjects-annotator", etc.), value = frozen annotation dataclass
 ```
 
 ### 4.7.6 AnnotationRegistry — Composition Rules
@@ -345,22 +365,25 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <annotation_args>      ::= <string_literal> ("," <annotation_kv>)*
 <annotation_kv>        ::= <ident> "=" (<string_literal> | <value>)
 
--- stimulus-annotator adds:
+-- procedure-annotator/stimulus adds:
 <annotation_name>      ::= "reinforcer" | "sd" | "brief"
 
--- subject-annotator adds:
-<annotation_name>      ::= "species" | "strain" | "deprivation" | "history" | "n"
-
--- temporal-annotator adds:
+-- procedure-annotator/temporal adds:
 <annotation_name>      ::= "clock" | "warmup" | "algorithm"
+
+-- subjects-annotator adds:
+<annotation_name>      ::= "species" | "strain" | "deprivation" | "history" | "n"
 
 -- apparatus-annotator adds:
 <annotation_name>      ::= "chamber" | "operandum" | "interface" | "hw"
 
--- social-annotator adds:
+-- measurement-annotator adds:
+<annotation_name>      ::= "session_end" | "baseline" | "steady_state"
+
+-- extensions/social-annotator adds:
 <annotation_name>      ::= "subject" | "interlocking"
 
--- clinical-annotator adds:
+-- extensions/clinical-annotator adds:
 <annotation_name>      ::= "function" | "target" | "replacement"
 ```
 
@@ -369,12 +392,12 @@ Each annotator extends the `<annotation_name>` production with its own keywords.
 **Syntax examples:**
 
 ```
--- stimulus-annotator
+-- procedure-annotator/stimulus
 FR5 @reinforcer("food-pellet")
 Chain(FR5, FI30) @sd("red-light", component=1)
 FR5(FI30) @brief("light", duration=2)
 
--- social-annotator
+-- extensions/social-annotator
 Conc(VI30, VI60) @subject("A")
 
 -- composed (multiple annotators)
@@ -383,7 +406,7 @@ Conc(
   VI60 @subject("B") @reinforcer("water")
 )
 
--- all four annotators
+-- multiple annotator categories
 FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
 ```
 
@@ -391,11 +414,13 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 | Convention | Format | Example |
 |------------|--------|---------|
-| User-facing name | kebab-case with `-annotator` suffix | `stimulus-annotator` |
-| Python module | `contingency_annotator.<snake>` | `contingency_annotator.stimulus_annotator` |
-| Protocol implementation | PascalCase + `Annotator` | `StimulusAnnotator` |
+| User-facing name | kebab-case with `-annotator` suffix, matching JEAB category | `procedure-annotator`, `subjects-annotator` |
+| Sub-annotator (within procedure-annotator) | kebab-case, no suffix | `procedure-annotator/stimulus`, `procedure-annotator/temporal` |
+| Python module | `contingency_annotator.<snake>` | `contingency_annotator.procedure_annotator.stimulus` |
+| Protocol implementation | PascalCase + `Annotator` | `ProcedureAnnotator` |
 | Annotation dataclass | PascalCase + `Annotation` | `ReinforcerAnnotation` |
 | DSL syntax | `@` prefix + lowercase keyword | `@reinforcer("food")` |
+| Extension annotator | `extensions/` prefix | `extensions/social-annotator` |
 
 ### 4.7.9 Design Principles
 
@@ -407,21 +432,24 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 ### 4.7.10 Three-Term Contingency Modeling Scope
 
-| Element | Base CFG | stimulus-annotator | apparatus-annotator | social-annotator | temporal-annotator | clinical-annotator |
-|---------|----------|-------------|-------------|------------|-------------|-------------|
-| S^D (discriminative stimulus) | Implicit in Chain/Mult | `@sd("light")` explicit | — | — | — | — |
-| R (response) | Implicit as operandum | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
-| S^R (reinforcer) | Not modeled | `Reinforcer` type + `@reinforcer` | — | — | — | — |
-| Subject | Single, implicit | — | — | `@subject("A")` | — | — |
-| S-S / S-R associations | Not modeled | Formal description | — | — | — | — |
-| Inter-subject contingencies | Not modeled | — | — | Interlocking contingency | — | — |
-| Time source / unit | Not modeled | — | — | — | `@clock("real")` | — |
-| Blackout (inter-component) | `BO=5s` (Mult/Mix kw_arg) | — | — | — | — | — |
-| Session temporal structure | Not modeled | — | — | — | `@warmup` | — |
-| Physical chamber | Not modeled | — | `@chamber("ENV-007")` | — | — | — |
-| Hardware backend | Not modeled | — | `@hw("teensy41")` | — | — | — |
-| Behavior function | Not modeled | — | — | — | — | `@function("escape")` |
-| Replacement behavior | Not modeled | — | — | — | — | `@replacement("mand")` |
+| Element | Base CFG | procedure/stimulus | procedure/temporal | subjects | apparatus | measurement | ext/social | ext/clinical |
+|---------|----------|-----|-----|-----|-----|-----|-----|-----|
+| S^D (discriminative stimulus) | Implicit in Chain/Mult | `@sd("light")` | — | — | — | — | — | — |
+| R (response) | Implicit as operandum | — | — | — | `@operandum("lever")` | — | — | `@target("hand-flap")` |
+| S^R (reinforcer) | Not modeled | `@reinforcer` + Reinforcer type | — | — | — | — | — | — |
+| Subject | Single, implicit | — | — | — | — | — | `@subject("A")` | — |
+| S-S / S-R associations | Not modeled | Formal description | — | — | — | — | — | — |
+| Inter-subject contingencies | Not modeled | — | — | — | — | — | Interlocking contingency | — |
+| Time source / unit | Not modeled | — | `@clock("real")` | — | — | — | — | — |
+| Blackout (inter-component) | `BO=5s` (Mult/Mix kw_arg) | — | — | — | — | — | — | — |
+| Session temporal structure | Not modeled | — | `@warmup` | — | — | — | — | — |
+| Subject species / history | Not modeled | — | — | `@species`, `@history` | — | — | — | — |
+| Physical chamber | Not modeled | — | — | — | `@chamber("ENV-007")` | — | — | — |
+| Hardware backend | Not modeled | — | — | — | `@hw("teensy41")` | — | — | — |
+| Session termination | Not modeled | — | — | — | — | `@session_end` | — | — |
+| Steady-state criterion | Not modeled | — | — | — | — | `@steady_state` | — | — |
+| Behavior function | Not modeled | — | — | — | — | — | — | `@function("escape")` |
+| Replacement behavior | Not modeled | — | — | — | — | — | — | `@replacement("mand")` |
 
 ## 4.8 Expressiveness Boundaries
 

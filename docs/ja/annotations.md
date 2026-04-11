@@ -56,14 +56,24 @@ Conc(VI30s, VI60s)
 
 ---
 
-## 4つの推奨アノテータ
+## 4つの推奨アノテータ（JEAB 4 カテゴリに対応）
 
-contingency-dsl プロジェクトは、実験手続きの普遍的な4次元をカバーする
-**推奨アノテータ**を提供する。これらは DSL プロジェクトが提示する推奨集合で
-あり、プログラム（runtime / interpreter）は自由に採用・拡張・置換できる
-（詳細は [design-philosophy.md §4.2](../../spec/ja/design-philosophy.md) を参照）。
+contingency-dsl プロジェクトは、JEAB Method 節の伝統的な 4 区分（Procedure /
+Subjects / Apparatus / Measurement）と **1:1 で対応する 4 つの推奨アノテータ**
+を提供する。アノテータ名は JEAB 見出しと一致するように選ばれている。
 
-### 1. stimulus-annotator — どの刺激が関与するか?
+| JEAB カテゴリ | Annotator | Keywords |
+|---|---|---|
+| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
+| Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
+| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hw` |
+| Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
+
+これらは DSL プロジェクトが提示する推奨集合であり、プログラム（runtime /
+interpreter）は自由に採用・拡張・置換できる（詳細は
+[design-philosophy.md §4.2](../../spec/ja/design-philosophy.md) を参照）。
+
+### 1. procedure-annotator/stimulus — どの刺激が関与するか?
 
 刺激の**同一性と機能**を宣言する。
 
@@ -99,7 +109,7 @@ Conc(VI30s, VI60s, COD=2s)
 
 **ここに属さないもの:**
 - 刺激の物理的仕様（LED 波長、音のデシベル）→ apparatus-annotator
-- 呈示時間（刺激持続時間、ISI）→ temporal-annotator
+- 呈示時間（刺激持続時間、ISI）→ procedure-annotator/temporal
 - 条件性刺激の学習履歴 → ランタイム状態であり宣言ではない
 
 **引用:**
@@ -107,7 +117,7 @@ Conc(VI30s, VI60s, COD=2s)
 
 ---
 
-### 2. temporal-annotator — 時間はどう構造化されるか?
+### 2. procedure-annotator/temporal — 時間はどう構造化されるか?
 
 再現性に影響する**セッションレベルの時間パラメータ**を宣言する。
 
@@ -117,7 +127,7 @@ Conc(VI30s, VI60s, COD=2s)
 | `@warmup` | セッション前のウォームアップ期間 | `@warmup(duration=60)` |
 | `@algorithm` | スケジュール値生成アルゴリズム | `@algorithm("fleshler-hoffman", n=12)` |
 
-注: `@blackout` と `@cod` は当初 temporal-annotator に提案されたが、随伴性構造に直接影響するため**コア文法にキーワード引数として昇格済み**（`BO=5s`, `COD=2s`）。
+注: `@blackout` と `@cod` は当初 temporal annotation として提案されたが、随伴性構造に直接影響するため**コア文法にキーワード引数として昇格済み**（`BO=5s`, `COD=2s`）。
 
 **例: 完全な時間仕様の VI スケジュール**
 
@@ -135,7 +145,7 @@ VI30s
 **なぜ `@algorithm` が重要か:** Fleshler-Hoffman 分布の `VI 30` と等差数列の `VI 30` では強化間間隔が異なる。スケジュール表記だけ（`VI30s`）では曖昧 — `@algorithm` がこれを再現性のために解決する。
 
 **ここに属さないもの:**
-- 強化子の呈示時間 → stimulus-annotator（`@reinforcer` の duration パラメータ）
+- 強化子の呈示時間 → procedure-annotator/stimulus（`@reinforcer` の duration パラメータ）
 - セッション日数（何日目か）→ セッション・メタデータ
 - 装置の応答遅延 → apparatus-annotator
 
@@ -144,7 +154,7 @@ VI30s
 
 ---
 
-### 3. subject-annotator — 被験体は誰か?
+### 3. subjects-annotator — 被験体は誰か?
 
 被験体の**生物学的条件と動機づけ条件**を宣言する。
 

@@ -56,14 +56,24 @@ The same schedule expression grows richer as it moves from theory to publication
 
 ---
 
-## The Four Recommended Annotators
+## The Four Recommended Annotators (JEAB 4-category mapping)
 
-The contingency-dsl project ships four **recommended annotators** covering
-the universal dimensions of experimental procedures. These form the project's
-recommended set; programs (runtime / interpreter) are free to adopt, extend,
-or replace them (see [design-philosophy.md §4.2](../../spec/ja/design-philosophy.md)).
+The contingency-dsl project ships four **recommended annotators** whose
+names correspond 1:1 to the JEAB Method section headings (Procedure /
+Subjects / Apparatus / Measurement).
 
-### 1. stimulus-annotator — What Stimuli Are Involved?
+| JEAB Category | Annotator | Keywords |
+|---|---|---|
+| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
+| Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
+| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hw` |
+| Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
+
+These form the project's recommended set; programs (runtime / interpreter)
+are free to adopt, extend, or replace them (see
+[design-philosophy.md §4.2](../../spec/ja/design-philosophy.md)).
+
+### 1. procedure-annotator/stimulus — What Stimuli Are Involved?
 
 Declares the **identity and function** of stimuli in the experiment.
 
@@ -100,7 +110,7 @@ Conc(VI30s, VI60s, COD=2s)
 
 **What does NOT belong here:**
 - Physical specifications of stimuli (LED wavelength, sound dB) → apparatus-annotator
-- Presentation timing (stimulus duration, ISI) → temporal-annotator
+- Presentation timing (stimulus duration, ISI) → procedure-annotator/temporal
 - Learning history of conditioned stimuli → runtime state, not a declaration
 
 **Reference:**
@@ -108,7 +118,7 @@ Conc(VI30s, VI60s, COD=2s)
 
 ---
 
-### 2. temporal-annotator — How Is Time Structured?
+### 2. procedure-annotator/temporal — How Is Time Structured?
 
 Declares **session-level temporal parameters** that affect reproducibility.
 
@@ -118,7 +128,7 @@ Declares **session-level temporal parameters** that affect reproducibility.
 | `@warmup` | Pre-session warm-up period | `@warmup(duration=60)` |
 | `@algorithm` | Schedule value generation method | `@algorithm("fleshler-hoffman", n=12)` |
 
-Note: `@blackout` and `@cod` were initially proposed for temporal-annotator but have been **promoted to core grammar** as keyword arguments (`BO=5s`, `COD=2s`) because they directly affect contingency structure.
+Note: `@blackout` and `@cod` were initially proposed as temporal annotations but have been **promoted to core grammar** as keyword arguments (`BO=5s`, `COD=2s`) because they directly affect contingency structure.
 
 **Example: VI schedule with full temporal specification**
 
@@ -136,7 +146,7 @@ VI30s
 **Why `@algorithm` matters:** `VI 30` with Fleshler-Hoffman distribution produces different inter-reinforcement intervals than `VI 30` with arithmetic progression or exponential distribution. The schedule notation alone (`VI30s`) is ambiguous — `@algorithm` resolves this for reproducibility.
 
 **What does NOT belong here:**
-- Reinforcer duration → stimulus-annotator (`@reinforcer` duration param)
+- Reinforcer duration → procedure-annotator/stimulus (`@reinforcer` duration param)
 - Session day number → session metadata, not a time structure
 - Hardware response latency → apparatus-annotator
 
@@ -145,7 +155,7 @@ VI30s
 
 ---
 
-### 3. subject-annotator — Who Is the Subject?
+### 3. subjects-annotator — Who Is the Subject?
 
 Declares **biological and motivational conditions** of the experimental subject.
 

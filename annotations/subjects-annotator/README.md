@@ -1,10 +1,15 @@
-# subject-annotator — Subject Condition Dimension
+# subjects-annotator — JEAB Subjects Category
 
-## Status: Proposed
+## Status: Restructured (2026-04-12)
+
+本 annotator は 2026-04-12 に `subject-annotator` から `subjects-annotator`
+へ改名された。JEAB Method 節の伝統的見出し「Subjects」（複数形）と 1:1 で
+一致させる annotator 再編の一環である（[annotation-design.md §3.7](../../spec/annotation-design.md)
+参照）。
 
 ## Recommended Scope: Program-level
 
-subject-annotator のキーワードはすべて**プログラムレベル**（セッション全体のデフォルト）
+subjects-annotator のキーワードはすべて**プログラムレベル**（セッション全体のデフォルト）
 として宣言することを推奨する。被験体条件はセッション内で不変の境界条件であり、
 論文 Method セクションでは Subjects として Procedure の前に記述される
 （Sidman, 1960; Ferster & Skinner, 1957）。
@@ -65,9 +70,9 @@ FR5
 
 ## Open Questions
 
-- @deprivation は subject-annotator と temporal-annotator の境界にある
+- @deprivation は subjects-annotator と procedure-annotator/temporal の境界にある
   （「22時間の遮断」は時間情報だが、被験体条件でもある）。
-  → 被験体の確立操作として subject-annotator に置くのが行動分析学的に自然。
+  → 被験体の確立操作として subjects-annotator に置くのが行動分析学的に自然。
 - LLM 被験体 (ai-operant-box) の場合、@species は何になるか?
   → `@species("llm", model="claude-sonnet-4-6")` のような拡張が必要かもしれない。
 

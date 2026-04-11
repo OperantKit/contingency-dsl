@@ -206,23 +206,43 @@ string_literal     ::= '"' [^"]* '"'
 ; extend, or ignore these. Registry composition is program-scoped and
 ; not enforced by this grammar. See design-philosophy.md §4.2.
 ;
-; These annotator modules can be mapped to the recommended JEAB-aligned
-; categories (Procedure / Subjects / Apparatus / Measurement) as follows,
-; but programs MAY categorize them differently:
-;   stimulus-annotator   → Procedure   : "reinforcer" (aliases: "punisher",
-;                                         "consequentStimulus") | "sd"
-;                                       | "brief"
-;   temporal-annotator   → Procedure   : "clock" | "warmup" | "algorithm"
-;   subject-annotator    → Subjects    : "species" | "strain" | "deprivation"
-;                                       | "history" | "n"
-;   apparatus-annotator  → Apparatus   : "chamber" | "operandum" | "interface" | "hw"
-;   social-annotator     → (extension) : "subject" | "interlocking"
-;   clinical-annotator   → (extension) : "function" | "target" | "replacement"
+; Recommended annotators are named to match the JEAB Method section
+; headings (Procedure / Subjects / Apparatus / Measurement) 1:1, so that
+; a reader can tell the JEAB category from the annotator name alone.
+; Programs MAY categorize differently; this list is advisory.
 ;
-; Note: @operandum was previously in stimulus-annotator (category: Procedure),
-; but is now in apparatus-annotator (category: Apparatus) to align with JEAB
-; Method section conventions where operanda (levers, keys) are described in
-; the Apparatus section. See annotation-design.md §3.6 for the rationale.
+;   procedure-annotator   → Procedure   (composed of two sub-annotators)
+;     ├── stimulus        : "reinforcer" (aliases: "punisher",
+;     │                     "consequentStimulus") | "sd" | "brief"
+;     └── temporal        : "clock" | "warmup" | "algorithm"
+;
+;   subjects-annotator    → Subjects    : "species" | "strain" | "deprivation"
+;                                        | "history" | "n"
+;
+;   apparatus-annotator   → Apparatus   : "chamber" | "operandum" | "interface" | "hw"
+;
+;   measurement-annotator → Measurement : "session_end" | "baseline" | "steady_state"
+;                                        (v1.x minimal set)
+;
+; Extensions (do not map to the four JEAB categories):
+;   extensions/social-annotator    : "subject" | "interlocking"   (multi-subject)
+;   extensions/clinical-annotator  : "function" | "target" | "replacement" (ABA)
+;
+; See annotation-design.md §3 and §3.7 for the rationale behind this
+; 1:1 annotator-to-category correspondence, and §3.6 for the open
+; followups on @algorithm position, @hw("virtual") multi-category,
+; and the historical Measurement gap.
+;
+; Restructuring history:
+; - @operandum: stimulus-annotator → apparatus-annotator (2026-04-12)
+; - stimulus-annotator + temporal-annotator → procedure-annotator with
+;   two sub-annotators (2026-04-12)
+; - subject-annotator → subjects-annotator (2026-04-12, plural form to
+;   match JEAB "Subjects" heading)
+; - measurement-annotator: newly introduced (2026-04-12) to close the
+;   Measurement category gap (formerly empty).
+; - social-annotator, clinical-annotator: moved under extensions/ subdir
+;   (2026-04-12) to make "extension" status explicit in the file layout.
 ;
 ; Annotation aliases: within an annotator, multiple keywords may map to the
 ; same AST node ("type alias"). Alias relationships are declared by the
