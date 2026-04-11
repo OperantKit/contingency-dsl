@@ -115,6 +115,48 @@ References:
 - Bouton, M. E. (2004). Context and behavioral processes in extinction.
   *Learning & Memory*, 11, 485-494.
 
+## Lag schedule (v1.x)
+
+**v1.x:** `Lag` is a differential reinforcement modifier for operant
+variability (see grammar.ebnf `lag_mod` production and
+[spec/en/theory.md §2.8](spec/en/theory.md)). The parameter `n` is positional
+to match literature notation ("Lag 5", Page & Neuringer, 1985). The keyword
+argument `length` specifies the response unit size.
+
+| Parameter | Position | Default | Dimension |
+|-----------|----------|---------|-----------|
+| n | positional (first) | no default (required) | non-negative integer, dimensionless |
+| length | keyword (`length=N`) | **1** (individual response unit) | positive integer, dimensionless |
+
+- `n` must be a non-negative integer. Non-integer or negative → `LAG_INVALID_N_VALUE`.
+- `n` must NOT carry a time unit. `Lag 5s` → `LAG_UNEXPECTED_TIME_UNIT`.
+- `length` defaults to 1 if omitted. When specified, it must be >= 1.
+  `length=0` or negative → `LAG_INVALID_LENGTH`.
+- Large `n` (> 50) → linter WARNING `LAG_LARGE_N`.
+- `Lag 0` is legal and semantically equivalent to CRF (no variability
+  requirement, all responses reinforced).
+- `Lag(5, length=8)` replicates Page & Neuringer (1985) Experiment 1 style
+  (2-key 8-peck sequences, Lag 1-50 across experiments).
+
+**Semantics.** Let S(t) be the response unit (individual response if
+`length=1`, or N-response sequence if `length=N`). Reinforcement is
+delivered iff:
+
+```
+S(t) ∉ { S(t-1), S(t-2), ..., S(t-n) }
+```
+
+In words: reinforce only if the current unit differs from each of the
+previous n units.
+
+References:
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of
+  Experimental Psychology: Animal Behavior Processes*, 11(3), 429-452.
+  https://doi.org/10.1037/0097-7403.11.3.429
+- Neuringer, A. (2002). Operant variability: Evidence, functions, and
+  theory. *Psychonomic Bulletin & Review*, 9(4), 672-705.
+  https://doi.org/10.3758/BF03196324
+
 ## Sidman free-operant avoidance (v1.x)
 
 **v1.x:** Sidman is a dedicated aversive-schedule primitive

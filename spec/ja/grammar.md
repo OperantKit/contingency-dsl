@@ -57,6 +57,7 @@ DSL の文法は4つの基準を満たす:
                   | "Sidman" | "SidmanAvoidance"
                   | "SSI" | "ShockShockInterval"
                   | "RSI" | "ResponseShockInterval"
+                  | "Lag" | "length"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
 <combinator>    ::= "Conc" | "Alt" | "Conj"
@@ -68,7 +69,7 @@ DSL の文法は4つの基準を満たす:
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
 
-<modifier>      ::= <dr_mod> | <pr_mod> | <repeat>
+<modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
 <pr_mod>        ::= "PR" ("(" <pr_opts> ")")?
 <pr_opts>       ::= <pr_step> ("," <pr_param>)*
@@ -76,6 +77,9 @@ DSL の文法は4つの基準を満たす:
 <pr_param>      ::= "start" "=" <number>
                   | "increment" "=" <number>
 <repeat>        ::= "Repeat" "(" <number> "," <schedule> ")"
+<lag_mod>       ::= "Lag" <ws>? <number>
+                  | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
+<lag_kw_arg>    ::= "length" "=" <number>
 
 <aversive_schedule> ::= <sidman_avoidance>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
@@ -209,6 +213,13 @@ Sidman(SSI=20s, RSI=5s)                              -- 基本形 (Sidman, 1953)
 SidmanAvoidance(SSI=20s, RSI=5s)                     -- verbose alias
 Sidman(ShockShockInterval=20s, ResponseShockInterval=5s) -- verbose parameter names
 Chain(FR10, Sidman(SSI=20s, RSI=5s))                 -- 連鎖スケジュールに回避リンク
+
+-- Lag スケジュール、操作的変動性（§2.8）
+Lag 5                                                 -- Lag 5 略記形式、length=1 default
+Lag(5)                                                -- 括弧形式の等価表現
+Lag(5, length=8)                                      -- Page & Neuringer (1985) 8-peck sequence
+Lag 0                                                 -- variability 要求なし（CRF と等価）
+Mult(Lag(5, length=8), CRF)                           -- Lag vs CRF ベースラインの multiple schedule
 
 -- プログラムレベルの COD デフォルト（全 Conc に適用）
 -- COD = 2s

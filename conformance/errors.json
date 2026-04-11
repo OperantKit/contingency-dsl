@@ -214,5 +214,47 @@
     "description": "Using both SSI and ShockShockInterval counts as duplicate (same parameter)",
     "input": "Sidman(SSI=20s, ShockShockInterval=30s, RSI=5s)",
     "error": { "type": "SemanticError", "code": "DUPLICATE_SIDMAN_PARAM" }
+  },
+  {
+    "id": "error_lag_negative_n",
+    "description": "Lag n must be a non-negative integer",
+    "input": "Lag -1",
+    "error": { "type": "SemanticError", "code": "LAG_INVALID_N_VALUE" }
+  },
+  {
+    "id": "error_lag_non_integer_n",
+    "description": "Lag n must be an integer (not fractional)",
+    "input": "Lag 5.5",
+    "error": { "type": "SemanticError", "code": "LAG_INVALID_N_VALUE" }
+  },
+  {
+    "id": "error_lag_time_unit",
+    "description": "Lag schedule is sequence-based; time units are not allowed",
+    "input": "Lag 5s",
+    "error": { "type": "SemanticError", "code": "LAG_UNEXPECTED_TIME_UNIT" }
+  },
+  {
+    "id": "error_lag_length_zero",
+    "description": "Lag length must be a positive integer (>= 1)",
+    "input": "Lag(5, length=0)",
+    "error": { "type": "SemanticError", "code": "LAG_INVALID_LENGTH" }
+  },
+  {
+    "id": "error_lag_length_negative",
+    "description": "Lag length must be a positive integer (negative rejected)",
+    "input": "Lag(5, length=-2)",
+    "error": { "type": "SemanticError", "code": "LAG_INVALID_LENGTH" }
+  },
+  {
+    "id": "error_lag_duplicate_kw",
+    "description": "Duplicate length keyword argument",
+    "input": "Lag(5, length=4, length=8)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_LAG_KW_ARG" }
+  },
+  {
+    "id": "error_lag_missing_positional_n",
+    "description": "Lag requires a positional n in parenthesized form",
+    "input": "Lag(length=8)",
+    "error": { "type": "ParseError", "code": "EXPECTED_VALUE" }
   }
 ]

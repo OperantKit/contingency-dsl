@@ -430,6 +430,97 @@ the reinforcement schedule matrix. Simple punishment (e.g., FR3 of shock on
 a single operandum) and escape (response terminates ongoing shock) can be
 approximated with existing constructs using stimulus annotations.
 
+### 2.8 Lag Schedule — Operant Variability
+
+The differential reinforcement modifiers DRL, DRH, and DRO all operate on a
+**temporal** dimension (inter-response time). A different kind of
+differential reinforcement operates on **response variability** itself:
+**Page & Neuringer (1985)** introduced the **Lag schedule**, in which a
+response (or response sequence) is reinforced only if it differs from each
+of the previous *n* responses. This demonstrated that variability is itself
+an operant dimension — a behavioral property that can be strengthened by
+contingent reinforcement like any other dimension.
+
+The DSL introduces `Lag` as a differential reinforcement modifier in the
+`modifier` production (grammar.ebnf), alongside DRL/DRH/DRO/PR/Repeat. This
+is an additive Core extension under design-philosophy §8.1.
+
+**Procedural definition.**
+
+- **n**: the number of previous responses/sequences to compare against.
+  `Lag 1` reinforces if the current response differs from the immediately
+  previous one. `Lag 5` reinforces if it differs from each of the previous 5.
+- **length** (optional, default = 1): the size of the response unit.
+  `length=1` treats each individual response as the unit (the applied
+  research default). `length=8` treats each 8-response sequence as the unit
+  (Page & Neuringer, 1985 used this for 2-key 8-peck sequences).
+
+Formally, let S(t) be the response unit at time t. Reinforcement is
+delivered if and only if:
+
+```
+S(t) ∉ { S(t-1), S(t-2), ..., S(t-n) }
+```
+
+**Syntax.**
+
+```
+Lag 5                       -- shorthand, matches literature "Lag 5" notation;
+                               length defaults to 1 (individual response unit)
+Lag(5)                      -- parenthesized equivalent of Lag 5
+Lag(5, length=8)            -- Page & Neuringer (1985) style 8-peck sequence
+Lag(50, length=8)           -- Page & Neuringer (1985) Experiment 3 high Lag
+```
+
+The parameter `n` is positional to match the literature notation ("Lag 5",
+"Lag 10"). The optional keyword argument `length` is the response-unit size.
+
+**Semantic constraints.**
+
+- `n` must be a non-negative integer. `Lag 0` is legal and is semantically
+  equivalent to CRF (no variability requirement).
+- `n` must NOT carry a time unit. `Lag 5s` → `LAG_UNEXPECTED_TIME_UNIT`.
+  Lag is categorical / sequence-based; no established variant uses a time
+  dimension (see `ShockShockInterval` for time-based reinforcement via
+  aversive-schedule primitives, or DRL/DRH for time-based differential
+  reinforcement).
+- `length`, if specified, must be a positive integer (>= 1). Omission
+  implies `length = 1`.
+- Large `n` (> 50) triggers a linter WARNING `LAG_LARGE_N`. Historical
+  research uses n <= 50.
+
+**Stimulus annotation.** Lag works with `@reinforcer` like any other
+schedule:
+
+```
+Lag(5, length=8)
+  @reinforcer("grain")
+  @operandum("left_key") @operandum("right_key")
+```
+
+**Composition.** Lag is a modifier and may appear inside any compound
+combinator. A common pattern is to use `Mult` to alternate variability
+training with a CRF baseline:
+
+```
+Mult(Lag(5, length=8), CRF)
+```
+
+**Historical notes.**
+
+- The primary research unit in Page & Neuringer (1985) is the
+  **response sequence**; `length = 1` (individual response) is formally a
+  degenerate sequence and corresponds to applied research use cases (mand
+  and tact variability training; Miller & Neuringer, 2000; Lee, McComas, &
+  Jawor, 2002; Rodriguez et al., 2011).
+- There is no established Lag schedule variant that uses a time dimension.
+  Time-based variability research uses different procedures: response
+  duration differential reinforcement (Platt, 1973), IRT distributions via
+  percentile schedules (Alleman & Platt, 1973), or DRD.
+- `Lag 0` ≡ CRF is a boundary case preserved for consistency. It declares
+  the user's intent ("this is a Lag schedule with no variability
+  requirement") rather than being optimized away at parse time.
+
 ---
 
 ## References
@@ -453,5 +544,9 @@ approximated with existing constructs using stimulus annotations.
 - Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
 - Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
 - de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance: Reinforcement within and by avoidance situations. *Journal of the Experimental Analysis of Behavior*, 32(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, 11(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
+- Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, 9(4), 672-705. https://doi.org/10.3758/BF03196324
+- Miller, N., & Neuringer, A. (2000). Reinforcing variability in adolescents with autism. *Journal of Applied Behavior Analysis*, 33(2), 151-165. https://doi.org/10.1901/jaba.2000.33-151
+- Lee, R., McComas, J. J., & Jawor, J. (2002). The effects of differential and lag reinforcement schedules on varied verbal responding by individuals with autism. *Journal of Applied Behavior Analysis*, 35(4), 391-402. https://doi.org/10.1901/jaba.2002.35-391
 - Skinner, B. F. (1948). 'Superstition' in the pigeon. *Journal of Experimental Psychology*, 38(2), 168-172. https://doi.org/10.1037/h0055873
 - Wagner, A. R. (1981). SOP: A model of automatic memory processing in animal behavior. In N. E. Spear & R. R. Miller (Eds.), *Information processing in animals: Memory mechanisms* (pp. 5-47). Erlbaum.

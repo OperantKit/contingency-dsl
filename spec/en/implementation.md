@@ -51,9 +51,10 @@ class CompoundSchedule:
 
 @dataclass(frozen=True)
 class ModifierSchedule:
-    modifier: str  # "DRL" | "DRH" | "DRO" | "PR" | "Repeat"
+    modifier: str  # "DRL" | "DRH" | "DRO" | "PR" | "Repeat" | "Lag"
     value: float | None = None
     inner: ScheduleExpr | None = None  # for Repeat
+    length: int | None = None  # for Lag (sequence length, default 1)
     # PR-specific fields...
 
 @dataclass(frozen=True)

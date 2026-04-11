@@ -95,6 +95,7 @@ reserved      ::= "let" | "def"
                 | "Sidman" | "SidmanAvoidance" -- v1.x: Sidman free-operant avoidance (Sidman, 1953)
                 | "SSI" | "ShockShockInterval"
                 | "RSI" | "ResponseShockInterval"
+                | "Lag" | "length"            -- v1.x: Lag schedule (Page & Neuringer, 1985)
 
 ; === Compound schedules ===
 ;
@@ -118,7 +119,7 @@ kw_name       ::= "COD" | "ChangeoverDelay"
 
 ; === Modifiers ===
 
-modifier      ::= dr_mod | pr_mod | repeat
+modifier      ::= dr_mod | pr_mod | repeat | lag_mod
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 
@@ -129,6 +130,22 @@ pr_param      ::= "start" "=" number
                 | "increment" "=" number
 
 repeat        ::= "Repeat" "(" number "," schedule ")"
+
+; Lag schedule (Page & Neuringer, 1985). Reinforce the current response
+; (or response sequence) if it differs from each of the previous n responses.
+; "n" is positional, matching literature notation ("Lag 5", "Lag 10").
+; "length" is an optional keyword argument for sequence length. Default = 1
+; (individual response unit, as used in applied verbal-behavior research).
+; Page & Neuringer (1985) used length = 8 (2-key 8-peck sequences).
+;
+; Reference: Page, S., & Neuringer, A. (1985). Variability is an operant.
+;   Journal of Experimental Psychology: Animal Behavior Processes, 11(3),
+;   429-452. https://doi.org/10.1037/0097-7403.11.3.429
+
+lag_mod       ::= "Lag" ws? number                              -- shorthand: Lag 5
+                | "Lag" "(" number ("," lag_kw_arg)* ")"        -- parenthesized: Lag(5, length=8)
+
+lag_kw_arg    ::= "length" "=" number
 
 ; === Aversive schedules (v1.x) ===
 ;
@@ -304,3 +321,20 @@ string_literal     ::= '"' [^"]* '"'
 ; 21. Duplicate Sidman parameter keywords → SemanticError (DUPLICATE_SIDMAN_PARAM).
 ;     E.g., `Sidman(SSI=20s, SSI=30s)` → error. Verbose alias does not count as
 ;     duplicate: `Sidman(SSI=20s, ShockShockInterval=30s)` → error (same parameter).
+; 22. Lag modifier: n must be a non-negative integer.
+;     `Lag 5.5` or `Lag -1` → SemanticError (LAG_INVALID_N_VALUE).
+;     `Lag 0` is legal and is semantically equivalent to CRF (no variability
+;     requirement, all responses reinforced).
+; 23. Lag modifier: n must NOT carry a time unit.
+;     `Lag 5s` → SemanticError (LAG_UNEXPECTED_TIME_UNIT).
+;     Rationale: Lag is categorical / sequence-based (Page & Neuringer, 1985);
+;     no established variant uses a time dimension.
+; 24. Lag modifier: length must be a positive integer (>= 1) if specified.
+;     Omission implies length = 1 (individual response as the unit).
+;     `Lag(5, length=0)` or `Lag(5, length=-1)` → SemanticError (LAG_INVALID_LENGTH).
+; 25. Lag modifier: large n values (> 50) trigger Linter WARNING (LAG_LARGE_N).
+;     Historical research (Page & Neuringer, 1985; Neuringer, 2002) typically
+;     uses n <= 50. Very large n approaches "novel response only" semantics,
+;     which may be the user's intent but is worth flagging.
+; 26. Lag modifier: duplicate keyword arguments → SemanticError
+;     (DUPLICATE_LAG_KW_ARG). E.g., `Lag(5, length=4, length=8)` → error.

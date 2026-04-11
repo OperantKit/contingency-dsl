@@ -187,7 +187,73 @@ Chain(FR10 @reinforcer("food"),
 
 ---
 
-## 9. Complex Real-World Experiment
+## 9. Operant Variability with Lag Schedule
+
+**Scenario:** Reinforcing response variability directly — training a subject to
+emit response patterns that differ from recent responses. Used in applied
+settings (ASD language therapy, creativity research) and basic research
+(operant variability, Neuringer's program).
+
+```
+Lag(5, length=8)
+  @reinforcer("grain")
+  @operandum("left_key") @operandum("right_key")
+```
+
+**What this does:** The subject emits 8-peck sequences on two keys (LLLLLLLL,
+LLLLLLLR, ..., RRRRRRRR = 256 possible sequences). A sequence is reinforced
+only if it differs from each of the previous 5 sequences (Page & Neuringer,
+1985). Well-trained pigeons produce near-random sequence distributions under
+Lag 50 (Experiment 3), demonstrating that variability itself is a reinforceable
+operant dimension.
+
+**Why it exists:** Page & Neuringer (1985) showed that reinforcement
+contingencies can directly control response variability, overturning Schwartz's
+(1980) conclusion that variability cannot be operantly reinforced. This became
+the foundational procedure for operant variability research and has been used in
+ASD stereotypy reduction (Miller & Neuringer, 2000), autism mand training (Lee,
+McComas, & Jawor, 2002), and creativity studies.
+
+**Simple form for applied research.** For individual-response variability
+(e.g., mand training), omit `length` — it defaults to 1:
+
+```
+Lag 5
+  @reinforcer("praise+token")
+  @target("varied mand across requests")
+```
+
+This treats each individual response (mand, tact, or lever press) as the unit,
+reinforcing only responses that differ from the previous 5.
+
+**Lag 0 as a control condition.** `Lag 0` is legal and is semantically
+equivalent to CRF — useful as an explicit control in experiments comparing
+"variability-required" vs "variability-allowed" conditions (Page & Neuringer's
+Experiment 5 yoked control):
+
+```
+Mult(Lag(5, length=8), Lag 0)    -- variability vs no-variability baseline
+```
+
+**Composition with Mult.** A common pattern in Neuringer's program is to
+alternate variability training with a CRF baseline or fixed-pattern schedule:
+
+```
+Mult(Lag(5, length=8), CRF, BO=5s)
+  @sd("red_light", component=1)
+  @sd("green_light", component=2)
+  @reinforcer("grain")
+```
+
+**References:**
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
+- Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, *9*(4), 672-705. https://doi.org/10.3758/BF03196324
+- Miller, N., & Neuringer, A. (2000). Reinforcing variability in adolescents with autism. *JABA*, *33*(2), 151-165. https://doi.org/10.1901/jaba.2000.33-151
+- Lee, R., McComas, J. J., & Jawor, J. (2002). The effects of differential and lag reinforcement schedules on varied verbal responding by individuals with autism. *JABA*, *35*(4), 391-402. https://doi.org/10.1901/jaba.2002.35-391
+
+---
+
+## 10. Complex Real-World Experiment
 
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
@@ -224,6 +290,7 @@ Mult(choice_component, chain_component)
 | `PR` | Reinforcer efficacy measurement | No quantitative breakpoint metric |
 | `COD` / `FRCO` | Clean concurrent data | Inflated reinforcement from rapid switching |
 | `Sidman` | Free-operant avoidance, aversive control | Cannot express unsignaled avoidance procedures |
+| `Lag` | Operant variability, ASD stereotypy reduction, creativity research | Cannot reinforce response variability directly |
 | `let` | Readable complex programs | Unreadable nested expressions |
 
 ---

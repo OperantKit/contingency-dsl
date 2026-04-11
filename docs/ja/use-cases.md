@@ -187,7 +187,69 @@ Chain(FR10 @reinforcer("food"),
 
 ---
 
-## 9. 複合的な実験プログラム
+## 9. Lag スケジュールによる操作的変動性
+
+**シナリオ:** 反応の変動性を直接強化する手続き — 被験体が直前と異なる反応パターンを
+生成することを強化する。応用場面（ASD の言語療法、創造性研究）と基礎研究
+（operant variability、Neuringer の研究プログラム）で使用される。
+
+```
+Lag(5, length=8)
+  @reinforcer("grain")
+  @operandum("left_key") @operandum("right_key")
+```
+
+**何をするか:** 被験体は 2 キー上で 8-peck の系列（LLLLLLLL, LLLLLLLR, ...,
+RRRRRRRR の 256 通り）を生成する。現在の系列が直前 5 系列のいずれとも異なる場合
+にのみ強化される（Page & Neuringer, 1985）。訓練が進んだハトは Lag 50 でほぼ
+ランダムに近い系列分布を生成し（Experiment 3）、**variability それ自体が
+オペラント次元として強化可能**であることを示した。
+
+**なぜ存在するか:** Page & Neuringer (1985) は、強化随伴性が反応の変動性を
+直接制御可能であることを示し、Schwartz (1980) の「variability は強化で制御
+できない」という結論を覆した。これは操作的変動性研究の基盤手続きとなり、
+ASD のステレオタイプ低減（Miller & Neuringer, 2000）、自閉症マンド訓練
+（Lee, McComas, & Jawor, 2002）、創造性研究に応用された。
+
+**応用研究での簡易形式:** 個別反応の variability（例: マンド訓練）では、
+`length` を省略する — default=1 として機能する:
+
+```
+Lag 5
+  @reinforcer("praise+token")
+  @target("varied mand across requests")
+```
+
+この形式では、個別反応（マンド、タクト、レバー押し）を単位として、直前 5 個の
+反応と異なる反応のみを強化する。
+
+**統制条件としての Lag 0:** `Lag 0` は合法で CRF と意味論的に等価。「variability
+要求あり」 vs 「variability 許容」の条件を比較する実験（Page & Neuringer の
+Experiment 5 yoked control）での明示的な統制として有用:
+
+```
+Mult(Lag(5, length=8), Lag 0)    -- variability vs no-variability baseline
+```
+
+**Mult との合成:** Neuringer の研究プログラムでは、variability 訓練と CRF
+ベースラインまたは固定パターンを交替させるパターンがよく使われる:
+
+```
+Mult(Lag(5, length=8), CRF, BO=5s)
+  @sd("red_light", component=1)
+  @sd("green_light", component=2)
+  @reinforcer("grain")
+```
+
+**参考文献:**
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
+- Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, *9*(4), 672-705. https://doi.org/10.3758/BF03196324
+- Miller, N., & Neuringer, A. (2000). Reinforcing variability in adolescents with autism. *JABA*, *33*(2), 151-165. https://doi.org/10.1901/jaba.2000.33-151
+- Lee, R., McComas, J. J., & Jawor, J. (2002). The effects of differential and lag reinforcement schedules on varied verbal responding by individuals with autism. *JABA*, *35*(4), 391-402. https://doi.org/10.1901/jaba.2002.35-391
+
+---
+
+## 10. 複合的な実験プログラム
 
 **シナリオ:** 一方の成分で並行配置、他方で連鎖手続きを使う2成分多元スケジュール。プログラムレベルのデフォルト付き。
 
@@ -224,6 +286,7 @@ Mult(choice_component, chain_component)
 | `PR` | 強化子効力測定 | 定量的ブレイクポイント指標がない |
 | `COD` / `FRCO` | クリーンな並行データ | 高速切替による強化率膨張 |
 | `Sidman` | 自由オペラント回避、嫌悪制御 | 無弁別回避手続きを表現できない |
+| `Lag` | 操作的変動性、ASD ステレオタイプ低減、創造性研究 | 反応の variability を直接強化できない |
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
 
 ---

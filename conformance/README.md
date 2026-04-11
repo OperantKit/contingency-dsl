@@ -54,10 +54,10 @@ Explicit `COD=0s` does NOT trigger the warning.
 |------|-------|-------|
 | `atomic.json` | 15 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid |
 | `compound.json` | 19 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, nested, deep nesting depth≥3, wide (5 components) |
-| `modifier.json` | 13 | DRL, DRH, DRO, PR, Repeat |
+| `modifier.json` | 21 | DRL, DRH, DRO, PR, Repeat, Lag (simple, parenthesized, with length, in Mult, in let binding) |
 | `limited_hold.json` | 12 | FI30 LH10, program-level LH default, LH on EXT/CRF/SecondOrder |
 | `second_order.json` | 5 | FR5(FI30), VI60(FR10), RR5(FT20s) |
 | `binding.json` | 7 | let bindings, expansion, compound refs, LH bindings |
 | `program.json` | 4 | Complete programs with param_decls + bindings |
 | `aversive.json` | 7 | Sidman free-operant avoidance (v1.x), verbose aliases, composition with Chain, let binding |
-| `errors.json` | 31 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors |
+| `errors.json` | 38 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors |

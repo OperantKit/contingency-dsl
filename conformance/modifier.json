@@ -303,5 +303,149 @@
         ]
       }
     }
+  },
+  {
+    "id": "lag_simple_shorthand",
+    "description": "Lag 5 shorthand form (applied research default, length=1 implicit)",
+    "input": "Lag 5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 5.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "lag_simple_no_space",
+    "description": "Lag5 without space (compact form)",
+    "input": "Lag5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 5.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "lag_zero_equiv_crf",
+    "description": "Lag 0 is semantically equivalent to CRF (no variability requirement)",
+    "input": "Lag 0",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 0.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "lag_parenthesized_n_only",
+    "description": "Lag(5) parenthesized form with positional n, length defaults to 1",
+    "input": "Lag(5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 5.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "lag_parenthesized_with_length",
+    "description": "Lag(5, length=8) — Page & Neuringer (1985) 8-peck sequence style",
+    "input": "Lag(5, length=8)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 5.0,
+        "length": 8
+      }
+    }
+  },
+  {
+    "id": "lag_page_neuringer_exp3",
+    "description": "Lag(50, length=8) — Page & Neuringer (1985) Experiment 3 (high Lag value)",
+    "input": "Lag(50, length=8)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 50.0,
+        "length": 8
+      }
+    }
+  },
+  {
+    "id": "lag_in_mult_schedule",
+    "description": "Lag as a component of Multiple schedule with CRF baseline",
+    "input": "Mult(Lag(5, length=8), CRF)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "Modifier",
+            "modifier": "Lag",
+            "value": 5.0,
+            "length": 8
+          },
+          { "type": "Special", "kind": "CRF" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "lag_let_binding",
+    "description": "Lag schedule bound to identifier via let",
+    "input": "let variability = Lag(5, length=8)\nvariability",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "variability",
+          "value": {
+            "type": "Modifier",
+            "modifier": "Lag",
+            "value": 5.0,
+            "length": 8
+          }
+        }
+      ],
+      "schedule": {
+        "type": "IdentifierRef",
+        "name": "variability"
+      }
+    }
   }
 ]

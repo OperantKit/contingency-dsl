@@ -174,12 +174,12 @@
 
     "Modifier": {
       "type": "object",
-      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), or Repeat (with count + inner).",
+      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), Repeat (with count + inner), or Lag (Page & Neuringer, 1985).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": {
           "type": "string",
-          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat"]
+          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat", "Lag"]
         },
         "value": { "type": "number" },
         "time_unit": { "$ref": "#/$defs/TimeUnit" },
@@ -189,7 +189,12 @@
           "enum": ["hodos", "exponential", "linear"]
         },
         "pr_start": { "type": "number" },
-        "pr_increment": { "type": "number" }
+        "pr_increment": { "type": "number" },
+        "length": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Sequence length for Lag schedule (Page & Neuringer, 1985). Omitted or set to 1 means individual response is the unit (applied research default). Set to N means the unit is a sequence of N responses (e.g., Page & Neuringer used length=8 for 2-key 8-peck sequences). Only applicable when modifier == 'Lag'."
+        }
       },
       "required": ["type", "modifier"],
       "additionalProperties": false

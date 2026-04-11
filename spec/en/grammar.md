@@ -55,6 +55,7 @@ The DSL grammar satisfies four criteria:
                   | "Sidman" | "SidmanAvoidance"
                   | "SSI" | "ShockShockInterval"
                   | "RSI" | "ResponseShockInterval"
+                  | "Lag" | "length"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
 <combinator>    ::= "Conc" | "Alt" | "Conj"
@@ -66,7 +67,7 @@ The DSL grammar satisfies four criteria:
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
 
-<modifier>      ::= <dr_mod> | <pr_mod> | <repeat>
+<modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
 <pr_mod>        ::= "PR" ("(" <pr_opts> ")")?
 <pr_opts>       ::= <pr_step> ("," <pr_param>)*
@@ -74,6 +75,9 @@ The DSL grammar satisfies four criteria:
 <pr_param>      ::= "start" "=" <number>
                   | "increment" "=" <number>
 <repeat>        ::= "Repeat" "(" <number> "," <schedule> ")"
+<lag_mod>       ::= "Lag" <ws>? <number>
+                  | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
+<lag_kw_arg>    ::= "length" "=" <number>
 
 <aversive_schedule> ::= <sidman_avoidance>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
@@ -210,6 +214,13 @@ Sidman(SSI=20s, RSI=5s)                              -- basic Sidman avoidance (
 SidmanAvoidance(SSI=20s, RSI=5s)                     -- verbose alias
 Sidman(ShockShockInterval=20s, ResponseShockInterval=5s) -- verbose parameter names
 Chain(FR10, Sidman(SSI=20s, RSI=5s))                 -- chained schedule with avoidance link
+
+-- Lag schedule, operant variability (§2.8)
+Lag 5                                                 -- Lag 5 shorthand; length defaults to 1
+Lag(5)                                                -- parenthesized equivalent
+Lag(5, length=8)                                      -- Page & Neuringer (1985) 8-peck sequence
+Lag 0                                                 -- no variability requirement (equivalent to CRF)
+Mult(Lag(5, length=8), CRF)                           -- Lag vs CRF baseline in multiple schedule
 
 -- let bindings (macro expansion)
 let baseline = VI60s
