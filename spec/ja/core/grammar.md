@@ -189,7 +189,7 @@ EXT                                   -- 消去
 CRF                                   -- 連続強化（= FR 1）
 
 -- 複合スケジュール
-Conc(VI 30-s, VI 60-s, COD=2-s)           -- 並行 VI 30-s VI 60-s + 切替遅延 2-s
+Conc(VI 30-s, VI 60-s, COD=2-s)           -- 並立 VI 30-s VI 60-s + 切替遅延 2-s
 Chain(FR 5, FI 30-s)                     -- 連鎖 FR 5 → FI 30
 Alt(FR 10, FI 5-min)                     -- 選択 FR 10 | FI 5-min
 Conj(FR 5, FI 30-s)                      -- 連言 FR 5 ∧ FI 30
@@ -201,8 +201,8 @@ Mix(FR 5, FR 10)                        -- 混合 FR 5/FR 10
 Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s))
 
 -- 修飾子
-DRL 5-s                                 -- 低率差異強化
-DRO 10-s                                -- 他行動差異強化
+DRL 5-s                                 -- 低率分化強化
+DRO 10-s                                -- 他行動分化強化
 PR(hodos)                             -- 累進比率（Hodos ステップ）
 PR(linear, start=1, increment=5)      -- 累進比率（線形ステップ）
 
@@ -213,7 +213,7 @@ Tand(Repeat(3, FR 10), VI 60-s)          -- FR 10 × 3 → VI 60
 FI 30-s LH 10-s                           -- FI 30 + LH 10（Ferster & Skinner, 1957 正典形式）
 VI 60-s LH 5-s                            -- VI 60 + LH 5
 DRL 3-s LH 8-s                            -- DRL 3 + LH 8（Kramer & Rilling, 1970）
-Conc(VI 30-s LH 5-s, VI 60-s LH 10-s)        -- 並行: 成分ごとに個別 LH
+Conc(VI 30-s LH 5-s, VI 60-s LH 10-s)        -- 並立: 成分ごとに個別 LH
 Chain(FR 5, FI 30-s) LH 10-s              -- 複合スケジュール全体に LH
 
 -- プログラムレベルの LH デフォルト（param_decl）
@@ -234,7 +234,7 @@ SidmanAvoidance(SSI=20-s, RSI=5-s)                     -- verbose alias
 Sidman(ShockShockInterval=20-s, ResponseShockInterval=5-s) -- verbose parameter names
 Chain(FR 10, Sidman(SSI=20-s, RSI=5-s))                 -- 連鎖スケジュールに回避リンク
 
--- Lag スケジュール、操作的変動性（§2.8）
+-- Lag スケジュール、オペラント変動性（§2.8）
 Lag 5                                                 -- Lag 5 略記形式、length=1 default
 Lag(5)                                                -- 括弧形式の等価表現
 Lag(5, length=8)                                      -- Page & Neuringer (1985) 8-peck sequence
@@ -251,9 +251,9 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)  -- 固定 US
 DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)                    -- 短縮 alias
 
--- 罰重畳（§2.10）
+-- 罰の重畳（§2.10）
 Overlay(VI 60-s, FR 1)                              -- VI 60 ベースラインに全反応罰
-Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)        -- 並行ベースラインに罰重畳
+Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)        -- 並立ベースラインに罰の重畳
 
 -- let 束縛（マクロ展開）
 let baseline = VI 60-s

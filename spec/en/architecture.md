@@ -220,7 +220,7 @@ annotator reorganization established this correspondence.
 
 | Extension | Keywords (candidate) | Domain |
 |---|---|---|
-| `extensions/social-annotator` | `@subject`, `@interlocking` | Multi-subject contingencies, cooperation tasks |
+| `extensions/social-annotator` | `@subject`, `@ibc` | Multi-subject contingencies, cooperation tasks. `@ibc` = Interlocking Behavioral Contingencies (Glenn, 2004) |
 | `extensions/clinical-annotator` | `@function`, `@target`, `@replacement` | ABA intervention metadata, FBA results |
 
 **Orthogonality constraint:** Annotation keywords across all annotators are mutually disjoint. Multiple annotators can annotate the same schedule expression simultaneously:
@@ -269,7 +269,7 @@ contingency-dsl (base CFG)
         └── extensions/ (outside the four JEAB categories)
               │
               ├── social_annotator/ (multi-subject / cooperation)
-              │     + @subject, @interlocking annotations
+              │     + @subject, @ibc annotations
               │
               └── clinical_annotator/ (ABA clinical metadata)
                     + @function, @target, @replacement annotations

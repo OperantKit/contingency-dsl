@@ -272,7 +272,7 @@ parse ⊆ dev ⊆ production ⊆ publication
   モード: parse ✓
 
 ステップ 2: 選択手続き
-  ユーザー: "並行 VI-VI を見たい"
+  ユーザー: "並立 VI-VI を見たい"
   DSL: Conc(VI 30-s, VI 60-s, COD=2-s)
   モード: parse ✓, dev ✓（virtual で回せる）
 

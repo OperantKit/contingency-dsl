@@ -117,7 +117,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 
 | Extension | Example keywords | Domain |
 |---|---|---|
-| extensions/social-annotator | `@subject`, `@interlocking` | Multi-subject contingencies, cooperative tasks |
+| extensions/social-annotator | `@subject`, `@ibc` | Multi-subject contingencies, cooperative tasks. `@ibc` = Interlocking Behavioral Contingencies (Glenn, 2004); renamed from `@interlocking` to avoid collision with `Interlock(...)` schedule (Ferster & Skinner, 1957) |
 | extensions/clinical-annotator | `@function`, `@target`, `@replacement` | ABA clinical metadata |
 
 Category classification conforms to [design-philosophy.md](design-philosophy.md#41-推奨カテゴリ体系jeab-method-節に準拠) §4.1.

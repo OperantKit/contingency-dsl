@@ -176,7 +176,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 | Extension | キーワード（候補） | 領域 |
 |---|---|---|
-| `extensions/social-annotator` | `@subject`, `@interlocking` | 多被験体随伴性、協調課題 |
+| `extensions/social-annotator` | `@subject`, `@ibc` | 多被験体随伴性、協調課題。`@ibc` = Interlocking Behavioral Contingencies (Glenn, 2004) |
 | `extensions/clinical-annotator` | `@function`, `@target`, `@replacement` | ABA 臨床メタデータ、FBA 結果 |
 
 **直交性の制約:** 全 annotator のアノテーションキーワードは相互に重複しない。同一スケジュール式に複数 annotator のアノテーションを同時付与可能（デカルト積）:
@@ -225,7 +225,7 @@ contingency-dsl（基底 CFG）
         └── extensions/ （JEAB 4 カテゴリ外）
               │
               ├── social_annotator/ （多被験体・協調）
-              │     + @subject, @interlocking 注釈
+              │     + @subject, @ibc 注釈
               │
               └── clinical_annotator/ （ABA 臨床メタデータ）
                     + @function, @target, @replacement 注釈
