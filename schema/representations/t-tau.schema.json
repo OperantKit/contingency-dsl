@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/representations/t-tau.schema.json",
+  "title": "T-tau Representation",
+  "description": "Schoenfeld & Cole (1972) time-based parameterization. Represents time-dependent schedules as recurring cycles of length T with a reinforcement window of τ seconds.",
+  "version": "1.0",
+  "status": "Draft",
+
+  "reference": "Schoenfeld, W. N., & Cole, B. K. (1972). Stimulus schedules: The t-τ systems. Harper & Row.",
+
+  "params": {
+    "type": "object",
+    "properties": {
+      "T": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Cycle duration in seconds. Must be strictly positive."
+      },
+      "tau": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "Reinforcement window in seconds. Must satisfy 0 < τ ≤ T."
+      }
+    },
+    "required": ["T", "tau"],
+    "additionalProperties": false
+  },
+
+  "derived": {
+    "duty_cycle": {
+      "formula": "tau / T",
+      "range": "(0, 1]",
+      "description": "Fundamental reinforcement density parameter."
+    },
+    "is_available": {
+      "formula": "0 <= (t mod T) < tau",
+      "description": "Reinforcement availability predicate at elapsed time t."
+    }
+  },
+
+  "constraints": [
+    { "rule": "T > 0", "error": { "type": "ValueError", "message": "T must be strictly positive" } },
+    { "rule": "tau > 0", "error": { "type": "ValueError", "message": "tau must be strictly positive" } },
+    { "rule": "tau <= T", "error": { "type": "ValueError", "message": "tau must be <= T" } }
+  ],
+
+  "conversion_domain": {
+    "convertible": ["FI", "FT", "VI", "VT", "RI", "RT"],
+    "excluded": ["FR", "VR", "RR"],
+    "exclusion_error": {
+      "type": "RatioScheduleError",
+      "description": "Ratio schedules define reinforcement as a function of response count, not elapsed time. Conversion requires an IRT assumption (see approximate_conversion)."
+    }
+  },
+
+  "to_ttau": {
+    "description": "Lattice → T-tau conversion rules.",
+    "rules": [
+      { "input": "FI(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0 },
+      { "input": "FT(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0, "information_loss": ["domain: FI and FT collapse to same representation"] },
+      { "input": "VI(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0, "information_loss": ["domain: VI and VT collapse", "distribution: shape lost"] },
+      { "input": "VT(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0, "information_loss": ["domain: VI and VT collapse", "distribution: shape lost"] },
+      { "input": "RI(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0, "information_loss": ["domain: RI and RT collapse", "distribution: type lost (Random vs Variable)"] },
+      { "input": "RT(t)", "output": "TTau(T=t, tau=t)", "duty_cycle": 1.0, "information_loss": ["domain: RI and RT collapse", "distribution: type lost (Random vs Variable)"] },
+      { "input": "FR(n) | VR(n) | RR(n)", "output": "RatioScheduleError" }
+    ]
+  },
+
+  "from_ttau": {
+    "description": "T-tau → Lattice conversion rules. Requires mandatory disambiguation parameters.",
+    "disambiguation_params": {
+      "domain": {
+        "type": "string",
+        "enum": ["I", "T"],
+        "required": true,
+        "description": "Interval or Time. Resolves FI/FT ambiguity."
+      },
+      "distribution": {
+        "type": "string",
+        "enum": ["F", "V", "R"],
+        "required": true,
+        "description": "Fixed, Variable, or Random. Resolves distribution ambiguity."
+      }
+    },
+    "rules": [
+      { "condition": "tau == T", "output": "Atomic(dist, domain, value=T)" },
+      { "condition": "tau < T", "output": "LimitedHold(hold_duration=tau, inner=Atomic(dist, domain, value=T))", "note": "Sub-unity duty cycle maps to Limited Hold modifier. Temporal positioning differs from Schoenfeld's original (window at cycle start vs. after interval)." }
+    ]
+  },
+
+  "roundtrip": {
+    "description": "Identity property for lossless round-trips.",
+    "property": "from_ttau(to_ttau(S), domain=S.domain, distribution=S.dist) == S",
+    "holds_when": "S is Interval or Time schedule with duty_cycle == 1.0 and disambiguation params match original"
+  },
+
+  "approximate_conversion": {
+    "description": "Separated layer for Ratio → T-tau under explicit IRT assumption.",
+    "input_type": "Atomic (Ratio domain)",
+    "output_type": "TTauApprox (distinct from TTauParams)",
+    "params": {
+      "irt": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "required": true,
+        "description": "Assumed mean inter-response time in seconds. No default — caller must provide."
+      }
+    },
+    "formula": "FR(n) ≈ TTau(T=n*irt, tau=n*irt)",
+    "note": "IRT is a dependent variable, not a schedule parameter. The assumption is preserved in the result type for traceability."
+  }
+}
