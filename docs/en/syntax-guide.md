@@ -68,6 +68,8 @@ Conj(FR 5, FI 30-s)              -- Conjunctive: BOTH conditions must be met
 
 ### Sequential Combinators
 
+> **Stimulus change**: transition between discriminative stimuli marking schedule component shifts.
+
 ```
 Chain(FR 5, FI 30-s)              -- Chained: complete FR 5, then FI 30-s with stimulus change
 Tand(VR 20, DRL 5-s)              -- Tandem: same as Chain but NO stimulus change
@@ -98,6 +100,25 @@ Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s), COD=2-s)
 DRL 5-s      -- Low rate: reinforce only if IRT ≥ 5-s (slow responding)
 DRH 2-s      -- High rate: reinforce only if IRT ≤ 2-s (fast responding)
 DRO 10-s     -- Other behavior: reinforce absence of target for 10-s
+```
+
+### Lag Schedule (Operant Variability)
+
+Reinforce only if the current response differs from the previous *n* responses (Page & Neuringer, 1985):
+
+```
+Lag 5                   -- differ from each of the previous 5 responses
+Lag(5, length=8)        -- 8-response sequence as the comparison unit
+Lag 0                   -- no variability requirement (equivalent to CRF)
+```
+
+`Lag 1` is the most common clinical form (e.g., mand variability training). The optional `length` parameter specifies the response-unit size: `length=1` (default) means individual responses; `length=8` means 8-response sequences as in Page & Neuringer (1985).
+
+Lag composes with compound schedules:
+
+```
+Mult(Lag(5, length=8), CRF, BO=5-s)   -- variability vs baseline
+Conj(Lag 1, FR 3)                      -- varied AND 3 responses per reinforcer
 ```
 
 ### Progressive Ratio
@@ -250,6 +271,7 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=
 | `XX ##` | Atomic | `FR 5` | Fixed Ratio 5 |
 | `Comb(S, S, ...)` | Compound | `Conc(VI 30-s, VI 60-s, COD=2-s)` | Concurrent |
 | `DRx ##-s` | Modifier | `DRL 5-s` | Differential reinforcement |
+| `Lag ##` | Modifier | `Lag 5` | Variability requirement (Page & Neuringer, 1985) |
 | `S LH ##-s` | Limited Hold | `FI 30-s LH 10-s` | Temporal availability window |
 | `XX ##-s(YY ##)` | **Second-Order** | `FI 120-s(FR 10)` | Overall(Unit) |
 | `let x = S` | Binding | `let a = VI 60-s` | Named schedule |
@@ -264,4 +286,5 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=
 - Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475
 - Kelleher, R. T., & Gollub, L. R. (1962). A review of positive conditioned reinforcement. *JEAB*, *5*(S4), 543-597. https://doi.org/10.1901/jeab.1962.5-s543
 - Malagodi, E. F., DeWeese, J., & Johnston, J. M. (1973). Second-order schedules. *JEAB*, *20*(3), 447-461. https://doi.org/10.1901/jeab.1973.20-447
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *JEAP*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.

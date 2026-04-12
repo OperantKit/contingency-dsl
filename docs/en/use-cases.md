@@ -39,7 +39,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 
 ## 3. Chained Schedule for Conditioned Reinforcement Research
 
-**Scenario:** Testing whether stimulus change at component transitions functions as a conditioned reinforcer.
+**Scenario:** Testing whether stimulus change (transition between discriminative stimuli marking schedule component shifts) at component transitions functions as a conditioned reinforcer.
 
 ```
 Chain(FR 5, FI 30-s)
@@ -259,6 +259,8 @@ Mult(Lag(5, length=8), CRF, BO=5-s)
 precedes an aversive stimulus (US). The subject can avoid the US by responding
 during the CS-US interval. Used in fear conditioning, anxiety research, and
 aversive control studies.
+
+> **Keyword:** `DiscriminatedAvoidance` (short alias: `DiscrimAv`)
 
 ```
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)

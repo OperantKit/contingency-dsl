@@ -39,7 +39,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 
 ## 3. 連鎖スケジュールによる条件性強化研究
 
-**シナリオ:** コンポーネント移行時の刺激変化が条件性強化子として機能するかを検証する。
+**シナリオ:** コンポーネント移行時の刺激変化（スケジュール成分間の弁別刺激の移行）が条件性強化子として機能するかを検証する。
 
 ```
 Chain(FR 5, FI 30-s)
@@ -153,7 +153,7 @@ PR(hodos)
 
 ## 8. Sidman 自由オペラント回避
 
-**シナリオ:** 負の強化によって維持される回避行動の測定。反応が次の shock を延期する手続き。
+**シナリオ:** 負の強化によって維持される回避行動の測定。反応が次の電撃（shock）を延期する手続き。
 
 ```
 Sidman(SSI=20-s, RSI=5-s)
@@ -161,7 +161,7 @@ Sidman(SSI=20-s, RSI=5-s)
   @operandum("lever")
 ```
 
-**何をするか:** 反応がない場合、20 秒ごとに shock が発生する（SSI = Shock-Shock Interval）。レバー押し反応ごとに次の shock が 5 秒後に延期される（RSI = Response-Shock Interval）。形式的には `next_shock = max(last_shock + SSI, last_response + RSI)`。十分訓練されたラットは反応を維持し続け、反応間間隔を RSI より少し短く保つ。
+**何をするか:** 反応がない場合、20 秒ごとに電撃が発生する（SSI = Shock-Shock Interval）。レバー押し反応ごとに次の電撃が 5 秒後に延期される（RSI = Response-Shock Interval）。形式的には `next_shock = max(last_shock + SSI, last_response + RSI)`。十分訓練されたラットは反応を維持し続け、反応間間隔を RSI より少し短く保つ。
 
 **なぜ存在するか:** Sidman (1953) は、明示的な warning 刺激なしでも時間的随伴性だけで回避行動が維持されることを示した。これは嫌悪制御・不安モデル・行動薬理における負の強化研究の基礎手続きとなった。Sidman 回避は強化スケジュール F/V/R × R/I/T マトリクスでは表現できない — **2 つの独立した時間パラメータ** と反応随伴的な再スケジュール規則を持つため、専用の primitive が必要。
 
@@ -255,6 +255,8 @@ Mult(Lag(5, length=8), CRF, BO=5-s)
 被験体は CS-US 間隔中に反応することで US を回避できる。恐怖条件づけ、不安研究、
 嫌悪制御の研究で使用される。
 
+> **キーワード:** `DiscriminatedAvoidance`（短縮形: `DiscrimAv`）
+
 ```
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
@@ -262,8 +264,8 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min
   @species("dog")
 ```
 
-**何をするか:** 光 CS が呈示される。イヌが 10 秒以内にバリアを跳び越えれば shock
-は回避される（回避試行）。10秒以内に反応しなければ shock が開始され、イヌが跳ぶ
+**何をするか:** 光 CS が呈示される。イヌが 10 秒以内にバリアを跳び越えれば電撃
+は回避される（回避試行）。10秒以内に反応しなければ電撃が開始され、イヌが跳ぶ
 まで継続する（逃避試行）。2分の安全カットオフあり。次の CS は現在の CS 提示から
 3分後に出現する。
 
@@ -271,7 +273,7 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min
 生成することを示した — イヌは数百回の消去試行後も回避し続けた。このパラダイムは、
 不安・恐怖症・臨床集団における回避行動の持続性を理解する基盤である。
 
-**固定時間変種:** 逃避不可能な短い US（例: 0.5秒のパルス shock）を使う手続き:
+**固定時間変種:** 逃避不可能な短い US（例: 0.5秒のパルス電撃）を使う手続き:
 
 ```
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)
@@ -302,7 +304,7 @@ Overlay(VI 60-s, FR 1)
 ```
 
 **何をするか:** 食物強化が VI 60-s で配分される。同時に、全ての反応（FR 1）が短い
-shock を生じる。両方の随伴性が同じ反応ストリームに作用する。これにより、罰なし
+電撃を生じる。両方の随伴性が同じ反応ストリームに作用する。これにより、罰なし
 ベースライン率に対して罰がどの程度反応を抑制するかを観察できる。
 
 **なぜ存在するか:** Azrin & Holz (1966) は罰研究の標準パラダイムを確立した:
