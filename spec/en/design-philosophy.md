@@ -14,13 +14,9 @@
 **Enable accurate DSL representation of all experimental procedures to date, particularly those in behavior analysis (experimental analysis of behavior).**
 
 This is the supreme goal; every other design decision serves this objective.
-
-The former OperantKit struggled with the programmatic design of its core
-reinforcement schedules, wrestling with the alignment between experimental
-procedures and object-oriented architecture, and was rewritten from scratch
-three times. Drawing on this experience, the present DSL adopts the
-principle of **establishing a more robust foundation from the outset so that
-breaking changes become unnecessary**.
+To achieve this goal, **the stability of the Core grammar is treated as the
+highest priority, and the design pursues an architecture that does not
+require breaking changes** (see §2 and §8 for details).
 
 ## 2. An Empirically Stable Foundation — The Core / Schedule Extension / Annotation Three-Layer Architecture
 
@@ -62,7 +58,7 @@ Users differ by layer. This distinction must not be conflated.
 
 **All researchers, students, and anyone who uses it as a common language.**
 
-Notations such as `FR5`, `Chain(FR5, FI30)`, and `Conc(VI30s, VI60s)` must
+Notations such as `FR 5`, `Chain(FR 5, FI 30-s)`, and `Conc(VI 30-s, VI 60-s)` must
 function as a shared notation that any person trained in behavior analysis
 can read and write.
 
@@ -238,8 +234,8 @@ layer.
 
 | Layer | Role | Closure | Example |
 |---|---|---|---|
-| Core | Immutable schedule foundation | Common to all programs | `FR5`, `Conc(VI30, VI60)`, `Chain(FR5, FI30)` |
-| **Schedule Extension** | Extension of schedule grammar (dynamic, TC-proximate) | Program-scoped | `Percentile(target="IRT", n=50)`, `Adjusting(start=FR1, step="titrate")` |
+| Core | Immutable schedule foundation | Common to all programs | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
+| **Schedule Extension** | Extension of schedule grammar (dynamic, TC-proximate) | Program-scoped | `Percentile(target="IRT", n=50)`, `Adjusting(start=FR 1, step="titrate")` |
 | Annotation | Metadata | Program-scoped | `@reinforcer`, `@species`, `@chamber` |
 
 Schedule Extension is the **second program-scoped extension dimension**
@@ -292,7 +288,7 @@ Criteria for determining "Is it an annotation or a Schedule Extension?":
 | Does it alter the structure of the procedure? | No (metadata only) | Yes (new schedule constituent) |
 | Does it require dynamic computation or state maintenance? | No (static declarations only) | Often yes |
 | Does it change the evaluation result of an existing Core schedule expression? | No | Yes (introduces new evaluation) |
-| Syntactic position in source | Post-fixed to expression (`FR5 @name(...)`) | The expression form itself (`Name(...)`) |
+| Syntactic position in source | Post-fixed to expression (`FR 5 @name(...)`) | The expression form itself (`Name(...)`) |
 
 A percentile schedule "dynamically computes the threshold for DRL" and
 **changes the evaluation result of the schedule expression**; therefore it
@@ -361,7 +357,7 @@ language's type system are not permitted.
 The following can be undertaken at any time provided the DSL foundation is
 robust. Foundation establishment takes priority; these are deprioritized:
 
-- Runtime integration such as "write `FR5` and a simulator emits data"
+- Runtime integration such as "write `FR 5` and a simulator emits data"
 - Pipelines for reproducing figures from papers
 - Student-oriented teaching materials and tutorials
 

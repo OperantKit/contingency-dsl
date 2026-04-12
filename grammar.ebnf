@@ -70,9 +70,30 @@ simple_schedule   ::= parametric_atomic
 dist          ::= "F" | "V" | "R"
 domain        ::= "R" | "I" | "T"
 ws            ::= " "+
-value         ::= number time_unit?
-time_unit     ::= "s" | "ms" | "min"
+value         ::= number (time_sep? time_unit)?
+time_sep      ::= "-" | ws
+time_unit     ::= "s" | "sec" | "ms" | "min"
 number        ::= [0-9]+ ("." [0-9]+)?
+
+; Time unit disambiguation:
+;   After a number in a value position, time_unit literals are parsed
+;   greedily regardless of separator form. All of the following are
+;   equivalent: 30-s, 30s, 30 s, 30-sec, 30sec, 30 sec, 30-min, 30 min.
+;
+;   LL(2) decision: after number, peek at next non-ws token.
+;   If it is one of {s, sec, ms, min} or "-", consume as time_unit.
+;   Otherwise, value production ends at the bare number.
+;
+;   Consequence: time_unit literals (s, sec, ms, min) are contextually
+;   reserved — they cannot be used as identifier names in let-bindings
+;   if they would appear immediately after a number in value position.
+;   In practice this is not a meaningful restriction (no behavioral
+;   schedule is named "s" or "min").
+;
+; AST normalization:
+;   "sec" is normalized to "s" in the AST (both denote seconds).
+;   The AST TimeUnit enum is {"s", "ms", "min"} — "sec" does not
+;   appear in the AST. Conformant parsers MUST normalize on output.
 
 ; === Identifiers ===
 ;
@@ -237,7 +258,7 @@ da_mode           ::= "fixed" | "escape"
 ; Two scoping levels:
 ;   1. Program-level (program_annotation): appears before param_decl*.
 ;      Acts as session-wide default. Typical: @species, @strain, @n, @history,
-;      @deprivation, @chamber, @hw, @interface, @clock, @warmup, @algorithm.
+;      @deprivation, @chamber, @hardware, @interface, @clock, @warmup, @algorithm.
 ;   2. Schedule-level (in annotated_schedule): attached to a schedule expression.
 ;      Overrides program-level for that expression. Typical: @operandum, @sd, @brief.
 ;   Some keywords (e.g. @reinforcer) may appear at either level.
@@ -285,7 +306,7 @@ string_literal     ::= '"' [^"]* '"'
 ;   subjects-annotator    → Subjects    : "species" | "strain" | "deprivation"
 ;                                        | "history" | "n"
 ;
-;   apparatus-annotator   → Apparatus   : "chamber" | "operandum" | "interface" | "hw"
+;   apparatus-annotator   → Apparatus   : "chamber" | "operandum" | "interface" | "hardware" (alias: "hw")
 ;
 ;   measurement-annotator → Measurement : "session_end" | "baseline" | "steady_state"
 ;                                        (v1.x minimal set)
@@ -296,7 +317,7 @@ string_literal     ::= '"' [^"]* '"'
 ;
 ; See spec/ja/annotation-design.md §3 and §3.7 for the rationale behind this
 ; 1:1 annotator-to-category correspondence, and §3.6 for the open
-; followups on @algorithm position, @hw("virtual") multi-category,
+; followups on @algorithm position, @hardware("virtual") multi-category,
 ; and the historical Measurement gap.
 ;
 ; Restructuring history:

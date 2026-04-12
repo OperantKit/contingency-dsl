@@ -8,7 +8,7 @@
 
 The DSL grammar satisfies four criteria:
 
-1. **Notational fidelity**: Matches behavioral literature conventions (`FR5`, `conc VI30 VI60`).
+1. **Notational fidelity**: Matches behavioral literature conventions (`FR 5`, `conc VI 30 VI 60`).
 2. **Unambiguous parsing**: Every expression has exactly one parse tree.
 3. **Composability**: Supports arbitrarily nested schedule expressions.
 4. **Python embeddability**: Usable as both standalone text format and Python constructor calls.
@@ -106,10 +106,17 @@ The DSL grammar satisfies four criteria:
 The grammar supports multiple notational forms matching behavioral literature conventions:
 
 ```
+VI 60-s      -- JEAB modern standard (recommended)
+VI 60-sec    -- JEAB older papers (1960s-1970s)
+VI 60 s      -- space-separated unit (JEAB 1986, 2012)
+VI 60 sec    -- space-separated unit (Ferster & Skinner, 1957)
+VI 60-min    -- minutes (e.g., VI 1-min)
+VI 60 min    -- minutes, space-separated
+VI 60s       -- attached unit (no separator)
+VI60s        -- compact with unit
+VI60         -- compact (unit implied)
+VI 60        -- whitespace-separated, no unit (Ferster & Skinner, 1957)
 VI(60)       -- Python constructor form
-VI60         -- Compact form (most common in papers)
-VI 60        -- Whitespace-separated (Ferster & Skinner, 1957)
-VI60s        -- Unit-annotated (disambiguation)
 ```
 
 All resolve to the same `VariableInterval(target_time=60.0)`. The parser reads the two-character `<dist><domain>` prefix, skips optional whitespace, and reads `<value>`.
@@ -128,15 +135,15 @@ It does not increase the computational power of the DSL. The parser expands it a
 **`let` bindings** are macro expansion (textual substitution). Binding names must satisfy `<ident>`: they must begin with a lowercase letter or underscore and must not match any `<reserved>` word.
 
 ```
-let baseline = VI60
-let treatment = Conc(VI30, EXT)
+let baseline = VI 60-s
+let treatment = Conc(VI 30-s, EXT)
 Conc(baseline, treatment)
 ```
 
 expands to:
 
 ```
-Conc(VI60, Conc(VI30, EXT))
+Conc(VI 60-s, Conc(VI 30-s, EXT))
 ```
 
 `let` does not introduce mutable state, closures, or recursive definitions. After expansion, the result is a let-free syntax tree within the base CFG.
@@ -156,7 +163,7 @@ The v1.0 DSL provides two equivalent interfaces:
 **A. Text DSL (configuration files, documentation):**
 ```python
 from contingency_dsl import parse
-schedule = parse("Conc(VI 30s, VI 60s)")
+schedule = parse("Conc(VI 30-s, VI 60-s)")
 ```
 
 **B. Python constructors (programmatic composition):**
@@ -173,60 +180,60 @@ The Python constructor API replicates the OperantKit `ScheduleBuilder.swift` pat
 
 ```
 -- Atomic schedules
-FR5                                   -- Fixed Ratio 5
-VI30s                                 -- Variable Interval 30 seconds
-RR20                                  -- Random Ratio 20
+FR 5                                   -- Fixed Ratio 5
+VI 30-s                                 -- Variable Interval 30 seconds
+RR 20                                  -- Random Ratio 20
 EXT                                   -- Extinction
-CRF                                   -- Continuous Reinforcement (= FR1)
+CRF                                   -- Continuous Reinforcement (= FR 1)
 
 -- Compound schedules
-Conc(VI30s, VI60s, COD=2s)           -- Concurrent VI30 VI60 with 2s COD
-Chain(FR5, FI30s)                     -- Chained FR5 then FI30
-Alt(FR10, FI5min)                     -- Alternative FR10 or FI5min
-Conj(FR5, FI30s)                      -- Conjunctive FR5 AND FI30
-Tand(VR20, DRL5s)                     -- Tandem VR20 then DRL5
-Mult(FR5, EXT)                        -- Multiple FR5/EXT
-Mix(FR5, FR10)                        -- Mixed FR5/FR10
+Conc(VI 30-s, VI 60-s, COD=2-s)           -- Concurrent VI 30-s VI 60-s with 2-s COD
+Chain(FR 5, FI 30-s)                     -- Chained FR 5 then FI 30
+Alt(FR 10, FI 5-min)                     -- Alternative FR 10 or FI 5-min
+Conj(FR 5, FI 30-s)                      -- Conjunctive FR 5 AND FI 30
+Tand(VR 20, DRL 5-s)                     -- Tandem VR 20 then DRL 5
+Mult(FR 5, EXT)                        -- Multiple FR 5/EXT
+Mix(FR 5, FR 10)                        -- Mixed FR 5/FR 10
 
 -- Nested compositions
-Conc(Chain(FR5, VI60s), Alt(FR10, FT30s))
+Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s))
 
 -- Modifiers
-DRL5s                                 -- Differential Reinforcement of Low rate
-DRO10s                                -- Differential Reinforcement of Other behavior
+DRL 5-s                                 -- Differential Reinforcement of Low rate
+DRO 10-s                                -- Differential Reinforcement of Other behavior
 PR(hodos)                             -- Progressive Ratio (Hodos step)
 PR(linear, start=1, increment=5)      -- Progressive Ratio (linear step)
 
 -- Limited Hold (temporal availability constraint)
-FI30 LH10                            -- FI 30s with 10s hold (Ferster & Skinner, 1957)
-VI60 LH5                             -- VI 60s with 5s hold
-DRL3 LH8                             -- DRL 3s with 8s hold (Kramer & Rilling, 1970)
-Conc(VI30 LH5, VI60 LH10)           -- Concurrent with per-component hold
-Chain(FR5, FI30) LH10                -- Hold on the entire chain expression
-(Conc(VI30, VI60)) LH10              -- Parenthesised expression with hold
+FI 30-s LH 10-s                           -- FI 30-s with 10-s hold (Ferster & Skinner, 1957)
+VI 60-s LH 5-s                            -- VI 60-s with 5-s hold
+DRL 3-s LH 8-s                            -- DRL 3-s with 8-s hold (Kramer & Rilling, 1970)
+Conc(VI 30-s LH 5-s, VI 60-s LH 10-s)        -- Concurrent with per-component hold
+Chain(FR 5, FI 30-s) LH 10-s              -- Hold on the entire chain expression
+(Conc(VI 30-s, VI 60-s)) LH 10-s           -- Parenthesised expression with hold
 
 -- Program-level LH default (applies individually to all base_schedules)
--- LH = 10s
--- Conc(VI30, VI60, COD=2s)         -- equivalent to Conc(VI30 LH10, VI60 LH10, COD=2s)
+-- LH = 10-s
+-- Conc(VI 30-s, VI 60-s, COD=2-s)       -- equivalent to Conc(VI 30-s LH 10-s, VI 60-s LH 10-s, COD=2-s)
 
 -- Changeover Delay and Fixed-Ratio Changeover (§2.4)
-Conc(VI30s, VI60s, COD=2s)           -- 2-s changeover delay (Herrnstein, 1961)
-Conc(VI30s, VI60s, COD=0s)           -- explicit no-delay (control condition)
-Conc(VI30s, VI60s, FRCO=5)           -- 5 fixed-ratio changeover (Hunter & Davison, 1985)
-Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both COD and FRCO
+Conc(VI 30-s, VI 60-s, COD=2-s)           -- 2-s changeover delay (Herrnstein, 1961)
+Conc(VI 30-s, VI 60-s, COD=0-s)           -- explicit no-delay (control condition)
+Conc(VI 30-s, VI 60-s, FRCO=5)           -- 5 fixed-ratio changeover (Hunter & Davison, 1985)
+Conc(VI 30-s, VI 60-s, COD=2-s, FRCO=5)   -- both COD and FRCO
 
 -- Program-level COD default (applies to all Conc in this program)
--- COD = 2s
--- Conc(VI30s, VI60s)               -- inherits COD=2s from param_decl
+-- COD = 2-s
+-- Conc(VI 30-s, VI 60-s)               -- inherits COD=2-s from param_decl
 
 -- Repeat (syntactic sugar)
-Tand(Repeat(3, FR10), VI60s)          -- FR10 × 3 then VI60
+Tand(Repeat(3, FR 10), VI 60-s)          -- FR 10 × 3 then VI 60
 
 -- Sidman free-operant avoidance (§2.7)
-Sidman(SSI=20s, RSI=5s)                              -- basic Sidman avoidance (Sidman, 1953)
-SidmanAvoidance(SSI=20s, RSI=5s)                     -- verbose alias
-Sidman(ShockShockInterval=20s, ResponseShockInterval=5s) -- verbose parameter names
-Chain(FR10, Sidman(SSI=20s, RSI=5s))                 -- chained schedule with avoidance link
+Sidman(SSI=20-s, RSI=5-s)                              -- basic Sidman avoidance (Sidman, 1953)
+SidmanAvoidance(SSI=20-s, RSI=5-s)                     -- verbose alias
+Sidman(ShockShockInterval=20-s, ResponseShockInterval=5-s) -- verbose parameter names
+Chain(FR 10, Sidman(SSI=20-s, RSI=5-s))                 -- chained schedule with avoidance link
 
 -- Lag schedule, operant variability (§2.8)
 Lag 5                                                 -- Lag 5 shorthand; length defaults to 1
@@ -236,17 +243,17 @@ Lag 0                                                 -- no variability requirem
 Mult(Lag(5, length=8), CRF)                           -- Lag vs CRF baseline in multiple schedule
 
 -- Discriminated avoidance (§2.9)
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)       -- Solomon & Wynne (1953) style
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min) -- with safety cutoff
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)  -- fixed US
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)                    -- short alias
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)       -- Solomon & Wynne (1953) style
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min) -- with safety cutoff
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)  -- fixed US
+DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)                    -- short alias
 
 -- Punishment overlay (§2.10)
-Overlay(VI60s, FR1)                              -- every response punished on VI60 baseline
-Overlay(Conc(VI60s, VI180s, COD=2s), FR1)        -- punishment on concurrent baseline
+Overlay(VI 60-s, FR 1)                              -- every response punished on VI 60 baseline
+Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)        -- punishment on concurrent baseline
 
 -- let bindings (macro expansion)
-let baseline = VI60s
-let probe = Conc(VI30s, VI60s)
+let baseline = VI 60-s
+let probe = Conc(VI 30-s, VI 60-s)
 Conc(baseline, probe)
 ```

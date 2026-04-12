@@ -9,7 +9,10 @@
 | @chamber | 実験チャンバーのモデル | `@chamber("med-associates", model="ENV-007")` |
 | @operandum | 反応装置（レバー、キー等）の同定 | `@operandum("left_lever", component=1)` |
 | @interface | HW インターフェース | `@interface("serial", port="/dev/ttyUSB0")` |
-| @hw | ハードウェアバックエンド | `@hw("teensy41")` or `@hw("virtual")` |
+| @hardware | ハードウェアバックエンド | `@hardware("teensy41")` or `@hardware("virtual")` |
+
+**注記:** `@hw` は `@hardware` の省略形 alias として引き続き使用可能。
+AST レベルでは同一ノードに collapse される（[annotation-design.md §3.5](../../spec/ja/annotation-design.md) 参照）。
 
 **注記:** `@operandum` は 2026-04-12 に stimulus-annotator から apparatus-annotator
 へ移管された。操作体（response device）は物理的装置であり、JEAB Method 節の
@@ -42,7 +45,7 @@
 
 ## Open Questions
 
-- @hw("virtual") はシミュレーション用途。apparatus-annotator に属するか、
+- @hardware("virtual") はシミュレーション用途。apparatus-annotator に属するか、
   それとも実行環境の問題であり annotation ではないか。
 - 装置情報はどこまで DSL に取り込むべきか。チャンバー寸法、照度、温度など
   物理環境パラメータは際限なく増える可能性がある。

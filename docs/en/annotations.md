@@ -34,9 +34,9 @@ This mirrors how scientific papers are structured: **Subjects** and **Apparatus*
 @chamber("med-associates", model="ENV-007")
 @clock(unit="s")
 
-COD = 2s
+COD = 2-s
 
-Conc(VI30s, VI60s)
+Conc(VI 30-s, VI 60-s)
   @operandum("left_lever", component=1)   -- Schedule-level: per-component
   @operandum("right_lever", component=2)
 ```
@@ -66,7 +66,7 @@ Subjects / Apparatus / Measurement).
 |---|---|---|
 | Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
-| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hw` |
+| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
 | Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
 
 These form the project's recommended set; programs (runtime / interpreter)
@@ -80,7 +80,7 @@ Declares the **identity and function** of stimuli in the experiment.
 **`@reinforcer` aliases:** `@reinforcer` is the **primary form** (the most
 established term in EAB literature). `@punisher` and `@consequentStimulus`
 are equivalent aliases — use them when you want to make the experimenter's
-intent explicit in source (e.g., `FR3 @punisher("shock")`). All three collapse
+intent explicit in source (e.g., `FR 3 @punisher("shock")`). All three collapse
 to the same AST node and do not affect equivalence judgment. See
 [annotation-design.md §3.5](../../spec/en/annotation-design.md) for details.
 
@@ -96,7 +96,7 @@ moved to **apparatus-annotator** on 2026-04-12. See the Apparatus section below.
 **Example: Concurrent schedule with identified components**
 
 ```
-Conc(VI30s, VI60s, COD=2s)
+Conc(VI 30-s, VI 60-s, COD=2-s)
   @operandum("left_lever", component=1)
   @operandum("right_lever", component=2)
   @reinforcer("sucrose", concentration="10%", duration=3)
@@ -128,12 +128,12 @@ Declares **session-level temporal parameters** that affect reproducibility.
 | `@warmup` | Pre-session warm-up period | `@warmup(duration=60)` |
 | `@algorithm` | Schedule value generation method | `@algorithm("fleshler-hoffman", n=12)` |
 
-Note: `@blackout` and `@cod` were initially proposed as temporal annotations but have been **promoted to core grammar** as keyword arguments (`BO=5s`, `COD=2s`) because they directly affect contingency structure.
+Note: `@blackout` and `@cod` were initially proposed as temporal annotations but have been **promoted to core grammar** as keyword arguments (`BO=5-s`, `COD=2-s`) because they directly affect contingency structure.
 
 **Example: VI schedule with full temporal specification**
 
 ```
-VI30s
+VI 30-s
   @clock(unit="s")
   @algorithm("fleshler-hoffman", n=12, seed=42)
   @warmup(duration=60)
@@ -143,7 +143,7 @@ VI30s
 - Exact reproducibility: another lab can generate the identical VI value sequence from the seed
 - Compile to: *"A variable-interval 30-s schedule (Fleshler & Hoffman, 1962; list length = 12) was used. Sessions began after a 60-s warm-up period during which no reinforcement was available."*
 
-**Why `@algorithm` matters:** `VI 30` with Fleshler-Hoffman distribution produces different inter-reinforcement intervals than `VI 30` with arithmetic progression or exponential distribution. The schedule notation alone (`VI30s`) is ambiguous — `@algorithm` resolves this for reproducibility.
+**Why `@algorithm` matters:** `VI 30` with Fleshler-Hoffman distribution produces different inter-reinforcement intervals than `VI 30` with arithmetic progression or exponential distribution. The schedule notation alone (`VI 30-s`) is ambiguous — `@algorithm` resolves this for reproducibility.
 
 **What does NOT belong here:**
 - Reinforcer duration → procedure-annotator/stimulus (`@reinforcer` duration param)
@@ -170,7 +170,7 @@ Declares **biological and motivational conditions** of the experimental subject.
 **Example: Standard rat operant experiment**
 
 ```
-FR5
+FR 5
   @species("rat")
   @strain("Long-Evans")
   @deprivation(hours=22, target="food")
@@ -200,21 +200,23 @@ Declares the **physical equipment** used to run the experiment.
 |---------|---------|---------|
 | `@chamber` | Experimental chamber model | `@chamber("med-associates", model="ENV-007")` |
 | `@interface` | Hardware interface | `@interface("serial", port="/dev/ttyUSB0")` |
-| `@hw` | Hardware backend | `@hw("teensy41")` or `@hw("virtual")` |
+| `@hardware` | Hardware backend | `@hardware("teensy41")` or `@hardware("virtual")` |
 
 **Example: Physical experiment setup**
 
 ```
-Conc(VI30s, VI60s, COD=2s)
+Conc(VI 30-s, VI 60-s, COD=2-s)
   @chamber("med-associates", model="ENV-007")
-  @hw("teensy41")
+  @hardware("teensy41")
   @interface("serial", port="/dev/ttyACM0", baud=115200)
 ```
+
+`@hw` is an abbreviation alias for `@hardware` — both produce the same AST node. See [annotation-design.md §3.5](../../spec/en/annotation-design.md).
 
 **What this enables:**
 - Target selection for experiment-io / contingency-bench
 - Compile to: *"Sessions were conducted in Med Associates (ENV-007) operant chambers interfaced with a Teensy 4.1 microcontroller via serial connection."*
-- `@hw("virtual")` selects the software simulation backend instead of physical hardware
+- `@hardware("virtual")` selects the software simulation backend instead of physical hardware
 
 **What does NOT belong here:**
 - Logical names for response devices ("left_lever") → apparatus-annotator (`@operandum`)
@@ -237,7 +239,7 @@ A fully annotated program for a concurrent VI-VI experiment, organized by scopin
 
 -- Apparatus (program-level)
 @chamber("med-associates", model="ENV-007")
-@hw("teensy41")
+@hardware("teensy41")
 
 -- Session parameters (program-level)
 @clock(unit="s")
@@ -246,11 +248,11 @@ A fully annotated program for a concurrent VI-VI experiment, organized by scopin
 @reinforcer("sucrose", concentration="10%", duration=3)
 
 -- Schedule parameters
-COD = 2s
-LH = 10s
+COD = 2-s
+LH = 10-s
 
-let left = VI30s
-let right = VI60s
+let left = VI 30-s
+let right = VI 60-s
 Conc(left, right)
   @operandum("left_lever", component=1)   -- schedule-level
   @operandum("right_lever", component=2)  -- schedule-level

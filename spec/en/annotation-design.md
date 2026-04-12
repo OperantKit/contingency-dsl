@@ -110,7 +110,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 |---|---|---|
 | **Procedure** | procedure-annotator (stimulus + temporal sub-annotators) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
 | **Subjects** | subjects-annotator | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
-| **Apparatus** | apparatus-annotator | `@chamber`, `@operandum`, `@interface`, `@hw` |
+| **Apparatus** | apparatus-annotator | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
 | **Measurement** | measurement-annotator (v1.x formal set) | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
 
 **Extensions** (recommended annotators that do not fit the four categories, located under `annotations/extensions/`):
@@ -179,9 +179,9 @@ All three are converted to the same `Reinforcer(stimulus=..., label=...)` node i
 The `label` retains the surface notation but is ignored during equivalence judgments.
 
 ```
-FR3 @reinforcer("shock") @operandum("lever")
-FR3 @punisher("shock") @operandum("lever")
-FR3 @consequentStimulus("shock") @operandum("lever")
+FR 3 @reinforcer("shock") @operandum("lever")
+FR 3 @punisher("shock") @operandum("lever")
+FR 3 @consequentStimulus("shock") @operandum("lever")
 ```
 
 The above three are all treated as **the same procedure**.
@@ -239,12 +239,12 @@ The following three items have unresolved design questions and require further d
 - Provisional decision: Maintain status quo (Procedure). It currently functions as a methodological sub-role within Procedure. Reclassification will be considered when a Measurement or Methodology category is established in the future.
 - **Reason unresolved:** Placement under Procedure is not incorrect but is not ideal either. The issue is deferred at this point and will be revisited after the Measurement category is established.
 
-**DIVERGENCE B: Classification of `@hw("virtual")`**
+**DIVERGENCE B: Classification of `@hardware("virtual")`**
 
 - Current state: apparatus-annotator → Apparatus
-- Issue: `@hw("teensy41")` is a physical hardware declaration (Apparatus), but `@hw("virtual")` declares the absence of physical equipment and is a runtime context, not an Apparatus in the intended sense. The same keyword carries different category semantics depending on its value — an inconsistency.
-- Provisional decision: Maintain status quo. Under program-scoped closure, there is no practical problem as long as the program can interpret the value of `@hw`. When compiling to a paper, the Apparatus section output logic must detect `@hw("virtual")` and redirect to a Methods section description such as "simulated runtime."
-- **Reason unresolved:** A design decision is needed on whether to tolerate polysemy within a single keyword. A purification proposal (restricting `@hw` to physical hardware and using a separate keyword `@runtime("virtual")` for virtual execution) is worth considering in the future.
+- Issue: `@hardware("teensy41")` is a physical hardware declaration (Apparatus), but `@hardware("virtual")` declares the absence of physical equipment and is a runtime context, not an Apparatus in the intended sense. The same keyword carries different category semantics depending on its value — an inconsistency.
+- Provisional decision: Maintain status quo. Under program-scoped closure, there is no practical problem as long as the program can interpret the value of `@hardware`. When compiling to a paper, the Apparatus section output logic must detect `@hardware("virtual")` and redirect to a Methods section description such as "simulated runtime."
+- **Reason unresolved:** A design decision is needed on whether to tolerate polysemy within a single keyword. A purification proposal (restricting `@hardware` to physical hardware and using a separate keyword `@runtime("virtual")` for virtual execution) is worth considering in the future.
 
 **DIVERGENCE C: Measurement Category Is Empty**
 
@@ -262,7 +262,7 @@ The following three items have unresolved design questions and require further d
 ### 3.6.3 Future Action Plan
 
 DIVERGENCE A/B above will be addressed intensively in the next annotation layer development session.
-Priority order: B (`@hw` polysemy) > A (`@algorithm` placement).
+Priority order: B (`@hardware` polysemy) > A (`@algorithm` placement).
 
 **DIVERGENCE C (empty Measurement) was resolved on 2026-04-12.**
 `measurement-annotator` has been established, and a minimal keyword set (`@session_end`, `@baseline`, `@steady_state`) is provided in v1.x. For details, see the annotator reorganization in §3.7 and [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md).
@@ -428,8 +428,8 @@ The Method section of a scientific paper has a clear hierarchical structure:
 **Subjects** → **Apparatus** → **Procedure** (Sidman, 1960; Ferster & Skinner, 1957).
 Subject conditions and apparatus are boundary conditions that apply to the entire experimental session and are conceptually superordinate to the reinforcement schedule (independent variable).
 
-The DSL reflects this structure: `@species("rat")` is not a modifier of `FR5` but should be declared as a precondition for the entire program.
-This follows the same pattern as `LH = 10s` being declared at the program level.
+The DSL reflects this structure: `@species("rat")` is not a modifier of `FR 5` but should be declared as a precondition for the entire program.
+This follows the same pattern as `LH = 10-s` being declared at the program level.
 
 ### Grammar
 
@@ -458,7 +458,7 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
 | Scope | Annotations | Rationale |
 |---|---|---|
 | **Program level (Subjects)** | `@species`, `@strain`, `@n`, `@history`, `@deprivation` | Invariant within a session. Subjects are boundary conditions |
-| **Program level (Apparatus)** | `@chamber`, `@hw`, `@interface` | Apparatus is fixed throughout the session |
+| **Program level (Apparatus)** | `@chamber`, `@hardware`, `@interface` | Apparatus is fixed throughout the session |
 | **Program level (Session)** | `@clock`, `@warmup`, `@algorithm` | Session temporal parameters |
 | **Schedule level** | `@operandum`, `@sd`, `@brief` | Differ across components (concurrent, multiple) |
 | **Both (default + override)** | `@reinforcer` | Usually uniform; may differ in choice procedures |
@@ -483,7 +483,7 @@ Note: This is a recommended classification, not a grammar-level constraint. Any 
 
 -- Apparatus (program-level)
 @chamber("med-associates", model="ENV-007")
-@hw("teensy41")
+@hardware("teensy41")
 
 -- Session parameters (program-level)
 @clock(unit="s")
@@ -492,11 +492,11 @@ Note: This is a recommended classification, not a grammar-level constraint. Any 
 @reinforcer("sucrose", concentration="10%", duration=3)
 
 -- Schedule parameters (core grammar)
-COD = 2s
-LH = 10s
+COD = 2-s
+LH = 10-s
 
-let left = VI30s
-let right = VI60s
+let left = VI 30-s
+let right = VI 60-s
 Conc(left, right)
   @operandum("left_lever", component=1)   -- schedule-level
   @operandum("right_lever", component=2)  -- schedule-level
@@ -710,7 +710,7 @@ By **guaranteeing the existence of both** at the schema level, confusion between
 ```
 
 - `@preparation` is separated from `@history` (catheter patency is a session-level variable)
-- `@phase` determines the identity of the procedure (the same FR1 under acquisition vs. extinction constitutes a different experiment)
+- `@phase` determines the identity of the procedure (the same FR 1 under acquisition vs. extinction constitutes a different experiment)
 
 #### 8.3.2 ABA Clinical — `subject-human` (Separated from `subject-animal`)
 
@@ -757,7 +757,7 @@ Reproducibility unit principle: **"Can the same experiment be run next time?" is
 | software versions | session-recorder (manifest) | Becomes stale if written in the DSL |
 | event code mapping | experiment-io | Responsibility of the HW abstraction |
 | calibration measured values | session-recorder | Runtime measurements |
-| calibration expected values | DSL (`@hw(expected=...)`) | Part of the design |
+| calibration expected values | DSL (`@hardware(expected=...)`) | Part of the design |
 
 DSL extension proposal:
 

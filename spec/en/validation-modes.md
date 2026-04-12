@@ -55,8 +55,8 @@ four-mode validator adopted by the Python reference implementation.
 **Problem B: Barrier to entry for students**
 
 ```
-FR5                          -- sufficient for discussion alone
-Conc(VI30, VI60, COD=2s)     -- learning about choice procedures
+FR 5                          -- sufficient for discussion alone
+Conc(VI 30-s, VI 60-s, COD=2-s)     -- learning about choice procedures
 ```
 
 The ability to discuss with this minimal notation is a core attraction of the
@@ -85,7 +85,7 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 ```
 
 **Four guarantees:**
-1. **Grammar-level enforcement is minimal**: `FR5` alone always parses successfully
+1. **Grammar-level enforcement is minimal**: `FR 5` alone always parses successfully
 2. **Lower tiers are unaffected by higher tiers**: publication linter requirements do not surface in dev mode
 3. **Modes are cumulative and monotone**: publication mode includes all dev-mode requirements
 4. **Error messages indicate the tier**: the mode that triggered the diagnostic is shown to the user
@@ -100,10 +100,10 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 
 | Example | Description |
 |---|---|
-| `FR5` | atomic schedule |
-| `Conc(VI30, VI60, COD=2s)` | compound schedule + keyword args |
-| `let x = VI60 \n Chain(x, FR10)` | let bindings + compound |
-| `LH = 10s` | program-level parameter declaration |
+| `FR 5` | atomic schedule |
+| `Conc(VI 30-s, VI 60-s, COD=2-s)` | compound schedule + keyword args |
+| `let x = VI 60-s \n Chain(x, FR 10)` | let bindings + compound |
+| `LH = 10-s` | program-level parameter declaration |
 
 **Behavior on omission**: parse error. This is enforced by the grammar.
 **Governing document**: BNF production rules in [grammar.ebnf](../../grammar.ebnf)
@@ -116,7 +116,7 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 |---|---|---|
 | `@clock(unit="s")` | `"s"` | ratio schedules are dimensionless; interval/time schedules use seconds |
 | `@algorithm("fleshler-hoffman")` | Fleshler-Hoffman (1962) | de facto laboratory standard |
-| `@hw("virtual")` | `"virtual"` | default backend |
+| `@hardware("virtual")` | `"virtual"` | default backend |
 | `@random(seed=<current_time>)` | current time | execution is possible even without reproducibility |
 
 **Behavior on omission**: the validator operates with the default value. No warning is emitted.
@@ -124,15 +124,15 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 
 ### Tier 2 — Production Requirements
 
-**Elements required when `@hw` specifies a value other than virtual (i.e., physical hardware).**
-**Not required for simulation (`@hw("virtual")`).**
+**Elements required when `@hardware` specifies a value other than virtual (i.e., physical hardware).**
+**Not required for simulation (`@hardware("virtual")`).**
 
 | Element | Rationale |
 |---|---|
 | `@session_end(rule, time, reinforcers)` | A physical experiment cannot terminate without a session-end rule |
 | `@response(force_min, duration_min, irt_min, trigger)` | A physical operandum requires an explicit response definition to operate |
 | `@logging(resolution, events)` | An experiment without data collection is meaningless |
-| `@hw("teensy41")` or other specific HW | Switch from simulation to physical apparatus |
+| `@hardware("teensy41")` or other specific HW | Switch from simulation to physical apparatus |
 | `@operandum("left_lever", ...)` | Identity of the physical device |
 | `@interface("serial", port=...)` | Physical connection information |
 
@@ -140,7 +140,7 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 - In `mode="dev"` (virtual HW assumed): ignored
 - In `mode="production"` (physical HW assumed): **production error**
 
-**Dependency condition**: activation depends on the value of `@hw` (tier is dynamic)
+**Dependency condition**: activation depends on the value of `@hardware` (tier is dynamic)
 
 ### Tier 3 — Publication Requirements
 
@@ -182,8 +182,8 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 ### 4.1 mode="parse" — Syntax Verification Only
 
 ```python
-parse("FR5")                 # OK
-parse("Conc(VI30, VI60)")    # OK (COD omission is a semantic warning only)
+parse("FR 5")                 # OK
+parse("Conc(VI 30-s, VI 60-s)")  # OK (COD omission is a semantic warning only)
 parse("@species(\"rat\")")   # still parses OK (annotation accepted)
 ```
 
@@ -195,24 +195,24 @@ parse("@species(\"rat\")")   # still parses OK (annotation accepted)
 ### 4.2 mode="dev" — Development / Simulation
 
 ```python
-lint("FR5", mode="dev")
-# → OK (warning: no @hw specified, assuming @hw("virtual"))
+lint("FR 5", mode="dev")
+# → OK (warning: no @hardware specified, assuming @hardware("virtual"))
 
-lint("Conc(VI30, VI60, COD=2s) @hw(\"virtual\")", mode="dev")
+lint("Conc(VI 30-s, VI 60-s, COD=2-s) @hardware(\"virtual\")", mode="dev")
 # → OK
 ```
 
 - **Scope**: Tier 0-1
 - **Use cases**: student learning, theoretical verification, simulation runs, CI tests
-- **Assumption**: `@hw("virtual")` or default (treated as virtual)
+- **Assumption**: `@hardware("virtual")` or default (treated as virtual)
 - **Errors**: parse/semantic error
 - **Warnings**: info-level output if Tier 1 defaulted elements are unspecified (not treated as errors)
-- **Example**: `FR5` alone can be run as a simulation
+- **Example**: `FR 5` alone can be run as a simulation
 
 ### 4.3 mode="production" — Physical Apparatus Execution
 
 ```python
-lint("FR5 @hw(\"teensy41\")", mode="production")
+lint("FR 5 @hardware(\"teensy41\")", mode="production")
 # → ERROR: @session_end required for physical HW
 # → ERROR: @response required for physical HW
 # → ERROR: @logging required for physical HW
@@ -221,7 +221,7 @@ lint("FR5 @hw(\"teensy41\")", mode="production")
 
 - **Scope**: Tier 0-2
 - **Use cases**: gatekeeper for physical experiments, final pre-experiment verification
-- **Activation condition**: automatically activated when `@hw` is set to anything other than virtual
+- **Activation condition**: automatically activated when `@hardware` is set to anything other than virtual
 - **Errors**: missing Tier 2 elements
 - **Warnings**: missing Tier 3 elements (noting that their absence will cause problems at publication)
 
@@ -266,10 +266,10 @@ from the perspective of validation modes:
 
 | Stage | DSL source | Passing modes |
 |---|---|---|
-| Theoretical discussion | `FR5` | parse |
-| Student learning | `Conc(VI30, VI60, COD=2s)` | parse, dev |
+| Theoretical discussion | `FR 5` | parse |
+| Student learning | `Conc(VI 30-s, VI 60-s, COD=2-s)` | parse, dev |
 | Simulation | above + `@clock(unit="s")` + `@algorithm(...)` | parse, dev |
-| Physical experiment preparation | above + `@hw("teensy41")` + `@session_end(...)` + `@response(...)` + `@operandum(...)` + `@logging(...)` | parse, dev, production |
+| Physical experiment preparation | above + `@hardware("teensy41")` + `@session_end(...)` + `@response(...)` + `@operandum(...)` + `@logging(...)` | parse, dev, production |
 | Manuscript submission | above + `@species` + `@strain` + `@deprivation` + `@chamber` + `@n` | parse, dev, production, publication |
 
 ### 5.3 Typical Student Pathway
@@ -277,12 +277,12 @@ from the perspective of validation modes:
 ```
 Step 1: Discussion
   User: "I want to understand the difference between FR 5 and FI 10"
-  DSL: FR5 / FI10
+  DSL: FR 5 / FI 10-s
   Mode: parse ✓
 
 Step 2: Choice procedure
   User: "I want to see a concurrent VI-VI"
-  DSL: Conc(VI30, VI60, COD=2s)
+  DSL: Conc(VI 30-s, VI 60-s, COD=2-s)
   Mode: parse ✓, dev ✓ (can run as virtual)
 
 Step 3: Simulation
@@ -292,7 +292,7 @@ Step 3: Simulation
 
 Step 4: Hardware connection
   User: "I want to connect to a Teensy"
-  DSL: add @hw("teensy41")
+  DSL: add @hardware("teensy41")
   Mode: production ✗
   Errors:
     - @session_end: physical HW requires explicit termination rule
@@ -413,13 +413,13 @@ perspective of validation modes and tiers:
 | Item | Layer | Rationale |
 |---|---|---|
 | schedule expression | DSL (Tier 0) | Core of the grammar |
-| `@hw`, `@clock`, `@random` | DSL (Tier 1) | Execution parameters |
+| `@hardware`, `@clock`, `@random` | DSL (Tier 1) | Execution parameters |
 | `@session_end`, `@response`, `@operandum`, `@logging` | DSL (Tier 2) | Declarations for physical execution |
 | `@species`, `@strain`, `@chamber(model)` | DSL (Tier 3) | Publication metadata |
 | `session_id`, `timestamp` | session-recorder | Runtime artifacts |
 | observed IRT, observed inter-reinforcement interval | session-recorder | Runtime measurements |
 | calibration observed values | session-recorder | Runtime measurements |
-| calibration expected values | DSL (`@hw(expected=...)`) | Part of the plan |
+| calibration expected values | DSL (`@hardware(expected=...)`) | Part of the plan |
 | event code mapping | experiment-io | Responsibility of the HW abstraction layer |
 | software versions | session-recorder (manifest-embedded) | Recorded at runtime because they become stale if placed in the DSL |
 | `experiment_id`, `subject_id` | **manifest** (outside the DSL) | "Who" and "which trial" are not part of the plan structure |
@@ -475,7 +475,7 @@ defines "the same experiment"; the manifest defines "which trial").
 from contingency_dsl import parse, validate
 
 # Tier 0 only
-ast = parse("FR5")
+ast = parse("FR 5")
 
 # Tier 0-1
 validate(ast, mode="dev")
@@ -492,15 +492,15 @@ tier, severity, and message fields.
 
 ### 8.2 Dynamic Activation of Tier 2
 
-When `@hw` is `"virtual"`, Tier 2 requirements are relaxed:
+When `@hardware` is `"virtual"`, Tier 2 requirements are relaxed:
 
 ```python
 # This passes even in production mode (virtual HW)
-validate(parse('FR5 @hw("virtual")'), mode="production")
+validate(parse('FR 5 @hardware("virtual")'), mode="production")
 # → OK (Tier 2 elements are not required for virtual)
 
 # This fails in production mode
-validate(parse('FR5 @hw("teensy41")'), mode="production")
+validate(parse('FR 5 @hardware("teensy41")'), mode="production")
 # → ERROR: @session_end required (Tier 2)
 # → ERROR: @response required (Tier 2)
 ```
@@ -514,7 +514,7 @@ for mode in ["parse", "dev", "production", "publication"]:
         assert validate(parse(src), mode=mode).ok
 ```
 
-Minimal examples such as `FR5` are **guaranteed to pass in all modes**
+Minimal examples such as `FR 5` are **guaranteed to pass in all modes**
 (a program that requires only Tier 0 is always OK in every mode).
 
 ### 8.4 Tier Display in Error Messages
@@ -523,11 +523,11 @@ Minimal examples such as `FR5` are **guaranteed to pass in all modes**
 error[E-tier2]: @session_end is required for physical HW
   --> session.dsl:1:1
   |
-1 | FR5 @hw("teensy41")
+1 | FR 5 @hardware("teensy41")
   |     ^^^^^^^^^^^^^^^ physical HW specified here
   |
   = note: this requirement is active in mode="production"
-  = note: to skip this check, use @hw("virtual") or mode="dev"
+  = note: to skip this check, use @hardware("virtual") or mode="dev"
   = help: add @session_end(rule="first", time=60min, reinforcers=60)
 ```
 
@@ -540,7 +540,7 @@ message (modeled on Rust's diagnostic format).
 
 ### 9.1 Dynamic Tiers
 
-The mechanism by which Tier 2 activation depends on the value of `@hw` is
+The mechanism by which Tier 2 activation depends on the value of `@hardware` is
 straightforward, but whether additional dynamic tiers are needed should be
 investigated:
 

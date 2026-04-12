@@ -52,7 +52,7 @@ Explicit `COD=0s` does NOT trigger the warning.
 
 | File | Cases | Scope |
 |------|-------|-------|
-| `atomic.json` | 15 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid |
+| `atomic.json` | 24 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid, JEAB notation variants (hyphen/space/sec/min) |
 | `compound.json` | 27 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay, nested, deep nesting depth≥3, wide (5 components) |
 | `modifier.json` | 21 | DRL, DRH, DRO, PR, Repeat, Lag (simple, parenthesized, with length, in Mult, in let binding) |
 | `limited_hold.json` | 12 | FI30 LH10, program-level LH default, LH on EXT/CRF/SecondOrder |

@@ -14,7 +14,7 @@ We propose a three-layer architecture that separates concerns along the dimensio
 ┌─────────────────────┐
 │   contingency-dsl   │  Non-Turing-complete (CFG)
 │   "What produces     │  Static, declarative
-│    reinforcement"    │  FR10, Conc(VI30, VI60)
+│    reinforcement"    │  FR 10, Conc(VI 30-s, VI 60-s)
 ├─────────────────────┤
 │   contingency-core   │  Turing-complete
 │   "How contingencies │  Dynamic, procedural
@@ -28,7 +28,7 @@ We propose a three-layer architecture that separates concerns along the dimensio
 
 | Layer | Computational Power | Describes | Examples |
 |-------|-------------------|-----------|----------|
-| **contingency-dsl** | CFG (non-TC) | Static contingency structure | `Conc(VI30, VI60)`, `Chain(FR5, FI30)` |
+| **contingency-dsl** | CFG (non-TC) | Static contingency structure | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
 | **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, titration |
 | **experiment-core** | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
@@ -65,17 +65,17 @@ What imperative programming expresses via `if/else/for`, behavior analysis expre
 
 ## 4.3 The Repeat Combinator
 
-"Complete FR10 three times, then switch to VI60" is expressible with existing combinators:
+"Complete FR 10 three times, then switch to VI 60" is expressible with existing combinators:
 
 ```
-Chain(FR10, FR10, FR10, VI60)   -- explicit unfolding
-Tand(FR10, FR10, FR10, VI60)    -- without S^D change
+Chain(FR 10, FR 10, FR 10, VI 60-s)  -- explicit unfolding
+Tand(FR 10, FR 10, FR 10, VI 60-s)   -- without S^D change
 ```
 
 The `Repeat(n, S)` combinator reduces verbosity:
 
 ```
-Tand(Repeat(3, FR10), VI60)
+Tand(Repeat(3, FR 10), VI 60-s)
 ```
 
 **Formal definition:**
@@ -109,23 +109,23 @@ Repeat(m+n, S) ≡ Tand(Repeat(m, S), Repeat(n, S))
 
 *Example:*
 ```
-Repeat(2, Repeat(3, FR5))
-→ (inner expansion)  Repeat(2, Tand(FR5, FR5, FR5))
-→ (outer expansion)  Tand(Tand(FR5, FR5, FR5), Tand(FR5, FR5, FR5))
-→ (Theorem 2 flatten) Tand(FR5, FR5, FR5, FR5, FR5, FR5)
+Repeat(2, Repeat(3, FR 5))
+→ (inner expansion)  Repeat(2, Tand(FR 5, FR 5, FR 5))
+→ (outer expansion)  Tand(Tand(FR 5, FR 5, FR 5), Tand(FR 5, FR 5, FR 5))
+→ (Theorem 2 flatten) Tand(FR 5, FR 5, FR 5, FR 5, FR 5, FR 5)
 ```
 
 Conformant implementations MUST also reduce `Repeat(1, S)` to `S` (not `Tand(S)`).
 
-**Distinction from Mix:** `Mix(FR10, VI60)` is undiscriminated alternation (environment-controlled, typically random selection). `Tand(Repeat(3, FR10), VI60)` is sequential completion (FR10 completed three times before transitioning to VI60). These are distinct contingencies.
+**Distinction from Mix:** `Mix(FR 10, VI 60-s)` is undiscriminated alternation (environment-controlled, typically random selection). `Tand(Repeat(3, FR 10), VI 60-s)` is sequential completion (FR 10 completed three times before transitioning to VI 60). These are distinct contingencies.
 
 ## 4.4 Variable Bindings as Macro Expansion
 
 Variable bindings can be introduced without adding Turing completeness:
 
 ```
-let baseline = VI60
-let treatment = Conc(VI30, EXT)
+let baseline = VI 60-s
+let treatment = Conc(VI 30-s, EXT)
 let reversal = baseline
 ```
 
@@ -133,7 +133,7 @@ This is macro expansion (textual substitution) — no mutable state, no closures
 
 Potential extensions, all reducible to macro expansion:
 - Parameterized templates: `def matching(a, b) = Conc(VI(a), VI(b))` → `matching(30, 90)`
-- Annotations: `FR10 @label("component A")` — metadata for analysis/visualization
+- Annotations: `FR 10 @label("component A")` — metadata for analysis/visualization
 
 None of these raise the position in the Chomsky hierarchy, provided the following well-formedness condition is enforced:
 
@@ -205,7 +205,7 @@ annotator reorganization established this correspondence.
 | &nbsp;&nbsp;└ `procedure-annotator/stimulus` | Procedure | `@reinforcer`, `@sd`, `@brief` | Stimulus identity: reinforcers, discriminative stimuli, second-order brief stimuli |
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | Session-level temporal parameters |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (renamed from `subject-annotator` on 2026-04-12 to match JEAB plural heading) |
-| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hw` | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
+| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
 | `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | Session termination rules, baseline conditions, steady-state criteria (v1.x minimal set; introduced 2026-04-12 to close DIVERGENCE C). |
 
 **Extensions** (outside the four JEAB categories, under `annotations/extensions/`):
@@ -218,7 +218,7 @@ annotator reorganization established this correspondence.
 **Orthogonality constraint:** Annotation keywords across all annotators are mutually disjoint. Multiple annotators can annotate the same schedule expression simultaneously:
 
 ```
-FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
+FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
 ```
 
 ### 4.7.3 Package Architecture
@@ -251,7 +251,7 @@ contingency-dsl (base CFG)
         │     + @species, @strain, @deprivation, @history, @n annotations
         │
         ├── apparatus_annotator/ (JEAB category: Apparatus)
-        │     + @chamber, @operandum, @interface, @hw annotations
+        │     + @chamber, @operandum, @interface, @hardware annotations
         │     + Physical chamber, response device, HW interface identity
         │
         ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12)
@@ -383,7 +383,7 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <annotation_name>      ::= "species" | "strain" | "deprivation" | "history" | "n"
 
 -- apparatus-annotator adds:
-<annotation_name>      ::= "chamber" | "operandum" | "interface" | "hw"
+<annotation_name>      ::= "chamber" | "operandum" | "interface" | "hardware" (alias: "hw")
 
 -- measurement-annotator adds:
 <annotation_name>      ::= "session_end" | "baseline" | "steady_state"
@@ -401,21 +401,21 @@ Each annotator extends the `<annotation_name>` production with its own keywords.
 
 ```
 -- procedure-annotator/stimulus
-FR5 @reinforcer("food-pellet")
-Chain(FR5, FI30) @sd("red-light", component=1)
-FR5(FI30) @brief("light", duration=2)
+FR 5 @reinforcer("food-pellet")
+Chain(FR 5, FI 30-s) @sd("red-light", component=1)
+FR 5(FI 30-s) @brief("light", duration=2)
 
 -- extensions/social-annotator
-Conc(VI30, VI60) @subject("A")
+Conc(VI 30-s, VI 60-s) @subject("A")
 
 -- composed (multiple annotators)
 Conc(
-  VI30 @subject("A") @reinforcer("food"),
-  VI60 @subject("B") @reinforcer("water")
+  VI 30-s @subject("A") @reinforcer("food"),
+  VI 60-s @subject("B") @reinforcer("water")
 )
 
 -- multiple annotator categories
-FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
+FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape")
 ```
 
 ### 4.7.8 Naming Convention
@@ -449,11 +449,11 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 | S-S / S-R associations | Not modeled | Formal description | — | — | — | — | — | — |
 | Inter-subject contingencies | Not modeled | — | — | — | — | — | Interlocking contingency | — |
 | Time source / unit | Not modeled | — | `@clock("real")` | — | — | — | — | — |
-| Blackout (inter-component) | `BO=5s` (Mult/Mix kw_arg) | — | — | — | — | — | — | — |
+| Blackout (inter-component) | `BO=5-s` (Mult/Mix kw_arg) | — | — | — | — | — | — | — |
 | Session temporal structure | Not modeled | — | `@warmup` | — | — | — | — | — |
 | Subject species / history | Not modeled | — | — | `@species`, `@history` | — | — | — | — |
 | Physical chamber | Not modeled | — | — | — | `@chamber("ENV-007")` | — | — | — |
-| Hardware backend | Not modeled | — | — | — | `@hw("teensy41")` | — | — | — |
+| Hardware backend | Not modeled | — | — | — | `@hardware("teensy41")` | — | — | — |
 | Session termination | Not modeled | — | — | — | — | `@session_end` | — | — |
 | Steady-state criterion | Not modeled | — | — | — | — | `@steady_state` | — | — |
 | Behavior function | Not modeled | — | — | — | — | — | — | `@function("escape")` |

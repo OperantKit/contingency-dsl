@@ -100,12 +100,12 @@ DRConstraint ::= DRL(irt_min : ℝ⁺)       -- IRT ≥ threshold
                | DRO(omission_time : ℝ⁺)  -- no response for duration
 ```
 
-DR schedules sit orthogonally to the grid and are best understood as **filters** or **modifiers** that can be composed with grid schedules via tandem or conjunctive composition. For example, `Tand(VR20, DRL5s)` requires a variable-ratio response count *and* an inter-response time ≥ 5 seconds.
+DR schedules sit orthogonally to the grid and are best understood as **filters** or **modifiers** that can be composed with grid schedules via tandem or conjunctive composition. For example, `Tand(VR 20, DRL 5-s)` requires a variable-ratio response count *and* an inter-response time ≥ 5 seconds.
 
 **Note on DRA/DRI.** Differential Reinforcement of Alternative behavior (DRA) and Differential Reinforcement of Incompatible behavior (DRI) are clinical procedure labels commonly used in applied behavior analysis (Cooper, Heron, & Heward, 2020). Unlike DRO/DRL/DRH, which are single-operandum schedule modifiers defined by temporal parameters, DRA/DRI inherently specify contingencies across *two* response classes (extinction for the target behavior, reinforcement for the alternative). At the schedule level, DRA is expressible as a concurrent arrangement:
 
 ```
-let dra = Conc(EXT, CRF)           -- or Conc(EXT, FR1), Conc(EXT, VI30), etc.
+let dra = Conc(EXT, CRF)           -- or Conc(EXT, FR 1), Conc(EXT, VI 30-s), etc.
 ```
 
 DRI is a special case of DRA where the alternative behavior is physically incompatible with the target; the schedule structure is identical. The distinction is topographical (which behavior is selected as the alternative), not procedural. Therefore, DRA/DRI are not DSL primitives but documented patterns using existing combinators. Clinical metadata (behavioral function, alternative behavior description) is delegated to the annotation layer (see [architecture.md §4.7](architecture.md)).
@@ -265,21 +265,21 @@ CompoundSchedule = Combinator(Schedule, Schedule, ...)
 This is a standard recursive algebraic data type (ADT). For example:
 
 ```
-Conc(Chain(FR5, VI60), Alt(FR10, FT30))
+Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s))
 ```
 
-is a concurrent schedule where operandum 1 presents a chained FR5-then-VI60, and operandum 2 presents an alternative FR10-or-FT30.
+is a concurrent schedule where operandum 1 presents a chained FR5-then-VI 60, and operandum 2 presents an alternative FR10-or-FT 30.
 
 ### 2.4 Changeover Delay (COD) and Fixed-Ratio Changeover (FRCO)
 
 The Changeover Delay (COD) specifies a minimum time after an operandum switch before reinforcement becomes available on the new operandum (Catania, 1966). COD is a **definitional parameter** of `Conc`, not optional metadata:
 
-- Without COD, a concurrent schedule is procedurally underspecified (Herrnstein, 1961). The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit COD specification; the runtime default is `COD=0s`.
-- `COD=0s` is legal (explicit no-delay), matching Shull & Pliskoff (1967), but parsers SHOULD emit a lint warning for VI-VI arrangements.
+- Without COD, a concurrent schedule is procedurally underspecified (Herrnstein, 1961). The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit COD specification; the runtime default is `COD=0-s`.
+- `COD=0-s` is legal (explicit no-delay), matching Shull & Pliskoff (1967), but parsers SHOULD emit a lint warning for VI-VI arrangements.
 
 ```
-Conc(VI30s, VI60s, COD=2s)           -- 2-s changeover delay
-Conc(VI30s, VI60s, COD=0s)           -- explicit no-delay (control condition)
+Conc(VI 30-s, VI 60-s, COD=2-s)           -- 2-s changeover delay
+Conc(VI 30-s, VI 60-s, COD=0-s)           -- explicit no-delay (control condition)
 ```
 
 **Default behavior:** Symmetric (same delay regardless of switch direction), non-resetting (switching again during active COD does not restart the timer).
@@ -287,8 +287,8 @@ Conc(VI30s, VI60s, COD=0s)           -- explicit no-delay (control condition)
 **Fixed-Ratio Changeover (FRCO):** A response-based alternative to time-based COD. FRCO requires N responses on the new operandum before reinforcement becomes available (Hunter & Davison, 1985; Pliskoff & Fetterman, 1981). FRCO and COD may coexist:
 
 ```
-Conc(VI30s, VI60s, FRCO=5)            -- 5 responses required after switch
-Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both time and response requirements
+Conc(VI 30-s, VI 60-s, FRCO=5)            -- 5 responses required after switch
+Conc(VI 30-s, VI 60-s, COD=2-s, FRCO=5)   -- both time and response requirements
 ```
 
 | Parameter | Alias | Dimension | Reference |
@@ -298,12 +298,12 @@ Conc(VI30s, VI60s, COD=2s, FRCO=5)   -- both time and response requirements
 
 **Terminology note.** Earlier drafts used the abbreviation `COR` (Changeover Response). The established literature abbreviation is **FRCO**, introduced by Hunter & Davison (1985). Pliskoff & Fetterman (1981) used the descriptive term "changeover requirement" without a fixed abbreviation.
 
-Both COD and FRCO support program-level defaults via `param_decl` (analogous to `LH = 10s`):
+Both COD and FRCO support program-level defaults via `param_decl` (analogous to `LH = 10-s`):
 
 ```
-COD = 2s                              -- applies to all Conc in this program
-Conc(VI30s, VI60s)                    -- inherits COD=2s
-Conc(VI30s, VI60s, COD=5s)           -- expression-level overrides program-level
+COD = 2-s                              -- applies to all Conc in this program
+Conc(VI 30-s, VI 60-s)                    -- inherits COD=2-s
+Conc(VI 30-s, VI 60-s, COD=5-s)           -- expression-level overrides program-level
 ```
 
 **Future (v1.2):** Asymmetric COD (different values per switch direction) and resetting COD via component labels.
@@ -315,12 +315,12 @@ The Blackout (BO) specifies a response-independent dark period inserted between 
 **Design rationale.** BO directly affects behavioral contrast (Reynolds, 1961): longer BO periods reduce inter-component interaction, producing cleaner discrimination between components. From an associative learning perspective, BO duration determines whether prior-component stimulus representations decay sufficiently to prevent generalization across components (Bouton, 2004; Wagner, 1981). This makes BO a **structural parameter of Mult/Mix**, not mere session metadata — structurally symmetric with COD's role in Conc.
 
 ```
-Mult(FR5, EXT, BO=5s)               -- 5-s blackout between components
-Mix(VI30s, VI60s, BO=3s)            -- 3-s blackout (undiscriminated)
-Mult(FR5, EXT)                       -- no blackout (immediate transition)
+Mult(FR 5, EXT, BO=5-s)               -- 5-s blackout between components
+Mix(VI 30-s, VI 60-s, BO=3-s)            -- 3-s blackout (undiscriminated)
+Mult(FR 5, EXT)                       -- no blackout (immediate transition)
 ```
 
-**Default behavior:** BO is optional (unlike COD). Omission or `BO=0s` means immediate component transition with no blackout period. Symmetric (same duration for all transitions).
+**Default behavior:** BO is optional (unlike COD). Omission or `BO=0-s` means immediate component transition with no blackout period. Symmetric (same duration for all transitions).
 
 **Future (v1.2):** Asymmetric BO (different values per transition direction, e.g., Rich→Lean vs. Lean→Rich). To be designed in conjunction with asymmetric COD (Issue #25).
 
@@ -336,7 +336,7 @@ A concurrent VR-VR schedule produces qualitatively different choice behavior fro
 
 The rationale:
 
-1. **Procedural completeness.** `Conc(VR20, VR40, COD=2s)` fully specifies the operative contingency: two ratio schedules, simultaneously available, with a 2-second changeover delay. No additional parameter is needed to make this a well-formed procedure.
+1. **Procedural completeness.** `Conc(VR 20, VR 40, COD=2-s)` fully specifies the operative contingency: two ratio schedules, simultaneously available, with a 2-second changeover delay. No additional parameter is needed to make this a well-formed procedure.
 
 2. **Empirical contingency of the effect.** Whether exclusive choice actually occurs depends on parameters that the DSL already captures (ratio values, COD, FRCO) as well as factors outside the DSL's scope (training history, session duration, species). Baking `choice_mode = "exclusive"` into the DSL would assert an empirical generalization as if it were a logical entailment of the procedure. It is not.
 
@@ -346,7 +346,7 @@ The rationale:
 
 | Concept | Layer | Rationale |
 |---------|-------|-----------|
-| Schedule structure (`Conc(VR20, VR40, COD=2s)`) | DSL | Procedural specification |
+| Schedule structure (`Conc(VR 20, VR 40, COD=2-s)`) | DSL | Procedural specification |
 | Reinforcement gating (COD suppression, ratio counting) | Runtime (`contingency-py`) | Contingency enforcement |
 | Choice allocation, matching parameters, exclusive-choice detection | session-analyzer | Behavioral measurement and classification |
 
@@ -385,9 +385,9 @@ postpone shocks.
 **Syntax.**
 
 ```
-Sidman(SSI=20s, RSI=5s)                             -- primary form
-SidmanAvoidance(SSI=20s, RSI=5s)                    -- verbose alias
-Sidman(ShockShockInterval=20s, ResponseShockInterval=5s)  -- verbose params
+Sidman(SSI=20-s, RSI=5-s)                             -- primary form
+SidmanAvoidance(SSI=20-s, RSI=5-s)                    -- verbose alias
+Sidman(ShockShockInterval=20-s, ResponseShockInterval=5-s)  -- verbose params
 ```
 
 Both parameters are required; there is no default. Time units are mandatory.
@@ -396,10 +396,10 @@ Both parameters are required; there is no default. Time units are mandatory.
 appear inside any compound combinator:
 
 ```
-Chain(FR10 @punisher("food"), Sidman(SSI=20s, RSI=5s) @punisher("shock"))
+Chain(FR 10 @punisher("food"), Sidman(SSI=20-s, RSI=5-s) @punisher("shock"))
 ```
 
-This is a chained schedule in which completing an FR10 for food transitions
+This is a chained schedule in which completing an FR 10 for food transitions
 the subject into a free-operant avoidance component (de Waard, Galizio, &
 Baron, 1979).
 
@@ -418,8 +418,8 @@ explicit in source, though `@reinforcer` is accepted as an equivalent alias
 (see annotation-design.md §3.5):
 
 ```
-Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
-Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
+Sidman(SSI=20-s, RSI=5-s) @punisher("shock", intensity="0.5mA")
+Sidman(SSI=20-s, RSI=5-s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
 **Scope of v1.x aversive schedules.** The `aversive_schedule` production is
@@ -555,10 +555,10 @@ aversive-schedule primitive in the `aversive_schedule` production.
 **Syntax.**
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)  -- short alias
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)
+DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)  -- short alias
 ```
 
 **Semantic constraints.**
@@ -576,7 +576,7 @@ DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)  -- short alias
 definition. `@punisher` is recommended:
 
 ```
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
   @sd("light", modality="visual")
 ```
@@ -585,7 +585,7 @@ DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
 appear inside any compound combinator:
 
 ```
-Chain(FR10, DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+Chain(FR 10, DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
 ```
 
 ### 2.10 Punishment Overlay
@@ -603,8 +603,8 @@ stream.
 **Syntax.**
 
 ```
-Overlay(VI 60s, FR 1)                     -- every response punished
-Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)  -- concurrent baseline
+Overlay(VI 60-s, FR 1)                     -- every response punished
+Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)  -- concurrent baseline
 ```
 
 The first component is the reinforcement baseline; the second is the
@@ -619,7 +619,7 @@ punishment schedule.
 `@reinforcer` for the baseline:
 
 ```
-Overlay(VI 60s, FR 1)
+Overlay(VI 60-s, FR 1)
   @reinforcer("food")
   @punisher("shock", intensity="0.5mA")
 ```

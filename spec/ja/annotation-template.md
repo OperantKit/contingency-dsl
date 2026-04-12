@@ -1,70 +1,68 @@
-# example-annotator — Annotation Template
+# example-annotator — アノテーションテンプレート
 
-## Purpose
+## 目的
 
-This is a template for proposing a new annotator for the **DSL project's
-recommended registry**. Copy this directory and fill in each section.
+**DSL プロジェクトの推奨レジストリ**に新しい annotator を提案するためのテンプレート。
+このディレクトリをコピーし、各セクションを記入すること。
 
-Per [design-philosophy.md §4.2](design-philosophy.md), third-party
-programs are free to build their own registries without following this
-template. This template is for annotators that aim to be adopted into
-the DSL project's recommended set.
+[design-philosophy.md §4.2](design-philosophy.md) に基づき、サードパーティの
+プログラムはこのテンプレートに従わず独自のレジストリを構築できる。
+本テンプレートは DSL プロジェクトの推奨セットへの採用を目指す annotator 向けである。
 
 ---
 
-## Status
+## ステータス
 
 `[ Proposed | Schema Design | Stable ]`
 
 ---
 
-## Category
+## カテゴリ
 
-Which of the JEAB-aligned recommended categories does this annotator
-belong to? Choose one:
+JEAB 準拠の推奨カテゴリのうち、この annotator はどれに属するか。1つ選択:
 
-- [ ] **Procedure** — schedule description, equivalence, conversion fill-in
-- [ ] **Subjects** — subject history, establishing operations, state
-- [ ] **Apparatus** — chamber, operandum, HW binding, timing contract
-- [ ] **Measurement** — steady-state, baseline, phase logic, DV specs
-- [ ] **Extension** — clinical, derivational, provenance, domain-specific
-      (requires justification for a new category)
+- [ ] **Procedure** — スケジュール記述、等価性、変換の補完
+- [ ] **Subjects** — 被験体の履歴、確立操作、状態
+- [ ] **Apparatus** — チャンバー、オペランダム、HW バインディング、タイミング契約
+- [ ] **Measurement** — 定常状態、ベースライン、フェーズロジック、従属変数仕様
+- [ ] **Extension** — 臨床、派生的、来歴、ドメイン固有
+      （新カテゴリの場合は正当化が必要）
 
 ---
 
-## Keywords
+## キーワード
 
-| Keyword | Purpose | Example |
+| キーワード | 目的 | 例 |
 |---|---|---|
-| @example_key | What this annotation declares | `@example_key("value", param=42)` |
+| @example_key | この annotation が宣言する内容 | `@example_key("value", param=42)` |
 
 ---
 
-## Boundary Justification
+## 境界の正当化
 
 **この annotation がないと理論的議論ができないか: YES / NO**
 
-- (explain why the schedule's theoretical properties don't require this annotation)
+- （スケジュールの理論的性質がこの annotation を必要としない理由を説明）
 
 **この annotation が DSL 内にあるべき理由:**
 
-- (explain what becomes verifiable / compilable / reproducible by having it in DSL)
+- （DSL 内にあることで何が検証可能・コンパイル可能・再現可能になるか説明）
 
 ---
 
-## Inclusion Criteria
+## 包含基準
 
-- What *belongs* in this annotator (one dimension, clearly stated)
+- この annotator に*属する*もの（1つの次元、明確に記述）
 
-## Exclusion Criteria
+## 除外基準
 
-- What does *not* belong here, and where it should go instead
+- ここには*属さない*もの、および代わりにどこに置くべきか
 
 ---
 
-## Boundary Review Checklist
+## 境界レビューチェックリスト
 
-Fill this in when proposing a new keyword `@X`:
+新しいキーワード `@X` を提案する際に記入すること:
 
 ```markdown
 ### 1. Core independence (§2 境界テスト)
@@ -75,18 +73,18 @@ Fill this in when proposing a new keyword `@X`:
 - [ ] Q3: `@X` は Core 文法レベルで必須と主張できるか（registry 非依存で DSL spec 全体で必須と言えるか） → NO なら annotation OK
       (昇格が妥当な場合は design-philosophy §8 の制約下でのみ可)
 
-### 2. Category fit
+### 2. カテゴリ適合性
 - [ ] `@X` は選択したカテゴリ（Procedure / Subjects / Apparatus / Measurement / 拡張）と整合するか
 - [ ] `@X` はこの annotator の次元に属するか
 - [ ] `@X` は既存 keywords と意味的に一貫するか
 - [ ] 他の推奨 annotator の keywords と衝突しないか
 
-### 3. Necessity for recommendation
+### 3. 推奨の必要性
 - [ ] DSL 外（コメント・外部ファイル）では不十分か
 - [ ] コンパイル対象（論文・コード生成・検証）に利益があるか
 - [ ] 3rd-party 限定ではなく、DSL プロジェクトの推奨集合に含める価値があるか
 
-### 4. Domain expert sign-off
+### 4. ドメイン専門家の承認
 - [ ] EAB: 基礎研究の観点から妥当
 - [ ] (domain): 関連ドメインの観点から妥当
 - [ ] PLT: 言語設計の観点から一貫
@@ -94,15 +92,15 @@ Fill this in when proposing a new keyword `@X`:
 
 ---
 
-## Dependencies
+## 依存関係
 
-Other annotators this one requires (if any). Prefer none.
+この annotator が必要とする他の annotator（もしあれば）。なるべく依存なしが望ましい。
 
 ---
 
-## Implementation Reference
+## 実装リファレンス
 
-Where the implementation lives (e.g., `apps/experiment/contingency-annotator/src/contingency_annotator/<name>_annotator/`).
+実装の所在（例: `apps/experiment/contingency-annotator/src/contingency_annotator/<name>_annotator/`）。
 
-Note: third-party programs may implement their own annotator conforming
-to this schema without using the reference implementation.
+注: サードパーティのプログラムは、リファレンス実装を使用せずに
+このスキーマに準拠した独自の annotator を実装できる。

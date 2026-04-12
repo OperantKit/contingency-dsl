@@ -10,10 +10,10 @@
 The building blocks. Every expression is a **two-letter type prefix** followed by a **value**.
 
 ```
-FR5          -- Fixed Ratio 5: reinforce every 5th response
-VI30s        -- Variable Interval 30s: reinforce the first response
-             --   after a mean 30s interval (Fleshler-Hoffman distribution)
-FT10s        -- Fixed Time 10s: deliver reinforcer every 10s regardless of behavior
+FR 5         -- Fixed Ratio 5: reinforce every 5th response
+VI 30-s      -- Variable Interval 30-s: reinforce the first response
+             --   after a mean 30-s interval (Fleshler-Hoffman distribution)
+FT 10-s      -- Fixed Time 10-s: deliver reinforcer every 10-s regardless of behavior
 ```
 
 ### The 3 × 3 Grid
@@ -22,9 +22,9 @@ The first letter selects the **distribution** (how values are chosen), the secon
 
 |              | R (Ratio — responses) | I (Interval — time + response) | T (Time — time only) |
 |--------------|----------------------|-------------------------------|---------------------|
-| **F** (Fixed)    | FR5  | FI30s  | FT10s  |
-| **V** (Variable) | VR20 | VI60s  | VT15s  |
-| **R** (Random)   | RR10 | RI45s  | RT20s  |
+| **F** (Fixed)    | FR 5  | FI 30-s  | FT 10-s  |
+| **V** (Variable) | VR 20 | VI 60-s  | VT 15-s  |
+| **R** (Random)   | RR 10 | RI 45-s  | RT 20-s  |
 
 Two special cases:
 ```
@@ -37,10 +37,16 @@ EXT          -- Extinction: no response is ever reinforced
 All of these are **identical** — use whichever matches your context:
 
 ```
-VI60         -- compact (most common in JEAB/JABA papers)
-VI 60        -- whitespace-separated (Ferster & Skinner, 1957 style)
-VI60s        -- with time unit (recommended when ambiguity is possible)
-VI(60)       -- Python constructor form
+VI 60-s      -- JEAB modern standard (recommended)
+VI 60-sec    -- JEAB older papers (e.g., JEAB 1960s-1970s)
+VI 60 s      -- space-separated unit (JEAB 1986, 2012)
+VI 60 sec    -- space-separated unit (Ferster & Skinner, 1957)
+VI 60-min    -- minutes (for longer intervals, e.g., VI 1-min)
+VI 60 min    -- minutes, space-separated
+VI 60s       -- attached unit (no separator)
+VI60s        -- compact with unit
+VI60         -- compact (unit implied)
+VI 60        -- whitespace-separated, no unit (Ferster & Skinner, 1957)
 ```
 
 ---
@@ -52,26 +58,26 @@ Combine two or more schedules using **combinators**. The syntax is always `Combi
 ### Parallel Combinators
 
 ```
-Conc(VI30s, VI60s, COD=2s)    -- Concurrent: two schedules available simultaneously
-                               --   COD (changeover delay) is required for Conc
-Alt(FR10, FI5min)              -- Alternative: whichever schedule completes first
-                               --   delivers reinforcement (OR logic)
-Conj(FR5, FI30s)               -- Conjunctive: BOTH conditions must be met
-                               --   before reinforcement (AND logic)
+Conc(VI 30-s, VI 60-s, COD=2-s)  -- Concurrent: two schedules available simultaneously
+                                  --   COD (changeover delay) is required for Conc
+Alt(FR 10, FI 5-min)              -- Alternative: whichever schedule completes first
+                                  --   delivers reinforcement (OR logic)
+Conj(FR 5, FI 30-s)              -- Conjunctive: BOTH conditions must be met
+                                  --   before reinforcement (AND logic)
 ```
 
 ### Sequential Combinators
 
 ```
-Chain(FR5, FI30s)              -- Chained: complete FR5, then FI30 with stimulus change
-Tand(VR20, DRL5s)              -- Tandem: same as Chain but NO stimulus change
+Chain(FR 5, FI 30-s)              -- Chained: complete FR 5, then FI 30-s with stimulus change
+Tand(VR 20, DRL 5-s)              -- Tandem: same as Chain but NO stimulus change
 ```
 
 ### Alternating Combinators
 
 ```
-Mult(FR5, EXT)                 -- Multiple: FR5 and EXT alternate with stimulus change
-Mix(FR5, FR10)                 -- Mixed: same but NO stimulus change
+Mult(FR 5, EXT)                 -- Multiple: FR 5 and EXT alternate with stimulus change
+Mix(FR 5, FR 10)                -- Mixed: same but NO stimulus change
 ```
 
 ### Nesting
@@ -79,7 +85,7 @@ Mix(FR5, FR10)                 -- Mixed: same but NO stimulus change
 Combinators compose freely:
 
 ```
-Conc(Chain(FR5, VI60s), Alt(FR10, FT30s), COD=2s)
+Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s), COD=2-s)
 ```
 
 ---
@@ -89,9 +95,9 @@ Conc(Chain(FR5, VI60s), Alt(FR10, FT30s), COD=2s)
 ### Differential Reinforcement
 
 ```
-DRL5s        -- Low rate: reinforce only if IRT ≥ 5s (slow responding)
-DRH2s        -- High rate: reinforce only if IRT ≤ 2s (fast responding)
-DRO10s       -- Other behavior: reinforce absence of target for 10s
+DRL 5-s      -- Low rate: reinforce only if IRT ≥ 5-s (slow responding)
+DRH 2-s      -- High rate: reinforce only if IRT ≤ 2-s (fast responding)
+DRO 10-s     -- Other behavior: reinforce absence of target for 10-s
 ```
 
 ### Progressive Ratio
@@ -107,8 +113,8 @@ PR(exponential)                 -- Exponential growth
 A **post-fix** modifier — reinforcement is available for a limited window:
 
 ```
-FI30s LH10s                    -- FI 30s with 10s availability window
-Conc(VI30s LH5s, VI60s LH10s, COD=2s) -- per-component hold
+FI 30-s LH 10-s                    -- FI 30-s with 10-s availability window
+Conc(VI 30-s LH 5-s, VI 60-s LH 10-s, COD=2-s) -- per-component hold
 ```
 
 ---
@@ -118,12 +124,12 @@ Conc(VI30s LH5s, VI60s LH10s, COD=2s) -- per-component hold
 **This is the syntax most likely to confuse newcomers.** It looks like a function call, but it is not.
 
 ```
-FI120(FR10)      -- Second-order schedule
+FI 120-s(FR 10)      -- Second-order schedule
 ```
 
 ### What This Means
 
-`FI120(FR10)` means:
+`FI 120-s(FR 10)` means:
 
 > "Treat each completion of FR10 as a *unit*. Reinforce the first unit completion after 120 seconds have elapsed."
 
@@ -132,37 +138,37 @@ It does **NOT** mean "FI120 called with argument FR10" or "FI120 applied to FR10
 ### Reading the Syntax
 
 ```
-FI120(FR10)
-│     │
-│     └── unit: the pattern repeated inside the interval
-│         (complete 10 responses = 1 unit)
+FI 120-s(FR 10)
+│       │
+│       └── unit: the pattern repeated inside the interval
+│           (complete 10 responses = 1 unit)
 │
 └── overall: the schedule that controls when units produce reinforcement
-    (first unit completion after 120s = food)
+    (first unit completion after 120-s = food)
 ```
 
 ### How It Works (Step by Step)
 
 ```
 Time →
-|── FR10 ──| brief |── FR10 ──| brief |── FR10 ──| brief |── FR10 ──| FOOD
-                                                              ↑
-                                                    FI 120s elapsed + unit done
+|── FR 10 ──| brief |── FR 10 ──| brief |── FR 10 ──| brief |── FR 10 ──| FOOD
+                                                                ↑
+                                                      FI 120-s elapsed + unit done
 ```
 
-1. The organism repeatedly completes FR10 (10 responses per unit)
+1. The organism repeatedly completes FR 10 (10 responses per unit)
 2. After each unit, a **brief stimulus** may be presented (conditioned reinforcer)
-3. Once 120 seconds have elapsed **AND** the next FR10 unit is completed → primary reinforcement (food)
+3. Once 120 seconds have elapsed **AND** the next FR 10 unit is completed → primary reinforcement (food)
 4. The cycle restarts
 
 ### Why Not Just Use Tand?
 
-`Tand(FI120, FR10)` means something **different**:
+`Tand(FI 120-s, FR 10)` means something **different**:
 
-| | `Tand(FI120, FR10)` | `FI120(FR10)` |
+| | `Tand(FI 120-s, FR 10)` | `FI 120-s(FR 10)` |
 |---|---|---|
-| During FI interval | Wait (no responding required) | **Repeatedly complete FR10 units** |
-| How many FR10? | Exactly 1 (after FI elapsed) | Multiple (throughout the interval) |
+| During FI interval | Wait (no responding required) | **Repeatedly complete FR 10 units** |
+| How many FR 10? | Exactly 1 (after FI elapsed) | Multiple (throughout the interval) |
 | Brief stimulus | None (tandem = no stimulus change) | After each unit completion |
 | Behavioral pattern | FI scallop → FR run | **Unit-level scallops** within FI |
 
@@ -171,10 +177,10 @@ The distinction matters because second-order schedules maintain behavior under v
 ### More Examples
 
 ```
-FR5(FI30s)       -- Complete 5 FI-30s units to earn reinforcement
-                  --   (≈ 150s minimum, with FI scallop pattern in each unit)
-VI60(FR20)       -- Complete FR20 units; after mean 60s, next unit → food
-FR10(FR5)        -- Complete 10 FR5 units to earn reinforcement
+FR 5(FI 30-s)    -- Complete 5 FI 30-s units to earn reinforcement
+                  --   (≈ 150-s minimum, with FI scallop pattern in each unit)
+VI 60-s(FR 20)   -- Complete FR 20 units; after mean 60-s, next unit → food
+FR 10(FR 5)      -- Complete 10 FR 5 units to earn reinforcement
                   --   (= 50 responses total, but structured as 10 bursts of 5)
 ```
 
@@ -195,8 +201,8 @@ Second-order schedules are foundational in:
 Assign names to schedules for readability:
 
 ```
-let baseline = VI60s
-let probe = Conc(VI30s, VI60s, COD=2s)
+let baseline = VI 60-s
+let probe = Conc(VI 30-s, VI 60-s, COD=2-s)
 Mult(baseline, probe)
 ```
 
@@ -207,16 +213,16 @@ Names are expanded at parse time (macro substitution). No mutable state.
 Set parameters that apply to all matching constructs:
 
 ```
-LH = 10s
-COD = 2s
-Conc(VI30s, VI60s)     -- inherits COD=2s, each component gets LH=10s
+LH = 10-s
+COD = 2-s
+Conc(VI 30-s, VI 60-s)     -- inherits COD=2-s, each component gets LH=10-s
 ```
 
 Local values override defaults:
 
 ```
-LH = 10s
-Conc(VI30s LH5s, VI60s, COD=2s)  -- VI30 uses LH=5s, VI60 uses LH=10s
+LH = 10-s
+Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=10-s
 ```
 
 ---
@@ -225,13 +231,13 @@ Conc(VI30s LH5s, VI60s, COD=2s)  -- VI30 uses LH=5s, VI60 uses LH=10s
 
 | Pattern | Type | Example | Meaning |
 |---------|------|---------|---------|
-| `XX##` | Atomic | `FR5` | Fixed Ratio 5 |
-| `Comb(S, S, ...)` | Compound | `Conc(VI30, VI60, COD=2s)` | Concurrent |
-| `DRx##` | Modifier | `DRL5s` | Differential reinforcement |
-| `S LH##` | Limited Hold | `FI30 LH10` | Temporal availability window |
-| `XX##(YY##)` | **Second-Order** | `FI120(FR10)` | Overall(Unit) |
-| `let x = S` | Binding | `let a = VI60` | Named schedule |
-| `Repeat(n, S)` | Sugar | `Repeat(3, FR10)` | = `Tand(FR10, FR10, FR10)` |
+| `XX ##` | Atomic | `FR 5` | Fixed Ratio 5 |
+| `Comb(S, S, ...)` | Compound | `Conc(VI 30-s, VI 60-s, COD=2-s)` | Concurrent |
+| `DRx ##-s` | Modifier | `DRL 5-s` | Differential reinforcement |
+| `S LH ##-s` | Limited Hold | `FI 30-s LH 10-s` | Temporal availability window |
+| `XX ##-s(YY ##)` | **Second-Order** | `FI 120-s(FR 10)` | Overall(Unit) |
+| `let x = S` | Binding | `let a = VI 60-s` | Named schedule |
+| `Repeat(n, S)` | Sugar | `Repeat(3, FR 10)` | = `Tand(FR 10, FR 10, FR 10)` |
 
 ---
 

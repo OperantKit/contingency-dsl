@@ -24,12 +24,12 @@ FR5
 **Scenario:** Measuring preference between two VI schedules (the standard matching law procedure).
 
 ```
-Conc(VI30s, VI60s, COD=2s)
+Conc(VI 30-s, VI 60-s, COD=2-s)
 ```
 
-**What this does:** Two response keys are simultaneously available. The left key operates on VI 30s, the right on VI 60s. After switching keys, a 2-second changeover delay must elapse before reinforcement becomes available on the new key.
+**What this does:** Two response keys are simultaneously available. The left key operates on VI 30-s, the right on VI 60-s. After switching keys, a 2-second changeover delay must elapse before reinforcement becomes available on the new key.
 
-**Why COD matters:** Without COD, rapid key-switching inflates the obtained reinforcement rate on both alternatives, destroying the orderly relationship between reinforcement rate and response allocation that the matching law describes (Herrnstein, 1961). Omitting COD in a concurrent VI-VI arrangement is a procedural concern. The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit `COD` specification — `COD=0s` is accepted for control conditions and silences the warning. Omitting COD defaults to `COD=0s` at runtime.
+**Why COD matters:** Without COD, rapid key-switching inflates the obtained reinforcement rate on both alternatives, destroying the orderly relationship between reinforcement rate and response allocation that the matching law describes (Herrnstein, 1961). Omitting COD in a concurrent VI-VI arrangement is a procedural concern. The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit `COD` specification — `COD=0-s` is accepted for control conditions and silences the warning. Omitting COD defaults to `COD=0-s` at runtime.
 
 **Reference:**
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *JEAB*, *4*, 267-272. https://doi.org/10.1901/jeab.1961.4-267
@@ -42,16 +42,16 @@ Conc(VI30s, VI60s, COD=2s)
 **Scenario:** Testing whether stimulus change at component transitions functions as a conditioned reinforcer.
 
 ```
-Chain(FR5, FI30s)
+Chain(FR 5, FI 30-s)
 ```
 
-**What this does:** The pigeon first completes FR5 (initial link) in the presence of S^D-1 (e.g., red key light). Completion produces S^D-2 (e.g., green key light) and transitions to FI 30s (terminal link). Completing FI 30s produces food.
+**What this does:** The pigeon first completes FR 5 (initial link) in the presence of S^D-1 (e.g., red key light). Completion produces S^D-2 (e.g., green key light) and transitions to FI 30-s (terminal link). Completing FI 30-s produces food.
 
-**Why it exists:** The stimulus change at the FR5→FI30 transition serves as a conditioned reinforcer — it signals proximity to food. Kelleher & Fry (1962) showed that the consistency of the stimulus-food distance relationship determines conditioned reinforcement strength. Without chaining, you cannot study how organisms learn to work through multi-step contingencies.
+**Why it exists:** The stimulus change at the FR 5→FI 30-s transition serves as a conditioned reinforcer — it signals proximity to food. Kelleher & Fry (1962) showed that the consistency of the stimulus-food distance relationship determines conditioned reinforcement strength. Without chaining, you cannot study how organisms learn to work through multi-step contingencies.
 
 **Contrast with Tand:**
 ```
-Tand(FR5, FI30s)   -- Same contingency, but NO stimulus change
+Tand(FR 5, FI 30-s)   -- Same contingency, but NO stimulus change
 ```
 Jwaideh (1973) showed that removing the stimulus change (Tand) shortens post-reinforcement pauses and weakens evidence of conditioned reinforcement — directly proving that the stimulus change is the active ingredient.
 
@@ -66,10 +66,10 @@ Jwaideh (1973) showed that removing the stimulus change (Tand) shortens post-rei
 **Scenario:** Maintaining stable cocaine self-administration behavior across a 2-hour session with infrequent drug delivery.
 
 ```
-FI600(FR10)
+FI 600-s(FR 10)
 ```
 
-**What this does:** The rat repeatedly completes FR10 units (10 lever presses per unit). After each unit, a brief stimulus (e.g., 2-second light previously paired with drug infusion) is presented. Once the FI 600s (10-minute) interval has elapsed and the next FR10 unit is completed, the rat receives a cocaine infusion.
+**What this does:** The rat repeatedly completes FR 10 units (10 lever presses per unit). After each unit, a brief stimulus (e.g., 2-second light previously paired with drug infusion) is presented. Once the FI 600-s (10-minute) interval has elapsed and the next FR 10 unit is completed, the rat receives a cocaine infusion.
 
 **Why it exists:** In drug self-administration research, you need:
 
@@ -77,13 +77,13 @@ FI600(FR10)
 2. **Stable responding throughout** — without conditioned reinforcers, behavior collapses during long inter-reinforcement intervals
 3. **Structured behavioral patterns** — the unit-level scalloping reveals motivational dynamics that a simple FR or FI cannot show
 
-Second-order schedules solve all three problems. The brief stimulus acts as a conditioned reinforcer, bridging the gap between infrequent primary reinforcement episodes. Kelleher (1966) demonstrated that even with reinforcement as rare as once per 60 minutes (30 × FI 2min), the brief stimulus alone maintained orderly, scalloped responding in each FI component.
+Second-order schedules solve all three problems. The brief stimulus acts as a conditioned reinforcer, bridging the gap between infrequent primary reinforcement episodes. Kelleher (1966) demonstrated that even with reinforcement as rare as once per 60 minutes (30 × FI 2-min), the brief stimulus alone maintained orderly, scalloped responding in each FI component.
 
 **Why not Tand?**
 ```
-Tand(FI600, FR10)   -- NOT equivalent
+Tand(FI 600-s, FR 10)   -- NOT equivalent
 ```
-Tand(FI600, FR10) means: wait 600 seconds, then complete one FR10. The organism does nothing during the 600-second wait. In contrast, `FI600(FR10)` has the organism actively completing FR10 units throughout the interval, producing data about the temporal pattern of behavior.
+Tand(FI 600-s, FR 10) means: wait 600 seconds, then complete one FR 10. The organism does nothing during the 600-second wait. In contrast, `FI 600-s(FR 10)` has the organism actively completing FR 10 units throughout the interval, producing data about the temporal pattern of behavior.
 
 **References:**
 - Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475
@@ -96,11 +96,11 @@ Tand(FI600, FR10) means: wait 600 seconds, then complete one FR10. The organism 
 **Scenario:** Demonstrating that changing reinforcement in one context affects behavior in another.
 
 ```
-Mult(VI60s, VI60s)     -- Phase 1: equal schedules in both components
-Mult(VI60s, EXT)       -- Phase 2: extinction in component 2
+Mult(VI 60-s, VI 60-s)     -- Phase 1: equal schedules in both components
+Mult(VI 60-s, EXT)         -- Phase 2: extinction in component 2
 ```
 
-**What this does:** Two components alternate (signaled by different key colors). In Phase 1, both have VI 60s. In Phase 2, component 2 switches to EXT. The prediction: response rate in component 1 *increases* despite its schedule being unchanged — this is behavioral contrast (Reynolds, 1961).
+**What this does:** Two components alternate (signaled by different key colors). In Phase 1, both have VI 60-s. In Phase 2, component 2 switches to EXT. The prediction: response rate in component 1 *increases* despite its schedule being unchanged — this is behavioral contrast (Reynolds, 1961).
 
 **Why it exists:** Multiple schedules isolate discriminative control from reinforcement effects. The discriminative stimuli (different key colors) tell the organism which schedule is in effect. Without discrimination (Mix), contrast effects are weaker or absent — proving that the stimulus-schedule correlation is necessary.
 
@@ -114,7 +114,7 @@ Mult(VI60s, EXT)       -- Phase 2: extinction in component 2
 **Scenario:** Studying temporal discrimination — can the organism wait at least 20 seconds between responses?
 
 ```
-DRL20s
+DRL 20-s
 ```
 
 **What this does:** Reinforcement is delivered only when the inter-response time (IRT) is ≥ 20 seconds. Responding too early resets the timer.
@@ -123,9 +123,9 @@ DRL20s
 
 **With Limited Hold:**
 ```
-DRL20s LH5s
+DRL 20-s LH 5-s
 ```
-Now the response must come between 20s and 25s after the previous response. Too early or too late — no reinforcement. This sharpens the temporal window and reveals finer-grained timing abilities (Kramer & Rilling, 1970).
+Now the response must come between 20-s and 25-s after the previous response. Too early or too late — no reinforcement. This sharpens the temporal window and reveals finer-grained timing abilities (Kramer & Rilling, 1970).
 
 **References:**
 - Richards, R. W., Sabol, T. J., & Seiden, L. S. (1993). DRL interresponse-time distributions. *JEAB*, *60*, 361. https://doi.org/10.1901/jeab.1993.60-361
@@ -156,7 +156,7 @@ PR(hodos)
 **Scenario:** Measuring avoidance behavior maintained by negative reinforcement, where responses postpone an otherwise scheduled shock.
 
 ```
-Sidman(SSI=20s, RSI=5s)
+Sidman(SSI=20-s, RSI=5-s)
   @punisher("shock", intensity="0.5mA")
   @operandum("lever")
 ```
@@ -168,7 +168,7 @@ Sidman(SSI=20s, RSI=5s)
 **Alias equivalence.** `@punisher` is used here to make the experimenter's intent explicit, but `@reinforcer` is an equivalent alias:
 
 ```
-Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
+Sidman(SSI=20-s, RSI=5-s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
 Both forms produce the same AST node.
@@ -176,8 +176,8 @@ Both forms produce the same AST node.
 **Composition with other schedules.** Sidman can appear inside any compound combinator, e.g., as a link in a chained schedule (de Waard, Galizio, & Baron, 1979):
 
 ```
-Chain(FR10 @reinforcer("food"),
-      Sidman(SSI=20s, RSI=5s) @punisher("shock"))
+Chain(FR 10 @reinforcer("food"),
+      Sidman(SSI=20-s, RSI=5-s) @punisher("shock"))
 ```
 
 **References:**
@@ -239,7 +239,7 @@ Mult(Lag(5, length=8), Lag 0)    -- variability vs no-variability baseline
 alternate variability training with a CRF baseline or fixed-pattern schedule:
 
 ```
-Mult(Lag(5, length=8), CRF, BO=5s)
+Mult(Lag(5, length=8), CRF, BO=5-s)
   @sd("red_light", component=1)
   @sd("green_light", component=2)
   @reinforcer("grain")
@@ -261,7 +261,7 @@ during the CS-US interval. Used in fear conditioning, anxiety research, and
 aversive control studies.
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
   @sd("light", modality="visual")
   @species("dog")
@@ -283,7 +283,7 @@ populations.
 (e.g., a 0.5s shock pulse):
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)
   @punisher("shock", intensity="0.5mA")
 ```
 
@@ -291,8 +291,8 @@ DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5
 reinforced ratio transitions into a discriminated avoidance component:
 
 ```
-Chain(FR10 @reinforcer("food"),
-      DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+Chain(FR 10 @reinforcer("food"),
+      DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
 ```
 
 **References:**
@@ -307,12 +307,12 @@ behavior maintained by a reinforcement schedule. The baseline reinforcement
 continues while punishment is added on top.
 
 ```
-Overlay(VI 60s, FR 1)
+Overlay(VI 60-s, FR 1)
   @reinforcer("food")
   @punisher("shock", intensity="0.5mA")
 ```
 
-**What this does:** Food reinforcement is delivered on a VI 60s schedule.
+**What this does:** Food reinforcement is delivered on a VI 60-s schedule.
 Simultaneously, every response (FR 1) produces a brief shock. Both
 contingencies operate on the same response stream. This allows the
 experimenter to observe how punishment suppresses responding relative to the
@@ -327,7 +327,7 @@ while the baseline schedule ensures there is behavior to suppress.
 **Intermittent punishment.** Not every response needs to be punished:
 
 ```
-Overlay(VI 60s, VI 30s)
+Overlay(VI 60-s, VI 30-s)
   @reinforcer("food")
   @punisher("shock", intensity="0.5mA")
 ```
@@ -336,7 +336,7 @@ Overlay(VI 60s, VI 30s)
 preparation:
 
 ```
-Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)
+Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)
   @reinforcer("food")
   @punisher("shock", intensity="0.5mA")
 ```
@@ -352,19 +352,19 @@ Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
 ```
-COD = 2s
-LH = 10s
+COD = 2-s
+LH = 10-s
 
-let choice_component = Conc(VI30s, VI60s)
-let chain_component = Chain(FR10, FI30s)
+let choice_component = Conc(VI 30-s, VI 60-s)
+let chain_component = Chain(FR 10, FI 30-s)
 Mult(choice_component, chain_component)
 ```
 
 **What this does:**
-- Component 1 (S^D-1): Concurrent VI30 VI60 with 2s COD — the organism can allocate responses between two alternatives
-- Component 2 (S^D-2): Chained FR10→FI30 — the organism first completes 10 responses, then waits ~30s for food
+- Component 1 (S^D-1): Concurrent VI 30-s VI 60-s with 2-s COD — the organism can allocate responses between two alternatives
+- Component 2 (S^D-2): Chained FR 10→FI 30-s — the organism first completes 10 responses, then waits ~30-s for food
 - Components alternate with discriminative stimulus changes
-- All schedules have a 10s limited hold
+- All schedules have a 10-s limited hold
 - The `let` bindings make the multi-line program readable
 
 **Why this matters:** Real experiments combine multiple schedule types. The DSL's composability means you can express any arrangement that the behavioral literature describes — and the named bindings keep complex designs readable.

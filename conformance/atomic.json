@@ -241,5 +241,158 @@
         "value": 5.0
       }
     }
+  },
+  {
+    "id": "atomic_vi_hyphen_s",
+    "description": "JEAB modern standard: VI 60-s (space + hyphenated unit)",
+    "input": "VI 60-s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_fi_hyphen_sec",
+    "description": "JEAB older style: FI 30-sec (hyphenated, normalized to s in AST)",
+    "input": "FI 30-sec",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_vi_space_s",
+    "description": "Space-separated unit: VI 60 s (JEAB 1986, 2012 style)",
+    "input": "VI 60 s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_fi_space_sec",
+    "description": "Ferster & Skinner (1957) style: FI 30 sec (space-separated, normalized to s)",
+    "input": "FI 30 sec",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_vi_hyphen_min",
+    "description": "Minutes with hyphen: VI 1-min",
+    "input": "VI 1-min",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 1.0,
+        "time_unit": "min"
+      }
+    }
+  },
+  {
+    "id": "atomic_fi_space_min",
+    "description": "Minutes with space: FI 5 min (JEAB 1967, 2002 style)",
+    "input": "FI 5 min",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 5.0,
+        "time_unit": "min"
+      }
+    }
+  },
+  {
+    "id": "atomic_fi_compact_sec",
+    "description": "Compact form with sec: FI30sec (normalized to s in AST)",
+    "input": "FI30sec",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_ft_hyphen_s",
+    "description": "Fixed Time with hyphenated unit: FT 10-s",
+    "input": "FT 10-s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "T",
+        "value": 10.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "atomic_ri_space_sec",
+    "description": "Random Interval with space-separated sec: RI 45 sec",
+    "input": "RI 45 sec",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "I",
+        "value": 45.0,
+        "time_unit": "s"
+      }
+    }
   }
 ]
