@@ -294,7 +294,7 @@ string_literal     ::= '"' [^"]* '"'
 ;   extensions/social-annotator    : "subject" | "interlocking"   (multi-subject)
 ;   extensions/clinical-annotator  : "function" | "target" | "replacement" (ABA)
 ;
-; See annotation-design.md §3 and §3.7 for the rationale behind this
+; See spec/ja/annotation-design.md §3 and §3.7 for the rationale behind this
 ; 1:1 annotator-to-category correspondence, and §3.6 for the open
 ; followups on @algorithm position, @hw("virtual") multi-category,
 ; and the historical Measurement gap.
@@ -313,7 +313,7 @@ string_literal     ::= '"' [^"]* '"'
 ; Annotation aliases: within an annotator, multiple keywords may map to the
 ; same AST node ("type alias"). Alias relationships are declared by the
 ; annotator module and do not affect equivalence judgment. See
-; spec/annotation-design.md §3.5 for the general principle.
+; spec/ja/annotation-design.md §3.5 for the general principle.
 
 ; === Semantic constraints (enforced post-parse) ===
 ;
