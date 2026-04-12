@@ -29,7 +29,7 @@ Conc(VI30s, VI60s, COD=2s)
 
 **何をするか:** 2つの反応キーが同時に利用可能。左キーは VI 30s、右キーは VI 60s で動作する。キーを切り替えた後、新しいキーで強化が利用可能になるまで 2秒の切替遅延（COD）が必要。
 
-**なぜ COD が重要か:** COD なしでは、高速なキー切り替えが両方の選択肢の取得強化率を人為的に膨張させ、マッチング法則が記述する強化率と反応配分の秩序ある関係を破壊する（Herrnstein, 1961）。並行 VI-VI 配置で COD を省略することは手続き的な懸念事項である。DSL はリンター警告（`MISSING_COD`）を発し、明示的な `COD` 指定を推奨する。`COD=0s`（統制条件用）は受理され、警告を抑制する。COD を省略した場合、ランタイムデフォルトは `COD=0s` となる。
+**なぜ COD が重要か:** COD なしでは、高速なキー切り替えが両方の選択肢の取得強化率を人為的に引き上げ、マッチング法則が記述する強化率と反応配分の秩序ある関係を破壊する（Herrnstein, 1961）。並行 VI-VI 配置で COD を省略することは手続き的な懸念事項である。DSL はリンター警告（`MISSING_COD`）を発し、明示的な `COD` 指定を推奨する。`COD=0s`（統制条件用）は受理され、警告を抑制する。COD を省略した場合、ランタイムデフォルトは `COD=0s` となる。
 
 **引用:**
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *JEAB*, *4*, 267-272. https://doi.org/10.1901/jeab.1961.4-267
@@ -153,7 +153,7 @@ PR(hodos)
 
 ## 8. Sidman 自由オペラント回避
 
-**シナリオ:** 負の強化によって維持される回避行動の測定。反応が次の shock を postpone する手続き。
+**シナリオ:** 負の強化によって維持される回避行動の測定。反応が次の shock を延期する手続き。
 
 ```
 Sidman(SSI=20s, RSI=5s)
@@ -161,7 +161,7 @@ Sidman(SSI=20s, RSI=5s)
   @operandum("lever")
 ```
 
-**何をするか:** 反応がない場合、20 秒ごとに shock が発生する（SSI = Shock-Shock Interval）。レバー押し反応ごとに次の shock が 5 秒後に postpone される（RSI = Response-Shock Interval）。形式的には `next_shock = max(last_shock + SSI, last_response + RSI)`。十分訓練されたラットは反応を維持し続け、反応間間隔を RSI より少し短く保つ。
+**何をするか:** 反応がない場合、20 秒ごとに shock が発生する（SSI = Shock-Shock Interval）。レバー押し反応ごとに次の shock が 5 秒後に延期される（RSI = Response-Shock Interval）。形式的には `next_shock = max(last_shock + SSI, last_response + RSI)`。十分訓練されたラットは反応を維持し続け、反応間間隔を RSI より少し短く保つ。
 
 **なぜ存在するか:** Sidman (1953) は、明示的な warning 刺激なしでも時間的随伴性だけで回避行動が維持されることを示した。これは嫌悪制御・不安モデル・行動薬理における負の強化研究の基礎手続きとなった。Sidman 回避は強化スケジュール F/V/R × R/I/T マトリクスでは表現できない — **2 つの独立した時間パラメータ** と反応随伴的な再スケジュール規則を持つため、専用の primitive が必要。
 

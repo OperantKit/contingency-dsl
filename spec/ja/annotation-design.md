@@ -916,7 +916,7 @@ sessions:
 
 ### 8.8 次のステップ
 
-1. Phase 1 の各アノテーションについて `spec/annotation-template.md` に従った
+1. Phase 1 の各アノテーションについて `spec/ja/annotation-template.md` に従った
    境界テスト（§2 参照）への回答を作成
 2. `subject-animal` と `subject-human` annotator の分離リファクタリング
 3. `pharmacology-annotator` の新規 spec 作成
