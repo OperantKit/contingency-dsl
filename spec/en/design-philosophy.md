@@ -32,23 +32,66 @@ itself could collapse in the future; in that event, even the Core would
 require exceptional modification. This DSL fixes the "currently most stable
 layer" as Core; it does not claim "eternally immutable truth."
 
-Accordingly, the DSL adopts the following **three-layer architecture**:
+Accordingly, the DSL adopts the following **four-layer architecture**:
 
 | Layer | Content | Tolerance for change |
 |---|---|---|
-| **Core (empirically stable)** | Three-term contingency, reinforcement schedules, compound schedules, modifiers | Breaking changes are avoided in principle (see §8 for exceptions) |
-| **Schedule Extension (extended schedule grammar)** | Dynamic and TC-proximate schedule constituents (e.g., percentile, adjusting). New schedule primitives added at program scope | Each program extends by loading extension modules into its own registry |
+| **Core (empirically stable)** | Three-term contingency, reinforcement schedules, compound schedules, modifiers. Criteria are literal values determined at parse time. CFG + non-TC. | Breaking changes are avoided in principle (see §8 for exceptions) |
+| **Core-Stateful (established, stateful criteria)** | Schedules whose criteria are computed from runtime state (response history, trial outcomes, elapsed time as continuous function). Established in the discipline (§2.1 admission criteria). Parameters are declarative. | §8.1 additive procedure + §2.1 admission gate |
+| **Schedule Extension (extended schedule grammar)** | Non-standardized or user-defined schedule constituents. New schedule primitives added at program scope | Each program extends by loading extension modules into its own registry |
 | **Annotation (metadata)** | Extended theories, detailed procedures, interpretation-dependent supplementary information | Freely added or removed in step with theoretical development and decline. Program-scoped |
 
-By fixing the stable foundation as the Core DSL, adding dynamic and
-TC-proximate schedule constituents in the Schedule Extension layer, and
-appending metadata in the Annotation layer, the DSL achieves
-**scholarly robustness while tracking the development and decline of
-theories**.
+Both Core and Core-Stateful are **common to all programs** (shared
+vocabulary). The structural distinction: Core schedules have criteria that
+are literal values (`FR 5`: criterion = 5 responses), while Core-Stateful
+schedules have criteria computed from runtime state (`Pctl(IRT, 50)`:
+criterion = median of recent IRT distribution). See §2.1 for details.
 
-Both Schedule Extension and Annotation are **program-scoped**: each program
+Schedule Extension and Annotation are **program-scoped**: each program
 can define, adopt, or reject its own registry. See §4 (Annotation) and §5
 (Schedule Extension) for details.
+
+### 2.1 Core-Stateful Layer
+
+Core-Stateful accommodates schedules that are **established in the
+discipline** but whose reinforcement criteria require runtime state for
+evaluation. These schedules share the Core's role as shared vocabulary
+(common to all programs) while acknowledging that their evaluation
+properties differ from Core's full static decidability.
+
+**Structural distinction:**
+
+| Property | Core | Core-Stateful |
+|---|---|---|
+| Syntax | CFG | CFG |
+| Parameters | Literal values (parse-time) | Literal values (parse-time) |
+| Reinforcement criterion | Comparison against literal | Comparison against runtime-computed value |
+| Structural equivalence | Decidable | Undecidable (distribution-dependent) |
+| Scope | Common to all programs | Common to all programs |
+
+**Admission gate:** A schedule qualifies for Core-Stateful when it
+satisfies (1) the disciplinary-establishment criteria below and (2) all
+parameters are declarative (literal values determined at parse time).
+
+The disciplinary-establishment criteria require:
+- **N1 (Named procedure):** Multiple independent research groups use the
+  same name for the procedure.
+- **N2 (Primary literature):** At least one peer-reviewed publication
+  provides an operational definition reproducible in sufficient detail.
+- **N3 (Temporal persistence):** 20+ years since first publication, with
+  publications in at least 2 non-overlapping decades.
+- **Evidence score ≥ 3/5** across: (E1) JEAB/JABA publication,
+  (E2) cross-laboratory replication in EAB/ABA, (E3) textbook inclusion,
+  (E4) parametric study or theoretical integration, (E5) applied/
+  translational use with human participants.
+
+**Current Core-Stateful constituents:**
+
+| Schedule | Origin | Criterion = f(?) |
+|---|---|---|
+| Percentile (`Pctl`) | Platt (1973); Galbicka (1994) | f(response history) |
+| Adjusting (`Adj`) | Blough (1958); Mazur (1987) | f(trial outcome) |
+| Interlocking | Ferster & Skinner (1957) | f(elapsed time, continuous) |
 
 ## 3. User Structure
 
@@ -199,43 +242,36 @@ the Core DSL.
 - **Domain-specific extensions** — Information required by specific research
   domains such as behavioral pharmacology, neuroscience, or social behavior.
 
-## 5. Schedule Extension Layer — Dynamic and TC-Proximate Schedule Constituents
+## 5. Schedule Extension Layer — Non-Standardized and User-Defined Schedule Constituents
 
-### 5.1 An Extension Mechanism Distinct from Annotation
+### 5.1 An Extension Mechanism Distinct from Annotation and Core-Stateful
 
 The Annotation layer handles **metadata** (information appended to
-procedures). However, some experimental procedures require not metadata but
-**extension of the schedule structure itself**. Representative examples
-include:
+procedures). Core-Stateful (§2.1) handles **established schedules with
+stateful criteria**. However, some experimental procedures require
+extension of the schedule structure itself and are either not yet
+established in the discipline or have parameters that are not declarative.
+Representative examples include:
 
-- **Percentile schedules** (Platt, 1973; Galbicka, 1994) — The Nth
-  percentile of the response distribution is dynamically computed, and only
-  responses falling below that threshold are reinforced. The threshold
-  changes moment by moment as part of the schedule.
-- **Adjusting schedules / titration** — Schedule parameters change
-  dynamically as a function of the subject's response history. Used in
-  indifference-point searches in delay-discounting research, among others.
 - **Conjugate reinforcement** — The reinforcer is delivered continuously in
   proportion to response magnitude. The response–reinforcer relationship is
-  not a discrete schedule event.
+  not a discrete schedule event. (Admission criterion E2 not yet satisfied.)
+- **Laboratory-specific schedules** — Custom schedule constructs defined by
+  individual research programs that have not achieved cross-laboratory
+  standardization.
+- **Schedules with computed parameters** — Schedules whose parameters are
+  themselves expressions rather than literal values.
 
-These are **the schedule structure itself, not metadata**, and conflict with
-the annotation boundary principle of §4 (§2's "annotations do not alter the
-meaning of the Core"). At the same time, because they are **TC-proximate**
-(requiring dynamic computation, state maintenance, and history reference),
-they cannot be incorporated directly into the Core DSL's CFG / non-TC
-policy.
-
-To accommodate these constituents that are "neither includable in Core nor
-annotation," this DSL defines the **Schedule Extension layer** as a third
-layer.
+To accommodate these constituents that are "neither Core, Core-Stateful,
+nor annotation," this DSL defines the **Schedule Extension layer**.
 
 ### 5.2 Positioning of Schedule Extension
 
 | Layer | Role | Closure | Example |
 |---|---|---|---|
-| Core | Immutable schedule foundation | Common to all programs | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
-| **Schedule Extension** | Extension of schedule grammar (dynamic, TC-proximate) | Program-scoped | `Percentile(target="IRT", n=50)`, `Adjusting(start=FR 1, step="titrate")` |
+| Core | Immutable schedule foundation (literal criteria) | Common to all programs | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
+| Core-Stateful | Established schedules with runtime-computed criteria | Common to all programs | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)` |
+| **Schedule Extension** | Non-standardized / user-defined schedule constituents | Program-scoped | Laboratory-specific schedules, conjugate reinforcement |
 | Annotation | Metadata | Program-scoped | `@reinforcer`, `@species`, `@chamber` |
 
 Schedule Extension is the **second program-scoped extension dimension**
@@ -314,16 +350,15 @@ the schedule-grammar level.
 ### 5.6 Schedule Extension Candidates for This DSL Project
 
 This DSL project does **not provide** Schedule Extensions for the time
-being. Candidates for recommended extension modules to be developed should
-the need become clear in the future:
+being. Percentile and Adjusting schedules, formerly listed here as
+extension candidates, have been promoted to Core-Stateful (§2.1) on the
+basis of the §2.1 disciplinary-establishment criteria. The remaining
+candidate:
 
-- `percentile-extension` — Percentile schedules per Platt (1973) / Galbicka (1994)
-- `adjusting-extension` — Titration procedures for delay discounting, etc.
-- `conjugate-extension` — Continuous reinforcement procedures in the Rovee-Collier tradition
+- `conjugate-extension` — Continuous reinforcement procedures in the Rovee-Collier tradition (admission criterion E2 not yet satisfied)
 
-All of these are candidates for addition after the v1.0 Core freeze and
-will follow the additive extension procedure described in design-philosophy
-§8.1.
+This candidate may be added after the v1.0 Core freeze and will follow
+the additive extension procedure described in §8.1.
 
 ## 6. Implementation Language Strategy
 

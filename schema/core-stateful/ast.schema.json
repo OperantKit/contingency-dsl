@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/core-stateful-ast-schema.json",
+  "title": "contingency-dsl Core-Stateful AST",
+  "description": "AST schema extension for the Core-Stateful layer. Schedules whose criteria are computed from runtime state. Additive to schema/core/ast.schema.json — does not modify existing Core definitions.",
+
+  "$defs": {
+    "PercentileSchedule": {
+      "type": "object",
+      "description": "Percentile schedule (Platt, 1973; Galbicka, 1994). Reinforces responses meeting a specified percentile of the subject's recent response distribution on a given dimension. Criterion = f(response_history), computed at runtime.",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": { "const": "Pctl" },
+        "pctl_target": {
+          "type": "string",
+          "enum": ["IRT", "latency", "duration", "force", "rate"],
+          "description": "Response dimension to measure. IRT: inter-response time (Platt, 1973; Kuch & Platt, 1976). latency: response latency (Galbicka, 1988). duration: response duration (Galbicka, 1988). force: response force (Notterman & Mintz, 1965). rate: local response rate (Galbicka, 1994)."
+        },
+        "pctl_rank": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentile threshold (0–100). Rank=50 is the median. Rank=0 reinforces all responses (CRF equivalent, linter warning). Rank=100 reinforces no responses (EXT equivalent, linter warning)."
+        },
+        "pctl_window": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20,
+          "description": "Number of recent responses used to compute the distribution. Default: 20 (Platt, 1973 recommendation). Linter warns if < 5 (PCTL_SMALL_WINDOW) or > 100 (PCTL_LARGE_WINDOW)."
+        },
+        "pctl_dir": {
+          "type": "string",
+          "enum": ["below", "above"],
+          "default": "below",
+          "description": "Reinforcement direction. 'below': reinforce responses at or below the percentile threshold (e.g., shorter IRTs). 'above': reinforce responses at or above (e.g., longer durations, greater force). Default: 'below'."
+        }
+      },
+      "required": ["type", "modifier", "pctl_target", "pctl_rank", "pctl_window", "pctl_dir"],
+      "additionalProperties": false
+    },
+
+    "CoreStatefulScheduleExpr": {
+      "description": "Union of all Core-Stateful schedule expressions. Additive to Core's ScheduleExpr oneOf.",
+      "oneOf": [
+        { "$ref": "#/$defs/PercentileSchedule" }
+      ]
+    }
+  },
+
+  "$ref": "#/$defs/CoreStatefulScheduleExpr"
+}

@@ -174,12 +174,12 @@
 
     "Modifier": {
       "type": "object",
-      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), Repeat (with count + inner), or Lag (Page & Neuringer, 1985).",
+      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), Repeat (with count + inner), Lag (Page & Neuringer, 1985), or Pctl (Core-Stateful: Platt, 1973; Galbicka, 1994).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": {
           "type": "string",
-          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat", "Lag"]
+          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat", "Lag", "Pctl"]
         },
         "value": { "type": "number" },
         "time_unit": { "$ref": "#/$defs/TimeUnit" },
@@ -194,6 +194,27 @@
           "type": "integer",
           "minimum": 1,
           "description": "Sequence length for Lag schedule (Page & Neuringer, 1985). Omitted or set to 1 means individual response is the unit (applied research default). Set to N means the unit is a sequence of N responses (e.g., Page & Neuringer used length=8 for 2-key 8-peck sequences). Only applicable when modifier == 'Lag'."
+        },
+        "pctl_target": {
+          "type": "string",
+          "enum": ["IRT", "latency", "duration", "force", "rate"],
+          "description": "Core-Stateful: Response dimension to measure (Platt, 1973). IRT: inter-response time. latency: response latency. duration: response duration. force: response force. rate: local response rate. Only applicable when modifier == 'Pctl'."
+        },
+        "pctl_rank": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Core-Stateful: Percentile threshold (0–100). Only applicable when modifier == 'Pctl'."
+        },
+        "pctl_window": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Core-Stateful: Number of recent responses for distribution calculation. Default: 20. Only applicable when modifier == 'Pctl'."
+        },
+        "pctl_dir": {
+          "type": "string",
+          "enum": ["below", "above"],
+          "description": "Core-Stateful: Reinforcement direction. 'below': reinforce at or below threshold. 'above': reinforce at or above. Default: 'below'. Only applicable when modifier == 'Pctl'."
         }
       },
       "required": ["type", "modifier"],

@@ -8,10 +8,11 @@ Tests are organized to mirror `schema/`:
 
 ```
 conformance/
-├── core/           — Core grammar tests (atomic, compound, modifier, binding, etc.)
-├── annotations/    — Annotation system tests (program-level, measurement, errors)
+├── core/              — Core grammar tests (atomic, compound, modifier, binding, etc.)
+├── core-stateful/     — Core-Stateful layer tests (percentile, adjusting, interlocking)
+├── annotations/       — Annotation system tests (program-level, measurement, errors)
 └── representations/
-    └── t-tau/      — T-tau coordinate transform tests (to/from/roundtrip/errors)
+    └── t-tau/         — T-tau coordinate transform tests (to/from/roundtrip/errors)
 ```
 
 ## Format
@@ -67,6 +68,13 @@ not perform semantic analysis should validate against `pre_expansion` only.
 | `aversive.json` | 14 | Sidman avoidance, discriminated avoidance |
 | `program.json` | 4 | Program-level param_decls, bindings |
 | `errors.json` | 56 | Lex errors, parse errors, semantic errors |
+
+### core-stateful/
+
+| File | Cases | Scope |
+|------|-------|-------|
+| `percentile.json` | 10 | Pctl minimal, all targets, compound, let binding, annotations |
+| `errors.json` | 16 | Pctl semantic errors (rank, window, target, dir, time unit, duplicates) + linter warnings |
 
 ### annotations/
 

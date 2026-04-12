@@ -122,6 +122,10 @@ reserved      ::= "let" | "def"
                 | "ShockDuration" | "MaxShock"
                 | "fixed" | "escape"          -- da_mode values
                 | "Overlay"                   -- v1.x: punishment overlay combinator
+                | "Pctl"                      -- Core-Stateful: percentile schedule (Platt, 1973)
+                | "IRT" | "latency" | "duration" | "force" | "rate"  -- pctl_target values
+                | "window" | "dir"            -- pctl keyword argument names
+                | "below" | "above"           -- pctl_dir values
 
 ; === Compound schedules ===
 ;
@@ -150,6 +154,7 @@ kw_name       ::= "COD" | "ChangeoverDelay"
 ; === Modifiers ===
 
 modifier      ::= dr_mod | pr_mod | repeat | lag_mod
+                | pctl_mod                    -- Core-Stateful: see schema/core-stateful/grammar.ebnf
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 

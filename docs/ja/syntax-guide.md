@@ -55,13 +55,13 @@ VI 60        -- 空白区切り、単位なし（Ferster & Skinner, 1957）
 
 2つ以上のスケジュールを**コンビネータ**で組み合わせる。構文は常に `Combinator(schedule, schedule, ...)`。
 
-### 並行型コンビネータ
+### 並立型コンビネータ
 
 ```
-Conc(VI 30-s, VI 60-s, COD=2-s)    -- 並行: 2つのスケジュールが同時に利用可能
+Conc(VI 30-s, VI 60-s, COD=2-s)    -- 並立: 2つのスケジュールが同時に利用可能
                                --   COD（切替遅延）は Conc で必須
 Alt(FR 10, FI 5-min)              -- 代替: どちらかが先に完了すれば強化（OR 論理）
-Conj(FR 5, FI 30-s)               -- 共役: 両方の条件を満たして強化（AND 論理）
+Conj(FR 5, FI 30-s)               -- 連立: 両方の条件を満たして強化（AND 論理）
 ```
 
 ### 逐次型コンビネータ
@@ -90,12 +90,12 @@ Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s), COD=2-s)
 
 ## レベル 3: 修飾子
 
-### 差異強化
+### 分化強化
 
 ```
-DRL 5-s        -- 低率差異強化: IRT ≥ 5秒の場合のみ強化（ゆっくり反応）
-DRH 2-s        -- 高率差異強化: IRT ≤ 2秒の場合のみ強化（速い反応）
-DRO 10-s       -- 他行動差異強化: 標的行動なしで 10秒経過で強化
+DRL 5-s        -- 低率分化強化: IRT ≥ 5秒の場合のみ強化（ゆっくり反応）
+DRH 2-s        -- 高率分化強化: IRT ≤ 2秒の場合のみ強化（速い反応）
+DRO 10-s       -- 他行動分化強化: 標的行動なしで 10秒経過で強化
 ```
 
 ### 累進比率
@@ -105,6 +105,23 @@ PR(hodos)                       -- Hodos (1961) ステップ関数
 PR(linear, start=1, increment=5) -- 線形: 1, 6, 11, 16, ...
 PR(exponential)                 -- 指数的増加
 ```
+
+### Percentile Schedule（Core-Stateful）
+
+被験体の行動に基準が適応する分化強化手続き:
+
+```
+Pctl(IRT, 50)                            -- IRT 中央値以下を強化
+Pctl(IRT, 25, window=30)                 -- 25 百分位以下、30 反応ウィンドウ
+Pctl(latency, 75, window=50, dir=above)  -- 潜時の 75 百分位以上を強化
+Pctl(force, 90, window=15, dir=above)    -- 力の 90 百分位以上を強化
+Pctl(duration, 10, window=20)            -- 短い持続時間（10 百分位以下）
+```
+
+DRL/DRH（固定閾値）と異なり、Pctl は被験体の直近の反応分布から基準を算出する。
+**shaping（逐次接近法）**の定量的基盤 (Galbicka, 1994)。
+
+パラメータ: `target`（反応次元）、`rank`（0–100 百分位）、`window`（デフォルト 20）、`dir`（`below`/`above`、デフォルト `below`）。
 
 ### Limited Hold（時間的利用可能制約）
 
@@ -230,8 +247,8 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30 は LH=5-s、VI 60 はデフォ
 | パターン | 種類 | 例 | 意味 |
 |---------|------|-----|------|
 | `XX##` | 原子 | `FR 5` | 固定比率 5 |
-| `Comb(S, S, ...)` | 複合 | `Conc(VI 30-s, VI 60-s, COD=2-s)` | 並行スケジュール |
-| `DRx##` | 修飾子 | `DRL 5-s` | 差異強化 |
+| `Comb(S, S, ...)` | 複合 | `Conc(VI 30-s, VI 60-s, COD=2-s)` | 並立スケジュール |
+| `DRx##` | 修飾子 | `DRL 5-s` | 分化強化 |
 | `S LH##` | Limited Hold | `FI 30-s LH 10-s` | 時間的利用可能窓 |
 | `XX##(YY##)` | **二次** | `FI 120-s(FR 10)` | Overall(Unit) |
 | `let x = S` | 束縛 | `let a = VI 60-s` | 名前付きスケジュール |

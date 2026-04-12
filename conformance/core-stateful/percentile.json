@@ -1,0 +1,229 @@
+[
+  {
+    "id": "pctl_minimal",
+    "description": "Percentile schedule — minimal form (IRT median, defaults: window=20, dir=below)",
+    "input": "Pctl(IRT, 50)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 50,
+        "pctl_window": 20,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_with_window",
+    "description": "Percentile schedule with explicit window (Platt, 1973 style)",
+    "input": "Pctl(IRT, 25, window=30)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 25,
+        "pctl_window": 30,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_fully_specified",
+    "description": "Percentile schedule — all parameters explicit",
+    "input": "Pctl(latency, 75, window=50, dir=above)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "latency",
+        "pctl_rank": 75,
+        "pctl_window": 50,
+        "pctl_dir": "above"
+      }
+    }
+  },
+  {
+    "id": "pctl_force_dimension",
+    "description": "Percentile on force dimension (Notterman & Mintz, 1965 paradigm)",
+    "input": "Pctl(force, 90, window=15, dir=above)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "force",
+        "pctl_rank": 90,
+        "pctl_window": 15,
+        "pctl_dir": "above"
+      }
+    }
+  },
+  {
+    "id": "pctl_duration_shaping",
+    "description": "Percentile on response duration (Galbicka, 1988 paradigm)",
+    "input": "Pctl(duration, 10, window=20)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "duration",
+        "pctl_rank": 10,
+        "pctl_window": 20,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_rate_target",
+    "description": "Percentile on local response rate dimension",
+    "input": "Pctl(rate, 60, window=10, dir=above)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "rate",
+        "pctl_rank": 60,
+        "pctl_window": 10,
+        "pctl_dir": "above"
+      }
+    }
+  },
+  {
+    "id": "pctl_in_mult",
+    "description": "Percentile as component of Multiple schedule — shaping phase vs extinction",
+    "input": "Mult(Pctl(IRT, 50), EXT, BO=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "Modifier",
+            "modifier": "Pctl",
+            "pctl_target": "IRT",
+            "pctl_rank": 50,
+            "pctl_window": 20,
+            "pctl_dir": "below"
+          },
+          { "type": "Special", "kind": "EXT" }
+        ],
+        "params": {
+          "BO": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "pctl_in_conc",
+    "description": "Concurrent percentile schedules on different operanda",
+    "input": "Conc(Pctl(IRT, 30), Pctl(IRT, 70, dir=above), COD=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Modifier",
+            "modifier": "Pctl",
+            "pctl_target": "IRT",
+            "pctl_rank": 30,
+            "pctl_window": 20,
+            "pctl_dir": "below"
+          },
+          {
+            "type": "Modifier",
+            "modifier": "Pctl",
+            "pctl_target": "IRT",
+            "pctl_rank": 70,
+            "pctl_window": 20,
+            "pctl_dir": "above"
+          }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "pctl_let_binding",
+    "description": "Percentile schedule bound to identifier via let",
+    "input": "let shaping = Pctl(IRT, 50, window=20)\nMult(shaping, EXT)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "shaping",
+          "value": {
+            "type": "Modifier",
+            "modifier": "Pctl",
+            "pctl_target": "IRT",
+            "pctl_rank": 50,
+            "pctl_window": 20,
+            "pctl_dir": "below"
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "IdentifierRef", "name": "shaping" },
+          { "type": "Special", "kind": "EXT" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "pctl_with_annotations",
+    "description": "Percentile schedule with procedure and subjects annotations",
+    "input": "@species(\"Rattus norvegicus\") @n(4)\nPctl(IRT, 50, window=20) @reinforcer(\"food pellets\")",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        { "type": "Annotation", "keyword": "species", "positional": "Rattus norvegicus" },
+        { "type": "Annotation", "keyword": "n", "positional": 4 }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 50,
+        "pctl_window": 20,
+        "pctl_dir": "below"
+      },
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "food pellets" }
+      ]
+    }
+  }
+]

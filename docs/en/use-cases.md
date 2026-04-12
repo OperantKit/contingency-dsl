@@ -347,7 +347,56 @@ Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)
 
 ---
 
-## 12. Complex Real-World Experiment
+## 12. Shaping with Percentile Schedule (Core-Stateful)
+
+**Scenario:** Shaping lever-press IRT using a percentile schedule — the quantitative basis for automated shaping (Galbicka, 1994).
+
+```
+@species("Rattus norvegicus") @n(4)
+@deprivation(hours=23, target="food")
+Pctl(IRT, 50, window=20) @reinforcer("food pellets")
+```
+
+**What this does:** Reinforces lever presses whose IRT falls at or below the median of the last 20 IRTs. As the rat's IRTs shorten, the threshold automatically adapts — creating continuous shaping pressure without manual experimenter intervention.
+
+**Why Pctl rather than DRL?**
+
+| Schedule | Criterion | Adapts? | Use case |
+|---|---|---|---|
+| `DRL 5-s` | Fixed at 5 seconds | No | Maintain existing temporal discrimination |
+| `Pctl(IRT, 50)` | Median of recent IRTs | Yes | Shape IRT toward shorter/longer values |
+
+**Compound examples:**
+
+```
+-- Multiple schedule: shaping phase vs extinction control
+Mult(Pctl(IRT, 50), EXT, BO=5-s)
+
+-- Concurrent: shape different dimensions on different operanda
+Conc(Pctl(IRT, 30), Pctl(force, 75, dir=above), COD=2-s)
+
+-- Named binding for readability
+let shaping = Pctl(IRT, 50, window=20)
+Mult(shaping, EXT)
+```
+
+**Clinical application (ABA):**
+
+```
+-- Shape vocalization duration in ASD intervention
+Pctl(duration, 50, window=15) @target("vocalization") @function("access")
+```
+
+**Key insight:** A single `Pctl(IRT, 50)` already performs shaping — the adaptive threshold ensures the distribution shifts continuously. Staged rank changes (50→40→30) control shaping speed and are handled by contingency-core phase transitions.
+
+**References:**
+- Platt, J. R. (1973). Percentile reinforcement. In G. H. Bower (Ed.), *The psychology of learning and motivation* (Vol. 7, pp. 271–296). Academic Press.
+- Galbicka, G. (1994). Shaping in the 21st century. *JABA*, *27*(4), 739–760. https://doi.org/10.1901/jaba.1994.27-739
+- Athens, E. S., Vollmer, T. R., & Pipkin, C. C. (2007). Shaping academic task engagement with percentile schedules. *JABA*, *40*(3), 475–488.
+
+---
+
+## 13. Complex Real-World Experiment
 
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
@@ -387,6 +436,7 @@ Mult(choice_component, chain_component)
 | `DiscrimAv` | Discriminated avoidance, fear conditioning, anxiety research | Cannot express trial-based CS-predicted avoidance |
 | `Overlay` | Punishment overlay, suppression studies | Cannot express punishment on maintained behavior |
 | `Lag` | Operant variability, ASD stereotypy reduction, creativity research | Cannot reinforce response variability directly |
+| `Pctl` | Automated shaping, adaptive differentiation, clinical shaping | Manual shaping only; no quantitative criterion |
 | `let` | Readable complex programs | Unreadable nested expressions |
 
 ---

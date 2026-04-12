@@ -108,6 +108,22 @@ PR(linear, start=1, increment=5) -- Linear: 1, 6, 11, 16, ...
 PR(exponential)                 -- Exponential growth
 ```
 
+### Percentile Schedule (Core-Stateful)
+
+A differential reinforcement procedure where the criterion adapts to the subject's behavior:
+
+```
+Pctl(IRT, 50)                            -- Reinforce IRTs below the median
+Pctl(IRT, 25, window=30)                 -- Below 25th percentile, 30-response window
+Pctl(latency, 75, window=50, dir=above)  -- Latencies above 75th percentile
+Pctl(force, 90, window=15, dir=above)    -- Force above 90th percentile
+Pctl(duration, 10, window=20)            -- Short durations (below 10th percentile)
+```
+
+Unlike DRL/DRH (fixed thresholds), Pctl computes the criterion from the subject's recent response distribution. This is the quantitative basis for **shaping** (Galbicka, 1994).
+
+Parameters: `target` (response dimension), `rank` (0–100 percentile), `window` (default 20), `dir` (`below`/`above`, default `below`).
+
 ### Limited Hold
 
 A **post-fix** modifier — reinforcement is available for a limited window:

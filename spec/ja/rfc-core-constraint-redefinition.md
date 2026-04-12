@@ -1,9 +1,13 @@
 # RFC: Core 制約の再定義 — 「CFG + 非TC」から「CFG + パラメータ宣言的」へ
 
-> **Status:** Draft — Open Discussion (2026-04-12)
+> **Status:** Superseded (2026-04-13)
 >
-> 本文書は design-philosophy.md の改訂提案であり、正典ではない。
-> design-philosophy.md §8.1 の additive 手順に準拠する変更を意図する。
+> **本 RFC は RFC_CORE_STATEFUL_2026-04-13.md により superseded された。**
+> 本 RFC が提起した問題（Pctl/Adj が共有語彙であるべき）は、Core の制約を
+> 再定義するのではなく、Core-Stateful 層を additive に追加することで解決された。
+> 本 RFC §2 の分析（宣言と計算の区別）は後継 RFC に継承されている。
+>
+> 以下は元の Draft テキストをそのまま保存したものである。
 
 ---
 

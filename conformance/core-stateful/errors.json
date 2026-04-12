@@ -1,0 +1,152 @@
+[
+  {
+    "id": "pctl_error_rank_out_of_range",
+    "description": "SemanticError: rank must be 0–100",
+    "input": "Pctl(IRT, 150)",
+    "error": "PCTL_INVALID_RANK"
+  },
+  {
+    "id": "pctl_error_negative_rank",
+    "description": "SemanticError: rank must be non-negative",
+    "input": "Pctl(IRT, -10)",
+    "error": "PCTL_INVALID_RANK"
+  },
+  {
+    "id": "pctl_error_fractional_rank",
+    "description": "SemanticError: rank must be an integer",
+    "input": "Pctl(IRT, 50.5)",
+    "error": "PCTL_INVALID_RANK"
+  },
+  {
+    "id": "pctl_error_window_zero",
+    "description": "SemanticError: window must be positive",
+    "input": "Pctl(IRT, 50, window=0)",
+    "error": "PCTL_INVALID_WINDOW"
+  },
+  {
+    "id": "pctl_error_window_negative",
+    "description": "SemanticError: window must be positive",
+    "input": "Pctl(IRT, 50, window=-5)",
+    "error": "PCTL_INVALID_WINDOW"
+  },
+  {
+    "id": "pctl_error_unknown_target",
+    "description": "SemanticError: unknown response dimension",
+    "input": "Pctl(speed, 50)",
+    "error": "PCTL_UNKNOWN_TARGET"
+  },
+  {
+    "id": "pctl_error_invalid_dir",
+    "description": "SemanticError: dir must be 'below' or 'above'",
+    "input": "Pctl(IRT, 50, dir=left)",
+    "error": "PCTL_INVALID_DIR"
+  },
+  {
+    "id": "pctl_error_rank_with_time_unit",
+    "description": "SemanticError: rank is dimensionless, not temporal",
+    "input": "Pctl(IRT, 50s)",
+    "error": "PCTL_UNEXPECTED_TIME_UNIT"
+  },
+  {
+    "id": "pctl_error_duplicate_window",
+    "description": "SemanticError: duplicate keyword argument",
+    "input": "Pctl(IRT, 50, window=20, window=30)",
+    "error": "DUPLICATE_PCTL_KW_ARG"
+  },
+  {
+    "id": "pctl_error_duplicate_dir",
+    "description": "SemanticError: duplicate keyword argument",
+    "input": "Pctl(IRT, 50, dir=below, dir=above)",
+    "error": "DUPLICATE_PCTL_KW_ARG"
+  },
+  {
+    "id": "pctl_error_missing_target",
+    "description": "ParseError: missing required positional argument (target)",
+    "input": "Pctl(50)",
+    "error": "PARSE_ERROR"
+  },
+  {
+    "id": "pctl_error_missing_rank",
+    "description": "ParseError: missing required positional argument (rank)",
+    "input": "Pctl(IRT)",
+    "error": "PARSE_ERROR"
+  },
+
+  {
+    "_comment": "=== Linter warnings (valid programs with diagnostic) ===",
+    "id": "pctl_warn_extreme_rank_zero",
+    "description": "Linter WARNING: rank=0 is CRF-equivalent (all responses reinforced)",
+    "input": "Pctl(IRT, 0)",
+    "warning": "PCTL_EXTREME_RANK",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 0,
+        "pctl_window": 20,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_warn_extreme_rank_100",
+    "description": "Linter WARNING: rank=100 is EXT-equivalent (no responses reinforced)",
+    "input": "Pctl(IRT, 100)",
+    "warning": "PCTL_EXTREME_RANK",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 100,
+        "pctl_window": 20,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_warn_small_window",
+    "description": "Linter WARNING: window < 5 has poor distributional stability",
+    "input": "Pctl(IRT, 50, window=3)",
+    "warning": "PCTL_SMALL_WINDOW",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 50,
+        "pctl_window": 3,
+        "pctl_dir": "below"
+      }
+    }
+  },
+  {
+    "id": "pctl_warn_large_window",
+    "description": "Linter WARNING: window > 100 degrades adaptiveness",
+    "input": "Pctl(IRT, 50, window=200)",
+    "warning": "PCTL_LARGE_WINDOW",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Pctl",
+        "pctl_target": "IRT",
+        "pctl_rank": 50,
+        "pctl_window": 200,
+        "pctl_dir": "below"
+      }
+    }
+  }
+]

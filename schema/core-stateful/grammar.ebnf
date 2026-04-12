@@ -1,0 +1,116 @@
+; contingency-dsl v1.x — Core-Stateful Grammar
+;
+; Additive grammar extension for the Core-Stateful layer.
+; Core-Stateful schedules have criteria computed from runtime state
+; (response history, trial outcomes, elapsed time as continuous function),
+; as opposed to Core schedules whose criteria are literal values.
+;
+; All parameters are declarative (determined at parse time).
+; Evaluation of criteria is delegated to the runtime (contingency-core).
+;
+; This file defines production rules to be appended to schema/core/grammar.ebnf.
+; No existing Core production rules are modified.
+;
+; Integration point (additive to Core grammar):
+;   modifier ::= dr_mod | pr_mod | repeat | lag_mod | pctl_mod
+;
+; Reference: RFC_CORE_STATEFUL_2026-04-13.md
+;            .local/percentile/RFC.md
+
+; =====================================================================
+; §1. Percentile Schedule — Platt (1973); Galbicka (1994)
+; =====================================================================
+;
+; A differential reinforcement procedure in which the criterion is
+; dynamically computed from the subject's recent response distribution.
+; Only responses meeting a specified percentile of the distribution
+; on a given response dimension are reinforced.
+;
+; Syntax:
+;   Pctl(IRT, 50)                            -- minimal
+;   Pctl(IRT, 25, window=30)                 -- with explicit window
+;   Pctl(latency, 75, window=50, dir=above)  -- fully specified
+;
+; Positional arguments:
+;   1. pctl_target (required): response dimension to measure
+;   2. pctl_rank   (required): percentile threshold (integer 0–100)
+;
+; Keyword arguments:
+;   window (optional): positive integer, default 20
+;   dir    (optional): "below" | "above", default "below"
+;
+; LL(2) disambiguation:
+;   After "Pctl" token, expect "(". Inside parentheses:
+;   - First argument: pctl_target (one of the enumerated identifiers)
+;   - After comma: pctl_rank (number)
+;   - After comma: peek — if IDENT followed by "=", parse as pctl_kw_arg
+;
+; Platt, J. R. (1973). Percentile reinforcement: Paradigms for experimental
+;   analysis of response shaping. In G. H. Bower (Ed.), The psychology of
+;   learning and motivation (Vol. 7, pp. 271-296). Academic Press.
+;
+; Galbicka, G. (1994). Shaping in the 21st century: Moving percentile
+;   schedules into applied settings. Journal of Applied Behavior Analysis,
+;   27(4), 739-760. https://doi.org/10.1901/jaba.1994.27-739
+
+pctl_mod        ::= "Pctl" "(" pctl_target "," pctl_rank ("," pctl_kw_arg)* ")"
+
+pctl_target     ::= "IRT"
+                  | "latency"
+                  | "duration"
+                  | "force"
+                  | "rate"
+
+pctl_rank       ::= number                          -- integer 0–100 (semantic constraint P1)
+
+pctl_kw_arg     ::= "window" "=" number              -- positive integer (semantic constraint P2)
+                  | "dir" "=" pctl_dir
+
+pctl_dir        ::= "below" | "above"
+
+; === Reserved words (additive to grammar.ebnf `reserved`) ===
+
+; reserved      ::= ... (existing)
+;                 | "Pctl"
+;                 | pctl_target                       -- IRT, latency, duration, force, rate
+;                 | "window" | "dir"
+;                 | pctl_dir                          -- below, above
+;
+; Note: pctl_target values other than "IRT" begin with lowercase letters.
+; They appear only inside Pctl(...) parentheses, so parser context
+; disambiguates from let-binding identifiers. A let-binding named
+; "latency" at top level does NOT collide because pctl_target is
+; parsed only after the "Pctl" "(" token sequence.
+
+; === Semantic constraints ===
+;
+; P1. pctl_rank must be an integer in [0, 100].
+;     Non-integer or out-of-range → SemanticError (PCTL_INVALID_RANK).
+;
+; P2. pctl_window (if specified) must be a positive integer (≥ 1).
+;     Zero, negative, or non-integer → SemanticError (PCTL_INVALID_WINDOW).
+;     Omission → default value 20.
+;
+; P3. pctl_target must be one of the enumerated values.
+;     Unknown target → SemanticError (PCTL_UNKNOWN_TARGET).
+;
+; P4. pctl_dir (if specified) must be "below" or "above".
+;     Unknown dir → SemanticError (PCTL_INVALID_DIR).
+;     Omission → default value "below".
+;
+; P5. pctl_rank must NOT carry a time unit.
+;     `Pctl(IRT, 50s)` → SemanticError (PCTL_UNEXPECTED_TIME_UNIT).
+;     Rationale: rank is a dimensionless percentile, not a temporal quantity.
+;
+; P6. Duplicate keyword arguments → SemanticError (DUPLICATE_PCTL_KW_ARG).
+;     E.g., `Pctl(IRT, 50, window=20, window=30)` → error.
+;
+; W1. pctl_rank == 0 or 100 → Linter WARNING (PCTL_EXTREME_RANK).
+;     Rationale: rank=0 reinforces all responses (CRF equivalent),
+;     rank=100 reinforces no responses (EXT equivalent).
+;
+; W2. pctl_window < 5 → Linter WARNING (PCTL_SMALL_WINDOW).
+;     Rationale: distribution stability. Platt (1973) recommended window ≥ 20.
+;
+; W3. pctl_window > 100 → Linter WARNING (PCTL_LARGE_WINDOW).
+;     Rationale: adaptiveness degrades. Research typically uses 10–50.

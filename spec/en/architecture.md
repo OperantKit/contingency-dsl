@@ -1,35 +1,43 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the three-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](theory.md). Describes the four-layer architecture, computability properties, and annotation system.
 
 ---
 
-## 4.1 Three-Layer Architecture
+## 4.1 Four-Layer Architecture
 
 Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies.
 
-We propose a three-layer architecture that separates concerns along the dimension of computational power:
+We propose a four-layer architecture that separates concerns along the dimension of computational power:
 
 ```
-┌─────────────────────┐
-│   contingency-dsl   │  Non-Turing-complete (CFG)
-│   "What produces     │  Static, declarative
-│    reinforcement"    │  FR 10, Conc(VI 30-s, VI 60-s)
-├─────────────────────┤
-│   contingency-core   │  Turing-complete
-│   "How contingencies │  Dynamic, procedural
-│    change over time" │  if rate > 5.0: switch(VI → VR)
-├─────────────────────┤
-│   experiment-core    │  Turing-complete + constraints
-│   "Making it a       │  Verification, finalization
-│    finite experiment" │  Session(sched, exit=Reinf(50))
-└─────────────────────┘
+┌─────────────────────────┐
+│   contingency-dsl       │
+│   ┌───────────────────┐ │
+│   │ Core              │ │  Non-Turing-complete (CFG)
+│   │ criterion =       │ │  Static, declarative
+│   │   literal_value   │ │  FR 10, Conc(VI 30-s, VI 60-s)
+│   ├───────────────────┤ │
+│   │ Core-Stateful     │ │  CFG syntax, TC-proximate evaluation
+│   │ criterion =       │ │  Parameters declarative, criteria runtime-computed
+│   │   f(runtime_state)│ │  Pctl(IRT, 50), Adj(start=FR1, step=2)
+│   └───────────────────┘ │
+├─────────────────────────┤
+│   contingency-core       │  Turing-complete
+│   "How contingencies     │  Dynamic, procedural
+│    change over time"     │  if rate > 5.0: switch(VI → VR)
+├─────────────────────────┤
+│   experiment-core        │  Turing-complete + constraints
+│   "Making it a           │  Verification, finalization
+│    finite experiment"    │  Session(sched, exit=Reinf(50))
+└─────────────────────────┘
 ```
 
 | Layer | Computational Power | Describes | Examples |
 |-------|-------------------|-----------|----------|
-| **contingency-dsl** | CFG (non-TC) | Static contingency structure | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
-| **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, titration |
+| **contingency-dsl (Core)** | CFG (non-TC) | Static contingency structure, literal criteria | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
+| **contingency-dsl (Core-Stateful)** | CFG syntax, TC-proximate eval | Established schedules with runtime-computed criteria | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
+| **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, phase transitions |
 | **experiment-core** | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
 **contingency-core** (Turing-complete) enables:

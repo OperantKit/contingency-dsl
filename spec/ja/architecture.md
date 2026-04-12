@@ -1,37 +1,45 @@
 # 計算可能性・表現力・アーキテクチャ境界
 
-> [contingency-dsl 理論文書](theory.md)の一部。3層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
+> [contingency-dsl 理論文書](theory.md)の一部。4層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
 
 ---
 
 ## Part IV: 計算可能性・表現力・アーキテクチャ境界
 
-### 4.1 3層アーキテクチャ
+### 4.1 4層アーキテクチャ
 
 強化スケジュールは本質的に**無限過程**を記述する。VI 60 は理論上永遠に走り続けられるし、FR 10 も反応が続く限り強化を提示し続ける。これは欠陥ではなく、行動随伴性の本質的性質である。
 
-3層の責務分離を提案する:
+4層の責務分離を提案する:
 
 ```
-┌─────────────────────┐
-│   contingency-dsl   │  非チューリング完全（CFG）
-│   「何が強化を        │  静的、宣言的
-│    産むか」           │  FR 10, Conc(VI 30-s, VI 60-s)
-├─────────────────────┤
-│   contingency-core   │  チューリング完全
-│   「随伴性がどう      │  動的、手続き的
-│    変化するか」       │  if rate > 5.0: switch(VI → VR)
-├─────────────────────┤
-│   experiment-core    │  チューリング完全 + 制約
-│   「実験として        │  検証、有限化
-│    成立させる」       │  Session(sched, exit=Reinf(50))
-└─────────────────────┘
+┌─────────────────────────┐
+│   contingency-dsl       │
+│   ┌───────────────────┐ │
+│   │ Core              │ │  非チューリング完全（CFG）
+│   │ criterion =       │ │  静的、宣言的
+│   │   literal_value   │ │  FR 10, Conc(VI 30-s, VI 60-s)
+│   ├───────────────────┤ │
+│   │ Core-Stateful     │ │  CFG 構文、TC 近傍評価
+│   │ criterion =       │ │  パラメータ宣言的、基準はランタイム算出
+│   │   f(runtime_state)│ │  Pctl(IRT, 50), Adj(start=FR1, step=2)
+│   └───────────────────┘ │
+├─────────────────────────┤
+│   contingency-core       │  チューリング完全
+│   「随伴性がどう          │  動的、手続き的
+│    変化するか」           │  if rate > 5.0: switch(VI → VR)
+├─────────────────────────┤
+│   experiment-core        │  チューリング完全 + 制約
+│   「実験として             │  検証、有限化
+│    成立させる」           │  Session(sched, exit=Reinf(50))
+└─────────────────────────┘
 ```
 
 | 層 | 計算能力 | 記述対象 | 例 |
 |---|---|---|---|
-| **contingency-dsl** | CFG（非TC） | 単一随伴性の静的構造 | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
-| **contingency-core** | TC | 随伴性の動的遷移・適応 | 反応率に基づくスケジュール切替、titration |
+| **contingency-dsl (Core)** | CFG（非TC） | 単一随伴性の静的構造。リテラル基準 | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
+| **contingency-dsl (Core-Stateful)** | CFG 構文、TC 近傍評価 | 確立された状態依存基準のスケジュール | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
+| **contingency-core** | TC | 随伴性の動的遷移・適応 | 反応率に基づくスケジュール切替、フェーズ遷移 |
 | **experiment-core** | TC + 制約 | 実験パラダイムの有限化・検証 | 終了条件、ABA デザイン、安全性制約 |
 
 **contingency-core**（チューリング完全）が可能にするもの:
@@ -162,7 +170,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | セッションレベル時間パラメータ |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（2026-04-12 に `subject-annotator` から改名、JEAB 複数形見出しに整合） |
 | `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管 |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | セッション終了規則、ベースライン条件、定常性基準 (v1.x minimal set; 2026-04-12 に DIVERGENCE C 解決のため新設) |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | セッション終了規則、ベースライン条件、安定性基準 (v1.x minimal set; 2026-04-12 に DIVERGENCE C 解決のため新設) |
 
 **Extensions**（JEAB 4 カテゴリ外、`annotations/extensions/` 配下）:
 
@@ -212,7 +220,7 @@ contingency-dsl（基底 CFG）
         │
         ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設）
         │     + @session_end, @baseline, @steady_state 注釈 (v1.x minimal set)
-        │     + セッション終了、ベースライン、定常性基準
+        │     + セッション終了、ベースライン、安定性基準
         │
         └── extensions/ （JEAB 4 カテゴリ外）
               │
@@ -406,7 +414,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 | 物理チャンバー | モデル化なし | — | — | — | `@chamber("ENV-007")` | — | — | — |
 | HW バックエンド | モデル化なし | — | — | — | `@hardware("teensy41")` | — | — | — |
 | セッション終了 | モデル化なし | — | — | — | — | `@session_end` | — | — |
-| 定常性基準 | モデル化なし | — | — | — | — | `@steady_state` | — | — |
+| 安定性基準 | モデル化なし | — | — | — | — | `@steady_state` | — | — |
 | 行動の機能 | モデル化なし | — | — | — | — | — | — | `@function("escape")` |
 | 代替行動 | モデル化なし | — | — | — | — | — | — | `@replacement("mand")` |
 
