@@ -502,5 +502,68 @@
       "type": "SemanticError",
       "code": "INVALID_KEYWORD_ARG"
     }
+  },
+  {
+    "id": "error_interpolate_missing_count",
+    "description": "Interpolate requires count keyword arg",
+    "input": "Interpolate(FI15min, FI1min)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_INTERPOLATE_COUNT"
+    }
+  },
+  {
+    "id": "error_interpolate_count_zero",
+    "description": "Interpolate count must be > 0",
+    "input": "Interpolate(FI15min, FI1min, count=0)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_NONPOSITIVE_COUNT"
+    }
+  },
+  {
+    "id": "error_interpolate_count_with_time_unit",
+    "description": "Interpolate count must not have a time unit",
+    "input": "Interpolate(FI15min, FI1min, count=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_COUNT_TIME_UNIT"
+    }
+  },
+  {
+    "id": "error_interpolate_three_components",
+    "description": "Interpolate requires exactly 2 positional components",
+    "input": "Interpolate(FI15min, FI1min, FR50, count=10)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_REQUIRES_TWO"
+    }
+  },
+  {
+    "id": "error_interpolate_onset_no_time_unit",
+    "description": "Interpolate onset must include time unit",
+    "input": "Interpolate(FI15min, FI1min, count=16, onset=180)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_ONSET_TIME_UNIT_REQUIRED"
+    }
+  },
+  {
+    "id": "error_interpolate_onset_nonpositive",
+    "description": "Interpolate onset must be > 0",
+    "input": "Interpolate(FI15min, FI1min, count=16, onset=0s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_NONPOSITIVE_ONSET"
+    }
+  },
+  {
+    "id": "error_interpolate_duplicate_count",
+    "description": "Duplicate count keyword arg",
+    "input": "Interpolate(FI15min, FI1min, count=16, count=20)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_INTERPOLATE_KW_ARG"
+    }
   }
 ]

@@ -137,7 +137,7 @@
 
     "CombinatorParams": {
       "type": "object",
-      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. Semantic pass validates per-combinator validity.",
+      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. Semantic pass validates per-combinator validity.",
       "properties": {
         "COD": {
           "type": "object",
@@ -166,6 +166,25 @@
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
           },
           "required": ["value"],
+          "additionalProperties": false
+        },
+        "count": {
+          "type": "object",
+          "description": "Number of reinforcements during the interpolated block (Ferster & Skinner, 1957). Interpolate-only, required. Must be a positive integer; no time unit.",
+          "properties": {
+            "value": { "type": "integer", "minimum": 1 }
+          },
+          "required": ["value"],
+          "additionalProperties": false
+        },
+        "onset": {
+          "type": "object",
+          "description": "Time on background schedule before interpolation begins (Ferster & Skinner, 1957). Interpolate-only, optional but recommended (linter warns on omission). Must be positive; time unit required.",
+          "properties": {
+            "value": { "type": "number", "exclusiveMinimum": 0 },
+            "time_unit": { "$ref": "#/$defs/TimeUnit" }
+          },
+          "required": ["value", "time_unit"],
           "additionalProperties": false
         }
       },
@@ -380,7 +399,7 @@
 
     "Combinator": {
       "type": "string",
-      "enum": ["Conc", "Alt", "Conj", "Chain", "Tand", "Mult", "Mix", "Overlay"]
+      "enum": ["Conc", "Alt", "Conj", "Chain", "Tand", "Mult", "Mix", "Overlay", "Interpolate"]
     },
 
     "TimeUnit": {

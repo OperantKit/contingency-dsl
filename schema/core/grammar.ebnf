@@ -122,10 +122,17 @@ reserved      ::= "let" | "def"
                 | "ShockDuration" | "MaxShock"
                 | "fixed" | "escape"          -- da_mode values
                 | "Overlay"                   -- v1.x: punishment overlay combinator
+                | "Interpolate" | "Interp"   -- v1.x: interpolated schedule (Ferster & Skinner, 1957)
+                | "count" | "onset"          -- interpolate keyword argument names
                 | "Pctl"                      -- Core-Stateful: percentile schedule (Platt, 1973)
                 | "IRT" | "latency" | "duration" | "force" | "rate"  -- pctl_target values
                 | "window" | "dir"            -- pctl keyword argument names
                 | "below" | "above"           -- pctl_dir values
+                | "Adj" | "Adjusting"         -- Core-Stateful: adjusting schedule (Blough, 1958; Mazur, 1987)
+                | "delay" | "ratio" | "amount"  -- adj_target values
+                | "step" | "min" | "max"      -- adj keyword argument names (note: "start" already reserved by PR)
+                | "Interlock" | "Interlocking"  -- Core-Stateful: interlocking schedule (Ferster & Skinner, 1957)
+                | "R0"                          -- interlock initial ratio (note: "T" is already domain; context-dependent reserved)
 
 ; === Compound schedules ===
 ;
@@ -140,6 +147,7 @@ reserved      ::= "let" | "def"
 ;     targeting is planned for v1.y via Conc kw_arg extension.
 
 compound      ::= combinator "(" arg_list ")"
+                | interpolate
 combinator    ::= "Conc" | "Alt" | "Conj"
                 | "Chain" | "Tand"
                 | "Mult" | "Mix"
@@ -151,10 +159,37 @@ kw_name       ::= "COD" | "ChangeoverDelay"
                  | "FRCO" | "FixedRatioChangeover"
                  | "BO" | "Blackout"
 
+; Interpolated schedule (Ferster & Skinner, 1957):
+;   A block of reinforcements on one schedule is inserted into a background
+;   of another schedule. F&S notation: "FI 15 inter FI 1".
+;   Semantically distinct from all other combinators:
+;     - Chain/Tand: sequential completion (no return to first)
+;     - Mult/Mix: repeated alternation (not one-shot insertion)
+;     - Overlay: concurrent punishment (not temporal insertion)
+;   Non-commutative: first arg = background, second arg = inserted block.
+;
+;   Parameters:
+;     count (required): number of reinforcements during inserted block.
+;       Integer, no time unit. Must be > 0.
+;     onset (optional): time on background before insertion begins.
+;       Time value with unit. Must be > 0. Omission → Linter WARNING.
+;
+; Reference: Ferster, C. B., & Skinner, B. F. (1957). Schedules of
+;   reinforcement. Appleton-Century-Crofts. pp. 643-654.
+
+interpolate   ::= ("Interpolate" | "Interp") "(" schedule "," schedule
+                  ("," interp_kw_arg)+ ")"
+
+interp_kw_arg ::= "count" "=" number
+                | "onset" "=" value
+
 ; === Modifiers ===
 
 modifier      ::= dr_mod | pr_mod | repeat | lag_mod
                 | pctl_mod                    -- Core-Stateful: see schema/core-stateful/grammar.ebnf
+
+; Note: adj_schedule (Core-Stateful) extends base_schedule, not modifier.
+; See schema/core-stateful/grammar.ebnf §2.
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 
@@ -335,7 +370,7 @@ string_literal     ::= '"' [^"]* '"'
 ;                                        (v1.x minimal set)
 ;
 ; Extensions (do not map to the four JEAB categories):
-;   extensions/social-annotator    : "subject" | "interlocking"   (multi-subject)
+;   extensions/social-annotator    : "subject" | "ibc"            (multi-subject; "ibc" = Interlocking Behavioral Contingencies, Glenn 2004)
 ;   extensions/clinical-annotator  : "function" | "target" | "replacement" (ABA)
 ;
 ; See spec/ja/annotation-design.md §3 and §3.7 for the rationale behind this
@@ -458,3 +493,21 @@ string_literal     ::= '"' [^"]* '"'
 ;     More than 2 → SemanticError (OVERLAY_REQUIRES_TWO).
 ; 36. Overlay combinator: no keyword args in v1.x.
 ;     Any keyword arg → SemanticError (INVALID_KEYWORD_ARG).
+; 37. Interpolate combinator: exactly 2 positional schedule components.
+;     First = background schedule, second = inserted block schedule.
+;     Non-commutative: Interpolate(A, B) ≠ Interpolate(B, A).
+;     Fewer than 2 → ParseError. More than 2 → SemanticError (INTERPOLATE_REQUIRES_TWO).
+; 38. Interpolate combinator: count keyword arg is REQUIRED.
+;     Missing count → SemanticError (MISSING_INTERPOLATE_COUNT).
+;     count must be a positive integer (> 0), no time unit.
+;     count=0 → SemanticError (INTERPOLATE_NONPOSITIVE_COUNT).
+;     count with time unit (e.g. count=5s) → SemanticError (INTERPOLATE_COUNT_TIME_UNIT).
+; 39. Interpolate combinator: onset keyword arg is OPTIONAL.
+;     If specified, must include time unit and be > 0.
+;     onset without time unit → SemanticError (INTERPOLATE_ONSET_TIME_UNIT_REQUIRED).
+;     onset <= 0 → SemanticError (INTERPOLATE_NONPOSITIVE_ONSET).
+;     Omission of onset → Linter WARNING (MISSING_INTERPOLATE_ONSET).
+;     Rationale: onset is procedurally essential (when does the insertion occur?)
+;     but omission is permitted for conceptual/pedagogical use (same pattern as COD for Conc).
+; 40. Interpolate combinator: duplicate keyword args → SemanticError
+;     (DUPLICATE_INTERPOLATE_KW_ARG). E.g., count=5, count=10 → error.
