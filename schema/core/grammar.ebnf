@@ -285,8 +285,26 @@ annotation_args    ::= positional_form | keyword_only_form
 positional_form    ::= annotation_val ("," annotation_kv)*
 keyword_only_form  ::= annotation_kv ("," annotation_kv)*
 annotation_kv      ::= ident "=" annotation_val
-annotation_val     ::= string_literal | number
+annotation_val     ::= string_literal | time_value | number
+time_value         ::= number time_unit
 string_literal     ::= '"' [^"]* '"'
+
+; Annotation time_value disambiguation:
+;   Reuses the same LL(2) strategy as the core `value` production (line 73):
+;   after a number in annotation_val position, peek at the next token.
+;   If it is a time_unit literal (s, sec, ms, min), consume as time_value.
+;   Otherwise, production ends at bare number.
+;
+;   Note: annotation time_value does NOT support the optional "-" separator
+;   that the core `value` production allows (i.e., `time=60-min` is invalid
+;   in annotations; use `time=60min`). This avoids ambiguity with negative
+;   numbers in keyword argument positions.
+;
+; AST normalization for annotation time_value:
+;   Time values are normalized to a canonical unit (seconds by default)
+;   and stored as a number in the Annotation node's params. The original
+;   unit is discarded after normalization. Example: `time=60min` → 3600.
+;   Programs MAY choose a different normalization convention.
 
 ; annotation_name is defined per annotator. The following are the DSL
 ; project's RECOMMENDED annotators; a program's registry MAY replace,

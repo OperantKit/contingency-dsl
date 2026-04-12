@@ -1,6 +1,18 @@
 # contingency-dsl Conformance Test Suite
 
-Language-independent test cases for validating parser implementations.
+Language-independent test cases for validating parser and validator implementations.
+
+## Structure
+
+Tests are organized to mirror `schema/`:
+
+```
+conformance/
+├── core/           — Core grammar tests (atomic, compound, modifier, binding, etc.)
+├── annotations/    — Annotation system tests (program-level, measurement, errors)
+└── representations/
+    └── t-tau/      — T-tau coordinate transform tests (to/from/roundtrip/errors)
+```
 
 ## Format
 
@@ -19,7 +31,7 @@ Each JSON file contains an array of test cases:
 
 ### Success cases
 
-`expected` contains the AST matching `ast-schema.json`.
+`expected` contains the AST matching `schema/core/ast.schema.json`.
 
 ### Error cases
 
@@ -40,24 +52,35 @@ Some tests specify both `pre_expansion` (parser output with IdentifierRef nodes)
 and `expected` (post-expansion result after semantic analysis). Parsers that do
 not perform semantic analysis should validate against `pre_expansion` only.
 
-### COD warning (v1.0)
-
-`Conc` without a COD parameter is syntactically and semantically valid
-(constraint §7). A linter WARNING (`MISSING_COD`) is emitted when no COD
-is specified at either the expression level or the program level.
-Test cases that trigger this warning include a `"warnings"` array.
-Explicit `COD=0s` does NOT trigger the warning.
-
 ## Test files
+
+### core/
 
 | File | Cases | Scope |
 |------|-------|-------|
-| `atomic.json` | 24 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid, JEAB notation variants (hyphen/space/sec/min) |
-| `compound.json` | 27 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay, nested, deep nesting depth≥3, wide (5 components) |
-| `modifier.json` | 21 | DRL, DRH, DRO, PR, Repeat, Lag (simple, parenthesized, with length, in Mult, in let binding) |
-| `limited_hold.json` | 12 | FI30 LH10, program-level LH default, LH on EXT/CRF/SecondOrder |
+| `atomic.json` | 24 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid, JEAB notation variants |
+| `compound.json` | 27 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay, nested |
+| `modifier.json` | 21 | DRL, DRH, DRO, PR, Repeat, Lag |
+| `limited_hold.json` | 12 | FI30 LH10, program-level LH default |
 | `second_order.json` | 5 | FR5(FI30), VI60(FR10), RR5(FT20s) |
-| `binding.json` | 7 | let bindings, expansion, compound refs, LH bindings |
-| `program.json` | 9 | Complete programs with param_decls + bindings; measurement annotation preamble (@session_end, @baseline, @steady_state) |
-| `aversive.json` | 14 | Sidman free-operant avoidance (v1.x), discriminated avoidance (escape/fixed modes, alias, composition, let binding), verbose aliases |
-| `errors.json` | 63 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors, measurement annotation param errors, DA param errors, Overlay component/keyword errors |
+| `binding.json` | 7 | let bindings, expansion |
+| `aversive.json` | 14 | Sidman avoidance, discriminated avoidance |
+| `program.json` | 4 | Program-level param_decls, bindings |
+| `errors.json` | 56 | Lex errors, parse errors, semantic errors |
+
+### annotations/
+
+| File | Cases | Scope |
+|------|-------|-------|
+| `program-level.json` | 3 | Program-level annotations (subjects, apparatus, session) |
+| `measurement.json` | 5 | @session_end, @baseline, @steady_state |
+| `errors.json` | 7 | Annotation parameter validation errors |
+
+### representations/t-tau/
+
+| File | Cases | Scope |
+|------|-------|-------|
+| `to_ttau.json` | — | Lattice → T-tau conversion |
+| `from_ttau.json` | — | T-tau → Lattice conversion |
+| `roundtrip.json` | — | Bidirectional identity verification |
+| `errors.json` | — | Type errors, domain violations |

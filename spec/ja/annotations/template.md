@@ -15,6 +15,14 @@
 
 `[ Proposed | Schema Design | Stable ]`
 
+ライフサイクル:
+- **Proposed** — キーワード候補と境界が提案されたが、パラメータスキーマは未定義
+- **Schema Design** — パラメータスキーマが定義済み。境界の正当化・包含/除外基準が記述済み
+- **Stable** — スキーマが凍結され、破壊的変更は原則回避
+
+括弧内に来歴を記載してよい（例: `Schema Design (restructured 2026-04-12)`、
+`Schema Design (introduced 2026-04-12, v1.x minimal set)`）。
+
 ---
 
 ## カテゴリ

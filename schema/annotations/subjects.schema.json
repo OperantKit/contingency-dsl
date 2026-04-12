@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/subjects.schema.json",
+  "title": "subjects-annotator",
+  "description": "JEAB Subjects category. Declares biological conditions, motivational operations, and experiential conditions of the subject.",
+  "category": "Subjects",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "species": {
+      "description": "Species declaration.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {},
+      "reference": null
+    },
+    "strain": {
+      "description": "Strain declaration.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {},
+      "reference": null
+    },
+    "deprivation": {
+      "description": "Deprivation operation (establishing operation).",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "hours": {
+          "type": "number",
+          "minimum": 0,
+          "required": true,
+          "description": "Hours of deprivation"
+        },
+        "target": {
+          "type": "string",
+          "required": true,
+          "description": "Deprivation target (e.g., 'food', 'water')"
+        }
+      },
+      "reference": null
+    },
+    "history": {
+      "description": "Experimental experience history.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {},
+      "reference": null
+    },
+    "n": {
+      "description": "Number of subjects.",
+      "scope": ["program"],
+      "positional": { "type": "integer", "minimum": 1, "required": true },
+      "params": {},
+      "reference": null
+    }
+  }
+}

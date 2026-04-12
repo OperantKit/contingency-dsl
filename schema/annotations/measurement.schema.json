@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/measurement.schema.json",
+  "title": "measurement-annotator",
+  "description": "JEAB Measurement category. Declares when and how the effect of the Core contingency is read: session termination rules, steady-state criteria, and baseline measurement conditions.",
+  "category": "Measurement",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "session_end": {
+      "description": "Session termination rule. Declares when a session ends.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "rule": {
+          "type": "string",
+          "enum": ["first", "time_only", "reinforcers_only"],
+          "required": true,
+          "description": "Termination strategy: 'first' (whichever first), 'time_only', 'reinforcers_only'"
+        },
+        "time": {
+          "type": "time_value",
+          "required_if": { "rule": ["first", "time_only"] },
+          "forbidden_if": { "rule": ["reinforcers_only"] },
+          "description": "Maximum session duration"
+        },
+        "reinforcers": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "rule": ["first", "reinforcers_only"] },
+          "forbidden_if": { "rule": ["time_only"] },
+          "description": "Maximum reinforcer count"
+        }
+      },
+      "errors": {
+        "SESSION_END_MISSING_PARAM": "rule=first requires both time and reinforcers",
+        "SESSION_END_INVALID_COMBO": "rule=time_only forbids reinforcers; rule=reinforcers_only forbids time",
+        "SESSION_END_UNKNOWN_RULE": "rule value not in enum",
+        "SESSION_END_NONPOSITIVE_TIME": "time must be positive",
+        "SESSION_END_NONPOSITIVE_REINFORCERS": "reinforcers must be a positive integer"
+      },
+      "reference": "Baron, A., & Perone, M. (1998). Experimental design and analysis in the laboratory study of human operant behavior. In K. A. Lattal & M. Perone (Eds.), Handbook of research methods in human operant behavior (pp. 45-91). Plenum."
+    },
+
+    "baseline": {
+      "description": "Baseline measurement declaration. Captures the operant level of the target response before experimental training.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "pre_training_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "required": true,
+          "description": "Number of sessions allocated to baseline measurement"
+        },
+        "measure": {
+          "type": "string",
+          "enum": ["operant_level", "no_training", "custom"],
+          "required": false,
+          "default": "operant_level",
+          "description": "What to measure during baseline"
+        }
+      },
+      "errors": {
+        "BASELINE_INVALID_SESSIONS": "pre_training_sessions must be a positive integer",
+        "BASELINE_UNKNOWN_MEASURE": "measure value not in enum"
+      },
+      "reference": "Skinner, B. F. (1938). The behavior of organisms. Appleton-Century-Crofts."
+    },
+
+    "steady_state": {
+      "description": "Steady-state criterion for phase termination. Declares when responding is considered stable enough to end a phase.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "window_sessions": {
+          "type": "integer",
+          "minimum": 2,
+          "required": true,
+          "description": "Number of recent sessions evaluated for stability"
+        },
+        "max_change_pct": {
+          "type": "number",
+          "minimum": 0,
+          "required": true,
+          "description": "Maximum percent change in measure across the window (e.g., 10 means ±10%)"
+        },
+        "measure": {
+          "type": "string",
+          "enum": ["rate", "reinforcers", "iri", "latency", "custom"],
+          "required": false,
+          "default": "rate",
+          "description": "What to evaluate for stability"
+        },
+        "min_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "default_expr": "window_sessions",
+          "description": "Minimum total sessions in the phase before stability check applies"
+        }
+      },
+      "errors": {
+        "STEADY_STATE_INVALID_WINDOW": "window_sessions must be >= 2",
+        "STEADY_STATE_NEGATIVE_CHANGE": "max_change_pct must be non-negative",
+        "STEADY_STATE_INVALID_MIN_SESSIONS": "min_sessions must be >= window_sessions",
+        "STEADY_STATE_UNKNOWN_MEASURE": "measure value not in enum"
+      },
+      "reference": "Sidman, M. (1960). Tactics of scientific research: Evaluating experimental data in psychology. Basic Books."
+    }
+  },
+
+  "future_keywords": ["phase_end", "dependent_measure", "logging", "iri_window", "warmup_exclude"]
+}

@@ -43,7 +43,7 @@
         },
         "params": {
           "type": "object",
-          "description": "Named parameters (key=value pairs).",
+          "description": "Named parameters (key=value pairs). Time values (e.g., time=60min in source) are normalized to a number in the canonical unit (seconds by default) before storage; the original unit is not preserved in the AST.",
           "additionalProperties": {
             "oneOf": [
               { "type": "string" },

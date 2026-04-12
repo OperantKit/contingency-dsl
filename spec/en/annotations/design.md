@@ -232,19 +232,31 @@ This section documents the current state based on the annotation category audit 
 
 The following three items have unresolved design questions and require further discussion:
 
-**DIVERGENCE A: Classification of `@algorithm`**
+**DIVERGENCE A: Classification of `@algorithm` — Resolved (2026-04-12)**
 
-- Current state: temporal-annotator → Procedure
+- Placement: temporal-annotator → Procedure (**confirmed**)
 - Issue: `@algorithm("fleshler-hoffman", n=12, seed=42)` is a methodological note about "how to generate interval values for VI," not a procedure the subject experiences. In JEAB papers, it usually appears in parenthetical notation within the Procedure section, but this is "a citation of the mathematical method used to implement the procedure," not "part of the procedure itself."
-- Provisional decision: Maintain status quo (Procedure). It currently functions as a methodological sub-role within Procedure. Reclassification will be considered when a Measurement or Methodology category is established in the future.
-- **Reason unresolved:** Placement under Procedure is not incorrect but is not ideal either. The issue is deferred at this point and will be revisited after the Measurement category is established.
+- **Decision: Maintain in Procedure.** `@algorithm` specifies the **generation method** for
+  schedule values, not the **measurement method** for effects. Measurement's scope is
+  "when and how to read effects," and generation is outside that scope. JEAB convention
+  also places algorithm notes in the Procedure section. It functions appropriately as a
+  methodological sub-role within the Procedure category.
 
-**DIVERGENCE B: Classification of `@hardware("virtual")`**
+**DIVERGENCE B: Classification of `@hardware("virtual")` — Known Design Limitation**
 
-- Current state: apparatus-annotator → Apparatus
-- Issue: `@hardware("teensy41")` is a physical hardware declaration (Apparatus), but `@hardware("virtual")` declares the absence of physical equipment and is a runtime context, not an Apparatus in the intended sense. The same keyword carries different category semantics depending on its value — an inconsistency.
-- Provisional decision: Maintain status quo. Under program-scoped closure, there is no practical problem as long as the program can interpret the value of `@hardware`. When compiling to a paper, the Apparatus section output logic must detect `@hardware("virtual")` and redirect to a Methods section description such as "simulated runtime."
-- **Reason unresolved:** A design decision is needed on whether to tolerate polysemy within a single keyword. A purification proposal (restricting `@hardware` to physical hardware and using a separate keyword `@runtime("virtual")` for virtual execution) is worth considering in the future.
+- Placement: apparatus-annotator → Apparatus (**maintained**)
+- Issue: `@hardware("teensy41")` is a physical hardware declaration (Apparatus), but
+  `@hardware("virtual")` declares the absence of physical equipment and is a runtime
+  context, not an Apparatus in the intended sense. The same keyword carries different
+  category semantics depending on its value — a polysemy issue.
+- **Decision: Documented as a known design limitation; status quo maintained.** Under
+  program-scoped closure, there is no practical problem as long as the program can
+  interpret the value of `@hardware`. When compiling to a paper, the Apparatus section
+  output logic must detect `@hardware("virtual")` and redirect to a Methods section
+  description such as "simulated runtime."
+- **Recommended future purification path:** Restrict `@hardware` to physical hardware
+  and introduce a new keyword `@runtime("virtual")` for virtual execution. This is a
+  breaking change and should be considered carefully.
 
 **DIVERGENCE C: Measurement Category Is Empty**
 
@@ -252,20 +264,29 @@ The following three items have unresolved design questions and require further d
 - Examples of annotations that should belong to Measurement:
   - `@session_end(rule="first", time=60min, reinforcers=60)` — Session termination criteria
   - `@baseline(pre_training_sessions=3)` — Baseline (operant level) measurement
-  - `@steady_state(criterion="5 sessions < 10% change in response rate")` — Steady-state criteria
+  - `@steady_state(window_sessions=5, max_change_pct=10, measure="rate")` — Steady-state criteria
   - `@phase_end(criterion="stability", min_sessions=10)` — Phase termination criteria
   - `@dependent_measure(measure="rate", window="whole_session")` — Declaration of the primary dependent variable
   - `@logging(resolution="10ms", events=["response", "reinforcer", "sd"])` — Data recording specifications
 - These belong to none of Subjects / Apparatus / Procedure and represent an independent dimension: "when to terminate measurement and what to adopt as the measure."
-- **Reason unresolved:** Establishment and minimal implementation of `measurement-annotator` is required. The Measurement-related items from the extension proposal list in annotation-design.md §8 need to be prioritized for promotion to the recommended registry. This work is not yet started at the time of writing.
+- **Resolved (2026-04-12):** `measurement-annotator` has been established, and a
+  minimal keyword set (`@session_end`, `@baseline`, `@steady_state`) is provided
+  in v1.x. For details, see the annotator reorganization in §3.7 and
+  [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md).
+  Of the examples above, `@phase_end`, `@dependent_measure`, and `@logging` are
+  recorded as future expansion candidates in measurement-annotator/README.md.
 
-### 3.6.3 Future Action Plan
+### 3.6.3 Remaining DIVERGENCE Action Plan
 
-DIVERGENCE A/B above will be addressed intensively in the next annotation layer development session.
-Priority order: B (`@hardware` polysemy) > A (`@algorithm` placement).
+DIVERGENCE A was resolved on 2026-04-12 (maintained in Procedure).
 
-**DIVERGENCE C (empty Measurement) was resolved on 2026-04-12.**
-`measurement-annotator` has been established, and a minimal keyword set (`@session_end`, `@baseline`, `@steady_state`) is provided in v1.x. For details, see the annotator reorganization in §3.7 and [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md).
+The remaining DIVERGENCE B is unresolved:
+
+- **DIVERGENCE B (`@hardware` polysemy):** The practical impact is limited, but
+  from a type-safety perspective, future purification (restricting `@hardware` to
+  physical hardware, introducing `@runtime` as a new keyword) is desirable.
+  This is documented as a known design limitation, and programs are recommended
+  to handle `@hardware("virtual")` as a special case under program-scoped closure.
 
 ## 3.7 Annotator Naming Convention — 1:1 Correspondence with JEAB Categories
 
@@ -460,6 +481,7 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
 | **Program level (Subjects)** | `@species`, `@strain`, `@n`, `@history`, `@deprivation` | Invariant within a session. Subjects are boundary conditions |
 | **Program level (Apparatus)** | `@chamber`, `@hardware`, `@interface` | Apparatus is fixed throughout the session |
 | **Program level (Session)** | `@clock`, `@warmup`, `@algorithm` | Session temporal parameters |
+| **Program level (Measurement)** | `@session_end`, `@baseline`, `@steady_state` | Measurement criteria apply session-wide. Steady-state and baseline conditions are boundary conditions |
 | **Schedule level** | `@operandum`, `@sd`, `@brief` | Differ across components (concurrent, multiple) |
 | **Both (default + override)** | `@reinforcer` | Usually uniform; may differ in choice procedures |
 
@@ -490,6 +512,11 @@ Note: This is a recommended classification, not a grammar-level constraint. Any 
 @algorithm("fleshler-hoffman", n=12, seed=42)
 @warmup(duration=300)
 @reinforcer("sucrose", concentration="10%", duration=3)
+
+-- Measurement (program-level)
+@session_end(rule="first", time=60min, reinforcers=60)
+@baseline(pre_training_sessions=3)
+@steady_state(window_sessions=5, max_change_pct=10, measure="rate")
 
 -- Schedule parameters (core grammar)
 COD = 2-s
@@ -557,7 +584,11 @@ This section lists candidate annotations for addition to the DSL project's **rec
 
 Extensions considered essential for basic EAB research:
 
-#### 8.1.1 `@session_end` — Session Termination Criteria **[Essential]**
+#### 8.1.1 `@session_end` — Session Termination Criteria **[Implemented]**
+
+> **Implemented:** measurement-annotator v1.x (2026-04-12).
+> See [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
+> §Parameter Schemas for the formal parameter schema.
 
 ```
 @session_end(rule="first", time=60min, reinforcers=60)
@@ -794,7 +825,7 @@ sessions:
 
 ### 8.6 Items Agreed to Be Outside DSL Scope
 
-- **Steady-state criteria**: Responsibility of the data analysis layer. Judging within the DSL would "confuse procedure with effect." Placing `@stability_target` as a description-only optional field is permissible.
+- **Automatic steady-state judgment**: Responsibility of the data analysis layer. Judging within the DSL would "confuse procedure with effect." However, **declaring** the steady-state criterion (when to consider responding stable) is implemented as `@steady_state` in measurement-annotator (2026-04-12). What is "outside DSL scope" here is the **automatic execution** of judgment based on the criterion.
 - **Institution, grant number, preregistration ID**: Not part of the experimental design. Separated into an external `study.yaml`.
 - **Microdialysis / photometry raw data** (behavioral pharmacology perspective): Only a hook such as `@coregister(stream="photometry")`.
 - **IRB/IACUC approval number**: Retained as an opaque field (does not affect DSL semantics).
@@ -802,7 +833,7 @@ sessions:
 ### 8.7 Implementation Priority (Reviewer Recommendations)
 
 **Phase 1 (Highest priority — essential for basic EAB research):**
-1. `@session_end` — Should be made mandatory
+1. ~~`@session_end`~~ — **Implemented** (measurement-annotator v1.x, 2026-04-12)
 2. `@response` — Should be made mandatory
 3. `@pretraining` — Separation from `@history`
 4. `@context` — Prerequisite for renewal research

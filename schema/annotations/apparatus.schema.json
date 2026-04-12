@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/apparatus.schema.json",
+  "title": "apparatus-annotator",
+  "description": "JEAB Apparatus category. Declares physical apparatus used in the experiment: chambers, operanda, hardware interfaces.",
+  "category": "Apparatus",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "chamber": {
+      "description": "Experimental chamber model identification.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {
+        "model": {
+          "type": "string",
+          "required": false,
+          "description": "Chamber model identifier"
+        }
+      },
+      "reference": null
+    },
+    "operandum": {
+      "description": "Response device identification (lever, key, etc.).",
+      "scope": ["program", "schedule"],
+      "positional": { "type": "string", "required": true },
+      "params": {
+        "component": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Component index for compound schedules. Forbidden at program level (SemanticError: PROGRAM_ANNOTATION_COMPONENT)."
+        }
+      },
+      "reference": null
+    },
+    "interface": {
+      "description": "Hardware interface specification.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {
+        "port": {
+          "type": "string",
+          "required": false,
+          "description": "Device port path"
+        }
+      },
+      "reference": null
+    },
+    "hardware": {
+      "description": "Hardware backend. Known limitation: 'virtual' value serves as runtime context rather than apparatus declaration (DIVERGENCE B).",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true },
+      "params": {},
+      "aliases": ["hw"],
+      "reference": null
+    }
+  }
+}

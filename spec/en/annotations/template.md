@@ -16,6 +16,14 @@ the DSL project's recommended set.
 
 `[ Proposed | Schema Design | Stable ]`
 
+Lifecycle:
+- **Proposed** — Keyword candidates and boundaries proposed, but parameter schemas undefined
+- **Schema Design** — Parameter schemas defined. Boundary justification and inclusion/exclusion criteria documented
+- **Stable** — Schema frozen; breaking changes avoided in principle
+
+Provenance may be noted in parentheses (e.g., `Schema Design (restructured 2026-04-12)`,
+`Schema Design (introduced 2026-04-12, v1.x minimal set)`).
+
 ---
 
 ## Category

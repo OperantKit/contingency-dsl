@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/procedure-stimulus.schema.json",
+  "title": "procedure-annotator/stimulus",
+  "description": "JEAB Procedure category, stimulus sub-annotator. Declares the identity and function of stimuli used in the experimental procedure.",
+  "category": "Procedure",
+  "sub_annotator": "stimulus",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "reinforcer": {
+      "description": "Reinforcer identification and classification (primary form).",
+      "scope": ["program", "schedule"],
+      "positional": { "type": "string", "required": true, "description": "Stimulus identity" },
+      "params": {
+        "type": {
+          "type": "string",
+          "enum": ["unconditioned", "conditioned"],
+          "required": false,
+          "description": "Reinforcer classification"
+        },
+        "concentration": {
+          "type": "string",
+          "required": false,
+          "description": "Solution concentration (e.g., '10%')"
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "required": false,
+          "description": "Access duration in seconds"
+        }
+      },
+      "aliases": ["punisher", "consequentStimulus"],
+      "alias_note": "All three collapse to the same AST node. The source keyword is preserved as a pragmatic hint (label field) but does not affect equivalence judgment.",
+      "reference": null
+    },
+    "sd": {
+      "description": "Discriminative stimulus identification.",
+      "scope": ["schedule"],
+      "positional": { "type": "string", "required": true },
+      "params": {
+        "component": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Component index for compound schedules"
+        }
+      },
+      "reference": null
+    },
+    "brief": {
+      "description": "Second-order schedule brief stimulus.",
+      "scope": ["schedule"],
+      "positional": { "type": "string", "required": true },
+      "params": {
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "required": false,
+          "description": "Brief stimulus duration in seconds"
+        }
+      },
+      "reference": null
+    }
+  }
+}

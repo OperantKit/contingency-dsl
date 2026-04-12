@@ -1,0 +1,173 @@
+[
+  {
+    "id": "program_lh_default",
+    "description": "Program-level LH default applied to all base_schedules",
+    "input": "LH = 10s\nConc(VI30, VI60)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "LH",
+          "value": 10.0,
+          "time_unit": "s"
+        }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0
+          }
+        ]
+      }
+    },
+    "_note": "After semantic analysis, program-level LH wraps each leaf: Conc(VI30 LH10s, VI60 LH10s)"
+  },
+  {
+    "id": "program_lh_and_bindings",
+    "description": "Program with LH default, let bindings, and schedule",
+    "input": "LH = 5\nlet comp_a = VI30s\nlet comp_b = VI60s\nConc(comp_a, comp_b)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "LH",
+          "value": 5.0
+        }
+      ],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "comp_a",
+          "value": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          }
+        },
+        {
+          "type": "Binding",
+          "name": "comp_b",
+          "value": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "IdentifierRef",
+            "name": "comp_a"
+          },
+          {
+            "type": "IdentifierRef",
+            "name": "comp_b"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "program_minimal",
+    "description": "Minimal program: just a schedule, no bindings",
+    "input": "FR5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "program_comments_and_whitespace",
+    "description": "Program with comments and blank lines",
+    "input": "-- Baseline phase\nlet baseline = VI60s\n\n-- Probe phase\nlet probe = EXT\n\nConc(baseline, probe)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "baseline",
+          "value": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        },
+        {
+          "type": "Binding",
+          "name": "probe",
+          "value": {
+            "type": "Special",
+            "kind": "EXT"
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "IdentifierRef",
+            "name": "baseline"
+          },
+          {
+            "type": "IdentifierRef",
+            "name": "probe"
+          }
+        ]
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Special",
+            "kind": "EXT"
+          }
+        ]
+      }
+    }
+  }
+]

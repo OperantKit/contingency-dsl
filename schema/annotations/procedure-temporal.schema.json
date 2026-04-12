@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/procedure-temporal.schema.json",
+  "title": "procedure-annotator/temporal",
+  "description": "JEAB Procedure category, temporal sub-annotator. Declares session-level temporal structure: time units, warm-up intervals, and algorithmic parameters.",
+  "category": "Procedure",
+  "sub_annotator": "temporal",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "clock": {
+      "description": "Time unit declaration for the session.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "unit": {
+          "type": "string",
+          "enum": ["s", "ms", "min"],
+          "required": true,
+          "description": "Time unit for the session"
+        }
+      },
+      "reference": null
+    },
+    "warmup": {
+      "description": "Session warm-up period before schedule activation.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "required": true,
+          "description": "Warm-up duration in the session's clock unit"
+        }
+      },
+      "reference": null
+    },
+    "algorithm": {
+      "description": "Schedule value generation algorithm. Specifies how interval/ratio values are generated for variable schedules.",
+      "scope": ["program"],
+      "positional": { "type": "string", "required": true, "description": "Algorithm name (e.g., 'fleshler-hoffman', 'arithmetic')" },
+      "params": {
+        "n": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "List length for generated values"
+        },
+        "seed": {
+          "type": "integer",
+          "required": false,
+          "description": "Random seed for reproducibility"
+        }
+      },
+      "reference": "Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. Journal of the Experimental Analysis of Behavior, 5(4), 529-530."
+    }
+  }
+}
