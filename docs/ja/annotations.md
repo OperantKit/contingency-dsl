@@ -1,7 +1,7 @@
 # アノテーション・ガイド
 
 > スケジュール式に実験メタデータを付加する方法。
-> アノテーションシステムの設計については [annotation-design.md](../../spec/annotation-design.md) を参照。
+> アノテーションシステムの設計については [annotation-design.md](../../spec/ja/annotation-design.md) を参照。
 
 ---
 
@@ -90,7 +90,7 @@ interpreter）は自由に採用・拡張・置換できる（詳細は
 等価な alias。実験者の意図を source に明示したい場合に使用する（例:
 `FR3 @punisher("shock")`）。AST レベルでは 3 者とも同一ノードに collapse され、
 等価性判定に影響しない。詳細は
-[annotation-design.md §3.5](../../spec/annotation-design.md) を参照。
+[annotation-design.md §3.5](../../spec/ja/annotation-design.md) を参照。
 
 **例: 成分を同定した並行スケジュール**
 
@@ -273,8 +273,8 @@ Conc(left, right)
 DSL プロジェクトの推奨集合には含まれない。これらは次の 2 通りで追加できる:
 
 1. **DSL プロジェクトの推奨集合への追加を提案する**
-   - `spec/annotation-template.md` をコピー
-   - 境界テストに回答（[annotation-design.md](../../spec/annotation-design.md) §2 参照）
+   - `spec/ja/annotation-template.md` をコピー
+   - 境界テストに回答（[annotation-design.md](../../spec/ja/annotation-design.md) §2 参照）
    - プロジェクトのレビューを経て推奨 registry に追加
 
 2. **プログラム独自の registry として構築する**

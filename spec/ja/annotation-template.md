@@ -5,7 +5,7 @@
 This is a template for proposing a new annotator for the **DSL project's
 recommended registry**. Copy this directory and fill in each section.
 
-Per [design-philosophy.md §4.2](ja/design-philosophy.md), third-party
+Per [design-philosophy.md §4.2](design-philosophy.md), third-party
 programs are free to build their own registries without following this
 template. This template is for annotators that aim to be adopted into
 the DSL project's recommended set.
@@ -67,11 +67,13 @@ belong to? Choose one:
 Fill this in when proposing a new keyword `@X`:
 
 ```markdown
-### 1. Core independence (Core vs Annotation)
-- [ ] `@X` なしでスケジュールの理論的性質を議論できるか → YES なら annotation OK
-- [ ] `@X` は schedule 式の評価結果を変えるか → NO なら annotation OK
-- [ ] `@X` を Core 文法に昇格すべきか → NO なら annotation OK
-      (昇格する場合は design-philosophy §8 の制約下でのみ可)
+### 1. Core independence (§2 境界テスト)
+以下は annotation-design.md §2 の Q1-Q3 に対応する。
+§2 の記述が正本であり、本チェックリストが食い違った場合は §2 に従う。
+- [ ] Q1: `@X` なしで schedule の理論的性質（FI スキャロップ等）を議論できるか → YES なら annotation OK
+- [ ] Q2: `@X` は schedule 式の評価意味論を変えるか → NO なら annotation OK
+- [ ] Q3: `@X` は Core 文法レベルで必須と主張できるか（registry 非依存で DSL spec 全体で必須と言えるか） → NO なら annotation OK
+      (昇格が妥当な場合は design-philosophy §8 の制約下でのみ可)
 
 ### 2. Category fit
 - [ ] `@X` は選択したカテゴリ（Procedure / Subjects / Apparatus / Measurement / 拡張）と整合するか

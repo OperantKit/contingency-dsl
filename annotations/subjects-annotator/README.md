@@ -4,7 +4,7 @@
 
 本 annotator は 2026-04-12 に `subject-annotator` から `subjects-annotator`
 へ改名された。JEAB Method 節の伝統的見出し「Subjects」（複数形）と 1:1 で
-一致させる annotator 再編の一環である（[annotation-design.md §3.7](../../spec/annotation-design.md)
+一致させる annotator 再編の一環である（[annotation-design.md §3.7](../../spec/ja/annotation-design.md)
 参照）。
 
 ## Recommended Scope: Program-level

@@ -7,13 +7,13 @@
 `procedure-annotator` is the recommended annotator module for the
 **Procedure** category in the JEAB-aligned taxonomy (see
 [design-philosophy.md §4.1](../../spec/ja/design-philosophy.md) and
-[annotation-design.md §3.6](../../spec/annotation-design.md)).
+[annotation-design.md §3.6](../../spec/ja/annotation-design.md)).
 
 The name `procedure-annotator` deliberately matches the JEAB Method section's
 **Procedure** heading, following the principle of 1:1 correspondence between
 annotator names and JEAB Method section headings. This is the convention
 established in the 2026-04-12 annotator reorganization; see
-[annotation-design.md §3.7](../../spec/annotation-design.md).
+[annotation-design.md §3.7](../../spec/ja/annotation-design.md).
 
 ## Sub-Annotators
 
@@ -51,7 +51,7 @@ Anything that describes **the procedure the subject experiences**:
 - Which stimuli are presented and in what role (`@reinforcer`, `@sd`, `@brief`)
 - Session-level temporal parameters (`@clock`, `@warmup`)
 - Algorithmic parameters for schedule generation (`@algorithm`) — see
-  DIVERGENCE A in [annotation-design.md §3.6](../../spec/annotation-design.md)
+  DIVERGENCE A in [annotation-design.md §3.6](../../spec/ja/annotation-design.md)
   for the open question about whether this keyword should eventually move to
   a Measurement sub-role
 
@@ -61,7 +61,7 @@ Anything that describes **the procedure the subject experiences**:
 - **Subject descriptions**: species, deprivation, history → [subjects-annotator](../subjects-annotator/README.md)
 - **Measurement structure**: session termination rules, steady-state criteria,
   dependent variable definitions → `measurement-annotator` (new; see
-  [annotation-design.md §3.6](../../spec/annotation-design.md))
+  [annotation-design.md §3.6](../../spec/ja/annotation-design.md))
 - **Clinical metadata** (FBA results, social validity) → [extensions/clinical-annotator](../extensions/)
 - **Multi-subject contingencies** → [extensions/social-annotator](../extensions/)
 

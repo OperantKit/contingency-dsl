@@ -19,7 +19,7 @@ are distinct from Procedure (what the subject experiences), Subjects
 Before 2026-04-12, the Measurement category was defined in design-philosophy
 §4.1 but had **no recommended annotator** (DIVERGENCE C in the 2026-04-12
 annotation category audit; see
-[annotation-design.md §3.6](../../spec/annotation-design.md)).
+[annotation-design.md §3.6](../../spec/ja/annotation-design.md)).
 `measurement-annotator` was introduced during the 2026-04-12 annotator
 reorganization to close this gap.
 
@@ -32,7 +32,7 @@ reorganization to close this gap.
 | `@steady_state` | Steady-state criterion for phase termination | `@steady_state(window_sessions=5, max_change_pct=10, measure="rate")` |
 
 Additional keywords under consideration for future minor versions (see
-[annotation-design.md §8](../../spec/annotation-design.md) extension proposals):
+[annotation-design.md §8](../../spec/ja/annotation-design.md) extension proposals):
 
 - `@phase_end(criterion="stability", min_sessions=10)` — explicit phase termination
 - `@dependent_measure(measure="rate", window="whole_session")` — primary DV
@@ -215,7 +215,7 @@ procedure-annotator declares *what happens*, measurement-annotator declares
 
 ### Relationship to validation-modes.md
 
-[spec/validation-modes.md](../../spec/validation-modes.md) defines a tier
+[spec/validation-modes.md](../../spec/ja/validation-modes.md) defines a tier
 system in which some annotations are required only for certain modes
 (production, publication). Measurement annotations typically fall into the
 **Tier 2 (production)** category: they are not needed for parse or dev

@@ -15,7 +15,7 @@
 へ移管された。操作体（response device）は物理的装置であり、JEAB Method 節の
 伝統的区分では Apparatus セクションで記述される。`component=N` のように schedule
 成分への割当を示す用法も、apparatus 情報の procedural な適用として自然。
-詳細は [spec/annotation-design.md §3.6](../../spec/annotation-design.md) を参照。
+詳細は [spec/annotation-design.md §3.6](../../spec/ja/annotation-design.md) を参照。
 
 ## Boundary Justification
 

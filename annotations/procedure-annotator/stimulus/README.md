@@ -29,7 +29,7 @@ align with JEAB Apparatus conventions.
 2026-04-12 に **apparatus-annotator** へ移管された。操作体（レバー、キー等）は
 JEAB Method 節の Apparatus セクションで記述されるのが伝統的であり、その慣習に
 合わせた再分類である。詳細は
-[spec/annotation-design.md §3.6](../../../spec/annotation-design.md) を参照。
+[spec/annotation-design.md §3.6](../../../spec/ja/annotation-design.md) を参照。
 
 ## Keyword Aliases — `@reinforcer` / `@punisher` / `@consequentStimulus`
 

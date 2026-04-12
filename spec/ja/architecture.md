@@ -152,7 +152,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 各 annotator は `-annotator` サフィックスで命名される。意味: *基底 DSL に直交する次元（座標軸）を追加するアノテーションモジュール*。
 
 推奨 annotator 名は JEAB Method 節の見出しと 1:1 で一致する
-（[annotation-design.md §3.7](../annotation-design.md) 参照）。
+（[annotation-design.md §3.7](annotation-design.md) 参照）。
 2026-04-12 の annotator 再編でこの対応関係が確立された。
 
 | Annotator | JEAB カテゴリ | アノテーションキーワード | 用途 |
@@ -179,7 +179,7 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 #### 4.7.3 パッケージアーキテクチャ
 
-全ての annotator は **contingency-annotator** のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。Annotator 名は JEAB Method 節の見出しと 1:1 で対応する（[annotation-design.md §3.7](../annotation-design.md) 参照）。
+全ての annotator は **contingency-annotator** のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。Annotator 名は JEAB Method 節の見出しと 1:1 で対応する（[annotation-design.md §3.7](annotation-design.md) 参照）。
 
 ```
 contingency-dsl（基底 CFG）

@@ -1,7 +1,7 @@
 # Annotations Guide
 
 > How to enrich schedule expressions with experimental metadata.
-> For the annotation system design, see [annotation-design.md](../../spec/annotation-design.md).
+> For the annotation system design, see [annotation-design.md](../../spec/en/annotation-design.md).
 
 ---
 
@@ -82,7 +82,7 @@ established term in EAB literature). `@punisher` and `@consequentStimulus`
 are equivalent aliases — use them when you want to make the experimenter's
 intent explicit in source (e.g., `FR3 @punisher("shock")`). All three collapse
 to the same AST node and do not affect equivalence judgment. See
-[annotation-design.md §3.5](../../spec/annotation-design.md) for details.
+[annotation-design.md §3.5](../../spec/en/annotation-design.md) for details.
 
 | Keyword | Purpose | Example |
 |---------|---------|---------|
@@ -275,8 +275,8 @@ etc.) are not part of the DSL project's recommended set. They can be added
 via two routes:
 
 1. **Propose addition to the DSL project's recommended set**
-   - Copy `spec/annotation-template.md`
-   - Answer the boundary test questions (see [annotation-design.md](../../spec/annotation-design.md) §2)
+   - Copy `spec/en/annotation-template.md`
+   - Answer the boundary test questions (see [annotation-design.md](../../spec/en/annotation-design.md) §2)
    - Go through project review to land in the recommended registry
 
 2. **Build your program's own registry**

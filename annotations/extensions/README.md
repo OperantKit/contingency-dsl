@@ -42,7 +42,7 @@ should become a first-class annotator, not an extension.
 
 These are **proposed** but not yet implemented as README files in this
 directory. They are referenced in
-[spec/annotation-design.md §3](../../spec/annotation-design.md) as
+[spec/annotation-design.md §3](../../spec/ja/annotation-design.md) as
 recommendation candidates.
 
 ## Relationship to Schedule Extension layer

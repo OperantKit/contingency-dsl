@@ -2,7 +2,7 @@
 
 ## Status: Revised (2026-04-12)
 
-本文書は [spec/ja/design-philosophy.md](ja/design-philosophy.md) §4 を前提とする。
+本文書は [design-philosophy.md](design-philosophy.md) §4 を前提とする。
 両者が矛盾する場合は **design-philosophy.md が正典として優先する**。
 
 本文書に記載する Tier × Mode モデルは、**DSL プロジェクトが提示する検証体系の
@@ -12,10 +12,10 @@
 置換する自由を持つ。本文書の記述は **強制ではなく推奨** である。
 
 関連文書:
-- [ja/design-philosophy.md](ja/design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
+- [ja/design-philosophy.md](design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
 - [annotation-design.md](annotation-design.md) — 推奨 annotator とその境界原則
-- [en/architecture.md](en/architecture.md) §4.7 — annotation architecture
-- [grammar.ebnf](../grammar.ebnf) — 形式文法
+- [en/architecture.md](../en/architecture.md) §4.7 — annotation architecture
+- [grammar.ebnf](../../grammar.ebnf) — 形式文法
 
 ---
 
@@ -99,7 +99,7 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 | `LH = 10s` | program-level parameter declaration |
 
 **省略時の挙動**: parse error。これは文法で強制される。
-**該当文書**: [grammar.ebnf](../grammar.ebnf) の BNF 生成規則
+**該当文書**: [grammar.ebnf](../../grammar.ebnf) の BNF 生成規則
 
 ### Tier 1 — Defaulted Execution Parameters
 
@@ -252,7 +252,7 @@ parse ⊆ dev ⊆ production ⊆ publication
 
 ### 5.2 Progressive Enrichment の形式化
 
-現在 [docs/en/annotations.md](../docs/en/annotations.md) に非形式的に記述されている
+現在 [docs/en/annotations.md](../../docs/en/annotations.md) に非形式的に記述されている
 "progressive enrichment" を validation mode の観点から形式化する:
 
 | 段階 | DSL ソース | 通るモード |
@@ -315,20 +315,19 @@ parse ⊆ dev ⊆ production ⊆ publication
 
 ### 6.1 境界テストと Tier の関係
 
-annotation-design.md §2 の境界テストは **Core vs Annotation** を判定する
-（Q1: 理論的議論に必要か / Q2: 評価意味論を変えるか / Q3: Core 文法レベルで
-必須と主張できるか）。本文書の Tier 分類は、annotation として受け入れた後に
+annotation-design.md §2 の境界テスト（Q1-Q3）が **Core vs Annotation** を判定する。
+3 問の具体的な内容は §2 の唯一の定義に従い、本文書では再掲しない。
+本節の Tier 分類は、§2 が「annotation 候補」と判定した後に
 **特定プログラム（この Python リファレンス実装）内で** どのモードで
 要求されるかを決定する。両者は責任範囲が異なる。
 
 本 Python リファレンス実装が採用する意思決定フロー:
 
 ```
-境界テスト (annotation-design.md §2)
-  Q1-Q2: Core 文法へ昇格すべきか
-    YES → grammar.ebnf を改訂 (design-philosophy §8 の制約下でのみ可)
-    NO  → Annotation として受け入れ ↓
-
+前提: annotation-design.md §2 の境界テスト (Q1-Q3) で
+「Core 昇格を検討」ではなく「Annotation 候補」と判定済み
+（YES → grammar.ebnf を design-philosophy §8 の制約下で改訂）
+  ↓
 Tier 分類 (本文書)
   T-A: @X は defaulted パラメータか? (例: @clock unit)
     YES → Tier 1

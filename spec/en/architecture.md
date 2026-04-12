@@ -179,7 +179,7 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
                   program.annotations[key]  otherwise
 ```
 
-See [annotation-design.md](../annotation-design.md) §6 for full specification.
+See [annotation-design.md](../ja/annotation-design.md) §6 for full specification.
 
 ### 4.7.1 Motivation
 
@@ -196,7 +196,7 @@ See [annotation-design.md](../annotation-design.md) §6 for full specification.
 Each annotator is named with the `-annotator` suffix, meaning: *an annotation module that adds an orthogonal dimension to the base DSL*.
 
 Recommended annotator names match JEAB Method section headings 1:1 (see
-[annotation-design.md §3.7](../annotation-design.md)). The 2026-04-12
+[annotation-design.md §3.7](../ja/annotation-design.md)). The 2026-04-12
 annotator reorganization established this correspondence.
 
 | Annotator | JEAB Category | Annotation Keywords | Purpose |
@@ -223,7 +223,7 @@ FR5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escape
 
 ### 4.7.3 Package Architecture
 
-All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotation-design.md §3.7](../annotation-design.md)).
+All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotation-design.md §3.7](../ja/annotation-design.md)).
 
 ```
 contingency-dsl (base CFG)
