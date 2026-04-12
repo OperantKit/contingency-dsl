@@ -39,10 +39,103 @@
       "additionalProperties": false
     },
 
+    "AdjParamValue": {
+      "type": "object",
+      "description": "A parameter value for an adjusting schedule. For delay target, time_unit is required. For ratio/amount targets, time_unit is null.",
+      "properties": {
+        "value": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "The numeric value of the parameter. Must be positive (> 0)."
+        },
+        "time_unit": {
+          "type": ["string", "null"],
+          "enum": ["s", "ms", "min", null],
+          "description": "Time unit. Required for delay target (non-null), must be null for ratio/amount targets."
+        }
+      },
+      "required": ["value", "time_unit"],
+      "additionalProperties": false
+    },
+
+    "AdjustingSchedule": {
+      "type": "object",
+      "description": "Adjusting schedule (Blough, 1958; Ferster & Skinner, 1957; Mazur, 1987; Richards et al., 1997). A procedural framework in which a schedule parameter is systematically adjusted based on the subject's recent performance. The adjustment direction is determined at runtime; the DSL declares the target, initial value, step size, and optional bounds. Standalone schedule expression (not a modifier).",
+      "properties": {
+        "type": { "const": "AdjustingSchedule" },
+        "adj_target": {
+          "type": "string",
+          "enum": ["delay", "ratio", "amount"],
+          "description": "What parameter is adjusted. delay: reinforcement delay (Mazur, 1987). ratio: response ratio requirement (Ferster & Skinner, 1957; Barrett, 1976). amount: reinforcer magnitude/quantity (Richards et al., 1997; Bradshaw et al., 2020)."
+        },
+        "adj_start": {
+          "$ref": "#/$defs/AdjParamValue",
+          "description": "Initial value of the adjusted parameter. Required."
+        },
+        "adj_step": {
+          "$ref": "#/$defs/AdjParamValue",
+          "description": "Adjustment magnitude per step (additive). Required. The direction (increase or decrease) is determined by the runtime based on the subject's behavior."
+        },
+        "adj_min": {
+          "oneOf": [
+            { "$ref": "#/$defs/AdjParamValue" },
+            { "type": "null" }
+          ],
+          "default": null,
+          "description": "Lower bound on the adjusted parameter. Optional. Null means no lower bound."
+        },
+        "adj_max": {
+          "oneOf": [
+            { "$ref": "#/$defs/AdjParamValue" },
+            { "type": "null" }
+          ],
+          "default": null,
+          "description": "Upper bound on the adjusted parameter. Optional. Null means no upper bound. Linter warns if null for delay target (ADJ_UNBOUNDED_DELAY)."
+        }
+      },
+      "required": ["type", "adj_target", "adj_start", "adj_step", "adj_min", "adj_max"],
+      "additionalProperties": false
+    },
+
+    "InterlockingSchedule": {
+      "type": "object",
+      "description": "Interlocking schedule (Ferster & Skinner, 1957). A compound schedule in which the ratio requirement decreases linearly as time elapses since the last reinforcement. At each reinforcement, the ratio resets to its initial value. R(t) = max(1, ⌈R0 × (1 − t/T)⌉). Standalone schedule expression (not a modifier). Deterministic time function — the only Core-Stateful schedule that does not depend on the subject's behavior history.",
+      "properties": {
+        "type": { "const": "InterlockingSchedule" },
+        "interlock_R0": {
+          "type": "integer",
+          "exclusiveMinimum": 0,
+          "description": "Initial ratio requirement (R₀). The number of responses required for reinforcement immediately after the previous reinforcement. Positive integer. Linter warns if R0=1 (INTERLOCK_TRIVIAL_RATIO, effectively FT) or R0>500 (INTERLOCK_LARGE_RATIO)."
+        },
+        "interlock_T": {
+          "type": "object",
+          "description": "Time window (T). When elapsed time since last reinforcement equals T, the ratio requirement reaches 1 (CRF). Positive, time unit required.",
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "The numeric value of the time window. Must be positive."
+            },
+            "time_unit": {
+              "type": "string",
+              "enum": ["s", "ms", "min"],
+              "description": "Time unit. Required (non-nullable)."
+            }
+          },
+          "required": ["value", "time_unit"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "interlock_R0", "interlock_T"],
+      "additionalProperties": false
+    },
+
     "CoreStatefulScheduleExpr": {
       "description": "Union of all Core-Stateful schedule expressions. Additive to Core's ScheduleExpr oneOf.",
       "oneOf": [
-        { "$ref": "#/$defs/PercentileSchedule" }
+        { "$ref": "#/$defs/PercentileSchedule" },
+        { "$ref": "#/$defs/AdjustingSchedule" },
+        { "$ref": "#/$defs/InterlockingSchedule" }
       ]
     }
   },

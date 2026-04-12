@@ -114,3 +114,264 @@ pctl_dir        ::= "below" | "above"
 ;
 ; W3. pctl_window > 100 → Linter WARNING (PCTL_LARGE_WINDOW).
 ;     Rationale: adaptiveness degrades. Research typically uses 10–50.
+
+; =====================================================================
+; §2. Adjusting Schedule — Blough (1958); Ferster & Skinner (1957);
+;                          Mazur (1987); Richards et al. (1997)
+; =====================================================================
+;
+; A procedural framework in which a schedule parameter (delay, ratio,
+; or amount) is systematically adjusted based on the subject's recent
+; performance. The adjustment converges toward the subject's behavioral
+; equilibrium (indifference point) or threshold.
+;
+; Unlike Pctl (a modifier that changes reinforcement criteria), Adj is
+; a standalone schedule expression that defines a contingency whose
+; parameter value changes across trials.
+;
+; Syntax:
+;   Adj(delay, start=10s, step=1s)                     -- minimal
+;   Adj(delay, start=10s, step=2s, min=0s, max=120s)   -- with bounds
+;   Adj(ratio, start=5, step=2)                        -- adjusting-ratio
+;   Adj(ratio, start=5, step=2, min=1, max=100)        -- with bounds
+;   Adj(amount, start=3, step=1, min=1, max=10)        -- adjusting-amount
+;   Adjusting(delay, start=10s, step=1s)               -- verbose alias
+;
+; Positional arguments:
+;   1. adj_target (required): what parameter is adjusted
+;
+; Keyword arguments:
+;   start (required): initial parameter value
+;   step  (required): adjustment magnitude per step (additive)
+;   min   (optional): lower bound on adjusted parameter
+;   max   (optional): upper bound on adjusted parameter
+;
+; LL(2) disambiguation:
+;   After "Adj" / "Adjusting" token, expect "(". Inside parentheses:
+;   - First argument: adj_target (one of the enumerated identifiers)
+;   - After comma: peek — IDENT followed by "=" → parse as adj_kw_arg
+;
+; Integration point (additive to Core grammar):
+;   base_schedule ::= ... | adj_schedule
+;
+; Note: Adj extends base_schedule (not modifier), because it defines a
+; standalone contingency structure, not a criterion modification.
+; This differs from Pctl which extends modifier.
+;
+; Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement.
+;   Appleton-Century-Crofts.
+; Blough, D. S. (1958). A method for obtaining psychophysical thresholds
+;   from the pigeon. JEAB, 1(1), 31-43.
+;   https://doi.org/10.1901/jeab.1958.1-31
+; Mazur, J. E. (1987). An adjusting procedure for studying delayed
+;   reinforcement. In M. L. Commons et al. (Eds.), Quantitative analyses
+;   of behavior (Vol. 5, pp. 55-73). Erlbaum.
+; Richards, J. B., Mitchell, S. H., de Wit, H., & Seiden, L. S. (1997).
+;   Determination of discount functions in rats with an adjusting-amount
+;   procedure. JEAB, 67(3), 353-366.
+;   https://doi.org/10.1901/jeab.1997.67-353
+
+adj_schedule    ::= ("Adj" | "Adjusting") "(" adj_target ("," adj_kw_arg)+ ")"
+
+adj_target      ::= "delay"
+                  | "ratio"
+                  | "amount"
+
+adj_kw_arg      ::= "start" "=" value
+                  | "step"  "=" value
+                  | "min"   "=" value
+                  | "max"   "=" value
+
+; === Reserved words (additive to grammar.ebnf `reserved`) ===
+
+; reserved      ::= ... (existing)
+;                 | "Adj" | "Adjusting"
+;                 | adj_target                       -- delay, ratio, amount
+;                 | "step" | "min" | "max"           -- adj keyword argument names
+;
+; Note: "start" is already reserved by PR (pr_param). Reused here with
+; compatible semantics (initial parameter value).
+;
+; adj_target values (delay, ratio, amount) begin with lowercase letters.
+; They appear only inside Adj(...) / Adjusting(...) parentheses, so
+; parser context disambiguates from let-binding identifiers. A let-binding
+; named "delay" at top level does NOT collide because adj_target is parsed
+; only after the "Adj" "(" or "Adjusting" "(" token sequence.
+
+; === Semantic constraints ===
+;
+; A1. adj_start (start keyword) is required. Omission → SemanticError
+;     (MISSING_ADJ_PARAM).
+;
+; A2. adj_step (step keyword) is required. Omission → SemanticError
+;     (MISSING_ADJ_PARAM).
+;
+; A3. adj_target must be one of the enumerated values.
+;     Unknown target → SemanticError (ADJ_UNKNOWN_TARGET).
+;
+; A4. adj_start must be positive (> 0).
+;     Zero or negative → SemanticError (ADJ_NONPOSITIVE_START).
+;     Rationale: zero delay is CRF, zero ratio is undefined, zero amount
+;     is no reinforcement. None are meaningful starting points.
+;
+; A5. adj_step must be positive (> 0).
+;     Zero or negative → SemanticError (ADJ_NONPOSITIVE_STEP).
+;     Rationale: step=0 means no adjustment ever occurs — use a fixed
+;     schedule instead. Negative step is meaningless (direction is
+;     determined by runtime, not by sign).
+;
+; A6. For "delay" target: start, step, min, max MUST include a time unit
+;     (s/ms/min). Dimensionless → SemanticError (ADJ_TIME_UNIT_REQUIRED).
+;     Rationale: delay is intrinsically temporal (Mazur, 1987).
+;
+; A7. For "ratio" target: start, step, min, max must NOT include a time
+;     unit. Time unit → SemanticError (ADJ_UNEXPECTED_TIME_UNIT).
+;     Rationale: ratio counts responses, not time.
+;
+; A8. For "amount" target: start, step, min, max must NOT include a time
+;     unit. Time unit → SemanticError (ADJ_UNEXPECTED_TIME_UNIT).
+;     Rationale: amount is dimensionless in DSL; units are runtime-interpreted.
+;
+; A9. min < max (when both specified).
+;     min >= max → SemanticError (ADJ_INVALID_BOUNDS).
+;
+; A10. start must be in [min, max] (when bounds specified).
+;      start < min or start > max → SemanticError (ADJ_START_OUT_OF_BOUNDS).
+;
+; A11. For "ratio" target: start, step, min, max must be integers.
+;      Non-integer → SemanticError (ADJ_RATIO_NOT_INTEGER).
+;      Rationale: FR values are integers (response counts).
+;
+; A12. Duplicate keyword arguments → SemanticError (DUPLICATE_ADJ_KW_ARG).
+;      E.g., `Adj(delay, start=10s, start=20s)` → error.
+;
+; W1. "delay" target without max specified → Linter WARNING
+;     (ADJ_UNBOUNDED_DELAY). Rationale: unbounded delay growth may exceed
+;     session duration. Safety concern.
+;
+; W2. step > start → Linter WARNING (ADJ_LARGE_STEP).
+;     Rationale: the first downward adjustment would produce a value ≤ 0
+;     (if min is not specified or min=0).
+;
+; W3. min=0 with "delay" target → Linter WARNING (ADJ_ZERO_MIN_DELAY).
+;     Rationale: delay=0 is immediate reinforcement (CRF equivalent).
+;     Typically intentional in some paradigms but worth flagging.
+;
+; W4. "ratio" target with min < 1 → Linter WARNING (ADJ_SUBUNIT_RATIO).
+;     Rationale: FR < 1 is procedurally undefined (fewer than one response
+;     for reinforcement).
+
+; =====================================================================
+; §3. Interlocking Schedule — Ferster & Skinner (1957)
+; =====================================================================
+;
+; A compound schedule in which ratio and interval requirements interlock:
+; the ratio requirement decreases linearly as time elapses since the last
+; reinforcement. At each reinforcement, the ratio resets to its initial
+; value (R0).
+;
+; Mathematical formulation:
+;   R(t) = max(1, ⌈R0 × (1 − t/T)⌉)
+;
+; Where:
+;   R0 = initial ratio requirement (immediately post-reinforcement)
+;   T  = time window (when elapsed time = T, ratio = 1 = CRF)
+;   t  = elapsed time since last reinforcement
+;
+; Syntax:
+;   Interlock(R0=250, T=5min)          -- standard form
+;   Interlocking(R0=250, T=5min)       -- verbose alias
+;   Interlock(R0=300, T=10min)         -- F&S 1957 original example
+;   Interlock(R0=16, T=80s)            -- Powers (1968) condition
+;
+; Keyword arguments:
+;   R0 (required): initial ratio requirement (positive integer, dimensionless)
+;   T  (required): time window / decay period (positive, time unit required)
+;
+; Both parameters are required; there are no defaults.
+;
+; LL(2) disambiguation:
+;   After "Interlock" / "Interlocking" token, expect "(". Inside:
+;   "R0" "=" or "T" "=" identifies keyword arguments.
+;
+; Integration point (additive to Core grammar):
+;   base_schedule ::= ... | interlock_schedule
+;
+; Note on "T" as keyword name:
+;   grammar.ebnf defines domain ::= "T" (for time-based schedules FT/VT/RT).
+;   As an interlock_kw_arg, "T" appears only inside Interlock(...) parentheses
+;   in the context IDENT "=" value. The parser's position (inside Interlock
+;   parens, expecting keyword args) disambiguates from the domain production
+;   (which follows dist in atomic_or_second). No syntactic ambiguity.
+;
+; Note on "R0" as keyword name:
+;   R0 is the first alphanumeric (letter + digit) keyword in the DSL.
+;   This follows the mathematical convention for the initial ratio parameter
+;   (R₀) in the F&S 1957 formulation. The digit is intentional to match the
+;   subscript notation used universally in the literature.
+;
+; Naming collision resolution:
+;   "Interlocking" in the DSL refers to Ferster & Skinner (1957) schedules.
+;   Glenn (2004) "Interlocking Behavioral Contingencies" (metacontingency)
+;   uses the annotation @ibc (renamed from @interlocking to resolve the
+;   collision). See INTERLOCK_SCHEDULE_DESIGN_2026-04-13.md §6.
+;
+; Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement.
+;   Appleton-Century-Crofts.
+; Berryman, R., & Nevin, J. A. (1962). Interlocking schedules of
+;   reinforcement. JEAB, 5(2), 213-223.
+;   https://doi.org/10.1901/jeab.1962.5-213
+; Powers, R. B. (1968). Clock-delivered reinforcers in conjunctive and
+;   interlocking schedules. JEAB, 11(5), 579-586.
+;   https://doi.org/10.1901/jeab.1968.11-579
+
+interlock_schedule ::= ("Interlock" | "Interlocking") "(" interlock_kw_arg ("," interlock_kw_arg)* ")"
+
+interlock_kw_arg   ::= "R0" "=" value
+                     | "T"  "=" value
+
+; === Reserved words (additive to grammar.ebnf `reserved`) ===
+
+; reserved      ::= ... (existing)
+;                 | "Interlock" | "Interlocking"
+;                 | "R0"                          -- initial ratio (F&S mathematical notation)
+;
+; Note: "T" is already used as domain ::= "T" in Core grammar.
+; As interlock_kw_arg, it is context-dependent reserved (parsed only
+; inside Interlock/Interlocking parentheses). No collision.
+
+; === Semantic constraints ===
+;
+; I1. R0 is required. Omission → SemanticError (MISSING_INTERLOCK_PARAM).
+;
+; I2. T is required. Omission → SemanticError (MISSING_INTERLOCK_PARAM).
+;
+; I3. R0 must be a positive integer (> 0).
+;     Zero, negative, or non-integer → SemanticError (INTERLOCK_INVALID_R0).
+;     Rationale: R0 counts responses; R0=0 means no reinforcement condition.
+;
+; I4. R0 must NOT carry a time unit.
+;     `Interlock(R0=250s, T=5min)` → SemanticError
+;     (INTERLOCK_UNEXPECTED_TIME_UNIT).
+;     Rationale: R0 is a dimensionless response count.
+;
+; I5. T must be positive (> 0).
+;     Zero or negative → SemanticError (INTERLOCK_NONPOSITIVE_T).
+;     Rationale: T=0 makes R(t) undefined (division by zero in the formula).
+;
+; I6. T must include a time unit (s/ms/min).
+;     Dimensionless → SemanticError (INTERLOCK_TIME_UNIT_REQUIRED).
+;     Rationale: time window is intrinsically temporal.
+;
+; I7. Duplicate keyword arguments → SemanticError
+;     (DUPLICATE_INTERLOCK_KW_ARG).
+;     E.g., `Interlock(R0=100, R0=200, T=5min)` → error.
+;
+; W1. R0 == 1 → Linter WARNING (INTERLOCK_TRIVIAL_RATIO).
+;     Rationale: R0=1 means the ratio requirement starts at 1 and can only
+;     remain 1 (max(1, 1×(1-t/T)) = 1 for all t). Effectively FT(T).
+;     Use FT if this is the intent.
+;
+; W2. R0 > 500 → Linter WARNING (INTERLOCK_LARGE_RATIO).
+;     Rationale: very high initial ratio may produce ratio strain.
+;     F&S 1957 used R0=300. Research typically uses R0 ≤ 300.

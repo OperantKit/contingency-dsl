@@ -148,5 +148,293 @@
         "pctl_dir": "below"
       }
     }
+  },
+
+  { "_comment": "=== Adjusting schedule errors ===" },
+
+  {
+    "id": "adj_error_missing_start",
+    "description": "SemanticError: start is required",
+    "input": "Adj(delay, step=1s)",
+    "error": "MISSING_ADJ_PARAM"
+  },
+  {
+    "id": "adj_error_missing_step",
+    "description": "SemanticError: step is required",
+    "input": "Adj(delay, start=10s)",
+    "error": "MISSING_ADJ_PARAM"
+  },
+  {
+    "id": "adj_error_unknown_target",
+    "description": "SemanticError: unknown adjustment target",
+    "input": "Adj(speed, start=5, step=1)",
+    "error": "ADJ_UNKNOWN_TARGET"
+  },
+  {
+    "id": "adj_error_nonpositive_start",
+    "description": "SemanticError: start must be positive",
+    "input": "Adj(delay, start=0s, step=1s)",
+    "error": "ADJ_NONPOSITIVE_START"
+  },
+  {
+    "id": "adj_error_negative_start",
+    "description": "SemanticError: start must be positive",
+    "input": "Adj(ratio, start=-5, step=2)",
+    "error": "ADJ_NONPOSITIVE_START"
+  },
+  {
+    "id": "adj_error_nonpositive_step",
+    "description": "SemanticError: step must be positive",
+    "input": "Adj(delay, start=10s, step=0s)",
+    "error": "ADJ_NONPOSITIVE_STEP"
+  },
+  {
+    "id": "adj_error_delay_missing_time_unit",
+    "description": "SemanticError: delay target requires time units",
+    "input": "Adj(delay, start=10, step=1)",
+    "error": "ADJ_TIME_UNIT_REQUIRED"
+  },
+  {
+    "id": "adj_error_delay_max_missing_time_unit",
+    "description": "SemanticError: delay bounds require time units",
+    "input": "Adj(delay, start=10s, step=1s, max=120)",
+    "error": "ADJ_TIME_UNIT_REQUIRED"
+  },
+  {
+    "id": "adj_error_ratio_with_time_unit",
+    "description": "SemanticError: ratio target is dimensionless",
+    "input": "Adj(ratio, start=5s, step=2)",
+    "error": "ADJ_UNEXPECTED_TIME_UNIT"
+  },
+  {
+    "id": "adj_error_amount_with_time_unit",
+    "description": "SemanticError: amount target is dimensionless",
+    "input": "Adj(amount, start=3, step=1s)",
+    "error": "ADJ_UNEXPECTED_TIME_UNIT"
+  },
+  {
+    "id": "adj_error_invalid_bounds",
+    "description": "SemanticError: min must be less than max",
+    "input": "Adj(delay, start=10s, step=1s, min=120s, max=10s)",
+    "error": "ADJ_INVALID_BOUNDS"
+  },
+  {
+    "id": "adj_error_start_out_of_bounds_below",
+    "description": "SemanticError: start below min",
+    "input": "Adj(ratio, start=1, step=2, min=5, max=50)",
+    "error": "ADJ_START_OUT_OF_BOUNDS"
+  },
+  {
+    "id": "adj_error_start_out_of_bounds_above",
+    "description": "SemanticError: start above max",
+    "input": "Adj(delay, start=60s, step=1s, min=0s, max=30s)",
+    "error": "ADJ_START_OUT_OF_BOUNDS"
+  },
+  {
+    "id": "adj_error_ratio_not_integer",
+    "description": "SemanticError: ratio values must be integers",
+    "input": "Adj(ratio, start=5.5, step=2)",
+    "error": "ADJ_RATIO_NOT_INTEGER"
+  },
+  {
+    "id": "adj_error_ratio_step_not_integer",
+    "description": "SemanticError: ratio step must be integer",
+    "input": "Adj(ratio, start=5, step=1.5)",
+    "error": "ADJ_RATIO_NOT_INTEGER"
+  },
+  {
+    "id": "adj_error_duplicate_start",
+    "description": "SemanticError: duplicate keyword argument",
+    "input": "Adj(delay, start=10s, start=20s, step=1s)",
+    "error": "DUPLICATE_ADJ_KW_ARG"
+  },
+  {
+    "id": "adj_error_duplicate_step",
+    "description": "SemanticError: duplicate keyword argument",
+    "input": "Adj(ratio, start=5, step=2, step=3)",
+    "error": "DUPLICATE_ADJ_KW_ARG"
+  },
+  {
+    "id": "adj_error_no_args",
+    "description": "ParseError: Adj requires at least target + start + step",
+    "input": "Adj(delay)",
+    "error": "PARSE_ERROR"
+  },
+
+  { "_comment": "=== Adjusting schedule linter warnings ===" },
+
+  {
+    "id": "adj_warn_unbounded_delay",
+    "description": "Linter WARNING: delay target without max bound",
+    "input": "Adj(delay, start=10s, step=1s)",
+    "warning": "ADJ_UNBOUNDED_DELAY",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": null
+      }
+    }
+  },
+  {
+    "id": "adj_warn_large_step",
+    "description": "Linter WARNING: step exceeds start value",
+    "input": "Adj(delay, start=2s, step=5s, max=60s)",
+    "warning": "ADJ_LARGE_STEP",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 2.0, "time_unit": "s" },
+        "adj_step": { "value": 5.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": { "value": 60.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "adj_warn_zero_min_delay",
+    "description": "Linter WARNING: min=0 with delay target (0 delay = CRF equivalent)",
+    "input": "Adj(delay, start=10s, step=1s, min=0s, max=60s)",
+    "warning": "ADJ_ZERO_MIN_DELAY",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": { "value": 0.0, "time_unit": "s" },
+        "adj_max": { "value": 60.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "adj_warn_subunit_ratio",
+    "description": "Linter WARNING: ratio min < 1 (sub-unit ratio undefined)",
+    "input": "Adj(ratio, start=5, step=2, min=0, max=50)",
+    "warning": "ADJ_SUBUNIT_RATIO",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "ratio",
+        "adj_start": { "value": 5, "time_unit": null },
+        "adj_step": { "value": 2, "time_unit": null },
+        "adj_min": { "value": 0, "time_unit": null },
+        "adj_max": { "value": 50, "time_unit": null }
+      }
+    }
+  },
+
+  { "_comment": "=== Interlocking schedule errors ===" },
+
+  {
+    "id": "interlock_error_missing_R0",
+    "description": "SemanticError: R0 is required",
+    "input": "Interlock(T=5min)",
+    "error": "MISSING_INTERLOCK_PARAM"
+  },
+  {
+    "id": "interlock_error_missing_T",
+    "description": "SemanticError: T is required",
+    "input": "Interlock(R0=250)",
+    "error": "MISSING_INTERLOCK_PARAM"
+  },
+  {
+    "id": "interlock_error_nonpositive_R0",
+    "description": "SemanticError: R0 must be positive",
+    "input": "Interlock(R0=0, T=5min)",
+    "error": "INTERLOCK_INVALID_R0"
+  },
+  {
+    "id": "interlock_error_negative_R0",
+    "description": "SemanticError: R0 must be positive",
+    "input": "Interlock(R0=-10, T=5min)",
+    "error": "INTERLOCK_INVALID_R0"
+  },
+  {
+    "id": "interlock_error_fractional_R0",
+    "description": "SemanticError: R0 must be an integer",
+    "input": "Interlock(R0=25.5, T=5min)",
+    "error": "INTERLOCK_INVALID_R0"
+  },
+  {
+    "id": "interlock_error_R0_with_time_unit",
+    "description": "SemanticError: R0 is dimensionless",
+    "input": "Interlock(R0=250s, T=5min)",
+    "error": "INTERLOCK_UNEXPECTED_TIME_UNIT"
+  },
+  {
+    "id": "interlock_error_nonpositive_T",
+    "description": "SemanticError: T must be positive",
+    "input": "Interlock(R0=250, T=0s)",
+    "error": "INTERLOCK_NONPOSITIVE_T"
+  },
+  {
+    "id": "interlock_error_T_missing_time_unit",
+    "description": "SemanticError: T requires a time unit",
+    "input": "Interlock(R0=250, T=300)",
+    "error": "INTERLOCK_TIME_UNIT_REQUIRED"
+  },
+  {
+    "id": "interlock_error_duplicate_R0",
+    "description": "SemanticError: duplicate keyword argument",
+    "input": "Interlock(R0=100, R0=200, T=5min)",
+    "error": "DUPLICATE_INTERLOCK_KW_ARG"
+  },
+  {
+    "id": "interlock_error_no_args",
+    "description": "ParseError: Interlock requires R0 and T",
+    "input": "Interlock()",
+    "error": "PARSE_ERROR"
+  },
+
+  { "_comment": "=== Interlocking schedule linter warnings ===" },
+
+  {
+    "id": "interlock_warn_trivial_ratio",
+    "description": "Linter WARNING: R0=1 is always CRF (effectively FT)",
+    "input": "Interlock(R0=1, T=5min)",
+    "warning": "INTERLOCK_TRIVIAL_RATIO",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "InterlockingSchedule",
+        "interlock_R0": 1,
+        "interlock_T": { "value": 5.0, "time_unit": "min" }
+      }
+    }
+  },
+  {
+    "id": "interlock_warn_large_ratio",
+    "description": "Linter WARNING: R0 > 500 may produce ratio strain",
+    "input": "Interlock(R0=600, T=10min)",
+    "warning": "INTERLOCK_LARGE_RATIO",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "InterlockingSchedule",
+        "interlock_R0": 600,
+        "interlock_T": { "value": 10.0, "time_unit": "min" }
+      }
+    }
   }
 ]

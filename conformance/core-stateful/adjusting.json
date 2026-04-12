@@ -1,0 +1,353 @@
+[
+  {
+    "id": "adj_delay_minimal",
+    "description": "Adjusting-delay schedule — minimal form (Mazur, 1987 style)",
+    "input": "Adj(delay, start=10s, step=1s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": null
+      }
+    }
+  },
+  {
+    "id": "adj_delay_with_bounds",
+    "description": "Adjusting-delay with min and max bounds",
+    "input": "Adj(delay, start=10s, step=2s, min=0s, max=120s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 2.0, "time_unit": "s" },
+        "adj_min": { "value": 0.0, "time_unit": "s" },
+        "adj_max": { "value": 120.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "adj_delay_ms_units",
+    "description": "Adjusting-delay with millisecond time units",
+    "input": "Adj(delay, start=500ms, step=100ms, max=5000ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 500.0, "time_unit": "ms" },
+        "adj_step": { "value": 100.0, "time_unit": "ms" },
+        "adj_min": null,
+        "adj_max": { "value": 5000.0, "time_unit": "ms" }
+      }
+    }
+  },
+  {
+    "id": "adj_delay_min_units",
+    "description": "Adjusting-delay with minute time units",
+    "input": "Adj(delay, start=1min, step=0.5min, min=0min, max=10min)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 1.0, "time_unit": "min" },
+        "adj_step": { "value": 0.5, "time_unit": "min" },
+        "adj_min": { "value": 0.0, "time_unit": "min" },
+        "adj_max": { "value": 10.0, "time_unit": "min" }
+      }
+    }
+  },
+  {
+    "id": "adj_ratio_minimal",
+    "description": "Adjusting-ratio schedule — minimal form (Ferster & Skinner, 1957 style)",
+    "input": "Adj(ratio, start=5, step=2)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "ratio",
+        "adj_start": { "value": 5, "time_unit": null },
+        "adj_step": { "value": 2, "time_unit": null },
+        "adj_min": null,
+        "adj_max": null
+      }
+    }
+  },
+  {
+    "id": "adj_ratio_with_bounds",
+    "description": "Adjusting-ratio with bounds (Barrett, 1976 style)",
+    "input": "Adj(ratio, start=5, step=1, min=1, max=50)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "ratio",
+        "adj_start": { "value": 5, "time_unit": null },
+        "adj_step": { "value": 1, "time_unit": null },
+        "adj_min": { "value": 1, "time_unit": null },
+        "adj_max": { "value": 50, "time_unit": null }
+      }
+    }
+  },
+  {
+    "id": "adj_amount_minimal",
+    "description": "Adjusting-amount schedule — minimal form (Richards et al., 1997 style)",
+    "input": "Adj(amount, start=3, step=1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "amount",
+        "adj_start": { "value": 3, "time_unit": null },
+        "adj_step": { "value": 1, "time_unit": null },
+        "adj_min": null,
+        "adj_max": null
+      }
+    }
+  },
+  {
+    "id": "adj_amount_with_bounds",
+    "description": "Adjusting-amount with bounds (Bradshaw et al., 2020 style)",
+    "input": "Adj(amount, start=3, step=1, min=1, max=10)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "amount",
+        "adj_start": { "value": 3, "time_unit": null },
+        "adj_step": { "value": 1, "time_unit": null },
+        "adj_min": { "value": 1, "time_unit": null },
+        "adj_max": { "value": 10, "time_unit": null }
+      }
+    }
+  },
+  {
+    "id": "adj_verbose_alias",
+    "description": "Verbose alias 'Adjusting' produces identical AST",
+    "input": "Adjusting(delay, start=10s, step=1s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": null
+      }
+    }
+  },
+  {
+    "id": "adj_in_conc_mazur_paradigm",
+    "description": "Mazur (1987) choice paradigm: CRF standard vs adjusting-delay",
+    "input": "Conc(CRF, Adj(delay, start=1s, step=1s, min=0s, max=120s), COD=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Special", "kind": "CRF" },
+          {
+            "type": "AdjustingSchedule",
+            "adj_target": "delay",
+            "adj_start": { "value": 1.0, "time_unit": "s" },
+            "adj_step": { "value": 1.0, "time_unit": "s" },
+            "adj_min": { "value": 0.0, "time_unit": "s" },
+            "adj_max": { "value": 120.0, "time_unit": "s" }
+          }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "adj_in_conj_barrett_paradigm",
+    "description": "Barrett (1976) conjunctive FI + adjusting-ratio",
+    "input": "Conj(FI30s, Adj(ratio, start=5, step=1, min=1, max=50))",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conj",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "F",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "AdjustingSchedule",
+            "adj_target": "ratio",
+            "adj_start": { "value": 5, "time_unit": null },
+            "adj_step": { "value": 1, "time_unit": null },
+            "adj_min": { "value": 1, "time_unit": null },
+            "adj_max": { "value": 50, "time_unit": null }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "adj_let_binding",
+    "description": "Adjusting schedule bound via let, used in concurrent",
+    "input": "let adj_delay = Adj(delay, start=10s, step=2s, max=60s)\nConc(CRF, adj_delay, COD=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "adj_delay",
+          "value": {
+            "type": "AdjustingSchedule",
+            "adj_target": "delay",
+            "adj_start": { "value": 10.0, "time_unit": "s" },
+            "adj_step": { "value": 2.0, "time_unit": "s" },
+            "adj_min": null,
+            "adj_max": { "value": 60.0, "time_unit": "s" }
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Special", "kind": "CRF" },
+          { "type": "IdentifierRef", "name": "adj_delay" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "adj_with_limited_hold",
+    "description": "Adjusting schedule with Limited Hold suffix",
+    "input": "Adj(delay, start=10s, step=1s) LH30s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 30.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "AdjustingSchedule",
+          "adj_target": "delay",
+          "adj_start": { "value": 10.0, "time_unit": "s" },
+          "adj_step": { "value": 1.0, "time_unit": "s" },
+          "adj_min": null,
+          "adj_max": null
+        }
+      }
+    }
+  },
+  {
+    "id": "adj_in_overlay",
+    "description": "Adjusting-ratio as baseline in punishment overlay (Azrin & Holz paradigm)",
+    "input": "Overlay(Adj(ratio, start=10, step=2, min=1), FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          {
+            "type": "AdjustingSchedule",
+            "adj_target": "ratio",
+            "adj_start": { "value": 10, "time_unit": null },
+            "adj_step": { "value": 2, "time_unit": null },
+            "adj_min": { "value": 1, "time_unit": null },
+            "adj_max": null
+          },
+          {
+            "type": "Atomic",
+            "dist": "F",
+            "domain": "R",
+            "value": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "adj_with_annotations",
+    "description": "Adjusting-delay with procedure and subjects annotations",
+    "input": "@species(\"Columba livia\") @n(6)\nAdj(delay, start=1s, step=1s, max=120s) @reinforcer(\"mixed grain\", access=6s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        { "type": "Annotation", "keyword": "species", "positional": "Columba livia" },
+        { "type": "Annotation", "keyword": "n", "positional": 6 }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 1.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": { "value": 120.0, "time_unit": "s" }
+      },
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "mixed grain", "params": { "access": 6.0 } }
+      ]
+    }
+  },
+  {
+    "id": "adj_amount_fractional_step",
+    "description": "Adjusting-amount with fractional step (e.g., concentration titration)",
+    "input": "Adj(amount, start=0.4, step=0.1, min=0.1, max=1.0)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AdjustingSchedule",
+        "adj_target": "amount",
+        "adj_start": { "value": 0.4, "time_unit": null },
+        "adj_step": { "value": 0.1, "time_unit": null },
+        "adj_min": { "value": 0.1, "time_unit": null },
+        "adj_max": { "value": 1.0, "time_unit": null }
+      }
+    }
+  }
+]
