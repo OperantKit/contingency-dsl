@@ -525,5 +525,69 @@
         }
       }
     }
+  },
+  {
+    "id": "overlay_basic",
+    "description": "Punishment overlay: every response on VI60 baseline produces punisher (Azrin & Holz, 1966)",
+    "input": "Overlay(VI60s, FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "overlay_intermittent",
+    "description": "Intermittent punishment: punisher on VI30 schedule overlaid on VI60 baseline",
+    "input": "Overlay(VI60s, VI30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "overlay_conc_baseline",
+    "description": "Punishment overlay on concurrent baseline",
+    "input": "Overlay(Conc(VI60s, VI180s, COD=2s), FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          {
+            "type": "Compound",
+            "combinator": "Conc",
+            "components": [
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 180.0, "time_unit": "s" }
+            ],
+            "params": {
+              "COD": { "value": 2.0, "time_unit": "s" }
+            }
+          },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ]
+      }
+    }
   }
 ]

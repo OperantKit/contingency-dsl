@@ -58,11 +58,17 @@ DSL の文法は4つの基準を満たす:
                   | "SSI" | "ShockShockInterval"
                   | "RSI" | "ResponseShockInterval"
                   | "Lag" | "length"
+                  | "DiscriminatedAvoidance" | "DiscrimAv"
+                  | "CSUSInterval" | "ITI" | "mode"
+                  | "ShockDuration" | "MaxShock"
+                  | "fixed" | "escape"
+                  | "Overlay"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
 <combinator>    ::= "Conc" | "Alt" | "Conj"
                   | "Chain" | "Tand"
                   | "Mult" | "Mix"
+                  | "Overlay"
 <arg_list>      ::= <positional_args> ("," <keyword_arg>)*
 <positional_args> ::= <schedule> ("," <schedule>)+
 <keyword_arg>   ::= <kw_name> "=" <value>
@@ -82,10 +88,17 @@ DSL の文法は4つの基準を満たす:
 <lag_kw_arg>    ::= "length" "=" <number>
 
 <aversive_schedule> ::= <sidman_avoidance>
+                      | <discriminated_avoidance>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
 <sidman_arg>        ::= <sidman_kw> "=" <value>
 <sidman_kw>         ::= "SSI" | "ShockShockInterval"
                       | "RSI" | "ResponseShockInterval"
+<discriminated_avoidance> ::= ("DiscriminatedAvoidance" | "DiscrimAv")
+                              "(" <da_arg> ("," <da_arg>)* ")"
+<da_arg>            ::= <da_temporal_kw> "=" <value>
+                      | "mode" "=" <da_mode>
+<da_temporal_kw>    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
+<da_mode>           ::= "fixed" | "escape"
 ```
 
 **識別子の命名制約。** 識別子は小文字 ASCII 英字またはアンダースコア（`[a-z_]`）で始まり、ASCII 英数字とアンダースコアの任意の組み合わせが続く。これにより DSL キーワードおよびスケジュール型プレフィクス（全て大文字始まり）と字句的に分離される。`<reserved>` 生成規則は、小文字キーワード（`let`, `def`, `hodos` 等）の識別子使用も防止する。`def` は将来使用のために予約されている（§4.4 参照）。
@@ -224,6 +237,16 @@ Mult(Lag(5, length=8), CRF)                           -- Lag vs CRF ベースラ
 -- プログラムレベルの COD デフォルト（全 Conc に適用）
 -- COD = 2s
 -- Conc(VI30s, VI60s)               -- param_decl の COD=2s を継承
+
+-- 弁別回避（§2.9）
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)       -- Solomon & Wynne (1953) 型
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min) -- 安全カットオフ付き
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)  -- 固定 US
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)                    -- 短縮 alias
+
+-- 罰重畳（§2.10）
+Overlay(VI60s, FR1)                              -- VI60 ベースラインに全反応罰
+Overlay(Conc(VI60s, VI180s, COD=2s), FR1)        -- 並行ベースラインに罰重畳
 
 -- let 束縛（マクロ展開）
 let baseline = VI60s

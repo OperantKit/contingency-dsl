@@ -96,6 +96,11 @@ reserved      ::= "let" | "def"
                 | "SSI" | "ShockShockInterval"
                 | "RSI" | "ResponseShockInterval"
                 | "Lag" | "length"            -- v1.x: Lag schedule (Page & Neuringer, 1985)
+                | "DiscriminatedAvoidance" | "DiscrimAv" -- v1.x: discriminated avoidance (Solomon & Wynne, 1953)
+                | "CSUSInterval" | "ITI" | "mode"
+                | "ShockDuration" | "MaxShock"
+                | "fixed" | "escape"          -- da_mode values
+                | "Overlay"                   -- v1.x: punishment overlay combinator
 
 ; === Compound schedules ===
 ;
@@ -103,13 +108,17 @@ reserved      ::= "let" | "def"
 ; LL(2) parseable: kw_name followed by "=" disambiguates keyword from schedule.
 ; Parser accepts keyword args syntactically; semantic pass validates per-combinator:
 ;   - Conc: COD (optional, linter warning if omitted), FRCO (optional — fixed-ratio
-;           changeover, Hunter & Davison, 1985). Mult/Mix: BO (optional). Others:
-;           keyword args → SemanticError.
+;           changeover, Hunter & Davison, 1985). Mult/Mix: BO (optional). Overlay:
+;           no keyword args in v1.x. Others: keyword args → SemanticError.
+;   - Overlay: exactly 2 positional components (baseline + punisher). Semantic
+;     constraint enforces this. v1.x targets all responses; changeover-specific
+;     targeting is planned for v1.y via Conc kw_arg extension.
 
 compound      ::= combinator "(" arg_list ")"
 combinator    ::= "Conc" | "Alt" | "Conj"
                 | "Chain" | "Tand"
                 | "Mult" | "Mix"
+                | "Overlay"
 arg_list      ::= positional_args ("," keyword_arg)*
 positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
 keyword_arg   ::= kw_name "=" value
@@ -152,9 +161,12 @@ lag_kw_arg    ::= "length" "=" number
 ; Schedules in which the consequent stimulus is aversive and the contingency
 ; structure differs from the F/V/R × R/I/T reinforcement matrix.
 ;
-; v1.x currently introduces Sidman free-operant avoidance only.
-; Future extensions (additive): discriminated avoidance, escape, punishment
-; overlay (requires new combinator).
+; v1.x introduces two aversive primitives:
+;   1. Sidman free-operant avoidance (Sidman, 1953)
+;   2. Discriminated avoidance (Solomon & Wynne, 1953)
+;
+; Punishment overlay is handled via the Overlay combinator (compound section).
+; Future extensions (additive): escape as standalone primitive.
 ;
 ; Sidman free-operant avoidance (Sidman, 1953):
 ;   Two temporal parameters with distinct semantics:
@@ -167,6 +179,7 @@ lag_kw_arg    ::= "length" "=" number
 ;   Psychology, 46(4), 253-261. https://doi.org/10.1037/h0060730
 
 aversive_schedule ::= sidman_avoidance
+                    | discriminated_avoidance
 
 sidman_avoidance  ::= ("Sidman" | "SidmanAvoidance") "(" sidman_arg ("," sidman_arg)* ")"
 
@@ -174,6 +187,28 @@ sidman_arg        ::= sidman_kw "=" value
 
 sidman_kw         ::= "SSI" | "ShockShockInterval"
                     | "RSI" | "ResponseShockInterval"
+
+; Discriminated avoidance (Solomon & Wynne, 1953):
+;   A CS (warning signal) precedes the US (aversive stimulus) by a fixed
+;   interval (CSUSInterval). A response during the CS prevents the US
+;   (avoidance trial). On failure, the US is either:
+;     mode=fixed:  presented for a fixed ShockDuration
+;     mode=escape: terminated by a response (optional MaxShock safety cutoff)
+;   ITI is measured CS-onset → next-CS-onset.
+;
+; Reference: Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance
+;   learning: Acquisition in normal dogs. Psychological Monographs: General
+;   and Applied, 67(4), 1-19. https://doi.org/10.1037/h0093649
+
+discriminated_avoidance ::= ("DiscriminatedAvoidance" | "DiscrimAv")
+                            "(" da_arg ("," da_arg)* ")"
+
+da_arg            ::= da_temporal_kw "=" value
+                    | "mode" "=" da_mode
+
+da_temporal_kw    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
+
+da_mode           ::= "fixed" | "escape"
 
 ; === Comments (line-level, not in BNF productions) ===
 ;
@@ -352,3 +387,30 @@ string_literal     ::= '"' [^"]* '"'
 ;     which may be the user's intent but is worth flagging.
 ; 26. Lag modifier: duplicate keyword arguments → SemanticError
 ;     (DUPLICATE_LAG_KW_ARG). E.g., `Lag(5, length=4, length=8)` → error.
+; 27. DiscriminatedAvoidance: CSUSInterval, ITI, and mode are REQUIRED.
+;     Missing any → SemanticError (MISSING_DA_PARAM).
+; 28. DiscriminatedAvoidance: CSUSInterval, ITI, ShockDuration, and MaxShock
+;     values MUST include a time unit. Dimensionless → SemanticError
+;     (DA_TIME_UNIT_REQUIRED).
+; 29. DiscriminatedAvoidance: all temporal parameter values must be strictly
+;     positive. Zero or negative → SemanticError (DA_NONPOSITIVE_PARAM).
+; 30. DiscriminatedAvoidance: mode=fixed REQUIRES ShockDuration.
+;     mode=fixed without ShockDuration → SemanticError (MISSING_SHOCK_DURATION).
+; 31. DiscriminatedAvoidance: mode-dependent parameter exclusion.
+;     mode=fixed with MaxShock → SemanticError (INVALID_PARAM_FOR_MODE).
+;     mode=escape with ShockDuration → SemanticError (INVALID_PARAM_FOR_MODE).
+; 32. DiscriminatedAvoidance: unknown mode value → SemanticError (DA_INVALID_MODE).
+;     Only "fixed" and "escape" are valid.
+; 33. DiscriminatedAvoidance: ITI must be > CSUSInterval.
+;     ITI <= CSUSInterval → SemanticError (DA_ITI_TOO_SHORT).
+;     Rationale: ITI is CS-onset → next-CS-onset; if ITI <= CSUSInterval the
+;     next trial starts before or at US onset, making the trial structure
+;     incoherent (Solomon & Wynne, 1953).
+; 34. DiscriminatedAvoidance: duplicate keyword args → SemanticError
+;     (DUPLICATE_DA_PARAM). Verbose alias does not bypass: "DiscriminatedAvoidance"
+;     and "DiscrimAv" are the same primitive.
+; 35. Overlay combinator: exactly 2 positional components.
+;     Fewer than 2 → ParseError (compound requires 2+).
+;     More than 2 → SemanticError (OVERLAY_REQUIRES_TWO).
+; 36. Overlay combinator: no keyword args in v1.x.
+;     Any keyword arg → SemanticError (INVALID_KEYWORD_ARG).

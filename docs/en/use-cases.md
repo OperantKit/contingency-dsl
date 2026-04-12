@@ -253,7 +253,101 @@ Mult(Lag(5, length=8), CRF, BO=5s)
 
 ---
 
-## 10. Complex Real-World Experiment
+## 10. Discriminated Avoidance
+
+**Scenario:** A trial-based avoidance procedure where a warning signal (CS)
+precedes an aversive stimulus (US). The subject can avoid the US by responding
+during the CS-US interval. Used in fear conditioning, anxiety research, and
+aversive control studies.
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+  @punisher("shock", intensity="1.0mA")
+  @sd("light", modality="visual")
+  @species("dog")
+```
+
+**What this does:** A light CS is presented. If the dog jumps the barrier within
+10 seconds, shock is avoided (avoidance trial). If the dog fails to respond
+within 10s, shock begins and continues until the dog jumps (escape trial), with
+a 2-minute safety cutoff. The next CS appears 3 minutes after the current CS
+onset regardless of trial outcome.
+
+**Why it exists:** Solomon & Wynne (1953) demonstrated that discriminated
+avoidance produces extremely persistent behavior — dogs continued to avoid after
+hundreds of extinction trials. This paradigm is fundamental to understanding
+anxiety, phobias, and the persistence of avoidance behavior in clinical
+populations.
+
+**Fixed-duration variant.** Some procedures use a brief, non-escapable US
+(e.g., a 0.5s shock pulse):
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+  @punisher("shock", intensity="0.5mA")
+```
+
+**Composition with Chain.** A chained schedule where completing a food-
+reinforced ratio transitions into a discriminated avoidance component:
+
+```
+Chain(FR10 @reinforcer("food"),
+      DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+```
+
+**References:**
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649
+
+---
+
+## 11. Punishment Overlay
+
+**Scenario:** Studying the effect of response-contingent punishment on operant
+behavior maintained by a reinforcement schedule. The baseline reinforcement
+continues while punishment is added on top.
+
+```
+Overlay(VI 60s, FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**What this does:** Food reinforcement is delivered on a VI 60s schedule.
+Simultaneously, every response (FR 1) produces a brief shock. Both
+contingencies operate on the same response stream. This allows the
+experimenter to observe how punishment suppresses responding relative to the
+unpunished baseline rate.
+
+**Why it exists:** Azrin & Holz (1966) established the standard paradigm for
+studying punishment: maintain responding with a reinforcement schedule, then
+superimpose punishment of varying intensity or schedule. This reveals the
+functional relationship between punishment parameters and response suppression,
+while the baseline schedule ensures there is behavior to suppress.
+
+**Intermittent punishment.** Not every response needs to be punished:
+
+```
+Overlay(VI 60s, VI 30s)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**Concurrent baseline with punishment.** Punishment overlaid on a matching-law
+preparation:
+
+```
+Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**References:**
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
+
+---
+
+## 12. Complex Real-World Experiment
 
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
@@ -290,6 +384,8 @@ Mult(choice_component, chain_component)
 | `PR` | Reinforcer efficacy measurement | No quantitative breakpoint metric |
 | `COD` / `FRCO` | Clean concurrent data | Inflated reinforcement from rapid switching |
 | `Sidman` | Free-operant avoidance, aversive control | Cannot express unsignaled avoidance procedures |
+| `DiscrimAv` | Discriminated avoidance, fear conditioning, anxiety research | Cannot express trial-based CS-predicted avoidance |
+| `Overlay` | Punishment overlay, suppression studies | Cannot express punishment on maintained behavior |
 | `Lag` | Operant variability, ASD stereotypy reduction, creativity research | Cannot reinforce response variability directly |
 | `let` | Readable complex programs | Unreadable nested expressions |
 

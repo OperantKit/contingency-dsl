@@ -56,11 +56,17 @@ The DSL grammar satisfies four criteria:
                   | "SSI" | "ShockShockInterval"
                   | "RSI" | "ResponseShockInterval"
                   | "Lag" | "length"
+                  | "DiscriminatedAvoidance" | "DiscrimAv"
+                  | "CSUSInterval" | "ITI" | "mode"
+                  | "ShockDuration" | "MaxShock"
+                  | "fixed" | "escape"
+                  | "Overlay"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
 <combinator>    ::= "Conc" | "Alt" | "Conj"
                   | "Chain" | "Tand"
                   | "Mult" | "Mix"
+                  | "Overlay"
 <arg_list>      ::= <positional_args> ("," <keyword_arg>)*
 <positional_args> ::= <schedule> ("," <schedule>)+
 <keyword_arg>   ::= <kw_name> "=" <value>
@@ -80,10 +86,17 @@ The DSL grammar satisfies four criteria:
 <lag_kw_arg>    ::= "length" "=" <number>
 
 <aversive_schedule> ::= <sidman_avoidance>
+                      | <discriminated_avoidance>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
 <sidman_arg>        ::= <sidman_kw> "=" <value>
 <sidman_kw>         ::= "SSI" | "ShockShockInterval"
                       | "RSI" | "ResponseShockInterval"
+<discriminated_avoidance> ::= ("DiscriminatedAvoidance" | "DiscrimAv")
+                              "(" <da_arg> ("," <da_arg>)* ")"
+<da_arg>            ::= <da_temporal_kw> "=" <value>
+                      | "mode" "=" <da_mode>
+<da_temporal_kw>    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
+<da_mode>           ::= "fixed" | "escape"
 ```
 
 **Identifier naming constraint.** Identifiers must begin with a lowercase ASCII letter or underscore (`[a-z_]`), followed by any combination of ASCII letters, digits, or underscores. This ensures lexical disjointness from DSL keywords and schedule type prefixes, all of which begin with an uppercase letter. The `<reserved>` production additionally prevents lowercase keywords (`let`, `def`, `hodos`, etc.) from being used as identifiers. `def` is reserved for future use (see [architecture.md §4.4](architecture.md)).
@@ -221,6 +234,16 @@ Lag(5)                                                -- parenthesized equivalen
 Lag(5, length=8)                                      -- Page & Neuringer (1985) 8-peck sequence
 Lag 0                                                 -- no variability requirement (equivalent to CRF)
 Mult(Lag(5, length=8), CRF)                           -- Lag vs CRF baseline in multiple schedule
+
+-- Discriminated avoidance (§2.9)
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)       -- Solomon & Wynne (1953) style
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min) -- with safety cutoff
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)  -- fixed US
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)                    -- short alias
+
+-- Punishment overlay (§2.10)
+Overlay(VI60s, FR1)                              -- every response punished on VI60 baseline
+Overlay(Conc(VI60s, VI180s, COD=2s), FR1)        -- punishment on concurrent baseline
 
 -- let bindings (macro expansion)
 let baseline = VI60s

@@ -193,6 +193,86 @@ References:
   & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414).
   Prentice-Hall.
 
+## Discriminated avoidance (v1.x)
+
+**v1.x:** `DiscriminatedAvoidance` (alias `DiscrimAv`) is a dedicated
+aversive-schedule primitive (see grammar.ebnf `discriminated_avoidance`
+production and [spec/en/theory.md §2.9](spec/en/theory.md)). Three
+parameters are mandatory; **there is no default value** for any of them.
+
+| Parameter | Alias | Syntax | Dimension | Required |
+|-----------|-------|--------|-----------|----------|
+| CSUSInterval | — | `DiscrimAv(CSUSInterval=10s, ...)` | Time (s/ms/min), strictly positive, unit required | YES |
+| ITI | — | `DiscrimAv(..., ITI=3min, ...)` | Time (s/ms/min), strictly positive, unit required, must be > CSUSInterval | YES |
+| mode | — | `DiscrimAv(..., mode=escape, ...)` | `fixed` \| `escape` | YES |
+| ShockDuration | — | `DiscrimAv(..., ShockDuration=0.5s)` | Time (s/ms/min), strictly positive, unit required | YES (mode=fixed only) |
+| MaxShock | — | `DiscrimAv(..., MaxShock=2min)` | Time (s/ms/min), strictly positive, unit required | NO (mode=escape only, default=no cutoff) |
+
+- `CSUSInterval`, `ITI`, and `mode` must all be specified. Missing any → `MISSING_DA_PARAM`.
+- Temporal parameters must carry a time unit. Dimensionless → `DA_TIME_UNIT_REQUIRED`.
+- Temporal values must be strictly positive. Non-positive → `DA_NONPOSITIVE_PARAM`.
+- `ITI` must be > `CSUSInterval`. Otherwise → `DA_ITI_TOO_SHORT`.
+- `mode=fixed` requires `ShockDuration`. Missing → `MISSING_SHOCK_DURATION`.
+- `mode=fixed` with `MaxShock` → `INVALID_PARAM_FOR_MODE`.
+- `mode=escape` with `ShockDuration` → `INVALID_PARAM_FOR_MODE`.
+- Unknown mode value → `DA_INVALID_MODE`.
+- Duplicate parameters → `DUPLICATE_DA_PARAM`.
+
+**Semantics.** A CS (warning signal) is presented. If the subject responds
+within CSUSInterval (avoidance trial), the US is cancelled and the next
+trial begins at ITI from the current CS onset. If the subject fails to
+respond within CSUSInterval (escape/failure trial), the US is delivered:
+
+- `mode=fixed`: US is presented for exactly `ShockDuration`.
+- `mode=escape`: US continues until the subject responds (terminates the US).
+  Optional `MaxShock` sets a safety cutoff (Solomon & Wynne, 1953 used 2min).
+
+```
+next_cs(t) = current_cs_onset + ITI
+us_onset = current_cs_onset + CSUSInterval  (if no avoidance response)
+```
+
+References:
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning:
+  Acquisition in normal dogs. *Psychological Monographs: General and Applied*,
+  67(4), 1-19. https://doi.org/10.1037/h0093649
+
+## Punishment overlay (v1.x) — Overlay combinator
+
+**v1.x:** `Overlay` is a compound combinator that superimposes a punishment
+contingency on an existing reinforcement baseline. It takes exactly 2
+positional components: the baseline schedule and the punisher schedule.
+
+```
+Overlay(VI 60s, FR 1)          -- every response produces punisher on VI 60s baseline
+Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)  -- punishment on a concurrent baseline
+```
+
+- Exactly 2 positional components required. More → `OVERLAY_REQUIRES_TWO`.
+- No keyword args in v1.x. Any keyword arg → `INVALID_KEYWORD_ARG`.
+- The first component is the reinforcement baseline; the second is the
+  punishment schedule. Both schedules operate on the same response stream.
+
+**Semantics.** Responses satisfy both schedules simultaneously. The baseline
+schedule delivers reinforcers; the punisher schedule delivers aversive stimuli.
+This models the standard punishment paradigm in which a response-contingent
+aversive event is added to an ongoing reinforcement schedule.
+
+**v1.x scope.** Punishment targets all responses in the baseline. Changeover-
+specific punishment (e.g., Todorov, 1971) requires response-class targeting
+and is planned for v1.y.
+
+References:
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.),
+  *Operant behavior: Areas of research and application* (pp. 380-447).
+  Appleton-Century-Crofts.
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment
+  contingent on the switching response. *JEAB*, 16(1), 51-62.
+  https://doi.org/10.1901/jeab.1971.16-51
+- Bloomfield, T. M. (1966). Two types of behavioral contrast in
+  discrimination learning. *JEAB*, 9(2), 155-161.
+  https://doi.org/10.1901/jeab.1966.9-155
+
 ## Timeout (TO) — design memo (v2.0 planned)
 
 TO is deferred to v2.0. When implemented, the following constraints apply

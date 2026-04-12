@@ -423,11 +423,10 @@ Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
 **Scope of v1.x aversive schedules.** The `aversive_schedule` production is
-additive: future versions may introduce discriminated avoidance, escape, or
-punishment overlays. v1.x includes only `Sidman` because it is the
-historically foundational aversive contingency that cannot be expressed in
-the reinforcement schedule matrix. Simple punishment (e.g., FR3 of shock on
-a single operandum) and escape (response terminates ongoing shock) can be
+additive. v1.x includes `Sidman` (free-operant avoidance) and
+`DiscriminatedAvoidance` (trial-based avoidance). Punishment overlay is
+expressed via the `Overlay` combinator (§2.10). Simple escape (response
+terminates ongoing aversive stimulus without a predictive CS) can be
 approximated with existing constructs using stimulus annotations.
 
 ### 2.8 Lag Schedule — Operant Variability
@@ -521,13 +520,125 @@ Mult(Lag(5, length=8), CRF)
   the user's intent ("this is a Lag schedule with no variability
   requirement") rather than being optimized away at parse time.
 
+### 2.9 Discriminated Avoidance
+
+Sidman free-operant avoidance (§2.7) has no warning signal — shocks occur
+on a temporal cycle that the organism can only postpone. **Discriminated
+avoidance** (Solomon & Wynne, 1953) introduces a conditioned stimulus (CS)
+that predicts the unconditioned stimulus (US). A response during the CS
+prevents the US (avoidance trial); failure to respond results in US delivery
+(escape or failure trial).
+
+The two paradigms represent distinct contingency structures:
+- **Sidman (free-operant):** no CS, response postpones the next US by RSI.
+- **Discriminated (trial-based):** CS predicts US at a fixed CSUSInterval;
+  response during the CS cancels the US.
+
+The DSL introduces `DiscriminatedAvoidance` (alias `DiscrimAv`) as a second
+aversive-schedule primitive in the `aversive_schedule` production.
+
+**Procedural definition.**
+
+- **CSUSInterval** (required): time from CS onset to US onset. If the
+  subject responds before this interval elapses, the US is cancelled
+  (avoidance trial).
+- **ITI** (required): inter-trial interval, measured CS-onset to
+  next-CS-onset. Must be > CSUSInterval.
+- **mode** (required): `fixed` or `escape`.
+  - `fixed`: US is presented for a fixed `ShockDuration`.
+  - `escape`: US continues until the subject responds. Optional `MaxShock`
+    sets a safety cutoff.
+- **ShockDuration** (required for mode=fixed): duration of the fixed US.
+- **MaxShock** (optional for mode=escape): safety cutoff for escape-
+  terminated US. Solomon & Wynne (1953) used a 2-minute cutoff.
+
+**Syntax.**
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)  -- short alias
+```
+
+**Semantic constraints.**
+
+- `CSUSInterval`, `ITI`, and `mode` must all be specified. Missing any →
+  `MISSING_DA_PARAM`.
+- All temporal params must carry a time unit. Dimensionless → `DA_TIME_UNIT_REQUIRED`.
+- All temporal values must be strictly positive. Non-positive → `DA_NONPOSITIVE_PARAM`.
+- `ITI` must be > `CSUSInterval` → `DA_ITI_TOO_SHORT`.
+- `mode=fixed` requires `ShockDuration` → `MISSING_SHOCK_DURATION`.
+- Cross-mode parameter exclusion → `INVALID_PARAM_FOR_MODE`.
+- Unknown mode value → `DA_INVALID_MODE`.
+
+**Stimulus annotation.** Like Sidman, discriminated avoidance is aversive by
+definition. `@punisher` is recommended:
+
+```
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+  @punisher("shock", intensity="1.0mA")
+  @sd("light", modality="visual")
+```
+
+**Composition.** `DiscriminatedAvoidance` is a `base_schedule` and may
+appear inside any compound combinator:
+
+```
+Chain(FR10, DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+```
+
+### 2.10 Punishment Overlay
+
+The `Overlay` combinator superimposes a punishment contingency on an
+existing reinforcement baseline. This is the standard paradigm for studying
+the effects of response-contingent aversive stimulation on maintained
+operant behavior (Azrin & Holz, 1966).
+
+**Procedural definition.** The baseline schedule continues to deliver
+reinforcers. Simultaneously, the punisher schedule delivers aversive stimuli
+contingent on the same responses. Both schedules share a single response
+stream.
+
+**Syntax.**
+
+```
+Overlay(VI 60s, FR 1)                     -- every response punished
+Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)  -- concurrent baseline
+```
+
+The first component is the reinforcement baseline; the second is the
+punishment schedule.
+
+**Semantic constraints.**
+
+- Exactly 2 positional components. More than 2 → `OVERLAY_REQUIRES_TWO`.
+- No keyword args in v1.x → `INVALID_KEYWORD_ARG`.
+
+**Stimulus annotation.** Use `@punisher` for the aversive stimulus and
+`@reinforcer` for the baseline:
+
+```
+Overlay(VI 60s, FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**v1.x scope.** Punishment targets all responses. Response-class-specific
+punishment (e.g., changeover-only punishment; Todorov, 1971) is planned for
+v1.y.
+
 ---
 
 ## References
 
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Bloomfield, T. M. (1966). Two types of behavioral contrast in discrimination learning. *JEAB*, 9(2), 155-161. https://doi.org/10.1901/jeab.1966.9-155
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
 - Farmer, J. (1963). Properties of behavior under random interval reinforcement schedules. *Journal of the Experimental Analysis of Behavior*, 6(4), 607-616. https://doi.org/10.1901/jeab.1963.6-607
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
 - Findley, J. D. (1958). Preference and switching under concurrent scheduling. *Journal of the Experimental Analysis of Behavior*, 1(2), 123-144. https://doi.org/10.1901/jeab.1958.1-123
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267-272. https://doi.org/10.1901/jeab.1961.4-267

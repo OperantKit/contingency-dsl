@@ -298,5 +298,83 @@
     "description": "@steady_state min_sessions must be >= window_sessions",
     "input": "@steady_state(window_sessions=5, max_change_pct=10, min_sessions=3)\n\nFR5",
     "error": { "type": "SemanticError", "code": "STEADY_STATE_INVALID_MIN_SESSIONS" }
+  },
+  {
+    "id": "error_da_missing_mode",
+    "description": "DiscriminatedAvoidance requires mode parameter",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min)",
+    "error": { "type": "SemanticError", "code": "MISSING_DA_PARAM" }
+  },
+  {
+    "id": "error_da_missing_csus",
+    "description": "DiscriminatedAvoidance requires CSUSInterval parameter",
+    "input": "DiscriminatedAvoidance(ITI=3min, mode=escape)",
+    "error": { "type": "SemanticError", "code": "MISSING_DA_PARAM" }
+  },
+  {
+    "id": "error_da_missing_iti",
+    "description": "DiscriminatedAvoidance requires ITI parameter",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, mode=escape)",
+    "error": { "type": "SemanticError", "code": "MISSING_DA_PARAM" }
+  },
+  {
+    "id": "error_da_fixed_missing_shock_duration",
+    "description": "mode=fixed requires ShockDuration",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed)",
+    "error": { "type": "SemanticError", "code": "MISSING_SHOCK_DURATION" }
+  },
+  {
+    "id": "error_da_fixed_with_max_shock",
+    "description": "mode=fixed forbids MaxShock (escape-only parameter)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s, MaxShock=2min)",
+    "error": { "type": "SemanticError", "code": "INVALID_PARAM_FOR_MODE" }
+  },
+  {
+    "id": "error_da_escape_with_shock_duration",
+    "description": "mode=escape forbids ShockDuration (fixed-only parameter)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, ShockDuration=0.5s)",
+    "error": { "type": "SemanticError", "code": "INVALID_PARAM_FOR_MODE" }
+  },
+  {
+    "id": "error_da_invalid_mode",
+    "description": "mode must be 'fixed' or 'escape'",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=continuous)",
+    "error": { "type": "SemanticError", "code": "DA_INVALID_MODE" }
+  },
+  {
+    "id": "error_da_no_time_unit",
+    "description": "DA temporal parameters must include a time unit",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10, ITI=180, mode=escape)",
+    "error": { "type": "SemanticError", "code": "DA_TIME_UNIT_REQUIRED" }
+  },
+  {
+    "id": "error_da_nonpositive_csus",
+    "description": "DA temporal parameters must be strictly positive",
+    "input": "DiscriminatedAvoidance(CSUSInterval=0s, ITI=3min, mode=escape)",
+    "error": { "type": "SemanticError", "code": "DA_NONPOSITIVE_PARAM" }
+  },
+  {
+    "id": "error_da_iti_too_short",
+    "description": "ITI must be greater than CSUSInterval",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=5s, mode=escape)",
+    "error": { "type": "SemanticError", "code": "DA_ITI_TOO_SHORT" }
+  },
+  {
+    "id": "error_da_duplicate_param",
+    "description": "Duplicate DA parameter keywords",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, CSUSInterval=20s, ITI=3min, mode=escape)",
+    "error": { "type": "SemanticError", "code": "DUPLICATE_DA_PARAM" }
+  },
+  {
+    "id": "error_overlay_three_components",
+    "description": "Overlay requires exactly 2 components",
+    "input": "Overlay(VI60s, FR1, FR5)",
+    "error": { "type": "SemanticError", "code": "OVERLAY_REQUIRES_TWO" }
+  },
+  {
+    "id": "error_overlay_keyword_arg",
+    "description": "Overlay does not accept keyword args in v1.x",
+    "input": "Overlay(VI60s, FR1, COD=2s)",
+    "error": { "type": "SemanticError", "code": "INVALID_KEYWORD_ARG" }
   }
 ]

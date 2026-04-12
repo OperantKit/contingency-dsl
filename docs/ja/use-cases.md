@@ -249,7 +249,90 @@ Mult(Lag(5, length=8), CRF, BO=5s)
 
 ---
 
-## 10. 複合的な実験プログラム
+## 10. 弁別回避
+
+**シナリオ:** 警告信号（CS）が嫌悪刺激（US）に先行する試行ベースの回避手続き。
+被験体は CS-US 間隔中に反応することで US を回避できる。恐怖条件づけ、不安研究、
+嫌悪制御の研究で使用される。
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+  @punisher("shock", intensity="1.0mA")
+  @sd("light", modality="visual")
+  @species("dog")
+```
+
+**何をするか:** 光 CS が呈示される。イヌが 10 秒以内にバリアを跳び越えれば shock
+は回避される（回避試行）。10秒以内に反応しなければ shock が開始され、イヌが跳ぶ
+まで継続する（逃避試行）。2分の安全カットオフあり。次の CS は現在の CS 提示から
+3分後に出現する。
+
+**なぜ存在するか:** Solomon & Wynne (1953) は、弁別回避が極めて持続的な行動を
+生成することを示した — イヌは数百回の消去試行後も回避し続けた。このパラダイムは、
+不安・恐怖症・臨床集団における回避行動の持続性を理解する基盤である。
+
+**固定時間変種:** 逃避不可能な短い US（例: 0.5秒のパルス shock）を使う手続き:
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+  @punisher("shock", intensity="0.5mA")
+```
+
+**Chain との合成:** 食物強化の比率を完了すると弁別回避成分に遷移する連鎖スケジュール:
+
+```
+Chain(FR10 @reinforcer("food"),
+      DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+```
+
+**参考文献:**
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649
+
+---
+
+## 11. 罰重畳（Punishment Overlay）
+
+**シナリオ:** 強化スケジュールで維持されているオペラント行動に対する反応随伴性罰の
+効果を研究する。ベースラインの強化は継続しながら、罰を重畳する。
+
+```
+Overlay(VI 60s, FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**何をするか:** 食物強化が VI 60s で配分される。同時に、全ての反応（FR 1）が短い
+shock を生じる。両方の随伴性が同じ反応ストリームに作用する。これにより、罰なし
+ベースライン率に対して罰がどの程度反応を抑制するかを観察できる。
+
+**なぜ存在するか:** Azrin & Holz (1966) は罰研究の標準パラダイムを確立した:
+強化スケジュールで反応を維持し、さまざまな強度やスケジュールの罰を重畳する。
+これにより罰パラメータと反応抑制の機能的関係が明らかになり、ベースラインが
+「抑制すべき行動」を担保する。
+
+**間欠的罰:** 全反応を罰する必要はない:
+
+```
+Overlay(VI 60s, VI 30s)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**並行ベースラインへの罰重畳:** マッチング法則準備に罰を重畳:
+
+```
+Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**参考文献:**
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
+
+---
+
+## 12. 複合的な実験プログラム
 
 **シナリオ:** 一方の成分で並行配置、他方で連鎖手続きを使う2成分多元スケジュール。プログラムレベルのデフォルト付き。
 
@@ -286,6 +369,8 @@ Mult(choice_component, chain_component)
 | `PR` | 強化子効力測定 | 定量的ブレイクポイント指標がない |
 | `COD` / `FRCO` | クリーンな並行データ | 高速切替による強化率膨張 |
 | `Sidman` | 自由オペラント回避、嫌悪制御 | 無弁別回避手続きを表現できない |
+| `DiscrimAv` | 弁別回避、恐怖条件づけ、不安研究 | 試行ベースの CS 予告回避を表現できない |
+| `Overlay` | 罰重畳、反応抑制研究 | 維持行動への罰を表現できない |
 | `Lag` | 操作的変動性、ASD ステレオタイプ低減、創造性研究 | 反応の variability を直接強化できない |
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
 

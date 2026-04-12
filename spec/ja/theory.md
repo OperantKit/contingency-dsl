@@ -426,12 +426,10 @@ Sidman(SSI=20s, RSI=5s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
 **v1.x の嫌悪スケジュールのスコープ:** `aversive_schedule` 生成規則は
-additive である。将来のバージョンで discriminated avoidance、escape、
-punishment overlay 等を追加できる。v1.x では `Sidman` のみを含める。これは
-強化スケジュールマトリクスで表現できない、歴史的に基礎的な嫌悪随伴性の
-唯一の primitive だからである。単純な punishment（例: 同一 operandum 上での
-FR3 shock）と escape（進行中の shock を反応で終了）は、既存の構成素と
-刺激 annotation で近似可能である。
+additive である。v1.x では `Sidman`（自由オペラント回避）と
+`DiscriminatedAvoidance`（試行ベース回避）を含む。罰の重畳は `Overlay`
+コンビネータ（§2.10）で表現する。単純な escape（予告 CS なしで進行中の
+嫌悪刺激を反応で終了）は、既存の構成素と刺激 annotation で近似可能である。
 
 ### 2.8 Lag スケジュール — 操作的変動性
 
@@ -514,13 +512,116 @@ Mult(Lag(5, length=8), CRF)
 - `Lag 0` ≡ CRF は一貫性のために保持される境界ケース。「variability 要求なしの
   Lag schedule」というユーザーの意図を保存し、parse 時に最適化消去されない。
 
+### 2.9 弁別回避（Discriminated Avoidance）
+
+Sidman 自由オペラント回避（§2.7）には警告信号がない — shock は反応によって
+postpone されるだけの時間的サイクルで発生する。**弁別回避**（Solomon & Wynne,
+1953）は条件刺激（CS）が無条件刺激（US）を予告する手続きである。CS 中に
+反応すれば US が阻止され（回避試行）、反応しなければ US が呈示される
+（逃避/失敗試行）。
+
+2 つのパラダイムの随伴性構造は異なる:
+- **Sidman（自由オペラント）:** CS なし。反応は RSI 分だけ次の US を postpone。
+- **弁別（試行ベース）:** CS が固定の CSUSInterval で US を予告。CS 中の反応で
+  US を阻止。
+
+本 DSL は `DiscriminatedAvoidance`（alias `DiscrimAv`）を `aversive_schedule`
+生成規則の第 2 の primitive として追加する。
+
+**手続きの定義:**
+
+- **CSUSInterval**（必須）: CS 提示から US 提示までの時間。この間隔内に反応
+  すると US は阻止（回避試行）。
+- **ITI**（必須）: 試行間間隔。CS-onset → 次の CS-onset で測定。CSUSInterval
+  より大きくなければならない。
+- **mode**（必須）: `fixed` または `escape`。
+  - `fixed`: US は固定の `ShockDuration` で呈示。
+  - `escape`: US は被験体の反応で終了。optional な `MaxShock` で安全カットオフを
+    設定可能。
+- **ShockDuration**（mode=fixed のみ必須）: 固定 US 呈示時間。
+- **MaxShock**（mode=escape のみ optional）: escape 終端の安全カットオフ。
+  Solomon & Wynne (1953) は 2 分を使用。
+
+**構文:**
+
+```
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)  -- 短縮 alias
+```
+
+**意味的制約:**
+
+- `CSUSInterval`、`ITI`、`mode` は全て必須。欠損 → `MISSING_DA_PARAM`。
+- 全ての時間パラメータに時間単位必須。無次元 → `DA_TIME_UNIT_REQUIRED`。
+- 全ての時間値は厳密に正。非正 → `DA_NONPOSITIVE_PARAM`。
+- `ITI` は `CSUSInterval` より大きい必要あり → `DA_ITI_TOO_SHORT`。
+- `mode=fixed` は `ShockDuration` 必須 → `MISSING_SHOCK_DURATION`。
+- モード非対応パラメータ → `INVALID_PARAM_FOR_MODE`。
+- 未知の mode 値 → `DA_INVALID_MODE`。
+
+**刺激 annotation:** Sidman と同様、弁別回避は定義上嫌悪的。`@punisher` を推奨:
+
+```
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)
+  @punisher("shock", intensity="1.0mA")
+  @sd("light", modality="visual")
+```
+
+**合成:** `DiscriminatedAvoidance` は `base_schedule` であり、任意の複合
+コンビネータ内部に出現できる:
+
+```
+Chain(FR10, DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))
+```
+
+### 2.10 罰重畳（Punishment Overlay）
+
+`Overlay` コンビネータは、既存の強化ベースラインに罰随伴性を重畳する。これは、
+維持されたオペラント行動に対する反応随伴性嫌悪刺激の効果を研究する標準パラダイム
+である（Azrin & Holz, 1966）。
+
+**手続きの定義:** ベースラインスケジュールは通常通り強化子を配分する。同時に、
+罰スケジュールが同じ反応に対して嫌悪刺激を呈示する。両スケジュールは単一の
+反応ストリームを共有する。
+
+**構文:**
+
+```
+Overlay(VI 60s, FR 1)                     -- 全反応に罰
+Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)  -- 並行ベースライン
+```
+
+第 1 成分がベースライン（強化）、第 2 成分が罰スケジュール。
+
+**意味的制約:**
+
+- 正確に 2 成分。3 以上 → `OVERLAY_REQUIRES_TWO`。
+- v1.x ではキーワード引数なし → `INVALID_KEYWORD_ARG`。
+
+**刺激 annotation:** `@punisher` で嫌悪刺激、`@reinforcer` でベースラインを記述:
+
+```
+Overlay(VI 60s, FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+**v1.x のスコープ:** 罰は全反応を対象とする。反応クラス特異的な罰
+（例: 切替反応のみに罰; Todorov, 1971）は v1.y で対応予定。
+
 ---
 
 ## 参考文献
 
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Bloomfield, T. M. (1966). Two types of behavioral contrast in discrimination learning. *JEAB*, 9(2), 155-161. https://doi.org/10.1901/jeab.1966.9-155
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
 - Farmer, J. (1963). Properties of behavior under random interval reinforcement schedules. *Journal of the Experimental Analysis of Behavior*, 6(4), 607-616. https://doi.org/10.1901/jeab.1963.6-607
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
 - Findley, J. D. (1958). Preference and switching under concurrent scheduling. *Journal of the Experimental Analysis of Behavior*, 1(2), 123-144. https://doi.org/10.1901/jeab.1958.1-123
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267-272. https://doi.org/10.1901/jeab.1961.4-267

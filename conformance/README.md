@@ -53,11 +53,11 @@ Explicit `COD=0s` does NOT trigger the warning.
 | File | Cases | Scope |
 |------|-------|-------|
 | `atomic.json` | 15 | FR5, VI60s, RR20, EXT, CRF, all 3x3 grid |
-| `compound.json` | 19 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, nested, deep nesting depth≥3, wide (5 components) |
+| `compound.json` | 27 | Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay, nested, deep nesting depth≥3, wide (5 components) |
 | `modifier.json` | 21 | DRL, DRH, DRO, PR, Repeat, Lag (simple, parenthesized, with length, in Mult, in let binding) |
 | `limited_hold.json` | 12 | FI30 LH10, program-level LH default, LH on EXT/CRF/SecondOrder |
 | `second_order.json` | 5 | FR5(FI30), VI60(FR10), RR5(FT20s) |
 | `binding.json` | 7 | let bindings, expansion, compound refs, LH bindings |
 | `program.json` | 9 | Complete programs with param_decls + bindings; measurement annotation preamble (@session_end, @baseline, @steady_state) |
-| `aversive.json` | 7 | Sidman free-operant avoidance (v1.x), verbose aliases, composition with Chain, let binding |
-| `errors.json` | 45 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors, measurement annotation param errors |
+| `aversive.json` | 14 | Sidman free-operant avoidance (v1.x), discriminated avoidance (escape/fixed modes, alias, composition, let binding), verbose aliases |
+| `errors.json` | 63 | Lex errors, parse errors, semantic errors, reserved words, self-reference, Sidman param errors, Lag param errors, measurement annotation param errors, DA param errors, Overlay component/keyword errors |
