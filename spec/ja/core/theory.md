@@ -2,7 +2,7 @@
 
 ## 概要
 
-本文書は、強化スケジュールの分類体系を代数的型体系として形式化し、contingency-dsl ドメイン固有言語の理論的基盤を提供する。全ての単純強化スケジュールが2つの独立次元 — 分布（Distribution）と領域（Domain）— の直積として表現できることを示し、3×3 の原子スケジュール格子を導出する。7つの結合子（Concurrent, Alternative, Conjunctive, Chained, Tandem, Multiple, Mixed）による合成代数を定義し、可換性・結合性・単位元・零化元を含む代数的性質を形式的に特徴づける。
+本文書は、強化スケジュールの分類体系を代数的型体系として形式化し、contingency-dsl ドメイン固有言語の理論的基盤を提供する。全ての単純強化スケジュールが2つの独立次元 — 分布（Distribution）と領域（Domain）— の直積として表現できることを示し、3×3 の原子スケジュール格子を導出する。7つの結合子（Concurrent, Alternative, Conjunctive, Chained, Tandem, Multiple, Mixed）による合成代数を定義し、可換性・結合性・単位元・零化元を含む代数的性質を形式的に特徴づける。表示的意味論（§2.13）は各スケジュール式を Mealy 機械型のスケジュールマシンに写像し、意味論的等価性についての合成的推論を可能にするとともに、表示的定義と操作的定義を結ぶ形式的妥当性定理を提供する。
 
 形式文法、アーキテクチャ境界、実装橋渡し、代替表現については関連文書を参照:
 
@@ -896,6 +896,376 @@ Overlay(VI 60-s, FR 1)
 
 **v1.x のスコープ:** 罰は全反応を対象とする。反応クラス特異的な罰
 （例: 切替反応のみに罰; Todorov, 1971）は v1.y で対応予定。
+
+### 2.11 二次スケジュール（Second-Order Schedules）
+
+**二次スケジュール**は 2 つの原子スケジュールを階層的な 2 つの役割に合成する（Kelleher, 1966; Kelleher & Fry, 1962）:
+
+- **Unit スケジュール** — *派生的反応単位*を定義する内部スケジュール。unit の各完了が 1 単位として計数される。
+- **Overall スケジュール** — unit 完了に随伴して強化を配分する外部スケジュール。
+
+```
+SecondOrder = Overall(Unit)
+Overall     = AtomicSchedule          -- パラメトリックのみ（EXT, CRF 不可）
+Unit        = AtomicSchedule          -- 単純スケジュールのみ（v1.0）
+```
+
+**構文例.** `FR5(FI30)` = FI 30-s の各完了を 1 単位とし、5 回の単位完了で強化。
+
+**重要な意味的制約.** overall 位置の `value` は常に**単位完了計数**として解釈される — 個別反応計数ではない。単独の `FR5` は 5 個別反応を計数するが、`FR5(FI30)` は FI 30-s の 5 回完了を計数する（Kelleher & Fry, 1962, p. 544）。
+
+#### 2.11.1 操作的意味論
+
+**FR-overall の脱糖.** overall が比率スケジュール（FR, VR, RR）の場合、brief 刺激なしでは tandem 合成に還元可能:
+
+```
+FR_n(S) ≡ Repeat(n, S) ≡ Tand(S, S, …, S)    [n コピー]
+```
+
+**Interval/Time-overall: 非還元的プリミティブ.** overall が時間間隔スケジュール（FI, VI 等）の場合、Tand への還元は**不可能**。overall が unit 完了間の強化の時間的分布を制御するため、状態付きプリミティブが必要。
+
+**状態機械.**
+
+```
+State: (unit_state, overall_state, unit_completion_count)
+
+初期化:
+  unit_state     = Unit.initial()
+  overall_state  = Overall.initial()
+  unit_completion_count = 0
+
+反応イベント発生時 (obs):
+  unit_result = Unit.evaluate(unit_state, obs)
+  if unit_result.satisfied:
+    unit_completion_count += 1
+    unit_state = Unit.initial()                -- unit リセット
+    overall_result = Overall.evaluate(overall_state, unit_completion_event)
+    if overall_result.satisfied:
+      一次強化子配達()
+      overall_state = Overall.initial()        -- overall リセット
+      unit_completion_count = 0
+    else:
+      brief 刺激呈示()                         -- 条件性強化子（設定時）
+  else:
+    unit_state = unit_result.next_state
+```
+
+**overall クロックリセット規則.** overall の内部タイマーは各一次強化配達後にリセットされる。`FI120(FR10)` では: 一次強化後、FI 120-s クロックはゼロから再開する（Goldberg, Kelleher, & Morse, 1975）。
+
+**ドメイン別動作.**
+
+| Overall ドメイン | `overall_result.satisfied` の条件 | 還元可能? |
+|---|---|---|
+| 比率 (FR, VR, RR) | `unit_completion_count == Overall.value` | Yes → `Repeat(n, Unit)` |
+| 時間間隔 (FI, VI, RI) | `最終強化からの経過時間 ≥ Overall.value` かつ unit 完了が生じた | No |
+| 時間 (FT, VT, RT) | `最終強化からの経過時間 ≥ Overall.value`（反応非依存） | No |
+
+**参考文献:**
+- Goldberg, S. R., Kelleher, R. T., & Morse, W. H. (1975). Second-order schedules of drug injection. *Federation Proceedings*, *34*(9), 1771–1776.
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, 9(5), 475–485. https://doi.org/10.1901/jeab.1966.9-475
+- Kelleher, R. T., & Fry, W. (1962). Stimulus functions in chained fixed-interval schedules. *JEAB*, 5(2), 167–173. https://doi.org/10.1901/jeab.1962.5-167
+- Kelleher, R. T., & Gollub, L. R. (1962). A review of positive conditioned reinforcement. *JEAB*, *5*(S4), 543–597. https://doi.org/10.1901/jeab.1962.5-s543
+
+---
+
+### 2.13 表示的意味論（Denotational Semantics）
+
+本節では、合成的意味関数 `⟦_⟧` を定義し、すべての `ScheduleExpr` を数学的対象——*スケジュールマシン*——に写像する。さらに、この表示が §2.2.1 で定義した操作的等価性に対して妥当（adequate）であることを証明する。§2.2.1 が `≡` を観察トレースに対する全称量化で定義するのに対し、表示的意味論は*合成的*推論を可能にする：複合式の意味はその構成要素の意味のみから決定される。
+
+#### 2.13.1 スケジュールマシン
+
+**定義 9（事象）。** *事象*（event）とは、反応事象またはセッション時刻を伴う時間刻み事象のいずれかである：
+
+```
+E  ::=  Response(t)        -- セッション時刻 t での反応
+      | Tick(t)            -- セッション時刻 t への時計進行
+```
+
+**定義 10（帰結）。** *帰結*（outcome）とは、所与の事象に対するスケジュールの決定である：
+
+```
+O  ::=  Reinforced         -- 一次強化子の配達
+      | Brief              -- 短時間刺激 / 条件性強化子（SecondOrder のみ）
+      | None               -- 帰結なし
+```
+
+**定義 11（スケジュールマシン）。** *スケジュールマシン*は三つ組 `M = (Σ, σ₀, δ)` であり：
+
+- `Σ` は（無限の可能性もある）内部状態の集合、
+- `σ₀ ∈ Σ` は初期状態、
+- `δ : Σ × E → Σ × O` は遷移関数
+
+である。事象列 `τ = ⟨e₁, e₂, …, eₙ⟩` に対する `M` の*走行*（run）を帰納的に定義する：
+
+```
+run(M, ⟨⟩)        = ⟨⟩
+run(M, ⟨e₁⟩ ++ τ) = let (σ', o) = δ(σ₀, e₁)
+                      in ⟨o⟩ ++ run((Σ, σ', δ), τ)
+```
+
+*帰結列*は `outcomes(M, τ) = run(M, τ)` である。
+
+**定義 12（外延的等価性）。** 2 つのスケジュールマシン `M₁ = (Σ₁, σ₁, δ₁)` と `M₂ = (Σ₂, σ₂, δ₂)` が*外延的に等価*であるとは、あらゆる有限事象列に対して同一の帰結列を生成することをいう。`M₁ ≈ M₂` と書く：
+
+```
+M₁ ≈ M₂  ⟺  ∀τ ∈ E*. outcomes(M₁, τ) = outcomes(M₂, τ)
+```
+
+注: `≈` はマシンレベルの関係であり、式レベルの `≡`（定義 4, §2.2.1）に対応する。妥当性定理（§2.13.6）が両者の一致を確立する。
+
+#### 2.13.2 意味関数
+
+意味関数 `⟦_⟧ : ScheduleExpr → ScheduleMachine` は AST 構造上の帰納的定義である。以下のすべての表示は Phase 3（Resolved）の AST（§2.12.1）——束縛展開、Repeat 脱糖、LH 伝播後——に対して作用する。
+
+#### 2.13.3 原子スケジュールの表示
+
+**比率スケジュール。** `dist ∈ {Fixed, Variable, Random}`、`n ∈ ℤ⁺` に対し：
+
+```
+⟦Atomic(dist, Ratio, n)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℤ≥0 × ValueSeq           -- (反応カウント, 値生成器)
+    σ₀  = (0, init(dist, n))
+    δ((k, g), Response(t)) =
+        let target = current(g) in
+        if k + 1 ≥ target
+            then ((0, advance(g)), Reinforced)
+            else ((k + 1, g), None)
+    δ((k, g), Tick(t)) = ((k, g), None)
+```
+
+`ValueSeq` は値生成器である。Fixed では `current = n` が定数。Variable では Fleshler-Hoffman (1962) 系列に従う。Random では平均 `n` の幾何分布から標本する。
+
+**時間間隔スケジュール。** `dist ∈ {Fixed, Variable, Random}`、`t ∈ ℝ⁺` に対し：
+
+```
+⟦Atomic(dist, Interval, t)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℝ≥0 × Bool × ValueSeq   -- (経過時間, 間隔経過フラグ, 値生成器)
+    σ₀  = (0, false, init(dist, t))
+    δ((e, _, g), Tick(t')) =
+        let target = current(g) in
+        ((t' − t_last_reinforcement, t' − t_last_reinforcement ≥ target, g), None)
+    δ((e, true, g), Response(t')) =
+        ((0, false, advance(g)), Reinforced)
+    δ((e, false, g), Response(t')) =
+        ((e, false, g), None)
+```
+
+**時間スケジュール。** `dist ∈ {Fixed, Variable, Random}`、`t ∈ ℝ⁺` に対し：
+
+```
+⟦Atomic(dist, Time, t)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℝ≥0 × ValueSeq           -- (経過時間, 値生成器)
+    σ₀  = (0, init(dist, t))
+    δ((e, g), Tick(t')) =
+        let target = current(g) in
+        if t' − t_last_reinforcement ≥ target
+            then ((0, advance(g)), Reinforced)
+            else ((t' − t_last_reinforcement, g), None)
+    δ((e, g), Response(t')) = ((e, g), None)
+```
+
+注: 時間スケジュールは反応非依存であり、反応事象は状態遷移にも帰結にも影響しない。
+
+**特殊スケジュール。**
+
+```
+⟦EXT⟧ = ({∗}, ∗, λ(∗, e). (∗, None))
+
+⟦CRF⟧ = ⟦Atomic(Fixed, Ratio, 1)⟧
+```
+
+EXT は決して強化しない自明な 1 状態マシンである。CRF は FR(1) に定義的に等しい（§1.3）。
+
+#### 2.13.4 結合子の表示
+
+各成分 `i` について `⟦Sᵢ⟧ = (Σᵢ, σᵢ, δᵢ)` とする。
+
+**積結合子**（並行トポロジー）。状態空間を直積として合成する。
+
+```
+⟦Conc(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ, (σ₁, …, σₙ), δ)  where
+    δ((s₁, …, sₙ), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        in ((s'₁, …, s'ₙ), aggregate_conc(o₁, …, oₙ))
+    aggregate_conc: 各成分が独立に自身のオペランダムを強化する
+```
+
+```
+⟦Alt(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ, (σ₁, …, σₙ), δ)  where
+    δ((s₁, …, sₙ), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        in if ∃i. oᵢ = Reinforced
+            then ((σ₁, …, σₙ), Reinforced)    -- 全成分リセット
+            else ((s'₁, …, s'ₙ), None)
+```
+
+```
+⟦Conj(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ × 𝒫({1..n}), (σ₁, …, σₙ, ∅), δ)  where
+    δ((s₁, …, sₙ, sat), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        let sat' = sat ∪ {i | oᵢ = Reinforced}
+        in if sat' = {1..n}
+            then ((σ₁, …, σₙ, ∅), Reinforced)   -- 全充足 → 強化 + リセット
+            else ((s'₁, …, s'ₙ, sat'), None)
+```
+
+**逐次結合子**（余積/連鎖トポロジー）。
+
+```
+⟦Chain(S₁, …, Sₙ)⟧ = (Σ₁ + … + Σₙ, inj₁(σ₁), δ)  where
+    δ(injₖ(sₖ), e) =
+        let (s'ₖ, oₖ) = δₖ(sₖ, e) in
+        if oₖ = Reinforced ∧ k < n
+            then (injₖ₊₁(σₖ₊₁), None)          -- 次のリンクへ（強化なし）
+        else if oₖ = Reinforced ∧ k = n
+            then (inj₁(σ₁), Reinforced)          -- 最終リンク → 強化 + 再開
+        else (injₖ(s'ₖ), None)
+```
+
+`⟦Tand(S₁, …, Sₙ)⟧` は `Chain` と同一の遷移構造を持つ。両者の区別は弁別性（S^D の有無）であり、スケジュールマシンの遷移関数の外部にある環境変数である。表示レベルでは：
+
+```
+⟦Tand(S₁, …, Sₙ)⟧ ≈ ⟦Chain(S₁, …, Sₙ)⟧
+```
+
+これは、Tand と Chain がスケジュールエンジンの観点からは手続き的に同一であるという形式的事実を捉えている。行動的差異は強化随伴性からではなく S^D 制御から生じる（Ferster & Skinner, 1957, Ch. 11–12）。
+
+**交替結合子**（切り替えトポロジー）。
+
+```
+⟦Mult(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ × ℕ, (σ₁, …, σₙ, 1), δ)  where
+    δ((s₁, …, sₙ, k), e) =
+        let (s'ₖ, oₖ) = δₖ(sₖ, e)                    -- 活性成分のみが事象を処理
+        let s'ⱼ = sⱼ for j ≠ k                         -- 非活性成分は凍結
+        in if oₖ = Reinforced
+            then ((s'₁, …, s'ₙ, switch(k, n)), Reinforced)
+            else ((s'₁, …, s'ₙ, k), None)
+    switch: 成分遷移関数（環境制御、スケジュール非決定）
+```
+
+`⟦Mix(S₁, …, Sₙ)⟧` も同一構造であり、Mult/Mix の区別は Chain/Tand と同様に弁別性による：
+
+```
+⟦Mix(S₁, …, Sₙ)⟧ ≈ ⟦Mult(S₁, …, Sₙ)⟧
+```
+
+#### 2.13.5 修飾子とラッパーの表示
+
+**LimitedHold。** `⟦S⟧ = (Σ_S, σ_S, δ_S)` とする。
+
+```
+⟦LH(d, S)⟧ = (Σ_S × LHPhase, (σ_S, Waiting), δ)  where
+    LHPhase  ::=  Waiting | HoldOpen(t_sat)
+
+    δ((s, Waiting), e) =
+        let (s', o) = δ_S(s, e) in
+        if o = Reinforced
+            then ((s', HoldOpen(time(e))), None)     -- S 充足 → 保持窓を開く
+            else ((s', Waiting), None)
+
+    δ((s, HoldOpen(t₀)), Response(t)) =
+        if t − t₀ ≤ d
+            then ((reset(s), Waiting), Reinforced)    -- 窓内の反応 → 配達
+            else ((reset(s), Waiting), None)           -- 窓失効
+
+    δ((s, HoldOpen(t₀)), Tick(t)) =
+        if t − t₀ > d
+            then ((reset(s), Waiting), None)           -- 窓失効、取消
+            else ((s, HoldOpen(t₀)), None)
+```
+
+これは §1.6 の状態機械を合成的表示として直接形式化したものである。内部スケジュールの表示 `⟦S⟧` はそのまま埋め込まれ、LH が位相ラッパーを付加する。
+
+**差異強化修飾子。** `⟦S⟧ = (Σ_S, σ_S, δ_S)` とする。
+
+```
+⟦DRL(t, S)⟧ = (Σ_S × ℝ≥0, (σ_S, ∞), δ)  where
+    δ((s, t_last), Response(t')) =
+        let IRT = t' − t_last in
+        let (s', o) = δ_S(s, Response(t')) in
+        if IRT ≥ t ∧ o = Reinforced
+            then ((s', t'), Reinforced)
+            else ((reset(s), t'), None)                -- IRT 不足 → リセット
+    δ((s, t_last), Tick(t')) = let (s', _) = δ_S(s, Tick(t')) in ((s', t_last), None)
+```
+
+`DRH(t, S)` は IRT 条件を `IRT ≤ t` に置き換える。`DRO(t)` は内部スケジュールに依存しないタイマーベースのマシンであり、標的反応が時間 `t` 以上不在の場合に強化する。
+
+**SecondOrder。** `⟦Unit⟧ = (Σ_U, σ_U, δ_U)` および `⟦Overall⟧ = (Σ_O, σ_O, δ_O)` とする。
+
+```
+⟦SecondOrder(Overall, Unit)⟧ = (Σ_U × Σ_O × ℕ, (σ_U, σ_O, 0), δ)  where
+    δ((u, o, c), e) =
+        let (u', o_u) = δ_U(u, e) in
+        if o_u = Reinforced                                -- unit 完了
+            then let c' = c + 1 in
+                 let (o', o_o) = δ_O(o, UnitCompletion) in
+                 if o_o = Reinforced
+                     then ((σ_U, σ_O, 0), Reinforced)     -- 一次強化
+                     else ((σ_U, o', c'), Brief)           -- 短時間刺激
+            else ((u', o, c), None)
+```
+
+これは §2.11.1 の状態機械に正確に対応し、unit と overall のスケジュールの表示の合成として表現されている。
+
+#### 2.13.6 妥当性定理
+
+**定理 9（妥当性, Adequacy）。** 表示的意味論は操作的意味論に対して妥当である：すべてのスケジュール式 `S₁`, `S₂` に対し：
+
+```
+S₁ ≡ S₂  ⟺  ⟦S₁⟧ ≈ ⟦S₂⟧
+```
+
+*証明の概略。* 両方の関係は事象列に対する全称量化で定義される。操作的 `≡`（定義 4）は観察トレース `τ ∈ T` に対して量化し `outcome(S, τ)` を比較する。表示的 `≈`（定義 12）は事象列 `τ ∈ E*` に対して量化し `outcomes(⟦S⟧, τ)` を比較する。
+
+（*右から左*） `⟦S₁⟧ ≈ ⟦S₂⟧` を仮定する。観察トレース（定義 2）はタイムスタンプ付き事象の有限列であり、`E*` の要素そのものである。定義 3 の `outcome` 関数は走行から強化決定を抽出するが、これは `outcomes(⟦S⟧, τ)` の `{Reinforced, None}` 成分への射影である。よって `outcomes(⟦S₁⟧, τ) = outcomes(⟦S₂⟧, τ)` はすべての `τ` に対して `outcome(S₁, τ) = outcome(S₂, τ)` を含意する。
+
+（*左から右*） `S₁ ≡ S₂` を仮定する。表示マシンが同一の帰結を生成することを示す。構成により、`⟦S⟧` は `S` の操作的振る舞いを忠実に実装する：各意味節（§2.13.3–§2.13.5）は対応する操作的仕様（§1.6, §2.11.1 の状態機械、§2.1 の結合子定義）を反映している。定義 3 の正準的初期状態 `σ₀` は各マシンの `σ₀` に対応する。よって `outcome(S, τ) = outcomes(⟦S⟧, τ)|_{Reinforced/None}` がすべての `τ` について成立し、`S₁ ≡ S₂` は `⟦S₁⟧ ≈ ⟦S₂⟧` を含意する。∎
+
+**系（合成性）。** `S₁ ≡ S₂` ならば、任意の文脈 `C[_]`（穴を持つスケジュール式）に対して `C[S₁] ≡ C[S₂]`。これは `⟦_⟧` の合成的構造から従う：各結合子の意味節は成分マシンから合成マシンを構築するため、成分を外延的等価なマシンで置換すれば外延的等価な合成が得られる。
+
+#### 2.13.7 例：表示的証明
+
+表示的枠組みは、マシンに対する代数的計算に帰着させることで、いくつかの証明を簡略化する。
+
+**定理 3（再導出）：`Alt(S, EXT) ≡ S`。**
+
+```
+⟦Alt(S, EXT)⟧ = (Σ_S × {∗}, (σ_S, ∗), δ)  where
+    δ((s, ∗), e) =
+        let (s', o) = δ_S(s, e) in
+        let (∗, None) = δ_EXT(∗, e) in      -- EXT は決して強化しない
+        if o = Reinforced
+            then ((σ_S, ∗), Reinforced)
+            else ((s', ∗), None)
+```
+
+`{∗}` 成分は不活性であり、情報を寄与せず強化を発火しない。マシンの振る舞いは完全に `⟦S⟧` によって決定される。形式的に `{∗}` 成分を射影して除去すれば `⟦S⟧` と同型なマシンが得られる。よって `⟦Alt(S, EXT)⟧ ≈ ⟦S⟧` であり、妥当性により `Alt(S, EXT) ≡ S`。∎
+
+**定理 4（再導出）：`Conj(S, EXT) ≡ EXT`。**
+
+```
+⟦Conj(S, EXT)⟧ = (Σ_S × {∗} × 𝒫({1,2}), (σ_S, ∗, ∅), δ)
+```
+
+連言が強化するには両成分が充足される必要がある。`δ_EXT` は `Reinforced` を生成しないため、すべてのトレースで `2 ∉ sat'` となる。よって `sat' ≠ {1, 2}` が常に成立し、マシンは決して強化しない。これは `⟦EXT⟧` に外延的等価である。∎
+
+**定理 7（再導出）：`Repeat(m, Repeat(n, S)) ≡ Repeat(m × n, S)`。**
+
+脱糖後、`Repeat(m, Repeat(n, S))` は `Tand(Tand(S,…,S), …, Tand(S,…,S))`（n 項 Tand の m 個の複製）となる。Chain/Tand の表示は状態空間の余積上の逐次的前進を使用する。余積の逐次合成の結合性により：
+
+```
+⟦Tand(Tand(S₁,…,Sₙ), Tand(Sₙ₊₁,…,S₂ₙ))⟧
+    ≈ ⟦Tand(S₁,…,Sₙ, Sₙ₊₁,…,S₂ₙ)⟧
+```
+
+これは `m × n` 個の複製に一般化され、`⟦Repeat(m × n, S)⟧` を与える。∎
+
+**参考文献:**
+
+- Scott, D., & Strachey, C. (1971). Toward a mathematical semantics for computer languages. *Proceedings of the Symposium on Computers and Automata*, Polytechnic Institute of Brooklyn, 19–46.
+- Stoy, J. E. (1977). *Denotational Semantics: The Scott-Strachey Approach to Programming Language Theory*. MIT Press.
+- Wadler, P. (1992). The essence of functional programming. In *Proceedings of POPL '92* (pp. 1–14). ACM. https://doi.org/10.1145/143165.143169
 
 ---
 

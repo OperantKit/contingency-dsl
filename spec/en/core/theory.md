@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This document formalizes the taxonomy of reinforcement schedules as an algebraic type system, providing a theoretical foundation for the contingency-dsl domain-specific language. We show that every simple reinforcement schedule is a product of two independent dimensions — Distribution and Domain — yielding a 3×3 grid of atomic schedules. We define a composition algebra over seven combinators (Concurrent, Alternative, Conjunctive, Chained, Tandem, Multiple, Mixed) with formally characterized algebraic properties including commutativity, associativity, identity elements, and annihilators.
+This document formalizes the taxonomy of reinforcement schedules as an algebraic type system, providing a theoretical foundation for the contingency-dsl domain-specific language. We show that every simple reinforcement schedule is a product of two independent dimensions — Distribution and Domain — yielding a 3×3 grid of atomic schedules. We define a composition algebra over seven combinators (Concurrent, Alternative, Conjunctive, Chained, Tandem, Multiple, Mixed) with formally characterized algebraic properties including commutativity, associativity, identity elements, and annihilators. A denotational semantics (§2.13) maps each schedule expression to a Mealy-machine–style schedule machine, enabling compositional reasoning about semantic equivalence with a formal adequacy theorem linking the denotational and operational definitions.
 
 For the formal grammar, architectural boundaries, implementation bridge, and alternative representations, see companion documents:
 
@@ -973,10 +973,423 @@ Unit        = AtomicSchedule          -- simple schedules only (v1.0)
 
 This distinction is procedurally essential. If the overall were interpreted as a response count, `FR5(FI30)` would reduce to a simple FR 5 that happens to ignore the unit schedule — a degenerate and experimentally meaningless arrangement.
 
+#### 2.11.1 Operational Semantics
+
+**FR-overall desugaring.** When the overall schedule is a ratio schedule (FR, VR, RR), the second-order schedule is reducible to tandem composition without brief stimuli:
+
+```
+FR_n(S) ≡ Repeat(n, S) ≡ Tand(S, S, …, S)    [n copies]
+```
+
+This equivalence holds because the ratio-overall counts unit completions deterministically and does not impose temporal structure on the completion sequence (Kelleher & Gollub, 1962). Note: this equivalence holds only in the absence of brief stimulus presentation between unit completions; with brief stimuli (conditioned reinforcers), the second-order arrangement produces different behavioral effects than a simple tandem.
+
+**Interval/Time-overall: irreducible primitive.** When the overall schedule is an interval or time schedule (FI, VI, RI, FT, VT, RT), the second-order schedule is **not reducible** to tandem composition. The overall schedule controls the *temporal distribution* of reinforcement across unit completions, which requires a stateful primitive.
+
+**State machine.** For all `SecondOrder(Overall, Unit)` arrangements:
+
+```
+State: (unit_state, overall_state, unit_completion_count)
+
+Initialize:
+  unit_state     = Unit.initial()
+  overall_state  = Overall.initial()
+  unit_completion_count = 0
+
+On response event (obs):
+  unit_result = Unit.evaluate(unit_state, obs)
+  if unit_result.satisfied:
+    unit_completion_count += 1
+    unit_state = Unit.initial()                -- reset unit
+    overall_result = Overall.evaluate(overall_state, unit_completion_event)
+    if overall_result.satisfied:
+      deliver_primary_reinforcer()
+      overall_state = Overall.initial()        -- reset overall
+      unit_completion_count = 0
+    else:
+      deliver_brief_stimulus()                 -- conditioned reinforcer (if configured)
+  else:
+    unit_state = unit_result.next_state
+```
+
+**Overall clock reset rule.** The overall schedule's internal timer resets after each primary reinforcement delivery. For `FI120(FR10)`: after the primary reinforcer, the FI 120-s clock restarts from zero. This follows the standard usage in the behavioral pharmacology literature (Goldberg, Kelleher, & Morse, 1975).
+
+**Per-domain behavior.**
+
+| Overall domain | Criterion for `overall_result.satisfied` | Reducible? |
+|---|---|---|
+| Ratio (FR, VR, RR) | `unit_completion_count == Overall.value` | Yes → `Repeat(n, Unit)` |
+| Interval (FI, VI, RI) | `elapsed_since_last_reinforcement ≥ Overall.value` AND a unit completion occurs | No |
+| Time (FT, VT, RT) | `elapsed_since_last_reinforcement ≥ Overall.value` (response-independent) | No |
+
 **References.**
 
+- Goldberg, S. R., Kelleher, R. T., & Morse, W. H. (1975). Second-order schedules of drug injection. *Federation Proceedings*, *34*(9), 1771–1776.
 - Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *Journal of the Experimental Analysis of Behavior*, 9(5), 475-485. https://doi.org/10.1901/jeab.1966.9-475
 - Kelleher, R. T., & Fry, W. (1962). Stimulus functions in chained fixed-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(2), 167-173. https://doi.org/10.1901/jeab.1962.5-167
+- Kelleher, R. T., & Gollub, L. R. (1962). A review of positive conditioned reinforcement. *Journal of the Experimental Analysis of Behavior*, *5*(S4), 543–597. https://doi.org/10.1901/jeab.1962.5-s543
+
+### 2.12 Type Safety
+
+This section establishes that well-formed contingency-dsl programs do not produce type errors during semantic analysis. The argument follows Pierce (2002, TAPL §8.3) adapted to the DSL's three-phase compilation pipeline.
+
+#### 2.12.1 AST Phases and Type Discipline
+
+Three phases transform the AST, each with a distinct type universe:
+
+| Phase | Name | Type universe | Key property |
+|---|---|---|---|
+| Phase 1 | Pre-expansion | `ScheduleExpr` (all 8 branches, incl. `IdentifierRef`, `RepeatModifier`) | May contain unresolved references |
+| Phase 2 | Post-expansion | `ScheduleExpr \ {IdentifierRef, RepeatModifier}` | All references resolved, Repeat desugared |
+| Phase 3 | Resolved | Phase 2 + LH wrapping (§1.6.1) | Program-level defaults propagated |
+
+Each phase transition is total: it either succeeds (producing a well-typed AST in the target phase) or fails with a semantic error. No partial ASTs are returned (§3.7).
+
+#### 2.12.2 Typing Rules
+
+**Phase 1 → Phase 2 (Binding expansion).**
+
+```
+Γ = {x₁ : τ₁, ..., xₖ : τₖ}     (binding environment)
+
+Γ ⊢ e : ScheduleExpr    x ∉ dom(Γ)    Γ ⊢ v : ScheduleExpr
+────────────────────────────────────────────────────────────
+Γ, x : v ⊢ e[x ↦ v] : ScheduleExpr
+
+Γ ⊢ IdentifierRef(x) : ScheduleExpr    iff x ∈ dom(Γ)
+```
+
+Three static constraints ensure termination and decidability:
+1. **No shadowing:** each binding name is unique → no ambiguity in Γ.
+2. **No forward references:** `x_k` only references `{x₁, ..., x_{k-1}}` → acyclic substitution.
+3. **Top-level only:** no nested `let` → single-pass expansion.
+
+Under these constraints, binding expansion always terminates and produces a Phase 2 AST free of `IdentifierRef` nodes.
+
+**Repeat desugaring** is also guaranteed to terminate: `Repeat(n, S)` with `n ≥ 1` (enforced by the value constraint in ast-schema.json) expands to `Tand(S, …, S)` with `n` copies.
+
+**Phase 2 → Phase 3 (LH propagation).** The attribute grammar (§1.6.1) is a single top-down pass over the AST. Each rule (R1–R6) maps a well-typed Phase 2 node to a well-typed Phase 3 node. The only structural transformation is R5 (leaf wrapping): `node ↦ LH(d, node)`, which is always type-correct because `LimitedHold.inner : ScheduleExpr` accepts any schedule expression.
+
+#### 2.12.3 Progress and Preservation
+
+**Progress.** A well-typed Phase 1 AST is either:
+- A value (Phase 3 resolved AST with no further expansion/propagation needed), or
+- Reducible by exactly one of: binding expansion, Repeat desugaring, or LH propagation.
+
+This holds because:
+- `IdentifierRef` nodes trigger binding expansion (Phase 1 → 2).
+- `RepeatModifier` nodes trigger desugaring (Phase 1 → 2).
+- Program-level `LH` param_decl triggers LH propagation (Phase 2 → 3).
+- If none of these apply, the AST is already in Phase 3 (a value).
+
+**Preservation.** Each phase transition preserves well-typedness:
+- Binding expansion substitutes `IdentifierRef(x)` with the bound value, which is a `ScheduleExpr` → the result is a valid `ScheduleExpr`.
+- Repeat desugaring replaces `Repeat(n, S)` with `Compound(Tand, [S, …, S])` → valid `Compound` node.
+- LH wrapping replaces `node` with `LimitedHold(d, node)` → valid `LimitedHold` node.
+
+**Corollary.** No well-formed contingency-dsl program produces a type error during semantic analysis. All errors are either lexical (malformed tokens), syntactic (grammar violations), or semantic (constraint violations such as `UNDEFINED_IDENTIFIER` or `ATOMIC_NONPOSITIVE_VALUE`), and are reported before Phase 3 completes.
+
+**Scope limitation.** This analysis covers the DSL's static semantics (compilation pipeline). Runtime type safety — ensuring that the resolved AST, when interpreted by a schedule engine, does not produce undefined behavior — depends on the engine implementation and is outside the scope of this specification.
+
+---
+
+### 2.13 Denotational Semantics
+
+This section defines a compositional semantic function `⟦_⟧` that maps every `ScheduleExpr` to a mathematical object — a *schedule machine* — and proves that this denotation is adequate with respect to the operational equivalence defined in §2.2.1. Where §2.2.1 defines `≡` via universal quantification over observation traces, denotational semantics enables *compositional* reasoning: the meaning of a compound expression is determined entirely by the meanings of its parts.
+
+#### 2.13.1 Schedule Machines
+
+**Definition 9 (Event).** An *event* is either a response event or a time-tick event carrying the current session clock value:
+
+```
+E  ::=  Response(t)        -- operant response at session time t
+      | Tick(t)            -- clock advance to session time t
+```
+
+**Definition 10 (Outcome).** An *outcome* is the schedule's decision at a given event:
+
+```
+O  ::=  Reinforced         -- primary reinforcement delivered
+      | Brief              -- brief stimulus / conditioned reinforcer (SecondOrder only)
+      | None               -- no consequence
+```
+
+**Definition 11 (Schedule machine).** A *schedule machine* is a triple `M = (Σ, σ₀, δ)` where:
+
+- `Σ` is a (possibly infinite) set of internal states,
+- `σ₀ ∈ Σ` is the initial state,
+- `δ : Σ × E → Σ × O` is the transition function.
+
+Given an event sequence `τ = ⟨e₁, e₂, …, eₙ⟩`, the *run* of `M` on `τ` is defined inductively:
+
+```
+run(M, ⟨⟩)        = ⟨⟩
+run(M, ⟨e₁⟩ ++ τ) = let (σ', o) = δ(σ₀, e₁)
+                      in ⟨o⟩ ++ run((Σ, σ', δ), τ)
+```
+
+The *outcome sequence* is `outcomes(M, τ) = run(M, τ)`.
+
+**Definition 12 (Extensional equivalence).** Two schedule machines `M₁ = (Σ₁, σ₁, δ₁)` and `M₂ = (Σ₂, σ₂, δ₂)` are *extensionally equivalent*, written `M₁ ≈ M₂`, if they produce identical outcome sequences for every finite event sequence:
+
+```
+M₁ ≈ M₂  ⟺  ∀τ ∈ E*. outcomes(M₁, τ) = outcomes(M₂, τ)
+```
+
+Note: `≈` is the machine-level analogue of the expression-level `≡` (Definition 4, §2.2.1). The Adequacy Theorem (§2.13.6) establishes their coincidence.
+
+#### 2.13.2 The Semantic Function
+
+The semantic function `⟦_⟧ : ScheduleExpr → ScheduleMachine` is defined inductively on the AST structure. All denotations below operate on the Phase 3 (Resolved) AST (§2.12.1) — after binding expansion, Repeat desugaring, and LH propagation.
+
+#### 2.13.3 Atomic Schedule Denotations
+
+**Ratio schedules.** For `dist ∈ {Fixed, Variable, Random}` and `n ∈ ℤ⁺`:
+
+```
+⟦Atomic(dist, Ratio, n)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℤ≥0 × ValueSeq           -- (response_count, value_generator)
+    σ₀  = (0, init(dist, n))
+    δ((k, g), Response(t)) =
+        let target = current(g) in
+        if k + 1 ≥ target
+            then ((0, advance(g)), Reinforced)
+            else ((k + 1, g), None)
+    δ((k, g), Tick(t)) = ((k, g), None)
+```
+
+Where `ValueSeq` is the value generator: `current(g)` returns the target for this cycle, and `advance(g)` moves to the next cycle value. For Fixed, `current = n` always. For Variable, values follow the Fleshler-Hoffman (1962) sequence. For Random, values are sampled from a geometric distribution with mean `n`.
+
+**Interval schedules.** For `dist ∈ {Fixed, Variable, Random}` and `t ∈ ℝ⁺`:
+
+```
+⟦Atomic(dist, Interval, t)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℝ≥0 × Bool × ValueSeq   -- (elapsed, interval_elapsed, value_generator)
+    σ₀  = (0, false, init(dist, t))
+    δ((e, _, g), Tick(t')) =
+        let target = current(g) in
+        ((t' − t_last_reinforcement, t' − t_last_reinforcement ≥ target, g), None)
+    δ((e, true, g), Response(t')) =
+        ((0, false, advance(g)), Reinforced)
+    δ((e, false, g), Response(t')) =
+        ((e, false, g), None)
+```
+
+**Time schedules.** For `dist ∈ {Fixed, Variable, Random}` and `t ∈ ℝ⁺`:
+
+```
+⟦Atomic(dist, Time, t)⟧ = (Σ, σ₀, δ)  where
+    Σ   = ℝ≥0 × ValueSeq           -- (elapsed, value_generator)
+    σ₀  = (0, init(dist, t))
+    δ((e, g), Tick(t')) =
+        let target = current(g) in
+        if t' − t_last_reinforcement ≥ target
+            then ((0, advance(g)), Reinforced)
+            else ((t' − t_last_reinforcement, g), None)
+    δ((e, g), Response(t')) = ((e, g), None)
+```
+
+Note: Time schedules are response-independent — response events do not affect state transitions or outcomes.
+
+**Special schedules.**
+
+```
+⟦EXT⟧ = ({∗}, ∗, λ(∗, e). (∗, None))
+
+⟦CRF⟧ = ⟦Atomic(Fixed, Ratio, 1)⟧
+```
+
+EXT has a trivial one-state machine that never reinforces. CRF is definitionally equal to FR(1) (§1.3).
+
+#### 2.13.4 Combinator Denotations
+
+Let `⟦Sᵢ⟧ = (Σᵢ, σᵢ, δᵢ)` for each component `i`.
+
+**Product combinators** (parallel topology). These combine state spaces as Cartesian products.
+
+```
+⟦Conc(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ, (σ₁, …, σₙ), δ)  where
+    δ((s₁, …, sₙ), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        in ((s'₁, …, s'ₙ), aggregate_conc(o₁, …, oₙ))
+    aggregate_conc: each component independently reinforces its own operandum
+```
+
+```
+⟦Alt(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ, (σ₁, …, σₙ), δ)  where
+    δ((s₁, …, sₙ), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        in if ∃i. oᵢ = Reinforced
+            then ((σ₁, …, σₙ), Reinforced)    -- all components reset
+            else ((s'₁, …, s'ₙ), None)
+```
+
+```
+⟦Conj(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ × 𝒫({1..n}), (σ₁, …, σₙ, ∅), δ)  where
+    δ((s₁, …, sₙ, sat), e) =
+        let (s'ᵢ, oᵢ) = δᵢ(sᵢ, e)  for each i
+        let sat' = sat ∪ {i | oᵢ = Reinforced}
+        in if sat' = {1..n}
+            then ((σ₁, …, σₙ, ∅), Reinforced)   -- all satisfied → reinforce + reset
+            else ((s'₁, …, s'ₙ, sat'), None)
+```
+
+**Sequential combinators** (coproduct/chain topology).
+
+```
+⟦Chain(S₁, …, Sₙ)⟧ = (Σ₁ + … + Σₙ, inj₁(σ₁), δ)  where
+    δ(injₖ(sₖ), e) =
+        let (s'ₖ, oₖ) = δₖ(sₖ, e) in
+        if oₖ = Reinforced ∧ k < n
+            then (injₖ₊₁(σₖ₊₁), None)          -- advance to next link (no reinforcement)
+        else if oₖ = Reinforced ∧ k = n
+            then (inj₁(σ₁), Reinforced)          -- final link → reinforce + restart
+        else (injₖ(s'ₖ), None)
+```
+
+`⟦Tand(S₁, …, Sₙ)⟧` has identical transition structure to `Chain`. The distinction is discriminability (presence/absence of S^D), which is an environmental variable outside the schedule machine's transition function. At the denotational level:
+
+```
+⟦Tand(S₁, …, Sₙ)⟧ ≈ ⟦Chain(S₁, …, Sₙ)⟧
+```
+
+This captures the formal fact that Tand and Chain are procedurally identical from the schedule engine's perspective; their behavioral difference arises from S^D control, not from the reinforcement contingency itself. (Ferster & Skinner, 1957, Ch. 11–12.)
+
+**Alternating combinators** (switched topology).
+
+```
+⟦Mult(S₁, …, Sₙ)⟧ = (Σ₁ × … × Σₙ × ℕ, (σ₁, …, σₙ, 1), δ)  where
+    δ((s₁, …, sₙ, k), e) =
+        let (s'ₖ, oₖ) = δₖ(sₖ, e)                    -- only active component processes event
+        let s'ⱼ = sⱼ for j ≠ k                         -- inactive components frozen
+        in if oₖ = Reinforced
+            then ((s'₁, …, s'ₙ, switch(k, n)), Reinforced)   -- environment selects next
+            else ((s'₁, …, s'ₙ, k), None)
+    switch: component transition function (environment-controlled, not schedule-determined)
+```
+
+`⟦Mix(S₁, …, Sₙ)⟧` has identical structure — the Mult/Mix distinction is discriminability, parallel to Chain/Tand:
+
+```
+⟦Mix(S₁, …, Sₙ)⟧ ≈ ⟦Mult(S₁, …, Sₙ)⟧
+```
+
+#### 2.13.5 Modifier and Wrapper Denotations
+
+**LimitedHold.** Let `⟦S⟧ = (Σ_S, σ_S, δ_S)`.
+
+```
+⟦LH(d, S)⟧ = (Σ_S × LHPhase, (σ_S, Waiting), δ)  where
+    LHPhase  ::=  Waiting | HoldOpen(t_sat)
+
+    δ((s, Waiting), e) =
+        let (s', o) = δ_S(s, e) in
+        if o = Reinforced
+            then ((s', HoldOpen(time(e))), None)     -- S satisfied → open hold window
+            else ((s', Waiting), None)
+
+    δ((s, HoldOpen(t₀)), Response(t)) =
+        if t − t₀ ≤ d
+            then ((reset(s), Waiting), Reinforced)    -- response within window → deliver
+            else ((reset(s), Waiting), None)           -- window expired
+
+    δ((s, HoldOpen(t₀)), Tick(t)) =
+        if t − t₀ > d
+            then ((reset(s), Waiting), None)           -- window expired, cancel
+            else ((s, HoldOpen(t₀)), None)
+```
+
+This directly formalizes the state machine in §1.6 as a compositional denotation. The inner schedule's denotation `⟦S⟧` is embedded unchanged; LH adds a phase wrapper.
+
+**Differential reinforcement modifiers.** Let `⟦S⟧ = (Σ_S, σ_S, δ_S)`.
+
+```
+⟦DRL(t, S)⟧ = (Σ_S × ℝ≥0, (σ_S, ∞), δ)  where
+    δ((s, t_last), Response(t')) =
+        let IRT = t' − t_last in
+        let (s', o) = δ_S(s, Response(t')) in
+        if IRT ≥ t ∧ o = Reinforced
+            then ((s', t'), Reinforced)
+            else ((reset(s), t'), None)                -- IRT too short → reset
+    δ((s, t_last), Tick(t')) = let (s', _) = δ_S(s, Tick(t')) in ((s', t_last), None)
+```
+
+`DRH(t, S)` replaces the IRT condition with `IRT ≤ t`. `DRO(t)` reinforces the absence of a target response for duration `t` — its denotation is a timer-based machine independent of an inner schedule.
+
+**SecondOrder.** Let `⟦Unit⟧ = (Σ_U, σ_U, δ_U)` and `⟦Overall⟧ = (Σ_O, σ_O, δ_O)`.
+
+```
+⟦SecondOrder(Overall, Unit)⟧ = (Σ_U × Σ_O × ℕ, (σ_U, σ_O, 0), δ)  where
+    δ((u, o, c), e) =
+        let (u', o_u) = δ_U(u, e) in
+        if o_u = Reinforced                                -- unit completed
+            then let c' = c + 1 in
+                 let (o', o_o) = δ_O(o, UnitCompletion) in
+                 if o_o = Reinforced
+                     then ((σ_U, σ_O, 0), Reinforced)     -- primary reinforcement
+                     else ((σ_U, o', c'), Brief)           -- brief stimulus
+            else ((u', o, c), None)
+```
+
+This corresponds exactly to the state machine in §2.11.1, now expressed as a composition of the denotations of the unit and overall schedules.
+
+#### 2.13.6 Adequacy Theorem
+
+**Theorem 9 (Adequacy).** The denotational semantics is adequate with respect to the operational semantics: for all schedule expressions `S₁`, `S₂`:
+
+```
+S₁ ≡ S₂  ⟺  ⟦S₁⟧ ≈ ⟦S₂⟧
+```
+
+*Proof sketch.* Both relations are defined by universal quantification over event sequences. The operational `≡` (Definition 4) quantifies over observation traces `τ ∈ T` and compares `outcome(S, τ)`. The denotational `≈` (Definition 12) quantifies over event sequences `τ ∈ E*` and compares `outcomes(⟦S⟧, τ)`.
+
+(*Right-to-left*.) Suppose `⟦S₁⟧ ≈ ⟦S₂⟧`. An observation trace (Definition 2) is a finite sequence of timestamped events, which is exactly an element of `E*`. The `outcome` function of Definition 3 extracts the reinforcement decisions from a run, which is the projection of `outcomes(⟦S⟧, τ)` onto the `{Reinforced, None}` components. Therefore `outcomes(⟦S₁⟧, τ) = outcomes(⟦S₂⟧, τ)` implies `outcome(S₁, τ) = outcome(S₂, τ)` for all `τ`.
+
+(*Left-to-right*.) Suppose `S₁ ≡ S₂`. We must show that the denotational machines produce identical outcomes. By construction, `⟦S⟧` faithfully implements the operational behavior of `S`: each semantic clause (§2.13.3–§2.13.5) mirrors the corresponding operational specification (state machines in §1.6, §2.11.1, and the combinator definitions in §2.1). The canonical initial state `σ₀` of Definition 3 corresponds to the `σ₀` of each machine. Thus `outcome(S, τ) = outcomes(⟦S⟧, τ)|_{Reinforced/None}` for all `τ`, and `S₁ ≡ S₂` implies `⟦S₁⟧ ≈ ⟦S₂⟧`. ∎
+
+**Corollary (Compositionality).** If `S₁ ≡ S₂`, then for any context `C[_]` (a schedule expression with a hole), `C[S₁] ≡ C[S₂]`. This follows from the compositional structure of `⟦_⟧`: each combinator clause builds the compound machine from the component machines, so replacing a component with an extensionally equivalent machine yields an extensionally equivalent compound.
+
+#### 2.13.7 Example: Denotational Proofs
+
+The denotational framework simplifies several proofs by reducing them to algebraic calculations on machines.
+
+**Theorem 3 (re-derived): `Alt(S, EXT) ≡ S`.**
+
+```
+⟦Alt(S, EXT)⟧ = (Σ_S × {∗}, (σ_S, ∗), δ)  where
+    δ((s, ∗), e) =
+        let (s', o) = δ_S(s, e) in
+        let (∗, None) = δ_EXT(∗, e) in      -- EXT never reinforces
+        if o = Reinforced
+            then ((σ_S, ∗), Reinforced)
+            else ((s', ∗), None)
+```
+
+The `{∗}` component is inert — it contributes no information and never triggers reinforcement. The machine's behavior is entirely determined by `⟦S⟧`. Formally, projecting away the `{∗}` component yields a machine isomorphic to `⟦S⟧`. Therefore `⟦Alt(S, EXT)⟧ ≈ ⟦S⟧`, and by adequacy, `Alt(S, EXT) ≡ S`. ∎
+
+**Theorem 4 (re-derived): `Conj(S, EXT) ≡ EXT`.**
+
+```
+⟦Conj(S, EXT)⟧ = (Σ_S × {∗} × 𝒫({1,2}), (σ_S, ∗, ∅), δ)
+```
+
+For the conjunction to reinforce, both components must be satisfied. Since `δ_EXT` never produces `Reinforced`, `2 ∉ sat'` for all traces. Therefore `sat' ≠ {1, 2}` always, and the machine never reinforces. This is extensionally equivalent to `⟦EXT⟧`. ∎
+
+**Theorem 7 (re-derived): `Repeat(m, Repeat(n, S)) ≡ Repeat(m × n, S)`.**
+
+After desugaring, `Repeat(m, Repeat(n, S))` becomes `Tand(Tand(S,…,S), …, Tand(S,…,S))` (m copies of n-ary Tand). The Chain/Tand denotation uses a coproduct of state spaces with sequential advancement. By associativity of coproduct sequencing:
+
+```
+⟦Tand(Tand(S₁,…,Sₙ), Tand(Sₙ₊₁,…,S₂ₙ))⟧
+    ≈ ⟦Tand(S₁,…,Sₙ, Sₙ₊₁,…,S₂ₙ)⟧
+```
+
+This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
+
+**References.**
+
+- Scott, D., & Strachey, C. (1971). Toward a mathematical semantics for computer languages. *Proceedings of the Symposium on Computers and Automata*, Polytechnic Institute of Brooklyn, 19–46.
+- Stoy, J. E. (1977). *Denotational Semantics: The Scott-Strachey Approach to Programming Language Theory*. MIT Press.
+- Wadler, P. (1992). The essence of functional programming. In *Proceedings of POPL '92* (pp. 1–14). ACM. https://doi.org/10.1145/143165.143169
 
 ---
 
