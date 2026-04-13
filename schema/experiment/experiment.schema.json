@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contingency-dsl-experiment",
+  "title": "contingency-dsl Experiment",
+  "description": "Experiment and Paper wrapper nodes. An Experiment groups a single-schedule Program or a multi-phase PhaseSequence under a label (e.g., 'Experiment 1'). A Paper groups multiple Experiments as they appear in a single publication.",
+
+  "$defs": {
+
+    "Experiment": {
+      "type": "object",
+      "description": "A single experiment within a paper. Body is either a Program (single-schedule design) or a PhaseSequence (multi-phase design). Each Experiment has independent annotations — JEAB convention is to describe Subjects and Apparatus independently per experiment.",
+      "properties": {
+        "type": { "const": "Experiment" },
+        "label": {
+          "type": "string",
+          "description": "Experiment label as it appears in the paper. Examples: 'Experiment 1', 'Experiment 2a'."
+        },
+        "body": {
+          "oneOf": [
+            { "$ref": "../core/ast.schema.json#/$defs/Program" },
+            { "$ref": "phase-sequence.schema.json#/$defs/PhaseSequence" }
+          ],
+          "description": "Single-schedule (Program) or multi-phase (PhaseSequence) experimental design."
+        }
+      },
+      "required": ["type", "label", "body"],
+      "additionalProperties": false
+    },
+
+    "Paper": {
+      "type": "object",
+      "description": "A publication containing one or more experiments. Experiments are independent — no annotation sharing between them.",
+      "properties": {
+        "type": { "const": "Paper" },
+        "experiments": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Experiment" },
+          "minItems": 1
+        }
+      },
+      "required": ["type", "experiments"],
+      "additionalProperties": false
+    }
+  }
+}

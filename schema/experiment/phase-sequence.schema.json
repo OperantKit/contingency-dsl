@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contingency-dsl-phase-sequence",
+  "title": "contingency-dsl Phase Sequence",
+  "description": "Multi-phase experimental design. Additive to Core — does not modify existing Core definitions. Phase Sequences represent ordered phase transitions common in JEAB experimental procedures (e.g., acquisition-extinction-test in renewal paradigms).",
+
+  "$defs": {
+
+    "PhaseSequence": {
+      "type": "object",
+      "description": "Ordered sequence of experimental phases. Each Phase inherits shared_annotations unless overridden by phase_annotations. This models the JEAB convention where Subjects and Apparatus sections are written once and Procedure describes each phase sequentially.",
+      "properties": {
+        "type": { "const": "PhaseSequence" },
+        "shared_annotations": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "description": "Experiment-level annotation defaults (species, strain, n, chamber, operandum, reinforcer, session_end, context, etc.). All Phases inherit these unless a Phase provides a phase_annotation with the same keyword."
+        },
+        "shared_param_decls": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" },
+          "description": "Experiment-level parameter defaults (LH, COD, BO, etc.). Phase-level param_decls override by name."
+        },
+        "phases": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Phase" },
+          "minItems": 2,
+          "description": "Ordered phase list. The last phase is terminal (no criterion). minItems=2 because a single phase is just a Program."
+        }
+      },
+      "required": ["type", "phases"],
+      "additionalProperties": false
+    },
+
+    "Phase": {
+      "type": "object",
+      "description": "A single experimental phase. Contains the active contingency (schedule) and an optional phase-change criterion. Annotations not specified here are inherited from PhaseSequence.shared_annotations.",
+      "properties": {
+        "type": { "const": "Phase" },
+        "label": {
+          "type": "string",
+          "description": "Human-readable phase name as used in JEAB Procedure sections. Examples: 'Acquisition', 'Extinction', 'Renewal Test', 'Baseline', 'Treatment', 'Reversal'."
+        },
+        "schedule": {
+          "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "The reinforcement schedule active during this phase. Any valid contingency-dsl ScheduleExpr (Atomic, Compound, Special, Modifier, etc.)."
+        },
+        "phase_annotations": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "description": "Phase-specific annotation overrides or additions. Resolution: same keyword as shared_annotations → override; new keyword → add for this phase only. Typical overrides: context (renewal), session_end (extinction phases often change termination rules)."
+        },
+        "phase_param_decls": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" },
+          "description": "Phase-specific parameter overrides. Same name as shared_param_decls → override."
+        },
+        "criterion": {
+          "$ref": "#/$defs/Criterion",
+          "description": "Phase-change criterion: the condition under which this phase ends and the next phase begins. Absent on the terminal (last) phase. Corresponds to what JEAB papers describe as stability criteria, fixed session counts, or performance criteria."
+        }
+      },
+      "required": ["type", "label", "schedule"],
+      "additionalProperties": false
+    },
+
+    "Criterion": {
+      "description": "Phase-change criterion. Determines when the current phase ends and the next begins. Discriminated union on the 'type' field.",
+      "oneOf": [
+        { "$ref": "#/$defs/Stability" },
+        { "$ref": "#/$defs/FixedSessions" },
+        { "$ref": "#/$defs/PerformanceCriterion" },
+        { "$ref": "#/$defs/CumulativeReinforcements" },
+        { "$ref": "#/$defs/ExperimenterJudgment" }
+      ]
+    },
+
+    "Stability": {
+      "type": "object",
+      "description": "Steady-state stability criterion. The most common phase-change criterion in JEAB basic research. Example: 'Stability was judged when response rate varied less than 10% across 5 consecutive sessions, with a minimum of 20 sessions.'",
+      "properties": {
+        "type": { "const": "Stability" },
+        "window_sessions": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Number of consecutive sessions evaluated for stability."
+        },
+        "max_change_pct": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum percent change in the measured variable across the window. 10 means <=10% variation."
+        },
+        "measure": {
+          "type": "string",
+          "enum": ["rate", "iri", "latency", "reinforcers"],
+          "description": "Behavioral measure evaluated for stability. rate = responses per unit time. iri = inter-reinforcement interval. latency = response latency. reinforcers = reinforcements per session."
+        },
+        "min_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum total sessions in the phase before the stability check is applied. Prevents premature phase changes due to initial low variability."
+        }
+      },
+      "required": ["type", "window_sessions", "max_change_pct", "measure"],
+      "additionalProperties": false
+    },
+
+    "FixedSessions": {
+      "type": "object",
+      "description": "Fixed session count. The phase lasts exactly N sessions regardless of behavior. Example: 'This phase lasted 10 sessions.' Common in extinction phases and probe/test phases.",
+      "properties": {
+        "type": { "const": "FixedSessions" },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of sessions in this phase."
+        }
+      },
+      "required": ["type", "count"],
+      "additionalProperties": false
+    },
+
+    "PerformanceCriterion": {
+      "type": "object",
+      "description": "Behavior-dependent phase change based on a performance threshold. Example: 'until responding fell below 1 resp/min for 3 consecutive sessions.' Common in discrimination training and applied research.",
+      "properties": {
+        "type": { "const": "PerformanceCriterion" },
+        "measure": {
+          "type": "string",
+          "enum": ["rate", "count", "latency", "iri"],
+          "description": "Behavioral measure to evaluate."
+        },
+        "threshold": {
+          "type": "number",
+          "description": "Threshold value for the measure."
+        },
+        "op": {
+          "type": "string",
+          "enum": ["<", "<=", ">", ">="],
+          "description": "Comparison operator. '<' means 'measure falls below threshold'."
+        },
+        "window_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of consecutive sessions that must meet the criterion. Default interpretation: 1 (single session suffices)."
+        }
+      },
+      "required": ["type", "measure", "threshold", "op"],
+      "additionalProperties": false
+    },
+
+    "CumulativeReinforcements": {
+      "type": "object",
+      "description": "Phase change after a cumulative number of reinforcers across sessions. Example: 'Training continued until 300 reinforcers were earned.'",
+      "properties": {
+        "type": { "const": "CumulativeReinforcements" },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total reinforcers across all sessions in this phase."
+        }
+      },
+      "required": ["type", "count"],
+      "additionalProperties": false
+    },
+
+    "ExperimenterJudgment": {
+      "type": "object",
+      "description": "Phase change at the experimenter's discretion. No formal criterion. Example: 'Phase changes were made at the experimenter's discretion.' Common in older JEAB literature and some applied settings.",
+      "properties": {
+        "type": { "const": "ExperimenterJudgment" }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    }
+  },
+
+  "$ref": "#/$defs/PhaseSequence"
+}
