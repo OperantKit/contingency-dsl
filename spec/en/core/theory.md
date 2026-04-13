@@ -628,6 +628,30 @@ Overlay(VI 60-s, FR 1)
 punishment (e.g., changeover-only punishment; Todorov, 1971) is planned for
 v1.y.
 
+### 2.11 Second-Order Schedules
+
+A **second-order schedule** composes two atomic schedules into two hierarchical roles (Kelleher, 1966; Kelleher & Fry, 1962):
+
+- **Unit schedule** — the inner schedule that defines a *derived response unit*. Each completion of the unit schedule counts as one unit.
+- **Overall schedule** — the outer schedule that arranges reinforcement contingent on unit completions.
+
+```
+SecondOrder = Overall(Unit)
+Overall     = AtomicSchedule          -- parametric only (no EXT, CRF)
+Unit        = AtomicSchedule          -- simple schedules only (v1.0)
+```
+
+**Syntax example.** `FR5(FI30)` means: treat each completion of FI 30-s as one unit; reinforce after 5 such unit completions.
+
+**Critical semantic constraint.** In the overall position, the `value` field is always interpreted as a **unit completion count** — the number of times the unit schedule must be completed — *not* as an individual response count. A standalone `FR5` counts 5 individual responses; `FR5(FI30)` counts 5 completions of FI 30-s. The notation is intentionally shared, but the operand differs: the overall schedule operates on the derived response unit defined by the unit schedule (Kelleher & Fry, 1962, p. 544).
+
+This distinction is procedurally essential. If the overall were interpreted as a response count, `FR5(FI30)` would reduce to a simple FR 5 that happens to ignore the unit schedule — a degenerate and experimentally meaningless arrangement.
+
+**References.**
+
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *Journal of the Experimental Analysis of Behavior*, 9(5), 475-485. https://doi.org/10.1901/jeab.1966.9-475
+- Kelleher, R. T., & Fry, W. (1962). Stimulus functions in chained fixed-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(2), 167-173. https://doi.org/10.1901/jeab.1962.5-167
+
 ---
 
 ## References

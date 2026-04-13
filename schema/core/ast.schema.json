@@ -255,11 +255,17 @@
 
     "SecondOrder": {
       "type": "object",
-      "description": "Second-order schedule. FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple schedule (v1.0).",
+      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple schedule (v1.0). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
       "properties": {
         "type": { "const": "SecondOrder" },
-        "overall": { "$ref": "#/$defs/Atomic" },
-        "unit": { "$ref": "#/$defs/Atomic" }
+        "overall": {
+          "description": "The outer schedule that arranges reinforcement contingent on unit completions. Its value field is always interpreted as a unit completion count, not an individual response count (see spec/en/core/theory.md §2.11).",
+          "$ref": "#/$defs/Atomic"
+        },
+        "unit": {
+          "description": "The inner schedule that defines the derived response unit. Each completion of this schedule counts as one unit for the overall schedule.",
+          "$ref": "#/$defs/Atomic"
+        }
       },
       "required": ["type", "overall", "unit"],
       "additionalProperties": false

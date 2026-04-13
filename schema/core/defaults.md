@@ -115,6 +115,26 @@ References:
 - Bouton, M. E. (2004). Context and behavioral processes in extinction.
   *Learning & Memory*, 11, 485-494.
 
+## Second-order schedules
+
+In a second-order schedule `OVERALL(UNIT)`, the overall schedule's `value`
+is always a **unit completion count**, not an individual response count.
+
+| Written | Overall value means | Unit value means |
+|---------|---------------------|------------------|
+| `FR5(FI30)` | 5 completions of FI 30-s | 30-s interval (standard) |
+| `FI120s(FR10)` | first unit completion after 120 s | 10 responses (standard) |
+| `VI60s(FR10)` | first unit completion after ≈60 s | 10 responses (standard) |
+
+A standalone `FR5` counts 5 individual responses. `FR5(FI30)` counts 5
+completions of FI 30-s. The notation is shared, but the operand differs:
+the overall schedule operates on the derived response unit defined by the
+unit schedule (Kelleher & Fry, 1962).
+
+Reference: Kelleher, R. T., & Fry, W. (1962). Stimulus functions in
+chained fixed-interval schedules. *JEAB*, 5(2), 167-173.
+https://doi.org/10.1901/jeab.1962.5-167
+
 ## Lag schedule (v1.x)
 
 **v1.x:** `Lag` is a differential reinforcement modifier for operant
