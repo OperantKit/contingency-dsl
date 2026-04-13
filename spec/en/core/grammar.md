@@ -283,3 +283,24 @@ let baseline = VI 60-s
 let probe = Conc(VI 30-s, VI 60-s)
 Conc(baseline, probe)
 ```
+
+## 3.7 Error Recovery Policy
+
+Conforming parsers MUST follow this error recovery policy:
+
+**Error reporting requirements (MUST):**
+- Report at least one error with its error code, position (line and column), and error category (`LexError`, `ParseError`, or `SemanticError`).
+- The error code MUST match one of the codes defined in `conformance/core/errors.json`.
+
+**Multiple error recovery (SHOULD):**
+- Parsers SHOULD implement **panic-mode recovery** (Aho et al., 2006, §4.8.2): upon detecting an error, discard input tokens until a synchronization token is reached, then resume parsing.
+- Synchronization tokens: `)`, `,`, newline (`\n`), `EOF`.
+- Report all detected errors as a list, ordered by position.
+
+**Partial AST (MUST NOT):**
+- Parsers MUST NOT return a partial AST when errors are present. On error, the result is an error list with no AST.
+
+**Error limits (MAY):**
+- Parsers MAY stop after a configurable maximum number of errors (recommended default: 10) to prevent cascading error noise.
+
+**Rationale.** Single-error-then-stop forces users to fix one error at a time, which is unacceptable for a DSL where a single misplaced character can mask downstream issues. Panic-mode recovery is the simplest strategy that enables multi-error reporting while avoiding the complexity of phrase-level or error-production recovery (Aho et al., 2006, §4.8).

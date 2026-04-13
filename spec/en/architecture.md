@@ -351,7 +351,7 @@ annotator reorganization established this correspondence.
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | Session-level temporal parameters |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (renamed from `subject-annotator` on 2026-04-12 to match JEAB plural heading) |
 | `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | Session termination rules, baseline conditions, steady-state criteria (v1.x minimal set; introduced 2026-04-12 to close DIVERGENCE C). |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | Session termination rules, baseline conditions, steady-state criteria (v1.0); dependent variables, training volume, response microstructure (v1.1); phase termination, event logging, IRI analysis, warmup exclusion (v1.2). Introduced 2026-04-12; v1.2 complete 2026-04-14. |
 
 **Extensions** (outside the four JEAB categories, under `annotations/extensions/`):
 
@@ -399,9 +399,13 @@ contingency-dsl (base CFG)
         │     + @chamber, @operandum, @interface, @hardware annotations
         │     + Physical chamber, response device, HW interface identity
         │
-        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12)
-        │     + @session_end, @baseline, @steady_state annotations (v1.x minimal set)
-        │     + Session termination, baseline, steady-state criteria
+        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12, v1.2 complete 2026-04-14)
+        │     + v1.0: @session_end, @baseline, @steady_state
+        │     + v1.1: @dependent_measure, @training_volume, @microstructure
+        │     + v1.2: @phase_end, @logging, @iri_window, @warmup_exclude
+        │     + Session termination, baseline, steady-state, DV declaration,
+        │     + training exposure tracking, response microstructure analysis,
+        │     + phase termination, event logging, IRI analysis, warmup exclusion
         │
         └── extensions/ (outside the four JEAB categories)
               │
@@ -532,6 +536,8 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 
 -- measurement-annotator adds:
 <annotation_name>      ::= "session_end" | "baseline" | "steady_state"
+                          | "dependent_measure" | "training_volume" | "microstructure"
+                          | "phase_end" | "logging" | "iri_window" | "warmup_exclude"
 
 -- extensions/social-annotator adds:
 <annotation_name>      ::= "subject" | "interlocking"
@@ -600,7 +606,15 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 | Physical chamber | Not modeled | — | — | — | `@chamber("ENV-007")` | — | — | — |
 | Hardware backend | Not modeled | — | — | — | `@hardware("teensy41")` | — | — | — |
 | Session termination | Not modeled | — | — | — | — | `@session_end` | — | — |
+| Baseline measurement | Not modeled | — | — | — | — | `@baseline` | — | — |
 | Steady-state criterion | Not modeled | — | — | — | — | `@steady_state` | — | — |
+| Dependent variables | Not modeled | — | — | — | — | `@dependent_measure` | — | — |
+| Training volume | Not modeled | — | — | — | — | `@training_volume` | — | — |
+| Response microstructure | Not modeled | — | — | — | — | `@microstructure` | — | — |
+| Phase termination | Not modeled | — | — | — | — | `@phase_end` | — | — |
+| Event logging | Not modeled | — | — | — | — | `@logging` | — | — |
+| IRI analysis | Not modeled | — | — | — | — | `@iri_window` | — | — |
+| Warmup exclusion | Not modeled | — | — | — | — | `@warmup_exclude` | — | — |
 | Behavior function | Not modeled | — | — | — | — | — | — | `@function("escape")` |
 | Replacement behavior | Not modeled | — | — | — | — | — | — | `@replacement("mand")` |
 
