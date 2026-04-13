@@ -565,5 +565,14 @@
       "type": "SemanticError",
       "code": "DUPLICATE_INTERPOLATE_KW_ARG"
     }
+  },
+  {
+    "id": "error_repeat_zero",
+    "description": "Repeat(0, S) is invalid — zero repetitions has no behavioral meaning (Issue #34)",
+    "input": "Repeat(0, FR5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "REPEAT_ZERO_COUNT"
+    }
   }
 ]
