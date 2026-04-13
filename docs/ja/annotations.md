@@ -43,16 +43,22 @@ Conc(VI 30-s, VI 60-s)
 
 同一のアノテーションキーワードが両レベルに現れた場合、スケジュールレベルの値がプログラムレベルのデフォルトを上書きする。
 
-### 漸進的付加
+### 漸進的付加と Validation Mode
 
-同じスケジュール式が、理論から出版まで段階的に情報を蓄える:
+同じスケジュール式が、理論から出版まで段階的に情報を蓄える。各段階は **validation mode** に対応し、その時点で必要な情報のみを検証する:
 
-| 文脈 | 式 | 必要なアノテーション |
-|------|-----|-------------------|
-| 理論的議論 | `FI 10` | なし |
-| シミュレーション | `@clock(unit="s")` + `FI 10 @algorithm("fleshler-hoffman")` | temporal |
-| 物理実験 | `@species(...)` `@chamber(...)` + `FI 10 @operandum(...) @reinforcer(...)` | 4種全て |
-| 論文出版 | 上記全て | 完全 — Methods セクションにコンパイル可能 |
+| 文脈 | 式 | Validation Mode | Tier |
+|------|-----|----------------|------|
+| 理論議論 | `FR 5` | `parse` | Tier 0 のみ |
+| シミュレーション | + `@clock(unit="s")` `@algorithm(...)` | `dev` | Tier 0-1 |
+| 物理実験 | + `@hardware("teensy41")` `@session_end(...)` `@response(...)` `@operandum(...)` | `production` | Tier 0-2 |
+| 論文出版 | + `@species(...)` `@strain(...)` `@chamber(...)` `@n(...)` | `publication` | Tier 0-3 |
+
+**核心の保証:** `FR 5` 単体は*すべての*モードで常に通る。parser はアノテーションを決して要求しない。`production` と `publication` の validator が、作業段階に応じて段階的に厳格な要求を課す。
+
+授業での議論のために `FR 5` を書く学生は `@species` や `@response` に遭遇しない。物理装置を接続するとき（Tier 2）、Methods セクションを生成するとき（Tier 3）に初めてそれらの要求が自然に現れる。
+
+Tier と Mode の完全な仕様は [validation-modes.md](../../spec/ja/annotations/validation-modes.md) を参照。
 
 ---
 
@@ -113,7 +119,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - 条件性刺激の学習履歴 → ランタイム状態であり宣言ではない
 
 **引用:**
-- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475（条件性強化子としての brief stimulus）
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475（条件性強化子として機能する brief stimulus）
 
 ---
 

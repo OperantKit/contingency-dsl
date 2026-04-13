@@ -43,16 +43,22 @@ Conc(VI 30-s, VI 60-s)
 
 If the same annotation keyword appears at both levels, the schedule-level value overrides the program-level default for that expression.
 
-### Progressive Enrichment
+### Progressive Enrichment and Validation Modes
 
-The same schedule expression grows richer as it moves from theory to publication:
+The same schedule expression grows richer as it moves from theory to publication. Each stage corresponds to a **validation mode** that checks only what's needed at that point:
 
-| Context | Expression | Annotations Needed |
-|---------|-----------|-------------------|
-| Theoretical discussion | `FI 10` | None |
-| Simulation | `@clock(unit="s")` + `FI 10 @algorithm("fleshler-hoffman")` | temporal |
-| Physical experiment | `@species(...)` `@chamber(...)` + `FI 10 @operandum(...) @reinforcer(...)` | All four |
-| Paper publication | All of the above | Full — compiles to Methods section |
+| Context | Expression | Validation Mode | Tier |
+|---------|-----------|----------------|------|
+| Theoretical discussion | `FR 5` | `parse` | Tier 0 only |
+| Simulation | + `@clock(unit="s")` `@algorithm(...)` | `dev` | Tier 0-1 |
+| Physical experiment | + `@hardware("teensy41")` `@session_end(...)` `@response(...)` `@operandum(...)` | `production` | Tier 0-2 |
+| Paper publication | + `@species(...)` `@strain(...)` `@chamber(...)` `@n(...)` | `publication` | Tier 0-3 |
+
+**Key guarantee:** `FR 5` alone always passes *every* mode. Annotations are never required by the parser. Instead, `production` and `publication` validators enforce progressively stricter requirements depending on the stage of work.
+
+A student writing `FR 5` for a class discussion never encounters `@species` or `@response`. Those requirements appear naturally when connecting physical hardware (Tier 2) or compiling a Methods section (Tier 3).
+
+For the full specification of tiers and modes, see [validation-modes.md](../../spec/en/annotations/validation-modes.md).
 
 ---
 
@@ -114,7 +120,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Learning history of conditioned stimuli → runtime state, not a declaration
 
 **Reference:**
-- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475 (brief stimulus as conditioned reinforcer)
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *JEAB*, *9*, 475. https://doi.org/10.1901/jeab.1966.9-475 (brief stimulus functioning as conditioned reinforcer)
 
 ---
 
