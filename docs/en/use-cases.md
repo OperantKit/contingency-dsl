@@ -75,7 +75,7 @@ FI 600-s(FR 10)
 
 1. **Infrequent drug delivery** — too-frequent dosing saturates the pharmacological effect and prevents behavioral analysis
 2. **Stable responding throughout** — without conditioned reinforcers, behavior collapses during long inter-reinforcement intervals
-3. **Structured behavioral patterns** — the unit-level scalloping reveals motivational dynamics that a simple FR or FI cannot show
+3. **Structured behavioral patterns** — the unit-level scalloping reveals motivating-operation dynamics that a simple FR or FI cannot show
 
 Second-order schedules solve all three problems. The brief stimulus acts as a conditioned reinforcer, bridging the gap between infrequent primary reinforcement episodes. Kelleher (1966) demonstrated that even with reinforcement as rare as once per 60 minutes (30 × FI 2-min), the brief stimulus alone maintained orderly, scalloped responding in each FI component.
 
@@ -133,7 +133,7 @@ Now the response must come between 20-s and 25-s after the previous response. To
 
 ---
 
-## 7. Progressive Ratio for Motivation Assessment
+## 7. Progressive Ratio for Reinforcer Efficacy Assessment
 
 **Scenario:** Measuring how "hard" an organism will work for a reinforcer (breakpoint analysis).
 

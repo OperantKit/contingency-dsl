@@ -163,7 +163,7 @@ VI 30-s
 
 ### 3. subjects-annotator — Who Is the Subject?
 
-Declares **biological and motivational conditions** of the experimental subject.
+Declares **biological conditions and motivating operations (MOs)** of the experimental subject.
 
 | Keyword | Purpose | Example |
 |---------|---------|---------|
@@ -189,7 +189,7 @@ FR 5
 - Cross-experiment comparison: filter by species, deprivation level
 
 **`@deprivation` is an establishing operation (EO):**
-In behavior analysis terminology, food deprivation is an establishing operation that increases the reinforcing efficacy of food and evokes food-seeking behavior (Michael, 1982). The annotation captures this motivational variable as a procedural declaration, not an internal state attribution.
+In behavior analysis terminology, food deprivation is an establishing operation that increases the reinforcing efficacy of food and evokes food-seeking behavior (Michael, 1982). The annotation captures this motivating operation (MO; Laraway et al., 2003) as a procedural declaration, not an internal state attribution.
 
 **What does NOT belong here:**
 - Internal state attributions ("anxiety level", "motivation") → mentalist terms; use `@deprivation` or `@history` instead
