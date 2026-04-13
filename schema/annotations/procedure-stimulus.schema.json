@@ -63,6 +63,85 @@
         }
       },
       "reference": null
+    },
+    "stimulus_classes": {
+      "description": "Stimulus class definitions for arbitrary MTS. Each class is a named set of stimuli. Defines the class function κ that maps stimuli to class membership.",
+      "scope": ["program", "schedule"],
+      "positional": {
+        "type": "integer",
+        "minimum": 2,
+        "required": false,
+        "description": "Shorthand: number of classes (class labels auto-generated)"
+      },
+      "params": {
+        "_variadic_named": {
+          "type": "array_of_string",
+          "description": "Named classes: A=[\"A1\",\"A2\"], B=[\"B1\",\"B2\"], ..."
+        }
+      },
+      "required_if_note": "Required when MTS type=arbitrary (linter W4). Forbidden context: type=identity triggers linter W3.",
+      "errors": {
+        "STIMULUS_CLASSES_TOO_FEW": "Must define at least 2 classes",
+        "STIMULUS_CLASSES_EMPTY_CLASS": "Each class must contain at least 1 stimulus",
+        "STIMULUS_CLASSES_DUPLICATE_STIMULUS": "Same stimulus identity in multiple classes"
+      },
+      "reference": "Sidman, M., & Tailby, W. (1982). Conditional discrimination vs. matching to sample: An expansion of the testing paradigm. Journal of the Experimental Analysis of Behavior, 37(1), 5-22. https://doi.org/10.1901/jeab.1982.37-5"
+    },
+    "training": {
+      "description": "Training phase configuration for MTS. Specifies which stimulus relations to train and mastery criteria.",
+      "scope": ["schedule"],
+      "positional": null,
+      "params": {
+        "relations": {
+          "type": "array_of_string",
+          "required": true,
+          "description": "Relation labels to train (e.g., [\"AB\", \"BC\"])"
+        },
+        "criterion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "required": false,
+          "description": "Mastery criterion as percent correct (e.g., 90)"
+        },
+        "consecutive_blocks": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "default": 1,
+          "description": "Number of consecutive blocks meeting criterion required"
+        }
+      },
+      "errors": {
+        "TRAINING_EMPTY_RELATIONS": "relations must contain at least 1 element",
+        "TRAINING_INVALID_CRITERION": "criterion must be 0-100"
+      },
+      "reference": "Sidman, M. (1971). Reading and auditory-visual equivalences. Journal of Speech and Hearing Research, 14(1), 5-13."
+    },
+    "testing": {
+      "description": "Testing phase configuration for MTS. Specifies which relations to test and probe parameters.",
+      "scope": ["schedule"],
+      "positional": null,
+      "params": {
+        "relations": {
+          "type": "array_of_string",
+          "required": true,
+          "description": "Relation labels to test (e.g., [\"BA\", \"CA\", \"BC\", \"CB\"])"
+        },
+        "probe_ratio": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "required": false,
+          "default": 1.0,
+          "description": "Proportion of probe (unreinforced) trials (1.0 = all probes)"
+        }
+      },
+      "errors": {
+        "TESTING_EMPTY_RELATIONS": "relations must contain at least 1 element",
+        "TESTING_INVALID_PROBE_RATIO": "probe_ratio must be 0-1"
+      },
+      "reference": "Sidman, M., & Tailby, W. (1982). Conditional discrimination vs. matching to sample: An expansion of the testing paradigm. Journal of the Experimental Analysis of Behavior, 37(1), 5-22. https://doi.org/10.1901/jeab.1982.37-5"
     }
   }
 }
