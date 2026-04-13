@@ -81,6 +81,7 @@
     },
 
     "ScheduleExpr": {
+      "description": "Discriminated union of schedule expression types. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed (bindings resolved, Repeat desugared to Tand). (3) Resolved: post-expansion + LH default propagation applied (§1.6.1). Conformance tests use 'expected' for phase 1/2 and 'resolved' for phase 3.",
       "oneOf": [
         { "$ref": "#/$defs/Atomic" },
         { "$ref": "#/$defs/Special" },
@@ -89,7 +90,7 @@
         { "$ref": "#/$defs/LimitedHold" },
         { "$ref": "#/$defs/SecondOrder" },
         { "$ref": "#/$defs/AversiveSchedule" },
-        { "$ref": "#/$defs/IdentifierRef" }
+        { "$ref": "#/$defs/IdentifierRef", "$comment": "Pre-expansion only. Absent in post-expansion and resolved ASTs." }
       ]
     },
 
@@ -264,8 +265,8 @@
           "type": "string",
           "enum": ["hodos", "exponential", "linear"]
         },
-        "pr_start": { "type": "number", "exclusiveMinimum": 0 },
-        "pr_increment": { "type": "number", "exclusiveMinimum": 0 }
+        "pr_start": { "type": "integer", "minimum": 1 },
+        "pr_increment": { "type": "integer", "minimum": 1 }
       },
       "required": ["type", "modifier", "pr_step"],
       "additionalProperties": false
@@ -273,11 +274,11 @@
 
     "RepeatModifier": {
       "type": "object",
-      "description": "Repeat(n, S) — syntactic sugar for Tand(S, ..., S) [n copies]. Desugared during semantic analysis.",
+      "description": "Repeat(n, S) — syntactic sugar for Tand(S, ..., S) [n copies]. Pre-expansion only: desugared to Compound(Tand) during semantic analysis. Absent in post-expansion and resolved ASTs.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Repeat" },
-        "value": { "type": "number", "minimum": 1 },
+        "value": { "type": "integer", "minimum": 1 },
         "inner": { "$ref": "#/$defs/ScheduleExpr" }
       },
       "required": ["type", "modifier", "value", "inner"],

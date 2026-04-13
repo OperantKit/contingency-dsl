@@ -624,3 +624,20 @@ string_literal     ::= '"' [^"]* '"'
 ;     does not accept directional form (grammar enforces: param_decl uses
 ;     scalar value only). Program-level COD provides a symmetric base;
 ;     expression-level directional COD overrides specific directions.
+; 60. Repeat(n, S): n must be a positive integer (≥ 1, no fractional part).
+;     `Repeat(1.5, FR5)` → SemanticError (REPEAT_NON_INTEGER_COUNT).
+;     `Repeat(0, FR5)` → SemanticError (REPEAT_ZERO_COUNT) [constraint per Issue #34].
+;     Rationale: Repeat(n, S) desugars to Tand(S, ..., S) with n copies.
+;     A fractional copy count has no behavioral meaning. The grammar's
+;     `number` production accepts decimals, so this constraint is post-parse.
+;     This matches ast.schema.json type=integer, minimum=1 on RepeatModifier.value.
+; 61. PR modifier: pr_start and pr_increment must be positive integers (≥ 1)
+;     when specified.
+;     `PR(linear, start=1.5, increment=5)` → SemanticError (PR_NON_INTEGER_VALUE).
+;     `PR(linear, start=1, increment=2.5)` → SemanticError (PR_NON_INTEGER_VALUE).
+;     `PR 0.5` (shorthand) → SemanticError (PR_NON_INTEGER_VALUE).
+;     Rationale: PR start and increment represent response counts (ratio
+;     requirements) which are inherently discrete. The behavioral pharmacology
+;     convention (Hodos, 1961; Richardson & Roberts, 1996) uses integer
+;     progressions exclusively. This matches ast.schema.json type=integer,
+;     minimum=1 on PRModifier.pr_start and PRModifier.pr_increment.

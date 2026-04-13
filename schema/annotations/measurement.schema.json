@@ -5,7 +5,7 @@
   "description": "JEAB Measurement category. Declares when and how the effect of the Core contingency is read: session termination rules, steady-state criteria, and baseline measurement conditions.",
   "category": "Measurement",
   "version": "1.2",
-  "status": "Schema Design",
+  "status": "Stable",
 
   "keywords": {
     "session_end": {
@@ -297,7 +297,8 @@
         "PHASE_END_UNKNOWN_RULE": "rule value not in enum",
         "PHASE_END_NO_CRITERIA": "at least one criterion (min_sessions, max_sessions, stability, min_reinforcers, cv_threshold) must be specified",
         "PHASE_END_MAX_LESS_THAN_MIN": "max_sessions must be >= min_sessions",
-        "PHASE_END_UNKNOWN_STABILITY": "stability value not in enum"
+        "PHASE_END_UNKNOWN_STABILITY": "stability value not in enum",
+        "PHASE_END_MISSING_STEADY_STATE": "stability=steady_state requires @steady_state to be declared in the same program"
       },
       "reference": "Sidman, M. (1960). Tactics of scientific research: Evaluating experimental data in psychology. Basic Books."
     },
