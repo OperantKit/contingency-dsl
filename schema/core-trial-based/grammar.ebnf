@@ -140,3 +140,35 @@ mts_type      ::= "identity" | "arbitrary"
 ;
 ; Combinators (Conc, Mult, Chain, etc.) are syntactically permitted.
 ; Semantically inappropriate combinations are flagged by Linter WARNINGs.
+
+; === Limited Hold (LH) compatibility ===
+;
+; LH IS compatible with trial-based schedules. Unlike DRL/DRH/DRO/Pctl/Lag,
+; LH does not assume a free-operant response stream. Instead, it constrains
+; the response window within the COMPARISON state of the trial.
+;
+; Syntax:
+;   MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s
+;
+; Semantics:
+;   If the subject does not emit a comparison selection within the LH
+;   duration after comparison onset, the trial terminates and the
+;   `incorrect` schedule is executed (omission = incorrect).
+;
+; This is a standard procedure in MTS research:
+;   "A limited hold of 10 s was in effect for comparison responding;
+;    if no response occurred, the trial was scored as incorrect."
+;
+; Rationale for compatibility:
+;   LH restricts the availability of a response opportunity. In
+;   free-operant schedules, it restricts the post-criterion window.
+;   In trial-based schedules, it restricts the COMPARISON state window.
+;   Both are time-limited response opportunities — the same concept
+;   applied to different response opportunity structures.
+;
+; W6. LH on MTS with LH < ITI is legal but: no linter warning.
+; W7. LH on MTS with LH > 5min → Linter WARNING (MTS_LONG_LH).
+;     Rationale: very long LH effectively removes the time constraint.
+;
+; Note: program-level LH default (param_decl) also applies to
+; trial_based_schedule leaf nodes, with the same semantics.

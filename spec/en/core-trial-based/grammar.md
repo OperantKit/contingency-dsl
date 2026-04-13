@@ -47,6 +47,24 @@ TRIAL_BASED_MODIFIER_INCOMPATIBLE:
 Combinators (Conc, Mult, Chain, etc.) are syntactically permitted;
 semantically inappropriate combinations are handled by Linter WARNINGs.
 
+### Limited Hold Compatibility
+
+Unlike free-operant modifiers, **LH (Limited Hold) is compatible with
+trial-based schedules**. LH constrains the response window within the
+COMPARISON state of the trial:
+
+```
+MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s
+```
+
+If the subject does not emit a comparison selection within the LH
+duration, the trial terminates and the `incorrect` schedule executes
+(omission = incorrect). This is standard MTS procedure.
+
+| Code | Condition | Severity |
+|---|---|---|
+| `MTS_LONG_LH` | LH > 5min | WARNING |
+
 ---
 
 ## §1. Matching-to-Sample — `MTS`
