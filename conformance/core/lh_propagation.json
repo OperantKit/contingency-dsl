@@ -1,0 +1,680 @@
+[
+  {
+    "_comment": "=== R1 + R2 + R5: Basic propagation through Compound ==="
+  },
+  {
+    "id": "lh_prop_basic_conc",
+    "description": "Program-level LH propagates to all Conc leaf components (R1 → R2 → R5)",
+    "input": "LH = 10s\nConc(VI30s, VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "lh_prop_single_atomic",
+    "description": "Program-level LH wraps a single atomic schedule (R1 → R5)",
+    "input": "LH = 5s\nFI30s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 5.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 5.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 5.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== R4: Explicit LH overrides program-level default ==="
+  },
+  {
+    "id": "lh_prop_explicit_override",
+    "description": "Expression-level LH 20s overrides program-level LH 10s (R4 blocks propagation)",
+    "input": "LH = 10s\nConc(FR5, VI60s LH20s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 20.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 20.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    },
+    "warnings": ["VACUOUS_LH_RATIO"]
+  },
+
+  {
+    "_comment": "=== R5: SecondOrder treated as leaf (unit isolation) ==="
+  },
+  {
+    "id": "lh_prop_second_order_leaf",
+    "description": "SecondOrder is wrapped as a whole; unit FI30s is NOT individually LH'd (R5)",
+    "input": "LH = 10s\nFR5(FI30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "SecondOrder",
+          "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_prop_second_order_in_conc",
+    "description": "SecondOrder inside Conc: each component resolved independently (R2 → R5)",
+    "input": "LH = 10s\nConc(FR5(FI30s), VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "SecondOrder",
+            "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+            "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+          },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": {
+              "type": "SecondOrder",
+              "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+              "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+            }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    }
+  },
+
+  {
+    "_comment": "=== R6: AversiveSchedule isolation ==="
+  },
+  {
+    "id": "lh_prop_aversive_sidman",
+    "description": "Sidman avoidance discards inherited LH — aversive schedules have own timing (R6)",
+    "input": "LH = 10s\nSidman(SSI=20s, RSI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "lh_prop_aversive_discrim_av",
+    "description": "DiscrimAv discards inherited LH (R6)",
+    "input": "LH = 10s\nDiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "DiscriminatedAvoidance",
+        "params": {
+          "CSUSInterval": { "value": 10.0, "time_unit": "s" },
+          "ITI": { "value": 3.0, "time_unit": "min" },
+          "mode": "escape"
+        }
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "DiscriminatedAvoidance",
+        "params": {
+          "CSUSInterval": { "value": 10.0, "time_unit": "s" },
+          "ITI": { "value": 3.0, "time_unit": "min" },
+          "mode": "escape"
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== R3: Overlay — baseline inherits, punisher gets ⊥ ==="
+  },
+  {
+    "id": "lh_prop_overlay",
+    "description": "Overlay: LH propagates to baseline VI60s but NOT to punisher FR1 (R3)",
+    "input": "LH = 10s\nOverlay(VI60s, FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ]
+      }
+    }
+  },
+
+  {
+    "_comment": "=== R2: Nested compound — propagation through Chain ==="
+  },
+  {
+    "id": "lh_prop_nested_chain_in_conc",
+    "description": "LH propagates through Conc into Chain, wrapping each leaf (R2 × 2 → R5 × 3)",
+    "input": "LH = 10s\nConc(Chain(FR5, FI30s), VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Compound",
+            "combinator": "Chain",
+            "components": [
+              { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+              { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+            ]
+          },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Compound",
+            "combinator": "Chain",
+            "components": [
+              {
+                "type": "LimitedHold",
+                "hold_duration": 10.0,
+                "time_unit": "s",
+                "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+              },
+              {
+                "type": "LimitedHold",
+                "hold_duration": 10.0,
+                "time_unit": "s",
+                "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+              }
+            ]
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    },
+    "warnings": ["VACUOUS_LH_RATIO"]
+  },
+
+  {
+    "_comment": "=== R5: Modifier (DRL) as leaf ==="
+  },
+  {
+    "id": "lh_prop_modifier_drl",
+    "description": "DRL treated as leaf — wrapped with LH (R5). DRL + LH: Kramer & Rilling (1970)",
+    "input": "LH = 8s\nDRL5s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 8.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0,
+        "time_unit": "s"
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 8.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 8.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "Modifier",
+          "modifier": "DRL",
+          "value": 5.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== R1 identity: No LH param_decl → no propagation ==="
+  },
+  {
+    "id": "lh_prop_no_param_decl",
+    "description": "No LH param_decl — resolved AST is identical to expected (R1 yields ⊥)",
+    "input": "Conc(VI30s, VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Edge case: ratio schedule with LH warning ==="
+  },
+  {
+    "id": "lh_prop_ratio_warning",
+    "description": "FR leaf receives LH — syntactically valid but emits VACUOUS_LH_RATIO (§1.6 canonical scope)",
+    "input": "LH = 10s\nFR5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "R",
+          "value": 5.0
+        }
+      }
+    },
+    "warnings": ["VACUOUS_LH_RATIO"]
+  },
+
+  {
+    "_comment": "=== Edge case: Special schedule (EXT, CRF) receives LH ==="
+  },
+  {
+    "id": "lh_prop_special_ext",
+    "description": "EXT receives program-level LH — syntactically valid (semantically vacuous)",
+    "input": "LH = 10s\nEXT",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": { "type": "Special", "kind": "EXT" }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": { "type": "Special", "kind": "EXT" }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Edge case: Mult (multiple schedule) propagation ==="
+  },
+  {
+    "id": "lh_prop_mult",
+    "description": "Mult components each receive LH independently (R2 → R5)",
+    "input": "LH = 10s\nMult(FR5, EXT, BO=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Special", "kind": "EXT" }
+        ],
+        "params": {
+          "BO": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Special", "kind": "EXT" }
+          }
+        ],
+        "params": {
+          "BO": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    },
+    "warnings": ["VACUOUS_LH_RATIO"]
+  },
+
+  {
+    "_comment": "=== Phase ordering: LH propagation after binding expansion ==="
+  },
+  {
+    "id": "lh_prop_after_binding_expansion",
+    "description": "LH propagation operates on post-expansion AST — bindings resolved before LH applied",
+    "input": "LH = 10s\nlet x = VI30s\nConc(x, VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "x",
+          "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "IdentifierRef", "name": "x" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          },
+          {
+            "type": "LimitedHold",
+            "hold_duration": 10.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        ]
+      }
+    }
+  }
+]

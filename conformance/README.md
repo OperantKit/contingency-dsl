@@ -55,6 +55,13 @@ Some tests specify both `pre_expansion` (parser output with IdentifierRef nodes)
 and `expected` (post-expansion result after semantic analysis). Parsers that do
 not perform semantic analysis should validate against `pre_expansion` only.
 
+### LH propagation cases
+
+Tests in `lh_propagation.json` specify both `expected` (post-parse / pre-propagation AST)
+and `resolved` (post-LH-default-propagation AST). The `resolved` field shows the AST after
+the attribute grammar rules of §1.6.1 have been applied. Implementations that do not perform
+LH default propagation should validate against `expected` only.
+
 ## Test files
 
 ### core/
@@ -75,6 +82,7 @@ not perform semantic analysis should validate against `pre_expansion` only.
 | `boundary-values.json` | 33 | Zero/edge values for atomic, modifier, LH, Lag, PR, Repeat, compound params |
 | `warnings.json` | 25 | Linter warnings: MISSING_TIME_UNIT, RSI_EXCEEDS_SSI, LAG_LARGE_N, MISSING_INTERPOLATE_ONSET, MISSING_COD |
 | `algebra.json` | 24 | Algebraic equivalence (≡) and non-equivalence (≢) pairs: identity, annihilator, commutativity, associativity, Repeat, non-distributivity |
+| `lh_propagation.json` | 14 | LH default propagation attribute grammar (§1.6.1): R1–R6 rules, SecondOrder unit isolation, aversive isolation, Overlay punisher isolation, explicit override, binding expansion phase ordering |
 
 ### core-stateful/
 
