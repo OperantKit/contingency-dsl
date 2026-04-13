@@ -259,5 +259,72 @@
       "type": "SemanticError",
       "code": "WARMUP_EXCLUDE_UNKNOWN_SCOPE"
     }
+  },
+
+  {
+    "id": "error_warmup_exclude_exceeds_session_end",
+    "description": "@warmup_exclude duration must be less than @session_end time when both are declared",
+    "input": "@session_end(rule=\"time_only\", time=30min)\n@warmup_exclude(duration=45min)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "WARMUP_EXCLUDE_EXCEEDS_SESSION"
+    },
+    "_note": "Cross-annotation validation: warmup exclusion (45min) exceeds session duration (30min). Detected during annotation composition pass, not individual keyword validation."
+  },
+  {
+    "id": "error_session_end_first_missing_reinforcers",
+    "description": "@session_end rule=first requires both time and reinforcers",
+    "input": "@session_end(rule=\"first\", time=60min)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_END_MISSING_PARAM"
+    },
+    "_note": "Complement to error_session_end_first_missing_time: the symmetric case where reinforcers is missing."
+  },
+  {
+    "id": "error_session_end_reinforcers_only_with_time",
+    "description": "@session_end rule=reinforcers_only forbids time parameter",
+    "input": "@session_end(rule=\"reinforcers_only\", reinforcers=60, time=60min)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_END_INVALID_COMBO"
+    }
+  },
+  {
+    "id": "error_phase_end_stability_without_steady_state",
+    "description": "@phase_end stability=steady_state requires @steady_state to be declared in the same program",
+    "input": "@phase_end(rule=\"all\", min_sessions=20, stability=\"steady_state\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PHASE_END_MISSING_STEADY_STATE"
+    },
+    "_note": "Cross-annotation validation: @phase_end references @steady_state parameters but no @steady_state annotation is declared. Detected during annotation composition pass."
+  },
+  {
+    "id": "error_microstructure_nonpositive_bin_width",
+    "description": "@microstructure irt_bin_width must be positive",
+    "input": "@microstructure(irt_bin_width=0s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_NONPOSITIVE_BIN"
+    }
+  },
+  {
+    "id": "error_microstructure_nonpositive_threshold",
+    "description": "@microstructure burst_threshold must be positive",
+    "input": "@microstructure(burst_threshold=0s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_NONPOSITIVE_THRESHOLD"
+    }
+  },
+  {
+    "id": "error_iri_window_nonpositive_bin",
+    "description": "@iri_window bin_width must be positive",
+    "input": "@iri_window(bin_width=0s, report=[\"mean\"])\n\nVI30s",
+    "error": {
+      "type": "SemanticError",
+      "code": "IRI_WINDOW_NONPOSITIVE_BIN"
+    }
   }
 ]

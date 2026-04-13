@@ -148,5 +148,122 @@
       }
     },
     "_note": "Schedule-level annotations (@operandum) are attached to the Conc schedule node. Program-level @reinforcer acts as session default. AST here shows parse output; annotation attachment to schedule nodes is handled by a subsequent annotation-binding pass."
+  },
+  {
+    "id": "program_annotations_all_four_jeab_categories",
+    "description": "Complete JEAB 4-category preamble: Subjects + Apparatus + Procedure + Measurement",
+    "input": "@species(\"rat\")\n@strain(\"Long-Evans\")\n@deprivation(hours=22, target=\"food\")\n@n(8)\n@chamber(\"med-associates\", model=\"ENV-007\")\n@operandum(\"left_lever\")\n@reinforcer(\"sucrose\", concentration=\"32%\")\n@clock(unit=\"s\")\n@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n@dependent_measure(variables=[\"rate\", \"prf_pause\"], primary=\"rate\")\n@logging(events=[\"response\", \"reinforcer\"])\n@warmup_exclude(duration=5min)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "rat"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "strain",
+          "positional": "Long-Evans"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 22,
+            "target": "food"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "n",
+          "positional": 8
+        },
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "med-associates",
+          "params": {
+            "model": "ENV-007"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "left_lever"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "sucrose",
+          "params": {
+            "concentration": "32%"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "s"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": {
+            "rule": "first",
+            "time": { "value": 60, "time_unit": "min" },
+            "reinforcers": 60
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "baseline",
+          "params": {
+            "pre_training_sessions": 3
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "steady_state",
+          "params": {
+            "window_sessions": 5,
+            "max_change_pct": 10
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "prf_pause"],
+            "primary": "rate"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "logging",
+          "params": {
+            "events": ["response", "reinforcer"]
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "warmup_exclude",
+          "params": {
+            "duration": { "value": 5, "time_unit": "min" }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Canonical JEAB-complete preamble. All four recommended annotator categories are represented: Subjects (@species, @strain, @deprivation, @n), Apparatus (@chamber, @operandum), Procedure (@reinforcer, @clock), Measurement (@session_end, @baseline, @steady_state, @dependent_measure, @logging, @warmup_exclude). Demonstrates orthogonal composition of annotators per architecture.md §4.7.2."
   }
 ]
