@@ -74,6 +74,7 @@ not perform semantic analysis should validate against `pre_expansion` only.
 | `semantic-violations-extended.json` | 34 | Cross-combinator keyword validation, verbose alias errors, alias duplicate detection |
 | `boundary-values.json` | 33 | Zero/edge values for atomic, modifier, LH, Lag, PR, Repeat, compound params |
 | `warnings.json` | 25 | Linter warnings: MISSING_TIME_UNIT, RSI_EXCEEDS_SSI, LAG_LARGE_N, MISSING_INTERPOLATE_ONSET, MISSING_COD |
+| `algebra.json` | 24 | Algebraic equivalence (≡) and non-equivalence (≢) pairs: identity, annihilator, commutativity, associativity, Repeat, non-distributivity |
 
 ### core-stateful/
 

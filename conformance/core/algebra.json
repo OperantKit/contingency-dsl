@@ -1,0 +1,230 @@
+[
+  {
+    "_comment": "Algebraic equivalence test suite for theory.md §2.2. Each test specifies a pair of DSL expressions and the expected semantic relation (≡ or ≢). Conforming implementations that support an optimization pass SHOULD verify that applying the indicated rewrite rule to 'lhs' produces an AST semantically equivalent to parsing 'rhs'."
+  },
+
+  {
+    "id": "identity_alt_ext_right",
+    "description": "Alt identity: Alt(S, EXT) ≡ S (Theorem 3, R1)",
+    "lhs": "Alt(FR5, EXT)",
+    "rhs": "FR5",
+    "relation": "equivalent",
+    "rule": "R1",
+    "theorem": 3
+  },
+  {
+    "id": "identity_alt_ext_left",
+    "description": "Alt identity (commuted): Alt(EXT, S) ≡ S (Theorem 1+3, R2)",
+    "lhs": "Alt(EXT, FR5)",
+    "rhs": "FR5",
+    "relation": "equivalent",
+    "rule": "R2",
+    "theorem": 3
+  },
+  {
+    "id": "identity_conj_crf_right",
+    "description": "Conj identity: Conj(S, CRF) ≡ S (Theorem 3, R3)",
+    "lhs": "Conj(VI30s, CRF)",
+    "rhs": "VI30s",
+    "relation": "equivalent",
+    "rule": "R3",
+    "theorem": 3
+  },
+  {
+    "id": "identity_conj_crf_left",
+    "description": "Conj identity (commuted): Conj(CRF, S) ≡ S (Theorem 1+3, R4)",
+    "lhs": "Conj(CRF, VI30s)",
+    "rhs": "VI30s",
+    "relation": "equivalent",
+    "rule": "R4",
+    "theorem": 3
+  },
+  {
+    "id": "identity_chain_crf",
+    "description": "Chain identity: Chain(CRF, S) ≡ S (Theorem 3, R5)",
+    "lhs": "Chain(CRF, FI60s)",
+    "rhs": "FI60s",
+    "relation": "equivalent",
+    "rule": "R5",
+    "theorem": 3
+  },
+
+  {
+    "id": "annihilator_conj_ext_right",
+    "description": "Conj annihilator: Conj(S, EXT) ≡ EXT (Theorem 4, R6)",
+    "lhs": "Conj(FR10, EXT)",
+    "rhs": "EXT",
+    "relation": "equivalent",
+    "rule": "R6",
+    "theorem": 4
+  },
+  {
+    "id": "annihilator_conj_ext_left",
+    "description": "Conj annihilator (commuted): Conj(EXT, S) ≡ EXT (Theorem 1+4, R7)",
+    "lhs": "Conj(EXT, FR10)",
+    "rhs": "EXT",
+    "relation": "equivalent",
+    "rule": "R7",
+    "theorem": 4
+  },
+  {
+    "id": "annihilator_alt_crf_right",
+    "description": "Alt annihilator: Alt(S, CRF) ≡ CRF (Theorem 4, R8)",
+    "lhs": "Alt(VI60s, CRF)",
+    "rhs": "CRF",
+    "relation": "equivalent",
+    "rule": "R8",
+    "theorem": 4
+  },
+  {
+    "id": "annihilator_alt_crf_left",
+    "description": "Alt annihilator (commuted): Alt(CRF, S) ≡ CRF (Theorem 1+4, R9)",
+    "lhs": "Alt(CRF, VI60s)",
+    "rhs": "CRF",
+    "relation": "equivalent",
+    "rule": "R9",
+    "theorem": 4
+  },
+
+  {
+    "id": "repeat_identity",
+    "description": "Repeat identity: Repeat(1, S) ≡ S (Theorem 6, R10)",
+    "lhs": "Repeat(1, FR5)",
+    "rhs": "FR5",
+    "relation": "equivalent",
+    "rule": "R10",
+    "theorem": 6
+  },
+  {
+    "id": "repeat_identity_interval",
+    "description": "Repeat identity with interval schedule: Repeat(1, VI30s) ≡ VI30s",
+    "lhs": "Repeat(1, VI30s)",
+    "rhs": "VI30s",
+    "relation": "equivalent",
+    "rule": "R10",
+    "theorem": 6
+  },
+
+  {
+    "id": "assoc_conc_flatten",
+    "description": "Conc associativity: Conc(A, Conc(B, C)) ≡ Conc(A, B, C) (Theorem 2, R13)",
+    "lhs": "Conc(FR5, Conc(VI30s, VI60s))",
+    "rhs": "Conc(FR5, VI30s, VI60s)",
+    "relation": "equivalent",
+    "rule": "R13",
+    "theorem": 2
+  },
+  {
+    "id": "assoc_alt_flatten",
+    "description": "Alt associativity: Alt(A, Alt(B, C)) ≡ Alt(A, B, C) (Theorem 2, R14)",
+    "lhs": "Alt(FR5, Alt(FI30s, FI60s))",
+    "rhs": "Alt(FR5, FI30s, FI60s)",
+    "relation": "equivalent",
+    "rule": "R14",
+    "theorem": 2
+  },
+  {
+    "id": "assoc_chain_flatten",
+    "description": "Chain associativity: Chain(A, Chain(B, C)) ≡ Chain(A, B, C) (Theorem 2, R16)",
+    "lhs": "Chain(FR5, Chain(FI30s, VI60s))",
+    "rhs": "Chain(FR5, FI30s, VI60s)",
+    "relation": "equivalent",
+    "rule": "R16",
+    "theorem": 2
+  },
+  {
+    "id": "assoc_tand_flatten",
+    "description": "Tand associativity: Tand(A, Tand(B, C)) ≡ Tand(A, B, C) (Theorem 2, R17)",
+    "lhs": "Tand(FR5, Tand(FI30s, VI60s))",
+    "rhs": "Tand(FR5, FI30s, VI60s)",
+    "relation": "equivalent",
+    "rule": "R17",
+    "theorem": 2
+  },
+
+  {
+    "id": "commutativity_conc",
+    "description": "Conc commutativity: Conc(A, B) ≡ Conc(B, A) (Theorem 1)",
+    "lhs": "Conc(FR5, VI30s)",
+    "rhs": "Conc(VI30s, FR5)",
+    "relation": "equivalent",
+    "rule": null,
+    "theorem": 1
+  },
+  {
+    "id": "commutativity_alt",
+    "description": "Alt commutativity: Alt(A, B) ≡ Alt(B, A) (Theorem 1)",
+    "lhs": "Alt(FR10, FI5min)",
+    "rhs": "Alt(FI5min, FR10)",
+    "relation": "equivalent",
+    "rule": null,
+    "theorem": 1
+  },
+  {
+    "id": "commutativity_conj",
+    "description": "Conj commutativity: Conj(A, B) ≡ Conj(B, A) (Theorem 1)",
+    "lhs": "Conj(FR5, FI30s)",
+    "rhs": "Conj(FI30s, FR5)",
+    "relation": "equivalent",
+    "rule": null,
+    "theorem": 1
+  },
+
+  {
+    "id": "non_commutativity_chain",
+    "description": "Chain is NOT commutative: Chain(FR1, FI10s) ≢ Chain(FI10s, FR1) (Theorem 1)",
+    "lhs": "Chain(FR1, FI10s)",
+    "rhs": "Chain(FI10s, FR1)",
+    "relation": "not_equivalent",
+    "rule": null,
+    "theorem": 1
+  },
+  {
+    "id": "non_commutativity_tand",
+    "description": "Tand is NOT commutative: Tand(FR5, FI30s) ≢ Tand(FI30s, FR5) (Theorem 1)",
+    "lhs": "Tand(FR5, FI30s)",
+    "rhs": "Tand(FI30s, FR5)",
+    "relation": "not_equivalent",
+    "rule": null,
+    "theorem": 1
+  },
+
+  {
+    "id": "non_distributivity",
+    "description": "Alt does NOT distribute over Conj (Theorem 5)",
+    "lhs": "Alt(FR5, Conj(VI30s, FI60s))",
+    "rhs": "Conj(Alt(FR5, VI30s), Alt(FR5, FI60s))",
+    "relation": "not_equivalent",
+    "rule": null,
+    "theorem": 5
+  },
+
+  {
+    "id": "repeat_additive_decomposition",
+    "description": "Repeat additive decomposition: Repeat(4, FR5) ≡ Tand(Repeat(2, FR5), Repeat(2, FR5)) (Theorem 8)",
+    "lhs": "Repeat(4, FR5)",
+    "rhs": "Tand(Repeat(2, FR5), Repeat(2, FR5))",
+    "relation": "equivalent",
+    "rule": null,
+    "theorem": 8
+  },
+
+  {
+    "id": "identity_compound_nested",
+    "description": "Identity elimination within compound: Alt(Conj(FR5, FI30s), EXT) ≡ Conj(FR5, FI30s)",
+    "lhs": "Alt(Conj(FR5, FI30s), EXT)",
+    "rhs": "Conj(FR5, FI30s)",
+    "relation": "equivalent",
+    "rule": "R1",
+    "theorem": 3
+  },
+  {
+    "id": "annihilator_compound_nested",
+    "description": "Annihilator within compound: Conj(Alt(FR5, VI30s), EXT) ≡ EXT",
+    "lhs": "Conj(Alt(FR5, VI30s), EXT)",
+    "rhs": "EXT",
+    "relation": "equivalent",
+    "rule": "R6",
+    "theorem": 4
+  }
+]
