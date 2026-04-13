@@ -111,21 +111,6 @@
     }
   },
   {
-    "id": "pr_bare",
-    "description": "Progressive Ratio bare (default step = hodos)",
-    "input": "PR",
-    "expected": {
-      "type": "Program",
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "Modifier",
-        "modifier": "PR",
-        "pr_step": "hodos"
-      }
-    }
-  },
-  {
     "id": "repeat_3_fr10",
     "description": "Repeat(3, FR10) — syntactic sugar for Tand(FR10, FR10, FR10)",
     "input": "Repeat(3, FR10)",

@@ -333,37 +333,15 @@ Union of all FOLLOW₁(Value):
 
 **LL(1).** ∎
 
-### 5.5 PrOpts_opt (optional after PR_KW)
+### 5.5 PrMod (deterministic — LL(1))
+
+Since v1.0 requires the step function to be explicit, `PR` is always followed by `LPAREN`:
 
 ```
-FIRST₁(PrOpts_opt) = { LPAREN }
+PrMod ::= PR_KW LPAREN PrOpts RPAREN
 ```
 
-FOLLOW₁(PrMod) ⊆ FOLLOW₁(Modifier) ⊆ FOLLOW₁(BaseSchedule) = {`LH_KW`} ∪ FOLLOW₁(Schedule).
-
-`LPAREN ∈ FOLLOW₁(Schedule)` (from Binding context, §5.2). So `LPAREN ∈ FOLLOW₁(PrMod)`.
-
-**But:** After a bare `PR` (without options), the next expression could start with `(`. For example, `Chain(PR, FI 30s)` — after `PR`, next is `COMMA`. Or in a binding `let x = PR`, next is the start of the next statement.
-
-Can LPAREN actually follow a bare `PR`? In `Chain(PR, FI 30s)`:
-- `PR` is parsed as `PrMod` (= `PR_KW PrOpts_opt`)
-- After `PR`, parser checks for LPAREN
-- Next token is COMMA → no options, PR is bare
-- Then COMMA continues the compound arg list
-
-In `let x = PR\n(FI 30s)`:
-- After `PR` in the binding, next token is LPAREN
-- Parser would enter `PrOpts_opt`, expecting `PR_STEP` after LPAREN
-- Sees `SCHED_TYPE:FI` → parse error
-
-This is the same greedy pattern as §5.2. **LL(2) analysis:**
-
-FIRST₂(PrOpts_opt) = {`(LPAREN, PR_STEP)`}
-FOLLOW₂ entries with LPAREN first: {`(LPAREN, t)` : `t ∈ FIRST₁(Schedule)`} = {`(LPAREN, SCHED_TYPE)`, ...}
-
-`PR_STEP ∉ FIRST₁(Schedule)` (PR_STEP = {hodos, exponential, linear} — these are reserved, not in FIRST₁(Schedule)).
-
-Intersection: {`(LPAREN, PR_STEP)`} ∩ {`(LPAREN, SCHED_TYPE)`, ... } = ∅. **LL(2).** ∎
+There is no optional branch. After `PR_KW`, the parser unconditionally expects `LPAREN`. This production is **LL(1) deterministic**. ∎
 
 ### 5.6 LagMod (2 alternatives)
 

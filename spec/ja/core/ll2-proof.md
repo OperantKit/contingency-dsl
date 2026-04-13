@@ -317,24 +317,15 @@ FOLLOW₁(Value) の和集合:
 
 **LL(1).** ∎
 
-### 5.5 PrOpts_opt（PR_KW の後のオプション）
+### 5.5 PrMod（決定的 — LL(1)）
+
+v1.0 ではステップ関数の明示が必須であるため、`PR` の後には常に `LPAREN` が続く:
 
 ```
-FIRST₁(PrOpts_opt) = { LPAREN }
+PrMod ::= PR_KW LPAREN PrOpts RPAREN
 ```
 
-FOLLOW₁(PrMod) ⊆ FOLLOW₁(Modifier) ⊆ FOLLOW₁(BaseSchedule) = {`LH_KW`} ∪ FOLLOW₁(Schedule)。
-
-`LPAREN ∈ FOLLOW₁(Schedule)`（束縛の文脈、§5.2 から）。よって `LPAREN ∈ FOLLOW₁(PrMod)`。
-
-§5.2 と同じ貪欲パターンである。**LL(2) 分析:**
-
-FIRST₂(PrOpts_opt) = {`(LPAREN, PR_STEP)`}
-LPAREN が先頭の FOLLOW₂ エントリ: {`(LPAREN, t)` : `t ∈ FIRST₁(Schedule)`} = {`(LPAREN, SCHED_TYPE)`, ...}
-
-`PR_STEP ∉ FIRST₁(Schedule)`（PR_STEP = {hodos, exponential, linear} — これらは予約語であり FIRST₁(Schedule) に含まれない）。
-
-共通部分: {`(LPAREN, PR_STEP)`} ∩ {`(LPAREN, SCHED_TYPE)`, ... } = ∅。**LL(2).** ∎
+オプション分岐は存在しない。`PR_KW` の後、構文解析器は無条件に `LPAREN` を期待する。この生成規則は **LL(1) 決定的**である。∎
 
 ### 5.6 LagMod（2つの選択肢）
 

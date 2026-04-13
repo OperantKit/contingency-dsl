@@ -574,5 +574,14 @@
       "type": "SemanticError",
       "code": "REPEAT_ZERO_COUNT"
     }
+  },
+  {
+    "id": "error_pr_bare",
+    "description": "Bare PR without step function is not valid; step must be explicit",
+    "input": "PR",
+    "error": {
+      "type": "ParseError",
+      "code": "EXPECTED_LPAREN"
+    }
   }
 ]

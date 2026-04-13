@@ -35,7 +35,7 @@ Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 
 | Written | Default | Notes |
 |---------|---------|-------|
-| `PR` | `hodos` | Hodos & Kalman (1963) step function |
+| ~~`PR`~~ | — | **Removed in v1.0.** Bare `PR` is no longer valid; write `PR(hodos)` explicitly. See [design-rationale.md §2](../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required). |
 | `PR(linear)` | `start=1, increment=5` | Linear default parameters |
 
 ## Limited Hold

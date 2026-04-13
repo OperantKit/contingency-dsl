@@ -193,7 +193,7 @@ modifier      ::= dr_mod | pr_mod | repeat | lag_mod
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 
-pr_mod        ::= "PR" ("(" pr_opts ")")?
+pr_mod        ::= "PR" "(" pr_opts ")"
 pr_opts       ::= pr_step ("," pr_param)*
 pr_step       ::= "hodos" | "exponential" | "linear"
 pr_param      ::= "start" "=" number
@@ -378,6 +378,11 @@ string_literal     ::= '"' [^"]* '"'
 ;
 ; Restructuring history:
 ; - @operandum: stimulus-annotator → apparatus-annotator (2026-04-12)
+; - @operandum: scope-based dual semantics (2026-04-13)
+;     program-level = Apparatus declaration (physical specs: model, force, position)
+;     schedule-level = Procedure reference (component assignment, no physical params)
+;     Follows JEAB convention: Apparatus introduces devices, Procedure references
+;     them by name. Parallels existing @feeder (Apparatus) / @reinforcer (Procedure).
 ; - stimulus-annotator + temporal-annotator → procedure-annotator with
 ;   two sub-annotators (2026-04-12)
 ; - subject-annotator → subjects-annotator (2026-04-12, plural form to

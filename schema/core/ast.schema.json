@@ -217,7 +217,7 @@
 
     "PRModifier": {
       "type": "object",
-      "description": "Progressive Ratio modifier. Step function determines ratio progression across reinforcements.",
+      "description": "Progressive Ratio modifier. Step function (required) determines ratio progression across reinforcements. Bare PR without explicit step function is a parse error.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "PR" },
