@@ -584,7 +584,7 @@ This section lists candidate annotations for addition to the DSL project's **rec
 
 Extensions considered essential for basic EAB research:
 
-#### 8.1.1 `@session_end` — Session Termination Criteria **[Implemented]**
+#### 8.1.1 `@session_end` — Session Termination Criteria **[Implemented]** `Tier 2 (production)`
 
 > **Implemented:** measurement-annotator v1.x (2026-04-12).
 > See [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
@@ -598,7 +598,7 @@ Extensions considered essential for basic EAB research:
 - Sidman (1960) steady-state estimation and Baron & Perone (1998) procedural description standards
 - **Strong recommendation**: Should be made mandatory at the program level
 
-#### 8.1.2 `@response` — Response Topography **[Essential]**
+#### 8.1.2 `@response` — Response Topography `Tier 2 (production)`
 
 ```
 @response(
@@ -613,7 +613,7 @@ Extensions considered essential for basic EAB research:
 - Force threshold is part of the response definition itself
 - Program level (invariant within a session)
 
-#### 8.1.3 `@pretraining` — Procedural History (Separated from `@history`)
+#### 8.1.3 `@pretraining` — Procedural History (Separated from `@history`) `Tier 3 (publication)`
 
 ```
 @pretraining(
@@ -626,7 +626,7 @@ Extensions considered essential for basic EAB research:
 - Subject history (`@history`) and procedural history are different dimensions
 - Shaping / autoshaping records
 
-#### 8.1.4 `@context` — Stimulus Context
+#### 8.1.4 `@context` — Stimulus Context `Tier 2 (production)`
 
 ```
 @context(
@@ -639,7 +639,7 @@ Extensions considered essential for basic EAB research:
 - Context definition is decisive in renewal research (Bouton, 2004)
 - Program level (constant throughout the session)
 
-#### 8.1.5 `@logging` — Data Recording Specifications
+#### 8.1.5 `@logging` — Data Recording Specifications `Tier 2 (production)`
 
 ```
 @logging(
@@ -651,7 +651,7 @@ Extensions considered essential for basic EAB research:
 - A prerequisite for molecular analysis
 - Declaration of temporal resolution is part of reproducibility
 
-#### 8.1.6 `@clock` Extension — Temporal Precision and Synchronization
+#### 8.1.6 `@clock` Extension — Temporal Precision and Synchronization `Tier 1 (unit) / Tier 2 (precision, sampling, sync)`
 
 ```
 @clock(
@@ -662,7 +662,7 @@ Extensions considered essential for basic EAB research:
 )
 ```
 
-#### 8.1.7 `@random` — Global Random Seed
+#### 8.1.7 `@random` — Global Random Seed `Tier 1 (defaulted)`
 
 ```
 @random(seed=42, scope="global")
@@ -674,7 +674,7 @@ Extensions considered essential for basic EAB research:
 
 ### 8.2 Additional Proposals (JEAB Review Perspective)
 
-#### 8.2.1 `@session_onset` — Schedule Onset Timing
+#### 8.2.1 `@session_onset` — Schedule Onset Timing `Tier 2 (production)`
 
 ```
 @session_onset(
@@ -686,7 +686,7 @@ Extensions considered essential for basic EAB research:
 
 - Declaration of inter-component intervals in multiple/chained schedules
 
-#### 8.2.2 `@reinforcer` Extension — Refinement of Temporal Contingency
+#### 8.2.2 `@reinforcer` Extension — Refinement of Temporal Contingency `Tier 2 (production)`
 
 ```
 @reinforcer(
@@ -707,7 +707,7 @@ By **guaranteeing the existence of both** at the schema level, confusion between
 - DSL: Declaration of intent only
 - session-recorder: Schema-enforced obligation to record the obtained values
 
-#### 8.2.4 `@timeout` — Error Responses / Error Correction
+#### 8.2.4 `@timeout` — Error Responses / Error Correction `Tier 2 (production)`
 
 ```
 @timeout(duration=5s, stimuli_off=true, lever_retracted=false)
@@ -715,7 +715,7 @@ By **guaranteeing the existence of both** at the schema level, confusion between
 
 ### 8.3 Domain-Specific Extensions (Individual Annotators)
 
-#### 8.3.1 Behavioral Pharmacology — `pharmacology-annotator` (New)
+#### 8.3.1 Behavioral Pharmacology — `pharmacology-annotator` (New) `Tier 3 (publication) / @phase: Tier 2`
 
 ```
 @drug(
@@ -743,7 +743,7 @@ By **guaranteeing the existence of both** at the schema level, confusion between
 - `@preparation` is separated from `@history` (catheter patency is a session-level variable)
 - `@phase` determines the identity of the procedure (the same FR 1 under acquisition vs. extinction constitutes a different experiment)
 
-#### 8.3.2 ABA Clinical — `subject-human` (Separated from `subject-animal`)
+#### 8.3.2 ABA Clinical — `subject-human` (Separated from `subject-animal`) `Tier 3 (publication)`
 
 Separation of annotators is recommended because the ethical frameworks (IACUC vs. IRB) are entirely different.
 
@@ -779,22 +779,25 @@ Separation of annotators is recommended because the ethical frameworks (IACUC vs
 
 ### 8.4 Session Identification — Separation of Responsibilities from the Implementation/Recording Layer
 
+> **Details**: See [validation-modes.md](validation-modes.md) §7 for the full
+> Layer Responsibility Matrix. This section is a summary only. In particular,
+> §7.4 proposes moving `experiment_id` / `subject_id` out of the DSL to the
+> manifest layer.
+
 Reproducibility unit principle: **"Can the same experiment be run next time?" is the DSL's concern; "What happened this time?" is the recorder's concern**
 
 | Item | Owner | Rationale |
 |---|---|---|
-| `subject_id`, `experiment_id` | **DSL** | Identifiers for the experimental design |
+| schedule expression | DSL (Tier 0) | Core grammar |
+| `@hardware`, `@clock`, `@random` | DSL (Tier 1) | Execution parameters (defaulted) |
+| `@session_end`, `@response`, `@logging` | DSL (Tier 2) | Physical experiment declarations |
+| `@species`, `@strain`, `@chamber(model)` | DSL (Tier 3) | Publication metadata |
+| `experiment_id`, `subject_id` | **manifest** (outside DSL) | Application of the plan, not the plan itself |
 | `session_id`, `timestamp` | session-recorder | Runtime artifacts |
 | software versions | session-recorder (manifest) | Becomes stale if written in the DSL |
 | event code mapping | experiment-io | Responsibility of the HW abstraction |
 | calibration measured values | session-recorder | Runtime measurements |
 | calibration expected values | DSL (`@hardware(expected=...)`) | Part of the design |
-
-DSL extension proposal:
-
-```
-@experiment(id="exp-001", subject_id="R12")
-```
 
 ### 8.5 Multi-Session Structure (Point of Contention — Undecided)
 
