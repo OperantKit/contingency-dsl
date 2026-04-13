@@ -503,15 +503,26 @@ string_literal     ::= '"' [^"]* '"'
 ;     but omission is permitted for conceptual/pedagogical use (same pattern as COD for Conc).
 ; 40. Interpolate combinator: duplicate keyword args → SemanticError
 ;     (DUPLICATE_INTERPOLATE_KW_ARG). E.g., count=5, count=10 → error.
-; 41. Interval/Time domain: time unit omission triggers Linter WARNING
+; 41. Time-based schedules: time unit omission triggers Linter WARNING
 ;     (MISSING_TIME_UNIT). Not a SemanticError.
-;     `FI 30` or `VT 60` without s/ms/min → WARNING.
-;     `FI 30s` or `VT 60ms` (explicit unit) → no warning.
-;     Ratio domain (`FR 5`, `VR 10`) is dimensionless and never triggers this.
-;     Rationale: In JEAB Method sections, "FI 30" without a time unit would
-;     prompt a reviewer to ask for clarification. Procedural reproducibility
-;     requires explicit temporal units. Same design philosophy as MISSING_COD
-;     (constraint 7) and SIDMAN_TIME_UNIT_REQUIRED (constraint 18).
+;     Applies to:
+;       (a) Interval/Time domain atomic schedules: `FI 30`, `VT 60`, etc.
+;       (b) DR modifiers (DRL, DRH, DRO): `DRL 5`, `DRH 2`, `DRO 10`, etc.
+;           DR modifiers operate on IRT (inter-response time), which is an
+;           intrinsically temporal dimension.
+;     Does NOT apply to:
+;       - Ratio domain (`FR 5`, `VR 10`) — dimensionless.
+;       - Lag modifier (`Lag 5`) — categorical/sequence-based, not temporal.
+;     Examples:
+;       `FI 30` or `VT 60` without s/ms/min → WARNING.
+;       `FI 30s` or `VT 60ms` (explicit unit) → no warning.
+;       `DRL 5` without s/ms/min → WARNING.
+;       `DRL 5s` (explicit unit) → no warning.
+;     Rationale: In JEAB Method sections, "FI 30" or "DRL 5" without a time
+;     unit would prompt a reviewer to ask for clarification. Procedural
+;     reproducibility requires explicit temporal units. Same design philosophy
+;     as MISSING_COD (constraint 7) and SIDMAN_TIME_UNIT_REQUIRED
+;     (constraint 18).
 ; 42. RD (ReinforcementDelay) param_decl: value MUST include a time unit
 ;     (s/ms/min). Dimensionless values → SemanticError (RD_TIME_UNIT_REQUIRED).
 ;     Rationale: reinforcement delay is intrinsically temporal.
