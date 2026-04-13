@@ -532,3 +532,30 @@ string_literal     ::= '"' [^"]* '"'
 ; 45. RD param_decl: large delay values (> 30s) trigger Linter WARNING
 ;     (RD_LARGE_DELAY). Most published delay research uses delays ≤ 30 s
 ;     (Lattal, 2010). Not an error.
+; 46. Parametric atomic schedule: value must be strictly positive (> 0).
+;     `FR 0`, `VI 0s`, `RR 0`, `FT 0s`, etc. → SemanticError
+;     (ATOMIC_NONPOSITIVE_VALUE).
+;     Zero is reserved for EXT (the algebraic zero element with rawValue = 0).
+;     Use `EXT` for extinction semantics; use `CRF` (≡ FR 1) for continuous
+;     reinforcement. This constraint matches ast.schema.json exclusiveMinimum=0
+;     on Atomic.value.
+; 47. DR modifier (DRL, DRH, DRO): value must be strictly positive (> 0).
+;     `DRL 0s`, `DRH 0s`, `DRO 0s` → SemanticError (DR_NONPOSITIVE_VALUE).
+;     Rationale: DRL(irt_min), DRH(irt_max), DRO(omission_time) are defined
+;     over ℝ⁺ (theory.md §1.4). A zero threshold collapses the differential
+;     contingency — DRL 0s reinforces every response (= CRF), DRH 0s requires
+;     IRT < 0 (impossible), DRO 0s requires zero-duration omission (trivial).
+;     Use CRF or EXT for degenerate cases.
+; 48. PR modifier: start and increment must be strictly positive (> 0).
+;     `PR 0` (shorthand), `PR(linear, start=0, ...)`, or
+;     `PR(linear, ..., increment=0)` → SemanticError (PR_NONPOSITIVE_VALUE).
+;     Rationale: PR with zero start produces FR 0 (nonpositive, see §46).
+;     PR with zero increment produces a constant schedule (never progresses),
+;     which is better expressed as a simple ratio schedule.
+; 49. FRCO keyword arg: value must be a positive integer (≥ 1).
+;     `Conc(..., FRCO=0)` → SemanticError (FRCO_NONPOSITIVE_VALUE).
+;     This matches ast.schema.json minimum=1 on CompoundParams.FRCO.value.
+;     Rationale: FRCO specifies the number of responses required on the new
+;     operandum after a changeover (Hunter & Davison, 1985). Zero responses
+;     is no changeover requirement, which is the implicit default when FRCO
+;     is omitted entirely.

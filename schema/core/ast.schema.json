@@ -208,7 +208,7 @@
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "type": "string", "enum": ["DRL", "DRH", "DRO"] },
-        "value": { "type": "number" },
+        "value": { "type": "number", "exclusiveMinimum": 0 },
         "time_unit": { "$ref": "#/$defs/TimeUnit" }
       },
       "required": ["type", "modifier", "value"],
@@ -225,8 +225,8 @@
           "type": "string",
           "enum": ["hodos", "exponential", "linear"]
         },
-        "pr_start": { "type": "number" },
-        "pr_increment": { "type": "number" }
+        "pr_start": { "type": "number", "exclusiveMinimum": 0 },
+        "pr_increment": { "type": "number", "exclusiveMinimum": 0 }
       },
       "required": ["type", "modifier", "pr_step"],
       "additionalProperties": false
