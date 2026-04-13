@@ -583,5 +583,50 @@
       "type": "ParseError",
       "code": "EXPECTED_LPAREN_OR_NUMBER"
     }
+  },
+  {
+    "id": "error_asymmetric_cod_length_mismatch_short",
+    "description": "Asymmetric COD with fewer elements than Conc components (constraint 50)",
+    "input": "Conc(VI30s, VI60s, VI120s, COD=[2s, 5s])",
+    "error": {
+      "type": "SemanticError",
+      "code": "ASYMMETRIC_COD_LENGTH_MISMATCH"
+    }
+  },
+  {
+    "id": "error_asymmetric_cod_length_mismatch_long",
+    "description": "Asymmetric COD with more elements than Conc components (constraint 50)",
+    "input": "Conc(VI30s, VI60s, COD=[2s, 5s, 3s])",
+    "error": {
+      "type": "SemanticError",
+      "code": "ASYMMETRIC_COD_LENGTH_MISMATCH"
+    }
+  },
+  {
+    "id": "error_value_list_on_frco",
+    "description": "value_list not valid for FRCO keyword arg (constraint 54)",
+    "input": "Conc(VI30s, VI60s, FRCO=[3, 5])",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_VALUE_LIST"
+    }
+  },
+  {
+    "id": "error_value_list_on_bo",
+    "description": "value_list not valid for BO keyword arg in v1.1 (constraint 54)",
+    "input": "Mult(FR5, EXT, BO=[5s, 3s])",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_VALUE_LIST"
+    }
+  },
+  {
+    "id": "error_asymmetric_cod_on_chain",
+    "description": "Asymmetric COD on non-Conc combinator (COD is Conc-only, constraint 8)",
+    "input": "Chain(FR5, VI30s, COD=[2s, 5s])",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
   }
 ]

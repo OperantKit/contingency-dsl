@@ -211,5 +211,58 @@
         }
       }
     }
+  },
+  {
+    "id": "conc_verbose_asymmetric_cod",
+    "description": "Verbose alias ChangeoverDelay with asymmetric value list (Pliskoff, 1971)",
+    "input": "Conc(VI30s, VI60s, ChangeoverDelay=[2s, 5s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_verbose_asymmetric_cod_with_frco",
+    "description": "Verbose ChangeoverDelay asymmetric + short FRCO (mixed aliases)",
+    "input": "Conc(VI30s, VI60s, ChangeoverDelay=[1s, 3s], FRCO=5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 1.0, "time_unit": "s" },
+              { "value": 3.0, "time_unit": "s" }
+            ]
+          },
+          "FRCO": { "value": 5 }
+        }
+      }
+    }
   }
 ]

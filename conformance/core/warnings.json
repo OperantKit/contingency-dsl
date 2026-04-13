@@ -472,5 +472,59 @@
         "value": 10.0
       }
     }
+  },
+  {
+    "id": "warn_redundant_asymmetric_cod",
+    "description": "Asymmetric COD with all identical values — suggest scalar form (constraint 53)",
+    "input": "Conc(VI30s, VI60s, COD=[2s, 2s])",
+    "warnings": ["REDUNDANT_ASYMMETRIC_COD"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 2.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_asymmetric_cod_no_missing_cod",
+    "description": "Asymmetric COD does NOT trigger MISSING_COD — COD is present",
+    "input": "Conc(VI30s, VI60s, COD=[2s, 5s])",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
   }
 ]

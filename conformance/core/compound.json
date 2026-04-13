@@ -589,5 +589,192 @@
         ]
       }
     }
+  },
+  {
+    "id": "conc_asymmetric_cod_two",
+    "description": "Asymmetric COD on 2-component Conc (Pliskoff, 1971): different delays per departure component",
+    "input": "Conc(VI30s, VI60s, COD=[2s, 5s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_interval_ratio",
+    "description": "Asymmetric COD on concurrent interval-ratio schedule (Sakagami, 1989)",
+    "input": "Conc(VI30s, VR20, COD=[1s, 3s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "R", "value": 20.0 }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 1.0, "time_unit": "s" },
+              { "value": 3.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_three",
+    "description": "Asymmetric COD on 3-component Conc: per-departure-component delays",
+    "input": "Conc(VI30s, VI60s, VI120s, COD=[1s, 2s, 4s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 120.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 1.0, "time_unit": "s" },
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 4.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_with_frco",
+    "description": "Asymmetric COD combined with symmetric FRCO",
+    "input": "Conc(VI30s, VI60s, COD=[2s, 5s], FRCO=3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 2.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          },
+          "FRCO": { "value": 3 }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_mixed_units",
+    "description": "Asymmetric COD with mixed time units (ms and s)",
+    "input": "Conc(VI30s, VI60s, COD=[500ms, 2s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 500.0, "time_unit": "ms" },
+              { "value": 2.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_with_zero",
+    "description": "Asymmetric COD where one direction has zero delay (control condition)",
+    "input": "Conc(VI30s, VI60s, COD=[0s, 5s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 0.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_asymmetric_cod_overrides_param_decl",
+    "description": "Expression-level asymmetric COD overrides program-level symmetric COD",
+    "input": "COD = 2s\nConc(VI30s, VI60s, COD=[1s, 5s])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [
+        { "type": "ParamDecl", "name": "COD", "value": 2.0, "time_unit": "s" }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": {
+            "values": [
+              { "value": 1.0, "time_unit": "s" },
+              { "value": 5.0, "time_unit": "s" }
+            ]
+          }
+        }
+      }
+    }
   }
 ]

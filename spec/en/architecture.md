@@ -148,6 +148,18 @@ The critical distinction between Core-Stateful and contingency-core: in Core-Sta
 - *Fixed sequential order* (e.g., "complete FR 5 ten times, then VI 30"): expressible as `Tand(Repeat(10, FR 5), VI 30-s)`. The transition target is a subtree already present in the original AST. All three properties hold. → **Core.**
 - *Behavior-criterion-triggered transition* (e.g., "switch from FR 5 to VI 30 when response rate exceeds threshold"): the AST must change from one schedule to a structurally different one based on an external evaluation. P1 and P3 are violated. → **contingency-core.**
 
+**Case 4: Discriminated avoidance.**
+
+Discriminated avoidance (Solomon & Wynne, 1953) has a clear trial structure: CS onset → response window (CSUSInterval) → US or no US → ITI → next CS onset. This superficially resembles discrete trial procedures such as MTS.
+
+However, the response opportunity *within* each trial is free-operant: the subject can respond at any moment during the CS-US interval, may emit multiple responses, and response latency is a primary dependent variable. The trial structure constrains *when the avoidance contingency is active* (signaled vs. unsignaled periods), not *how the subject responds*. This is analogous to a `Mult(avoidance, EXT)` arrangement where the CS signals the active component.
+
+Core-TrialBased requires that the response opportunity itself be discrete — a selection among presented alternatives (e.g., comparison stimuli in MTS). In discriminated avoidance, no such selection exists; the response is the same operant (e.g., lever press, shuttle crossing) available continuously within the signaled period.
+
+Additionally, discriminated avoidance shares its aversive contingency structure with Sidman avoidance (free-operant, Core). The CS in discriminated avoidance adds a discriminative stimulus to the same underlying avoidance contingency; it does not transform the response opportunity from free-operant to discrete trial.
+
+- All three SEI properties hold. Response opportunities are free-operant within trial boundaries. → **Core.**
+
 ### Recommended Computational Model for contingency-core: Guarded Transition System (GTS)
 
 Based on the SEI definition, contingency-core's defining characteristic is *schedule expression transitions conditioned on runtime behavioral state*. This maps naturally to a **guarded transition system**:

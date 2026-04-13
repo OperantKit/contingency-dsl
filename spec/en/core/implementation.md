@@ -47,7 +47,11 @@ class AtomicSchedule:
 class CompoundSchedule:
     combinator: str  # "Conc" | "Alt" | "Conj" | "Chain" | "Tand" | "Mult" | "Mix"
     components: tuple[ScheduleExpr, ...]
-    params: dict[str, Any] | None = None  # v1.1: {"COD": {"value": 2.0, "time_unit": "s"}, "FRCO": {"value": 5}}
+    params: dict[str, Any] | None = None
+    # v1.1 params examples:
+    #   Symmetric COD:   {"COD": {"value": 2.0, "time_unit": "s"}}
+    #   Asymmetric COD:  {"COD": {"values": [{"value": 2.0, "time_unit": "s"}, {"value": 5.0, "time_unit": "s"}]}}
+    #   FRCO:            {"FRCO": {"value": 5}}
 
 @dataclass(frozen=True)
 class ModifierSchedule:
@@ -81,9 +85,23 @@ def to_runtime(expr: ScheduleExpr) -> Schedule:
             return FixedRatio(target=int(n))
         case AtomicSchedule(ScheduleType(Distribution.VARIABLE, Domain.INTERVAL), t):
             return VariableInterval(targets=generate_intervals(t, ...))
-        case CompoundSchedule("Conc", components):
-            return ConcurrentSchedule([to_runtime(c) for c in components])
-        case CompoundSchedule("Chain", components):
+        case CompoundSchedule("Conc", components, params):
+            cod = params.get("COD") if params else None
+            frco = params.get("FRCO") if params else None
+            # Asymmetric COD: "values" key = per-departure-component delays
+            # Symmetric COD: "value" key = uniform delay
+            if cod and "values" in cod:
+                changeover_delays = [v["value"] for v in cod["values"]]
+            elif cod:
+                changeover_delays = [cod["value"]] * len(components)
+            else:
+                changeover_delays = None
+            return ConcurrentSchedule(
+                [to_runtime(c) for c in components],
+                changeover_delays=changeover_delays,
+                changeover_ratio=frco["value"] if frco else None,
+            )
+        case CompoundSchedule("Chain", components, _):
             return ChainedSchedule([to_runtime(c) for c in components])
         # ...
 ```

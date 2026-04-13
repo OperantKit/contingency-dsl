@@ -147,6 +147,10 @@ reserved      ::= "let" | "def"
 ;   - Overlay: exactly 2 positional components (baseline + punisher). Semantic
 ;     constraint enforces this. v1.x targets all responses; changeover-specific
 ;     targeting is planned for v1.y via Conc kw_arg extension.
+;
+; Keyword argument values may be scalar (value) or list (value_list).
+; LL(1) decidable: after "=", peek at next token; "[" → value_list, otherwise value.
+; Semantic pass validates which keyword args accept value_list (v1.1: COD only).
 
 compound      ::= combinator "(" arg_list ")"
                 | interpolate
@@ -156,7 +160,9 @@ combinator    ::= "Conc" | "Alt" | "Conj"
                 | "Overlay"
 arg_list      ::= positional_args ("," keyword_arg)*
 positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
-keyword_arg   ::= kw_name "=" value
+keyword_arg   ::= kw_name "=" kw_value
+kw_value      ::= value | value_list
+value_list    ::= "[" value "," value ("," value)* "]"   -- 2+ elements
 kw_name       ::= "COD" | "ChangeoverDelay"
                  | "FRCO" | "FixedRatioChangeover"
                  | "BO" | "Blackout"
@@ -371,7 +377,9 @@ string_literal     ::= '"' [^"]* '"'
 ;   apparatus-annotator   → Apparatus   : "chamber" | "operandum" | "interface" | "hardware" (alias: "hw")
 ;
 ;   measurement-annotator → Measurement : "session_end" | "baseline" | "steady_state"
-;                                        (v1.x minimal set)
+;                                      | "dependent_measure" | "training_volume" | "microstructure"
+;                                      | "phase_end" | "logging" | "iri_window" | "warmup_exclude"
+;                                        (v1.2: complete measurement vocabulary)
 ;
 ; Extensions (do not map to the four JEAB categories):
 ;   extensions/social-annotator    : "subject" | "ibc"            (multi-subject; "ibc" = Interlocking Behavioral Contingencies, Glenn 2004)
@@ -570,3 +578,31 @@ string_literal     ::= '"' [^"]* '"'
 ;     operandum after a changeover (Hunter & Davison, 1985). Zero responses
 ;     is no changeover requirement, which is the implicit default when FRCO
 ;     is omitted entirely.
+; 50. COD keyword arg: value_list form (asymmetric COD; Pliskoff, 1971).
+;     Per-departure-component semantics: element i is the COD imposed when
+;     leaving component i. Length of value_list MUST equal the number of
+;     positional components in the Conc. Mismatch → SemanticError
+;     (ASYMMETRIC_COD_LENGTH_MISMATCH).
+;     Example: `Conc(VI30s, VI60s, COD=[2s, 5s])` — 2s when leaving VI30,
+;     5s when leaving VI60.
+;     Rationale: Pliskoff (1971) showed that prospective delay (the COD
+;     on the destination side) more strongly suppresses switching than
+;     retrospective delay. Sakagami (1989) used asymmetric COD in
+;     concurrent interval-ratio schedules where switching costs differ
+;     between the ratio and interval sides.
+; 51. COD value_list: each element must include a time unit (s/ms/min).
+;     Element without time unit → Linter WARNING (MISSING_TIME_UNIT),
+;     consistent with scalar COD and constraint 41.
+; 52. COD value_list: each element must be ≥ 0 (minimum: 0).
+;     Negative element → SemanticError (same validation as scalar COD).
+; 53. COD value_list with all identical values → Linter WARNING
+;     (REDUNDANT_ASYMMETRIC_COD). Suggest using scalar form.
+;     `Conc(VI30s, VI60s, COD=[2s, 2s])` → WARNING; use `COD=2s` instead.
+; 54. value_list in keyword_arg: valid only for COD on Conc in v1.1.
+;     Other keyword args (FRCO, BO, count, onset) with value_list →
+;     SemanticError (INVALID_VALUE_LIST).
+;     Future: BO may accept value_list for asymmetric blackout (v1.2+).
+; 55. Asymmetric COD is expression-level only. Program-level param_decl
+;     does not accept value_list (grammar enforces: param_decl uses value,
+;     not kw_value). Program-level COD provides a symmetric default;
+;     expression-level asymmetric COD overrides it entirely.

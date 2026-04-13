@@ -355,7 +355,23 @@ Conc(VI 30-s, VI 60-s)                    -- inherits COD=2-s
 Conc(VI 30-s, VI 60-s, COD=5-s)           -- expression-level overrides program-level
 ```
 
-**Future (v1.2):** Asymmetric COD (different values per switch direction) and resetting COD via component labels.
+**Asymmetric COD.** When changeover costs differ by switch direction, COD accepts a value list with per-departure-component delays (Pliskoff, 1971). Element *i* specifies the COD imposed when leaving component *i*:
+
+```
+Conc(VI 30-s, VI 60-s, COD=[2-s, 5-s])    -- 2s leaving VI30, 5s leaving VI60
+Conc(VI 30-s, VR 20, COD=[1-s, 3-s])      -- interval-ratio with asymmetric cost
+                                           -- (Sakagami, 1989)
+```
+
+Semantic rules for asymmetric COD:
+- Value list length **must** equal the number of positional components. Mismatch → `ASYMMETRIC_COD_LENGTH_MISMATCH`.
+- All-identical values trigger Linter WARNING `REDUNDANT_ASYMMETRIC_COD`; use scalar form instead.
+- Program-level `param_decl` accepts scalar COD only (symmetric default). Expression-level asymmetric COD overrides it entirely.
+- Per-element validation: each element follows the same rules as scalar COD (time unit required, ≥ 0).
+
+**Per-departure-component semantics.** The COD is associated with the component the organism is *leaving*, not the specific transition pair. This captures the standard experimental manipulation in Pliskoff (1971) and later asymmetric-COD studies. For the rare case where COD depends on the specific departure–arrival pair (n×(n−1) matrix), see the `contingency-core` layer.
+
+**Future (v1.2):** Resetting COD (timer restarts on re-switch during active COD).
 
 ### 2.5 Blackout (BO)
 
