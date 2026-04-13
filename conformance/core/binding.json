@@ -220,5 +220,72 @@
         "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
       }
     }
+  },
+  {
+    "id": "let_in_second_order_unit",
+    "description": "IdentifierRef inside SecondOrder unit position must be expanded (Issue #33)",
+    "input": "let x = FI30\nFR5(x)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "x",
+          "value": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+        }
+      ],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "IdentifierRef", "name": "x" }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+      }
+    }
+  },
+  {
+    "id": "let_in_second_order_both",
+    "description": "IdentifierRef in both overall and unit of SecondOrder (Issue #33)",
+    "input": "let x = FI30\nlet y = FR5\ny(x)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "x",
+          "value": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+        },
+        {
+          "type": "Binding",
+          "name": "y",
+          "value": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+        }
+      ],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "IdentifierRef", "name": "y" },
+        "unit": { "type": "IdentifierRef", "name": "x" }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+      }
+    }
   }
 ]
