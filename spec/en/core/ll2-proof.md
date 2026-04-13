@@ -756,7 +756,232 @@ This is an extremely narrow pattern. In practice:
 
 ---
 
-## 10. Conclusion
+## 10. Core-Stateful Layer: LL(2) Preservation Proof
+
+### 10.1 Theorem Statement
+
+**Theorem (Core-Stateful LL(2) Preservation).** The contingency-dsl grammar augmented with Core-Stateful productions (`Pctl`, `Adj`, `Interlock` as defined in `schema/core-stateful/grammar.ebnf`) preserves the LL(2) classification established in §1–§8. Specifically:
+
+1. All new decision points introduced by Core-Stateful productions are **LL(1)**.
+2. All existing LL(1) decision points remain LL(1) after the extension.
+3. The unique LL(2) decision point (`PosTail`, §6) remains LL(2) — the 2-token resolution is not invalidated.
+4. No new LL(2) or LL(3) conflicts are introduced.
+
+**Scope.** This section covers the three Core-Stateful constructs:
+
+| Construct | Integration Point | Reference |
+|---|---|---|
+| `Pctl` (Percentile) | `modifier` production | Platt (1973); Galbicka (1994) |
+| `Adj` (Adjusting) | `base_schedule` production | Blough (1958); Mazur (1987) |
+| `Interlock` (Interlocking) | `base_schedule` production | Ferster & Skinner (1957) |
+
+Token classes and CFG productions are defined in §2 and §3.6 respectively.
+
+---
+
+### 10.2 Integration Point Verification
+
+#### 10.2.1 BaseSchedule (6 → 8 alternatives)
+
+Core-Stateful adds two alternatives to `BaseSchedule`:
+
+```
+BaseSchedule → AtomicOrSecond                     FIRST₁ = { SCHED_TYPE, EXT, CRF }
+             | Compound                            FIRST₁ = { COMB, INTERP }
+             | Modifier                            FIRST₁ = { DR_KW, PR_KW, REPEAT_KW, LAG_KW, PCTL_KW }
+             | AversiveSchedule                    FIRST₁ = { SIDMAN_KW, DA_KW }
+             | AdjSchedule                         FIRST₁ = { ADJ_KW }              [NEW]
+             | InterlockSchedule                   FIRST₁ = { INTERLOCK_KW }         [NEW]
+             | IDENT                               FIRST₁ = { IDENT }
+             | LPAREN Schedule RPAREN              FIRST₁ = { LPAREN }
+```
+
+**Pairwise disjointness of new entries:**
+
+| New Token | ∈ any existing FIRST₁? | Reason |
+|---|---|---|
+| `ADJ_KW` (Adj, Adjusting) | No | Reserved, uppercase-initial, distinct from all existing keyword classes |
+| `INTERLOCK_KW` (Interlock, Interlocking) | No | Reserved, uppercase-initial, distinct from all existing keyword classes |
+| `ADJ_KW` ∩ `INTERLOCK_KW` | ∅ | Distinct keywords |
+
+All 28 pairwise intersections among the 8 alternatives remain empty. **LL(1).** ∎
+
+#### 10.2.2 Modifier (4 → 5 alternatives)
+
+Core-Stateful adds `PctlMod` to the `Modifier` production:
+
+```
+Modifier → DR_KW Value                            FIRST₁ = { DR_KW }
+         | PR_KW PrOpts_opt                        FIRST₁ = { PR_KW }
+         | REPEAT_KW LPAREN NUM ...                FIRST₁ = { REPEAT_KW }
+         | LagMod                                  FIRST₁ = { LAG_KW }
+         | PctlMod                                 FIRST₁ = { PCTL_KW }     [NEW]
+```
+
+**Verification:** `PCTL_KW` ∉ {`DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`}. "Pctl" is a distinct reserved keyword, not a member of any existing token class.
+
+All 10 pairwise intersections among the 5 alternatives are empty. **LL(1).** ∎
+
+#### 10.2.3 Updated FIRST₁(Schedule) and FIRST₁(BaseSchedule)
+
+```
+FIRST₁(BaseSchedule) = { SCHED_TYPE, EXT, CRF, COMB, INTERP, DR_KW, PR_KW,
+                          REPEAT_KW, LAG_KW, PCTL_KW, SIDMAN_KW, DA_KW,
+                          ADJ_KW, INTERLOCK_KW, IDENT, LPAREN }
+```
+
+Three new members: `PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW`.
+
+---
+
+### 10.3 PosTail LL(2) Preservation
+
+The LL(2) resolution at `PosTail` (§6) depends on the critical invariant:
+
+```
+FIRST₁(Schedule) ∩ KW_NAME = ∅
+```
+
+**Verification with Core-Stateful tokens:**
+
+| New FIRST₁(Schedule) member | ∈ KW_NAME? | Reason |
+|---|---|---|
+| `PCTL_KW` (Pctl) | No | "Pctl" ∉ {COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout} |
+| `ADJ_KW` (Adj, Adjusting) | No | "Adj"/"Adjusting" ∉ KW_NAME |
+| `INTERLOCK_KW` (Interlock, Interlocking) | No | "Interlock"/"Interlocking" ∉ KW_NAME |
+
+**Invariant preserved:** `(FIRST₁(Schedule) ∪ {PCTL_KW, ADJ_KW, INTERLOCK_KW}) ∩ KW_NAME = ∅`. ✓
+
+**Updated LL(2) parse table (additive rows for §6.4):**
+
+| Lookahead (2 tokens) | Action |
+|---|---|
+| `(COMMA, PCTL_KW)` | Continue: `PosTail → COMMA Schedule PosTail` |
+| `(COMMA, ADJ_KW)` | Continue: `PosTail → COMMA Schedule PosTail` |
+| `(COMMA, INTERLOCK_KW)` | Continue: `PosTail → COMMA Schedule PosTail` |
+
+Every new cell contains exactly one action. No conflict. **LL(2) preserved.** ∎
+
+---
+
+### 10.4 Internal Decision Point Verification
+
+#### 10.4.1 PctlKwTail Repetition
+
+```
+PctlKwTail → COMMA PctlKwArg PctlKwTail | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| Continue | {`COMMA`} |
+| Stop (FOLLOW₁) | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`. **LL(1).** ∎
+
+#### 10.4.2 PctlValue (2 alternatives)
+
+```
+PctlValue → NUM | PCTL_DIR_VAL
+```
+
+`FIRST₁(NUM) = {NUM}`, `FIRST₁(PCTL_DIR_VAL) = {PCTL_DIR_VAL}`.
+
+`{NUM} ∩ {PCTL_DIR_VAL} = ∅` (NUM is `[0-9]+...`; PCTL_DIR_VAL is `below`/`above`). **LL(1).** ∎
+
+Note: The parser reaches `PctlValue` after consuming `PCTL_ARG_KW EQ`. The keyword identity (`window` vs `dir`) determines which value type is expected semantically, but syntactically both alternatives are discriminable by FIRST₁ alone. No semantic lookahead required.
+
+#### 10.4.3 AdjKwMore Repetition
+
+```
+AdjKwMore → COMMA AdjKwArg AdjKwMore | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| Continue | {`COMMA`} |
+| Stop (FOLLOW₁) | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`. **LL(1).** ∎
+
+#### 10.4.4 InterlockKwTail Repetition
+
+```
+InterlockKwTail → COMMA InterlockKwArg InterlockKwTail | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| Continue | {`COMMA`} |
+| Stop (FOLLOW₁) | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`. **LL(1).** ∎
+
+#### 10.4.5 No Mixed Positional/Keyword Ambiguity
+
+Unlike the `ArgList` production in compound schedules (§6), none of the Core-Stateful constructs have variadic positional arguments followed by keyword arguments:
+
+| Construct | Positional Args | Keyword Args | Mixed? |
+|---|---|---|---|
+| `Pctl(target, rank, ...)` | 2 (fixed) | 0+ | No — positional count is fixed at 2 |
+| `Adj(target, start=..., ...)` | 1 (fixed) | 1+ | No — the comma after target always leads to a keyword arg (ADJ_ARG_KW) |
+| `Interlock(R0=..., T=...)` | 0 | 1+ | No — all args are keyword |
+
+In all three cases, the transition from positional to keyword arguments (if any) is deterministic at LL(1):
+- **Pctl:** After `PCTL_TARGET COMMA NUM`, the next token is either `COMMA` (keyword arg follows) or `RPAREN` (end). If `COMMA`, the next token is `PCTL_ARG_KW` (not a schedule-start token), so no PosTail-like conflict arises.
+- **Adj:** After `ADJ_TARGET`, every subsequent `COMMA` introduces an `ADJ_ARG_KW`, never a positional schedule.
+- **Interlock:** All arguments are keyword-only. No positional/keyword boundary exists.
+
+**No new LL(2) conflicts.** ∎
+
+---
+
+### 10.5 Impact on Annotation Boundary (§9)
+
+The §9 LL(2)/LL(3) boundary analysis is affected only through the expansion of `FIRST₁(Schedule)`. The new tokens `PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW` join `FIRST₁(Schedule)`.
+
+**§9.3 LL(2) intersection re-check:**
+
+```
+FIRST₂(LPAREN AnnotationArgs RPAREN) = { (LPAREN, STRING), (LPAREN, NUM), (LPAREN, IDENT) }
+```
+
+This set is unchanged (Core-Stateful adds no new `AnnotationArgs` forms).
+
+```
+FOLLOW₂(Annotation in ProgramAnnotations) ⊇ { (LPAREN, t) : t ∈ FIRST₁(Schedule) }
+```
+
+New members: `(LPAREN, PCTL_KW)`, `(LPAREN, ADJ_KW)`, `(LPAREN, INTERLOCK_KW)`.
+
+**Intersection:**
+
+```
+{ (LPAREN, STRING), (LPAREN, NUM), (LPAREN, IDENT) }
+∩
+{ ..., (LPAREN, PCTL_KW), (LPAREN, ADJ_KW), (LPAREN, INTERLOCK_KW), ... }
+```
+
+`PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW` ∉ {`STRING`, `NUM`, `IDENT`}. No new intersection elements.
+
+**The §9 LL(2)/LL(3) boundary is unchanged.** ∎
+
+---
+
+### 10.6 Conclusion
+
+**Theorem (Core-Stateful LL(2) Preservation).** Let *G* be the Core grammar and *G′* = *G* ∪ Core-Stateful productions. Then:
+
+1. *G′* is LL(2). (Proved: §10.2–§10.4.)
+2. *G′* is not LL(1). (Inherited from *G*: the PosTail conflict of §6 persists.)
+3. *G′* introduces **zero** new LL(2) decision points. All Core-Stateful internal decisions are LL(1).
+4. The annotation boundary (§9) is unaffected by Core-Stateful.
+
+The Core-Stateful layer is a **conservative grammar extension**: it adds new alternatives with disjoint FIRST₁ sets at existing decision points, introduces only LL(1) internal structures, and does not create mixed positional/keyword argument lists. ∎
+
+---
+
+## 11. Conclusion
 
 ### Main Results
 
@@ -768,6 +993,7 @@ This is an extremely narrow pattern. In practice:
 | **Unambiguous** | **Proved** | §8 |
 | **O(n) parseable** | **Proved** | Corollary of LL(2) |
 | **Annotation boundary: LL(2) or LL(3)** | **Characterized** | §9 |
+| **Core-Stateful LL(2) preservation** | **Proved** | §10 |
 
 ### The LL(2) Decision Point
 
@@ -775,16 +1001,17 @@ The grammar has **exactly one decision point** requiring 2-token lookahead:
 
 > **`PosTail` in compound schedule argument lists** (§6): After a positional schedule argument, the token `COMMA` is shared between continuation of positional arguments and transition to keyword arguments. The second token (schedule-start vs keyword-name) resolves the ambiguity.
 
-All other decision points are LL(1) (§5, §7).
+All other decision points — including all Core-Stateful internal decisions (§10.4) — are LL(1) (§5, §7).
 
 ### Formal Statement
 
-**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl v1.0 core grammar as defined in `schema/core/grammar.ebnf`. Then:
+**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl v1.0 grammar as defined in `schema/core/grammar.ebnf` augmented with `schema/core-stateful/grammar.ebnf`. Then:
 
 1. *G* is LL(2): for every non-terminal *A* with productions *A → α* and *A → β* (α ≠ β), `FIRST₂(α · FOLLOW₂(A)) ∩ FIRST₂(β · FOLLOW₂(A)) = ∅`.
 2. *G* is not LL(1): there exist productions `PosTail → COMMA Schedule PosTail` and `PosTail → ε` such that `FIRST₁(COMMA Schedule PosTail) ∩ FOLLOW₁(PosTail) = {COMMA} ≠ ∅`.
 3. *G* is unambiguous (corollary of 1, by Aho et al. 2006, Theorem 4.28).
 4. With the annotation system, *G* is LL(2) under greedy optional disambiguation, or strictly LL(3) without disambiguation conventions (§9).
+5. The Core-Stateful layer (Pctl, Adj, Interlock) preserves all of 1–4 without introducing new LL(2) decision points (§10).
 
 ### Implications for Future Grammar Extensions
 
@@ -793,6 +1020,7 @@ Any future extension to the grammar (e.g., `def` keyword, new combinators, new m
 1. **New keyword tokens must not overlap with `FIRST₁(Schedule)`.** If a new keyword appears as a `KW_NAME` in compound arg_list, it must not be in FIRST₁(Schedule). This preserves the LL(2) resolution at `PosTail`.
 2. **New schedule constructs must not introduce COMMA-based repetitions with mixed positional/keyword semantics** unless they adopt the same LL(2) strategy.
 3. **Annotation extensions** that add new `AnnotationVal` forms starting with tokens in FIRST₁(Schedule) would widen the §9 conflict. Avoid adding `SCHED_TYPE` or `COMB` as annotation values.
+4. **Core-Stateful extensions** (new stateful schedules) should follow the pattern established in §10: function-call syntax with fixed positional count (or keyword-only), disjoint leading keyword, COMMA/RPAREN repetition. This pattern guarantees LL(1) internal decisions.
 
 ---
 

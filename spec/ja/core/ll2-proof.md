@@ -10,6 +10,8 @@
 
 **注意事項（§9）.** アノテーションシステムはプログラムレベルのアノテーションに対して狭い LL(2)/LL(3) 境界ケースを導入する。コアスケジュール文法（アノテーションを除く）は厳密に LL(2)。アノテーションを含む場合、標準的な貪欲曖昧性解消の下で LL(2) が維持される。貪欲規約なしの厳密な LL(3) が1つの特定のトークン三つ組に適用される。分析は §9 を参照。
 
+**拡張（§10）.** Core-Stateful レイヤ（`Pctl`, `Adj`, `Interlock`、`schema/core-stateful/grammar.ebnf` に定義）は LL(2) 分類を保存する。すべての新規決定点は LL(1) であり、既存の決定点は無効化されない。完全な FIRST/FOLLOW 分析は §10 を参照。
+
 ---
 
 ## 2. トークン語彙
@@ -54,12 +56,25 @@
 | `EQ` | = | 等号 |
 | `DASH` | - | ハイフン（時間区切り） |
 | `EOF` | — | 入力終端 |
+| `PCTL_KW` | Pctl | パーセンタイルスケジュールキーワード（Core-Stateful） |
+| `ADJ_KW` | Adj, Adjusting | 調整スケジュールキーワード（Core-Stateful） |
+| `INTERLOCK_KW` | Interlock, Interlocking | 連動スケジュールキーワード（Core-Stateful） |
+| `PCTL_TARGET` | IRT, latency, duration, force, rate | パーセンタイル対象次元（Core-Stateful） |
+| `ADJ_TARGET` | delay, ratio, amount | 調整対象次元（Core-Stateful） |
+| `PCTL_ARG_KW` | window, dir | パーセンタイルキーワード引数名（Core-Stateful） |
+| `PCTL_DIR_VAL` | below, above | パーセンタイル方向値（Core-Stateful） |
+| `ADJ_ARG_KW` | start, step, min, max | 調整キーワード引数名（Core-Stateful） |
+| `INTERLOCK_ARG_KW` | R0, T | 連動キーワード引数名（Core-Stateful） |
 
 **字句解析器の前提:**
 
 - **L1（キーワード優先）:** 予約語はそれぞれ固有のトークンクラスとして字句解析され、`IDENT` としては解析されない。すべての予約語は大文字で始まる（定義上 `IDENT` と素）か、識別子の名前空間から明示的に除外される。
 - **L2（TIME_UNIT の文脈的予約）:** `s`, `sec`, `ms`, `min` は `IDENT` ではなく `TIME_UNIT` として字句解析される。これらは文脈的予約語である（grammar.ebnf 87–89行）。
 - **L3（PARAM_NAME/KW_NAME の重複）:** `LH` は `PARAM_NAME`（param_decl 内）と `LH_KW`（schedule の LH 接尾辞内）の両方である。字句解析器は単一のトークンを生成し、構文解析器が文脈で曖昧性を解消する。LL(k) 分析では同一トークンクラス `LH_KW`/`PARAM_NAME` として扱い、文脈による曖昧性解消を検証する。
+- **L4（Core-Stateful キーワード優先）:** `Pctl`, `Adj`, `Adjusting`, `Interlock`, `Interlocking` はそれぞれ固有のキーワードトークンクラスとして字句解析される。すべて大文字で始まり、`IDENT` と素。
+- **L5（Core-Stateful の文脈的予約）:** `PCTL_TARGET` 値（IRT, latency, ...）、`ADJ_TARGET` 値（delay, ratio, amount）、`PCTL_DIR_VAL`（below, above）、およびキーワード引数名（window, dir, step, min, max, R0）は関数呼び出し括弧内にのみ出現する。構文解析器の文脈が `IDENT` との曖昧性を解消する。
+- **L6（共有キーワード: start）:** `start` は PR（`PR_PARAM_KW`）と Adj（`ADJ_ARG_KW`）の両方で予約されている。`PR(...)` 括弧内では `PR_PARAM_KW`、`Adj(...)` / `Adjusting(...)` 括弧内では `ADJ_ARG_KW` として解析される。構文解析器の状態がどの生成規則が活性かを決定する。字句解析器の衝突なし。
+- **L7（共有キーワード: T）:** `T` は `domain ::= "T"`（FT/VT/RT 用）と `INTERLOCK_ARG_KW`（`Interlock(...)` 内）の両方で予約されている。構文解析器の文脈（Interlock 括弧内でキーワード引数を期待）が domain 生成規則（`atomic_or_second` 内で dist の後に出現）との曖昧性を解消する。構文的曖昧性なし。
 
 ---
 
@@ -145,6 +160,33 @@ DaArg             → DA_TEMP_KW EQ Value | MODE_KW EQ DA_MODE
 DaTail            → COMMA DaArg DaTail | ε
 ```
 
+### 3.6 Core-Stateful スケジュール
+
+統合点（追加的 — 既存の生成規則は変更されない）:
+
+- `Modifier → ... | PctlMod`（Pctl は modifier を拡張）
+- `BaseSchedule → ... | AdjSchedule | InterlockSchedule`（Adj と Interlock は base_schedule を拡張）
+
+```
+PctlMod           → PCTL_KW LPAREN PCTL_TARGET COMMA NUM PctlKwTail RPAREN
+PctlKwTail        → COMMA PctlKwArg PctlKwTail | ε
+PctlKwArg         → PCTL_ARG_KW EQ PctlValue
+PctlValue         → NUM | PCTL_DIR_VAL
+
+AdjSchedule       → ADJ_KW LPAREN ADJ_TARGET COMMA AdjKwArg AdjKwMore RPAREN
+AdjKwMore         → COMMA AdjKwArg AdjKwMore | ε
+AdjKwArg          → ADJ_ARG_KW EQ Value
+
+InterlockSchedule → INTERLOCK_KW LPAREN InterlockKwArg InterlockKwTail RPAREN
+InterlockKwTail   → COMMA InterlockKwArg InterlockKwTail | ε
+InterlockKwArg    → INTERLOCK_ARG_KW EQ Value
+```
+
+**注記:**
+- `PctlMod` は正確に2つの位置引数（target, rank）の後にオプションのキーワード引数が続く。位置/キーワード混合の曖昧性なし（cf. §6）。
+- `AdjSchedule` は正確に1つの位置引数（target）の後に必須のキーワード引数が続く（EBNF で `+`; 少なくとも `start` と `step`）。CFG では1つの必須 `AdjKwArg` + `AdjKwMore*` に正規化。
+- `InterlockSchedule` はキーワード引数のみ（R0, T）。位置引数なし。
+
 ---
 
 ## 4. FIRST₁ 集合
@@ -189,6 +231,26 @@ DaTail            → COMMA DaArg DaTail | ε
 | `PrParams` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `LagKwArgs` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `InterpKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
+
+### 4.4 Core-Stateful 非終端記号
+
+| 非終端記号 | FIRST₁ | 導出 |
+|---|---|---|
+| `PctlMod` | {`PCTL_KW`} | PCTL_KW 終端記号から |
+| `AdjSchedule` | {`ADJ_KW`} | ADJ_KW 終端記号から |
+| `InterlockSchedule` | {`INTERLOCK_KW`} | INTERLOCK_KW 終端記号から |
+| `PctlKwArg` | {`PCTL_ARG_KW`} | PCTL_ARG_KW 終端記号から |
+| `PctlValue` | {`NUM`, `PCTL_DIR_VAL`} | NUM と PCTL_DIR_VAL から |
+| `AdjKwArg` | {`ADJ_ARG_KW`} | ADJ_ARG_KW 終端記号から |
+| `InterlockKwArg` | {`INTERLOCK_ARG_KW`} | INTERLOCK_ARG_KW 終端記号から |
+
+### 4.5 Core-Stateful の反復決定
+
+| 反復 | 継続の FIRST₁ | 停止（FOLLOW₁） | 素？ |
+|---|---|---|---|
+| `PctlKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
+| `AdjKwMore` | {`COMMA`} | {`RPAREN`} | ✓ |
+| `InterlockKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
 
 ---
 
@@ -525,7 +587,7 @@ FIRST₂(COMMA Schedule PosTail) ∩ FOLLOW₂(PosTail) = ∅
 
 | # | 決定点 | LL(1)? | LL(2)? | メカニズム |
 |---|---|---|---|---|
-| D1 | `BaseSchedule`（6つの選択肢） | ✓ | — | 素な FIRST₁（§5.1） |
+| D1 | `BaseSchedule`（8つの選択肢†） | ✓ | — | 素な FIRST₁（§5.1, §10.3） |
 | D2 | `AtomicOrSecond`（3つの選択肢） | ✓ | — | 素な FIRST₁: SCHED_TYPE / EXT / CRF |
 | D3 | `SecondOrder_opt`（オプション） | ✓* | — | 貪欲 LL(1); PR 変種は LL(2)（§5.2, §5.5） |
 | D4 | `LH_opt`（オプション） | ✓ | — | LH_KW ∉ FOLLOW₁(Schedule)（§5.3） |
@@ -535,13 +597,20 @@ FIRST₂(COMMA Schedule PosTail) ∩ FOLLOW₂(PosTail) = ∅
 | D8 | プログラムレベル遷移 | ✓ | — | AT / PARAM_NAME / LET / FIRST(Schedule) が素（§5.7） |
 | D9 | `PosTail`（arg_list の継続） | ✗ | ✓ | **LL(2) ポイント**（§6） |
 | D10 | `KwTail`, `SidmanTail`, `DaTail` 等 | ✓ | — | COMMA vs RPAREN（§5.8） |
-| D11 | `Modifier`（4つの選択肢） | ✓ | — | DR_KW / PR_KW / REPEAT_KW / LAG_KW が素 |
+| D11 | `Modifier`（5つの選択肢†） | ✓ | — | DR_KW / PR_KW / REPEAT_KW / LAG_KW / PCTL_KW が素（§10.3） |
 | D12 | `AversiveSchedule`（2つの選択肢） | ✓ | — | SIDMAN_KW / DA_KW が素 |
 | D13 | `Compound`（2つの選択肢） | ✓ | — | COMB / INTERP が素 |
 | D14 | `AnnotationArgs`（2つの選択肢） | ✓ | — | STRING∪NUM vs IDENT が素（§9.1） |
 | D15 | `AnnotationArgs_opt`（オプション） | ⚠ | ⚠ | §9 参照 |
+| D16 | `PctlKwTail` 反復 | ✓ | — | COMMA vs RPAREN（§10.4.1） |
+| D17 | `PctlValue`（2つの選択肢） | ✓ | — | NUM vs PCTL_DIR_VAL（§10.4.2） |
+| D18 | `AdjKwMore` 反復 | ✓ | — | COMMA vs RPAREN（§10.4.3） |
+| D19 | `InterlockKwTail` 反復 | ✓ | — | COMMA vs RPAREN（§10.4.4） |
+| D20 | Core-Stateful トークンを含む `PosTail` | — | ✓ | 新トークン ∉ KW_NAME（§10.3.3） |
 
 \* LPAREN ∈ FOLLOW₁ の場合、LL(1) での貪欲解消; 形式的には LL(2)。
+
+† Core-Stateful 追加を含む数（§10）。Core のみの数: BaseSchedule = 6, Modifier = 4。
 
 ---
 
@@ -671,7 +740,232 @@ FOLLOW₂(LPAREN で始まるスケジュールが続く場合の Annotation):
 
 ---
 
-## 10. 結論
+## 10. Core-Stateful レイヤ: LL(2) 保存証明
+
+### 10.1 定理の主張
+
+**定理（Core-Stateful LL(2) 保存）。** Core-Stateful 生成規則（`Pctl`, `Adj`, `Interlock`、`schema/core-stateful/grammar.ebnf` に定義）で拡張された contingency-dsl 文法は、§1–§8 で確立された LL(2) 分類を保存する。具体的には:
+
+1. Core-Stateful 生成規則が導入するすべての新規決定点は **LL(1)** である。
+2. すべての既存 LL(1) 決定点は拡張後も LL(1) のまま維持される。
+3. 唯一の LL(2) 決定点（`PosTail`、§6）は LL(2) のまま維持される — 2トークン解消は無効化されない。
+4. 新たな LL(2) または LL(3) の衝突は導入されない。
+
+**対象範囲。** 本セクションは以下の3つの Core-Stateful 構成を対象とする:
+
+| 構成 | 統合点 | 参考文献 |
+|---|---|---|
+| `Pctl`（パーセンタイル） | `modifier` 生成規則 | Platt (1973); Galbicka (1994) |
+| `Adj`（調整） | `base_schedule` 生成規則 | Blough (1958); Mazur (1987) |
+| `Interlock`（連動） | `base_schedule` 生成規則 | Ferster & Skinner (1957) |
+
+トークンクラスと CFG 生成規則はそれぞれ §2 と §3.6 に定義されている。
+
+---
+
+### 10.2 統合点の検証
+
+#### 10.2.1 BaseSchedule（6 → 8 選択肢）
+
+Core-Stateful は `BaseSchedule` に2つの選択肢を追加する:
+
+```
+BaseSchedule → AtomicOrSecond                     FIRST₁ = { SCHED_TYPE, EXT, CRF }
+             | Compound                            FIRST₁ = { COMB, INTERP }
+             | Modifier                            FIRST₁ = { DR_KW, PR_KW, REPEAT_KW, LAG_KW, PCTL_KW }
+             | AversiveSchedule                    FIRST₁ = { SIDMAN_KW, DA_KW }
+             | AdjSchedule                         FIRST₁ = { ADJ_KW }              [新規]
+             | InterlockSchedule                   FIRST₁ = { INTERLOCK_KW }         [新規]
+             | IDENT                               FIRST₁ = { IDENT }
+             | LPAREN Schedule RPAREN              FIRST₁ = { LPAREN }
+```
+
+**新規エントリの対ごとの素性:**
+
+| 新トークン | 既存の FIRST₁ に含まれるか？ | 理由 |
+|---|---|---|
+| `ADJ_KW` (Adj, Adjusting) | いいえ | 予約語、大文字始まり、既存のすべてのキーワードクラスと異なる |
+| `INTERLOCK_KW` (Interlock, Interlocking) | いいえ | 予約語、大文字始まり、既存のすべてのキーワードクラスと異なる |
+| `ADJ_KW` ∩ `INTERLOCK_KW` | ∅ | 異なるキーワード |
+
+8つの選択肢間の28個の対ごとの共通部分はすべて空のまま。**LL(1).** ∎
+
+#### 10.2.2 Modifier（4 → 5 選択肢）
+
+Core-Stateful は `Modifier` 生成規則に `PctlMod` を追加する:
+
+```
+Modifier → DR_KW Value                            FIRST₁ = { DR_KW }
+         | PR_KW PrOpts_opt                        FIRST₁ = { PR_KW }
+         | REPEAT_KW LPAREN NUM ...                FIRST₁ = { REPEAT_KW }
+         | LagMod                                  FIRST₁ = { LAG_KW }
+         | PctlMod                                 FIRST₁ = { PCTL_KW }     [新規]
+```
+
+**検証:** `PCTL_KW` ∉ {`DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`}。"Pctl" は固有の予約キーワードであり、既存のいずれのトークンクラスのメンバーでもない。
+
+5つの選択肢間の10個の対ごとの共通部分はすべて空。**LL(1).** ∎
+
+#### 10.2.3 更新された FIRST₁(Schedule) と FIRST₁(BaseSchedule)
+
+```
+FIRST₁(BaseSchedule) = { SCHED_TYPE, EXT, CRF, COMB, INTERP, DR_KW, PR_KW,
+                          REPEAT_KW, LAG_KW, PCTL_KW, SIDMAN_KW, DA_KW,
+                          ADJ_KW, INTERLOCK_KW, IDENT, LPAREN }
+```
+
+新規メンバー3つ: `PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW`。
+
+---
+
+### 10.3 PosTail の LL(2) 保存
+
+`PosTail` における LL(2) 解消（§6）は以下の重要な不変条件に依存する:
+
+```
+FIRST₁(Schedule) ∩ KW_NAME = ∅
+```
+
+**Core-Stateful トークンでの検証:**
+
+| 新しい FIRST₁(Schedule) メンバー | KW_NAME に含まれるか？ | 理由 |
+|---|---|---|
+| `PCTL_KW` (Pctl) | いいえ | "Pctl" ∉ {COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout} |
+| `ADJ_KW` (Adj, Adjusting) | いいえ | "Adj"/"Adjusting" ∉ KW_NAME |
+| `INTERLOCK_KW` (Interlock, Interlocking) | いいえ | "Interlock"/"Interlocking" ∉ KW_NAME |
+
+**不変条件保存:** `(FIRST₁(Schedule) ∪ {PCTL_KW, ADJ_KW, INTERLOCK_KW}) ∩ KW_NAME = ∅`。✓
+
+**更新された LL(2) 解析表（§6.4 への追加行）:**
+
+| 先読み（2トークン） | アクション |
+|---|---|
+| `(COMMA, PCTL_KW)` | 継続: `PosTail → COMMA Schedule PosTail` |
+| `(COMMA, ADJ_KW)` | 継続: `PosTail → COMMA Schedule PosTail` |
+| `(COMMA, INTERLOCK_KW)` | 継続: `PosTail → COMMA Schedule PosTail` |
+
+すべての新セルは正確に1つのアクションを含む。衝突なし。**LL(2) 保存。** ∎
+
+---
+
+### 10.4 内部決定点の検証
+
+#### 10.4.1 PctlKwTail 反復
+
+```
+PctlKwTail → COMMA PctlKwArg PctlKwTail | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| 継続 | {`COMMA`} |
+| 停止（FOLLOW₁） | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`。**LL(1).** ∎
+
+#### 10.4.2 PctlValue（2つの選択肢）
+
+```
+PctlValue → NUM | PCTL_DIR_VAL
+```
+
+`FIRST₁(NUM) = {NUM}`, `FIRST₁(PCTL_DIR_VAL) = {PCTL_DIR_VAL}`。
+
+`{NUM} ∩ {PCTL_DIR_VAL} = ∅`（NUM は `[0-9]+...`; PCTL_DIR_VAL は `below`/`above`）。**LL(1).** ∎
+
+注: 構文解析器は `PCTL_ARG_KW EQ` を消費した後に `PctlValue` に到達する。キーワードの同一性（`window` vs `dir`）が意味的にどの値型が期待されるかを決定するが、構文的には両方の選択肢が FIRST₁ のみで判別可能。意味的先読みは不要。
+
+#### 10.4.3 AdjKwMore 反復
+
+```
+AdjKwMore → COMMA AdjKwArg AdjKwMore | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| 継続 | {`COMMA`} |
+| 停止（FOLLOW₁） | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`。**LL(1).** ∎
+
+#### 10.4.4 InterlockKwTail 反復
+
+```
+InterlockKwTail → COMMA InterlockKwArg InterlockKwTail | ε
+```
+
+| | FIRST₁ |
+|---|---|
+| 継続 | {`COMMA`} |
+| 停止（FOLLOW₁） | {`RPAREN`} |
+
+`{COMMA} ∩ {RPAREN} = ∅`。**LL(1).** ∎
+
+#### 10.4.5 位置/キーワード引数の混合曖昧性なし
+
+複合スケジュールの `ArgList` 生成規則（§6）と異なり、Core-Stateful のいずれの構成も可変長の位置引数の後にキーワード引数が続くパターンを持たない:
+
+| 構成 | 位置引数 | キーワード引数 | 混合？ |
+|---|---|---|---|
+| `Pctl(target, rank, ...)` | 2（固定） | 0+ | いいえ — 位置引数の数は2に固定 |
+| `Adj(target, start=..., ...)` | 1（固定） | 1+ | いいえ — target の後のカンマは常にキーワード引数（ADJ_ARG_KW）へ |
+| `Interlock(R0=..., T=...)` | 0 | 1+ | いいえ — すべての引数がキーワード |
+
+3つのすべてのケースにおいて、位置引数からキーワード引数への遷移（存在する場合）は LL(1) で決定的:
+- **Pctl:** `PCTL_TARGET COMMA NUM` の後、次のトークンは `COMMA`（キーワード引数が続く）または `RPAREN`（終了）。`COMMA` の場合、次は `PCTL_ARG_KW`（スケジュール開始トークンではない）であり、PosTail 型の衝突は生じない。
+- **Adj:** `ADJ_TARGET` の後、すべての `COMMA` は `ADJ_ARG_KW` を導入し、位置スケジュールは導入しない。
+- **Interlock:** すべての引数がキーワードのみ。位置/キーワードの境界は存在しない。
+
+**新たな LL(2) 衝突なし。** ∎
+
+---
+
+### 10.5 アノテーション境界（§9）への影響
+
+§9 の LL(2)/LL(3) 境界分析は `FIRST₁(Schedule)` の拡大を通じてのみ影響を受ける。新トークン `PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW` が `FIRST₁(Schedule)` に加わる。
+
+**§9.3 LL(2) 共通部分の再検証:**
+
+```
+FIRST₂(LPAREN AnnotationArgs RPAREN) = { (LPAREN, STRING), (LPAREN, NUM), (LPAREN, IDENT) }
+```
+
+この集合は変更なし（Core-Stateful は新しい `AnnotationArgs` 形式を追加しない）。
+
+```
+FOLLOW₂(ProgramAnnotations 内の Annotation) ⊇ { (LPAREN, t) : t ∈ FIRST₁(Schedule) }
+```
+
+新メンバー: `(LPAREN, PCTL_KW)`, `(LPAREN, ADJ_KW)`, `(LPAREN, INTERLOCK_KW)`。
+
+**共通部分:**
+
+```
+{ (LPAREN, STRING), (LPAREN, NUM), (LPAREN, IDENT) }
+∩
+{ ..., (LPAREN, PCTL_KW), (LPAREN, ADJ_KW), (LPAREN, INTERLOCK_KW), ... }
+```
+
+`PCTL_KW`, `ADJ_KW`, `INTERLOCK_KW` ∉ {`STRING`, `NUM`, `IDENT`}。新しい共通部分要素なし。
+
+**§9 の LL(2)/LL(3) 境界は変更なし。** ∎
+
+---
+
+### 10.6 結論
+
+**定理（Core-Stateful LL(2) 保存）。** *G* をコア文法、*G′* = *G* ∪ Core-Stateful 生成規則とする。このとき:
+
+1. *G′* は LL(2)。（証明: §10.2–§10.4。）
+2. *G′* は LL(1) でない。（*G* から継承: §6 の PosTail 衝突が存続。）
+3. *G′* は新たな LL(2) 決定点を **ゼロ** 導入する。Core-Stateful のすべての内部決定は LL(1)。
+4. アノテーション境界（§9）は Core-Stateful の影響を受けない。
+
+Core-Stateful レイヤは**保守的な文法拡張**である: 既存の決定点に素な FIRST₁ 集合を持つ新しい選択肢を追加し、LL(1) の内部構造のみを導入し、位置/キーワード引数の混合リストを生成しない。∎
+
+---
+
+## 11. 結論
 
 ### 主要結果
 
@@ -683,6 +977,7 @@ FOLLOW₂(LPAREN で始まるスケジュールが続く場合の Annotation):
 | **曖昧性ゼロ** | **証明済** | §8 |
 | **O(n) で解析可能** | **証明済** | LL(2) の系 |
 | **アノテーション境界: LL(2) または LL(3)** | **特性化済** | §9 |
+| **Core-Stateful LL(2) 保存** | **証明済** | §10 |
 
 ### LL(2) 決定点
 
@@ -690,16 +985,17 @@ FOLLOW₂(LPAREN で始まるスケジュールが続く場合の Annotation):
 
 > **複合スケジュール引数リスト内の `PosTail`**（§6）: 位置スケジュール引数の後、トークン `COMMA` が位置引数の継続とキーワード引数への遷移の両方に共有される。2番目のトークン（スケジュール開始 vs キーワード名）が曖昧性を解消する。
 
-他のすべての決定点は LL(1) である（§5, §7）。
+他のすべての決定点 — Core-Stateful のすべての内部決定（§10.4）を含む — は LL(1) である（§5, §7）。
 
 ### 形式的な定理記述
 
-**定理（LL(2) 分類）。** *G* を `schema/core/grammar.ebnf` に定義された contingency-dsl v1.0 コア文法とする。このとき:
+**定理（LL(2) 分類）。** *G* を `schema/core/grammar.ebnf` に定義され `schema/core-stateful/grammar.ebnf` で拡張された contingency-dsl v1.0 文法とする。このとき:
 
 1. *G* は LL(2): すべての非終端記号 *A* とその生成規則 *A → α* および *A → β*（α ≠ β）に対して `FIRST₂(α · FOLLOW₂(A)) ∩ FIRST₂(β · FOLLOW₂(A)) = ∅`。
 2. *G* は LL(1) でない: 生成規則 `PosTail → COMMA Schedule PosTail` と `PosTail → ε` が存在し、`FIRST₁(COMMA Schedule PosTail) ∩ FOLLOW₁(PosTail) = {COMMA} ≠ ∅` を満たす。
 3. *G* は曖昧性を持たない（1 の系、Aho et al. 2006, 定理 4.28 による）。
 4. アノテーションシステムを含む場合、*G* は貪欲オプション曖昧性解消の下で LL(2)、曖昧性解消規約なしでは厳密に LL(3)（§9）。
+5. Core-Stateful レイヤ（Pctl, Adj, Interlock）は 1–4 のすべてを新たな LL(2) 決定点を導入することなく保存する（§10）。
 
 ### 将来の文法拡張への示唆
 
@@ -708,6 +1004,7 @@ FOLLOW₂(LPAREN で始まるスケジュールが続く場合の Annotation):
 1. **新しいキーワードトークンは `FIRST₁(Schedule)` と重複してはならない。** 新しいキーワードが複合スケジュールの arg_list 内で `KW_NAME` として出現する場合、`FIRST₁(Schedule)` に含まれてはならない。これにより `PosTail` での LL(2) 解消が保持される。
 2. **新しいスケジュール構成が位置引数/キーワード引数の混合意味論を持つ COMMA ベースの反復を導入してはならない**（同じ LL(2) 戦略を採用する場合を除く）。
 3. **アノテーション拡張** が `FIRST₁(Schedule)` 内のトークンで始まる新しい `AnnotationVal` 形式を追加すると §9 の衝突が拡大する。`SCHED_TYPE` や `COMB` をアノテーション値として追加することを避けるべきである。
+4. **Core-Stateful 拡張**（新しいステートフルスケジュール）は §10 で確立されたパターンに従うべきである: 固定の位置引数数（またはキーワードのみ）の関数呼び出し構文、素な先頭キーワード、COMMA/RPAREN 反復。このパターンにより LL(1) の内部決定が保証される。
 
 ---
 
