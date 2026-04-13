@@ -103,6 +103,12 @@ T-C. Is @X required in the publication phase? (e.g., @species)
 | Proposal | Q1 | Q2 | Q3 | Phase A | T-A | T-B | T-C | Tier |
 |---|---|---|---|---|---|---|---|---|
 | `@session_end` | N | N | N | Annotation | N | Y | — | **Tier 2** |
+| `@dependent_measure` | N | N | N | Annotation | N | N | Y | **Tier 3** |
+| `@training_volume` | N | N | N | Annotation | N | N | Y | **Tier 3** |
+| `@microstructure` | N | N | N | Annotation | N | N | Y | **Tier 3** |
+| `@phase_end` | N | N | N | Annotation | N | N | Y | **Tier 3** |
+| `@iri_window` | N | N | N | Annotation | N | N | Y | **Tier 3** |
+| `@warmup_exclude` | N | N | N | Annotation | Y | — | — | **Tier 1** |
 | `@response(force, IRT)` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@logging` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@clock(unit)` | N | N | N | Annotation | Y | — | — | **Tier 1** |

@@ -52,7 +52,7 @@ The same schedule expression grows richer as it moves from theory to publication
 | Theoretical discussion | `FR 5` | `parse` | Tier 0 only |
 | Simulation | + `@clock(unit="s")` `@algorithm(...)` | `dev` | Tier 0-1 |
 | Physical experiment | + `@hardware("teensy41")` `@session_end(...)` `@response(...)` `@operandum(...)` | `production` | Tier 0-2 |
-| Paper publication | + `@species(...)` `@strain(...)` `@chamber(...)` `@n(...)` | `publication` | Tier 0-3 |
+| Paper publication | + `@species(...)` `@strain(...)` `@chamber(...)` `@n(...)` `@dependent_measure(...)` `@training_volume(...)` | `publication` | Tier 0-3 |
 
 **Key guarantee:** `FR 5` alone always passes *every* mode. Annotations are never required by the parser. Instead, `production` and `publication` validators enforce progressively stricter requirements depending on the stage of work.
 
@@ -73,7 +73,7 @@ Subjects / Apparatus / Measurement).
 | Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`), `@feeder` |
-| Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
+| Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` |
 
 These form the project's recommended set; programs (runtime / interpreter)
 are free to adopt, extend, or replace them (see
@@ -262,6 +262,17 @@ A fully annotated program for a concurrent VI-VI experiment, organized by scopin
 @chamber("med-associates", model="ENV-007")
 @hardware("teensy41")
 @feeder("pellet_dispenser", min_cycle=0.5)
+
+-- Measurement (program-level)
+@session_end(rule="first", time=60min, reinforcers=60)
+@baseline(pre_training_sessions=3)
+@steady_state(window_sessions=5, max_change_pct=10)
+@dependent_measure(variables=["rate", "irt", "prf_pause", "running_rate", "changeover_rate"])
+@microstructure(burst_threshold=2s, prf_pause_method="latency_to_first", report=["irt_distribution", "bout_statistics", "prf_pause"])
+@phase_end(rule="all", min_sessions=20, stability="steady_state", cv_threshold=0.15)
+@logging(events=["response", "reinforcer"], precision="ms")
+@iri_window(bin_width=5s, report=["distribution", "cv"])
+@warmup_exclude(duration=5min)
 
 -- Session parameters (program-level)
 @clock(unit="s")

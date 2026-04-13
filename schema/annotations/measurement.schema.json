@@ -4,7 +4,7 @@
   "title": "measurement-annotator",
   "description": "JEAB Measurement category. Declares when and how the effect of the Core contingency is read: session termination rules, steady-state criteria, and baseline measurement conditions.",
   "category": "Measurement",
-  "version": "1.0",
+  "version": "1.2",
   "status": "Schema Design",
 
   "keywords": {
@@ -108,8 +108,306 @@
         "STEADY_STATE_UNKNOWN_MEASURE": "measure value not in enum"
       },
       "reference": "Sidman, M. (1960). Tactics of scientific research: Evaluating experimental data in psychology. Basic Books."
+    },
+
+    "dependent_measure": {
+      "description": "Primary dependent variable declaration. Specifies which behavioral measures are recorded, reported, and analyzed. Corresponds to the 'Dependent Variable' subsection of JEAB Method / Measurement.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "rate",
+              "irt",
+              "prf_pause",
+              "latency",
+              "bout_rate",
+              "bout_length",
+              "within_bout_rate",
+              "running_rate",
+              "reinforcers",
+              "consumption",
+              "response_rate_ratio",
+              "peak_time",
+              "spread",
+              "cv",
+              "breakpoint",
+              "demand_elasticity",
+              "suppression_ratio",
+              "changeover_rate",
+              "custom"
+            ]
+          },
+          "minItems": 1,
+          "required": true,
+          "description": "List of dependent variables to record. 'rate' = responses per unit time; 'irt' = inter-response time distribution; 'prf_pause' = post-reinforcement pause duration; 'latency' = response latency from discriminative stimulus onset; 'bout_rate' = bout initiation rate (Shull et al., 2001); 'bout_length' = mean responses per bout; 'within_bout_rate' = response rate within bouts; 'running_rate' = response rate excluding post-reinforcement pauses; 'reinforcers' = reinforcer deliveries per session; 'consumption' = amount consumed per session (for devaluation studies); 'response_rate_ratio' = ratio of response rates across conditions (for devaluation / transfer tests); 'peak_time' = modal response time in peak procedure / FI scallop (Gibbon, 1977); 'spread' = width of temporal response distribution around peak; 'cv' = coefficient of variation of temporal discrimination (Weber fraction); 'breakpoint' = last completed ratio in progressive ratio (Hodos, 1961); 'demand_elasticity' = elasticity parameter from demand curve analysis (Hursh & Silberberg, 2008); 'suppression_ratio' = Estes-Skinner conditioned suppression ratio B/(A+B); 'changeover_rate' = rate of switching between concurrent schedule alternatives; 'custom' = user-defined measure"
+        },
+        "primary": {
+          "type": "string",
+          "required": false,
+          "description": "Which variable is the primary dependent measure. Must be one of the values listed in 'variables'. Defaults to the first element of 'variables'."
+        }
+      },
+      "errors": {
+        "DEPENDENT_MEASURE_EMPTY_VARIABLES": "variables must contain at least one measure",
+        "DEPENDENT_MEASURE_UNKNOWN_VARIABLE": "variable value not in enum",
+        "DEPENDENT_MEASURE_PRIMARY_NOT_IN_VARIABLES": "primary must be one of the declared variables"
+      },
+      "reference": "Johnston, J. M., & Pennypacker, H. S. (2009). Strategies and tactics of behavioral research (3rd ed.). Routledge."
+    },
+
+    "training_volume": {
+      "description": "Training volume tracking declaration. Specifies cumulative training exposure metrics to record across sessions. Critical for overtraining paradigms and habit formation research where the amount of training determines whether behavior is goal-directed or habitual (Adams & Dickinson, 1981).",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "track": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["sessions", "responses", "reinforcers"]
+          },
+          "minItems": 1,
+          "required": true,
+          "description": "Cumulative metrics to track across the training phase. 'sessions' = total session count; 'responses' = cumulative response count; 'reinforcers' = cumulative reinforcer deliveries"
+        },
+        "criterion_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Session count threshold for overtraining classification. When cumulative sessions reach this value, session-analyzer flags the transition from moderate to extensive training."
+        },
+        "criterion_responses": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Cumulative response count threshold for overtraining classification"
+        },
+        "criterion_reinforcers": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Cumulative reinforcer count threshold for overtraining classification"
+        }
+      },
+      "errors": {
+        "TRAINING_VOLUME_EMPTY_TRACK": "track must contain at least one metric",
+        "TRAINING_VOLUME_UNKNOWN_METRIC": "track value not in enum",
+        "TRAINING_VOLUME_NONPOSITIVE_CRITERION": "criterion values must be positive integers"
+      },
+      "reference": "Adams, C. D., & Dickinson, A. (1981). Instrumental responding following reinforcer devaluation. Quarterly Journal of Experimental Psychology, 33B(2), 109-121. https://doi.org/10.1080/14640748108400816"
+    },
+
+    "microstructure": {
+      "description": "Response microstructure measurement parameters. Configures fine-grained temporal analysis of response patterns including IRT distributions, bout analysis, and post-reinforcement pauses. These parameters define how the session-analyzer decomposes raw event streams into structural units of behavior.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "irt_bin_width": {
+          "type": "time_value",
+          "required": false,
+          "description": "Bin width for IRT frequency distribution histograms (e.g., 0.5s). Determines the temporal resolution of IRT analysis. If omitted, session-analyzer uses adaptive binning."
+        },
+        "burst_threshold": {
+          "type": "time_value",
+          "required": false,
+          "description": "IRT threshold below which consecutive responses are classified as within-bout (burst). Responses with IRT < burst_threshold belong to the same bout. Typically determined via log-survivor analysis (Shull et al., 2001). If omitted, bout analysis is not performed."
+        },
+        "prf_pause_method": {
+          "type": "string",
+          "enum": ["latency_to_first", "latency_to_nth", "quarter_life"],
+          "required": false,
+          "default": "latency_to_first",
+          "description": "Method for measuring post-reinforcement pause. 'latency_to_first' = time from reinforcer delivery to first response (Felton & Lyon, 1966); 'latency_to_nth' = time from reinforcer delivery to nth response (requires prf_pause_n); 'quarter_life' = time to emit 25% of ratio requirement (Herrnstein & Morse, 1957)"
+        },
+        "prf_pause_n": {
+          "type": "integer",
+          "minimum": 2,
+          "required_if": { "prf_pause_method": ["latency_to_nth"] },
+          "forbidden_if": { "prf_pause_method": ["latency_to_first", "quarter_life"] },
+          "description": "Number of responses for the latency_to_nth method (e.g., 3 = time to 3rd response post-reinforcement)"
+        },
+        "report": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["irt_distribution", "bout_statistics", "prf_pause", "run_length", "changeover", "log_survivor", "scallop_index", "reinforcement_proximity"]
+          },
+          "required": false,
+          "description": "Which microstructure analyses to include in session reports. 'irt_distribution' = IRT frequency histogram; 'bout_statistics' = bout count, mean bout length, within-bout rate, bout initiation rate; 'prf_pause' = post-reinforcement pause durations per ratio; 'run_length' = response run lengths between pauses; 'changeover' = changeover delays and frequencies (for concurrent schedules); 'log_survivor' = IRT log-survivor plot for bout/pause threshold identification (Shull et al., 2001); 'scallop_index' = FI scallop curvature index (acceleration of responding within the interval); 'reinforcement_proximity' = IRT binning relative to reinforcement delivery (molecular analysis of reinforcement contiguity effects)"
+        }
+      },
+      "errors": {
+        "MICROSTRUCTURE_NONPOSITIVE_BIN": "irt_bin_width must be a positive time value",
+        "MICROSTRUCTURE_NONPOSITIVE_THRESHOLD": "burst_threshold must be a positive time value",
+        "MICROSTRUCTURE_UNKNOWN_METHOD": "prf_pause_method value not in enum",
+        "MICROSTRUCTURE_NTH_MISSING": "prf_pause_method=latency_to_nth requires prf_pause_n",
+        "MICROSTRUCTURE_NTH_FORBIDDEN": "prf_pause_n is only valid with prf_pause_method=latency_to_nth",
+        "MICROSTRUCTURE_UNKNOWN_REPORT": "report value not in enum"
+      },
+      "reference": "Shull, R. L., Gaynor, S. T., & Grimes, J. A. (2001). Response rate viewed as engagement bouts: Effects of rate of reinforcement. Journal of the Experimental Analysis of Behavior, 75(3), 247-274. https://doi.org/10.1901/jeab.2001.75-247"
+    },
+
+    "phase_end": {
+      "description": "Phase termination criteria. Declares compound conditions for ending an experimental phase. Unlike @session_end (which governs individual sessions) and @steady_state (which evaluates stability), @phase_end specifies when the current experimental phase as a whole terminates — potentially requiring multiple criteria to converge simultaneously.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "rule": {
+          "type": "string",
+          "enum": ["all", "any", "first"],
+          "required": true,
+          "description": "How multiple criteria combine. 'all' = every criterion must be met (conjunction); 'any' = at least one criterion (disjunction); 'first' = whichever criterion is met first (identical to 'any' but signals intent)"
+        },
+        "min_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Minimum number of sessions before phase can terminate"
+        },
+        "max_sessions": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Maximum number of sessions (phase terminates regardless of other criteria)"
+        },
+        "stability": {
+          "type": "string",
+          "enum": ["steady_state", "custom"],
+          "required": false,
+          "description": "Reference to stability criterion. 'steady_state' = use the @steady_state parameters declared in the same program; 'custom' = custom stability evaluation (implementation-defined)"
+        },
+        "min_reinforcers": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Minimum cumulative reinforcers before phase can terminate"
+        },
+        "cv_threshold": {
+          "type": "number",
+          "minimum": 0,
+          "required": false,
+          "description": "Maximum coefficient of variation of the primary DV across consecutive sessions (e.g., 0.15 = CV < 15%). Evaluated over the @steady_state window."
+        }
+      },
+      "errors": {
+        "PHASE_END_UNKNOWN_RULE": "rule value not in enum",
+        "PHASE_END_NO_CRITERIA": "at least one criterion (min_sessions, max_sessions, stability, min_reinforcers, cv_threshold) must be specified",
+        "PHASE_END_MAX_LESS_THAN_MIN": "max_sessions must be >= min_sessions",
+        "PHASE_END_UNKNOWN_STABILITY": "stability value not in enum"
+      },
+      "reference": "Sidman, M. (1960). Tactics of scientific research: Evaluating experimental data in psychology. Basic Books."
+    },
+
+    "logging": {
+      "description": "Event-level data recording specification. Declares what raw events and derived signals the runtime should write to the session log. This controls the granularity of data available for post-hoc analysis by session-analyzer.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["response", "reinforcer", "stimulus_onset", "stimulus_offset", "schedule_state", "timer_tick", "phase_change", "session_marker"]
+          },
+          "minItems": 1,
+          "required": true,
+          "description": "Which event types to record. 'response' = individual response timestamps with sub-ms precision; 'reinforcer' = reinforcer delivery onset/offset; 'stimulus_onset'/'stimulus_offset' = discriminative/conditioned stimulus transitions; 'schedule_state' = schedule parameter changes (Adj step, Pctl threshold shift); 'timer_tick' = periodic time markers at clock resolution; 'phase_change' = phase transition markers; 'session_marker' = session start/end with metadata"
+        },
+        "format": {
+          "type": "string",
+          "enum": ["jsonl", "csv", "medpc"],
+          "required": false,
+          "default": "jsonl",
+          "description": "Output format for the event log. 'jsonl' = JSON Lines (one event per line); 'csv' = comma-separated values; 'medpc' = Med-PC compatible format"
+        },
+        "precision": {
+          "type": "string",
+          "enum": ["ms", "us", "ns"],
+          "required": false,
+          "default": "ms",
+          "description": "Timestamp precision. 'ms' = milliseconds; 'us' = microseconds; 'ns' = nanoseconds. Must be compatible with @clock resolution."
+        }
+      },
+      "errors": {
+        "LOGGING_EMPTY_EVENTS": "events must contain at least one event type",
+        "LOGGING_UNKNOWN_EVENT": "event type not in enum",
+        "LOGGING_UNKNOWN_FORMAT": "format value not in enum",
+        "LOGGING_UNKNOWN_PRECISION": "precision value not in enum"
+      },
+      "reference": "Tatham, T. A., & Zurn, K. R. (1989). The MED-PC experimental apparatus programming system. Behavior Research Methods, Instruments, & Computers, 21(2), 294-299. https://doi.org/10.3758/BF03205598"
+    },
+
+    "iri_window": {
+      "description": "Inter-reinforcement interval (IRI) aggregation window specification. Declares how to bin and analyze the time between successive reinforcer deliveries. Critical for timing research where IRI serves as an implicit temporal cue distinct from the nominal schedule parameter.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "bin_width": {
+          "type": "time_value",
+          "required": false,
+          "description": "Bin width for IRI frequency distribution (e.g., 5s). If omitted, session-analyzer uses adaptive binning."
+        },
+        "normalize": {
+          "type": "string",
+          "enum": ["none", "proportion", "rate"],
+          "required": false,
+          "default": "none",
+          "description": "Normalization method for IRI distributions. 'none' = raw frequency counts; 'proportion' = relative frequency (sums to 1); 'rate' = responses per unit time within each IRI bin"
+        },
+        "track_preceding_iri": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "If true, record the preceding IRI as a covariate for each inter-reinforcement interval. Enables analysis of IRI-to-IRI sequential dependencies and their effect on responding."
+        },
+        "report": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["distribution", "mean", "median", "cv", "sequential"]
+          },
+          "required": false,
+          "description": "Which IRI analyses to report. 'distribution' = full IRI frequency histogram; 'mean' = arithmetic mean IRI; 'median' = median IRI; 'cv' = coefficient of variation; 'sequential' = IRI(n) vs IRI(n-1) scatter plot data"
+        }
+      },
+      "errors": {
+        "IRI_WINDOW_NONPOSITIVE_BIN": "bin_width must be a positive time value",
+        "IRI_WINDOW_UNKNOWN_NORMALIZE": "normalize value not in enum",
+        "IRI_WINDOW_UNKNOWN_REPORT": "report value not in enum"
+      },
+      "reference": "Catania, A. C., & Reynolds, G. S. (1968). A quantitative analysis of the responding maintained by interval schedules of reinforcement. Journal of the Experimental Analysis of Behavior, 11(S3), 327-383. https://doi.org/10.1901/jeab.1968.11-s327"
+    },
+
+    "warmup_exclude": {
+      "description": "Warmup exclusion declaration. Specifies an initial period of each session to exclude from dependent variable calculations. Standard practice in free-operant research to remove adaptation artifacts at session onset.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "duration": {
+          "type": "time_value",
+          "required": true,
+          "description": "Duration to exclude from the beginning of each session (e.g., 5min). Events during this period are still logged (if @logging is active) but excluded from DV calculations."
+        },
+        "scope": {
+          "type": "string",
+          "enum": ["analysis", "logging_and_analysis"],
+          "required": false,
+          "default": "analysis",
+          "description": "What to exclude. 'analysis' = exclude from DV computation only (events still logged); 'logging_and_analysis' = exclude from both logging and analysis"
+        }
+      },
+      "errors": {
+        "WARMUP_EXCLUDE_NONPOSITIVE": "duration must be a positive time value",
+        "WARMUP_EXCLUDE_UNKNOWN_SCOPE": "scope value not in enum",
+        "WARMUP_EXCLUDE_EXCEEDS_SESSION": "duration must be less than @session_end time (if both are declared)"
+      },
+      "reference": "Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement. Appleton-Century-Crofts."
     }
   },
 
-  "future_keywords": ["phase_end", "dependent_measure", "logging", "iri_window", "warmup_exclude"]
+  "future_keywords": []
 }

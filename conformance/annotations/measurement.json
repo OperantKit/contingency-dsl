@@ -159,5 +159,826 @@
       }
     },
     "_note": "Demonstrates the standard measurement-annotator preamble: when to stop (session_end), what baseline to measure, what counts as stable (steady_state). Requires measurement-annotator in AnnotationRegistry."
+  },
+  {
+    "id": "measurement_dependent_measure_basic",
+    "description": "@dependent_measure with a single variable (rate)",
+    "input": "@dependent_measure(variables=[\"rate\"])\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Minimal dependent_measure: single DV. primary defaults to the first element of variables."
+  },
+  {
+    "id": "measurement_dependent_measure_devaluation",
+    "description": "@dependent_measure for habit formation / outcome devaluation study",
+    "input": "@dependent_measure(variables=[\"rate\", \"prf_pause\", \"consumption\", \"response_rate_ratio\"], primary=\"response_rate_ratio\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "prf_pause", "consumption", "response_rate_ratio"],
+            "primary": "response_rate_ratio"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Devaluation study DV set. primary overrides the default (first element). Validates primary is a member of variables."
+  },
+  {
+    "id": "measurement_dependent_measure_bout_analysis",
+    "description": "@dependent_measure with bout-analysis variables (Shull et al., 2001)",
+    "input": "@dependent_measure(variables=[\"rate\", \"bout_rate\", \"bout_length\", \"within_bout_rate\"])\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "bout_rate", "bout_length", "within_bout_rate"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Bout-analysis DV set for reinforcement rate studies. primary defaults to 'rate' (first element)."
+  },
+  {
+    "id": "measurement_training_volume_basic",
+    "description": "@training_volume tracking all three metrics with session criterion",
+    "input": "@training_volume(track=[\"sessions\", \"responses\", \"reinforcers\"], criterion_sessions=100)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "training_volume",
+          "params": {
+            "track": ["sessions", "responses", "reinforcers"],
+            "criterion_sessions": 100
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Standard overtraining paradigm: track all metrics, flag at 100 sessions (Adams & Dickinson, 1981)."
+  },
+  {
+    "id": "measurement_training_volume_minimal",
+    "description": "@training_volume tracking sessions only, no criterion",
+    "input": "@training_volume(track=[\"sessions\"])\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "training_volume",
+          "params": {
+            "track": ["sessions"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Minimal training_volume: session count only, no overtraining criterion. All criterion_* params are optional."
+  },
+  {
+    "id": "measurement_microstructure_full",
+    "description": "@microstructure with all parameters explicit",
+    "input": "@microstructure(irt_bin_width=0.5s, burst_threshold=2s, prf_pause_method=\"latency_to_first\", report=[\"irt_distribution\", \"bout_statistics\", \"prf_pause\"])\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "irt_bin_width": {
+              "value": 0.5,
+              "time_unit": "s"
+            },
+            "burst_threshold": {
+              "value": 2,
+              "time_unit": "s"
+            },
+            "prf_pause_method": "latency_to_first",
+            "report": ["irt_distribution", "bout_statistics", "prf_pause"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Full microstructure configuration. burst_threshold=2s is a common starting point for log-survivor analysis (Shull et al., 2001)."
+  },
+  {
+    "id": "measurement_microstructure_nth_pause",
+    "description": "@microstructure with latency_to_nth pause method",
+    "input": "@microstructure(prf_pause_method=\"latency_to_nth\", prf_pause_n=3, report=[\"prf_pause\"])\n\nFR10",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "prf_pause_method": "latency_to_nth",
+            "prf_pause_n": 3,
+            "report": ["prf_pause"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 10.0
+      }
+    },
+    "_note": "PRP measured as latency to 3rd response post-reinforcement. prf_pause_n is required when method=latency_to_nth."
+  },
+  {
+    "id": "measurement_microstructure_concurrent_changeover",
+    "description": "@microstructure with changeover analysis for concurrent schedules",
+    "input": "@microstructure(report=[\"irt_distribution\", \"changeover\"])\n\nConc(VI30s, VI60s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "report": ["irt_distribution", "changeover"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Concurrent",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Changeover report is relevant to concurrent schedule studies. All microstructure params are optional; report alone is valid."
+  },
+  {
+    "id": "measurement_habit_formation_preamble",
+    "description": "Complete measurement preamble for a habit formation / overtraining study",
+    "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n@dependent_measure(variables=[\"rate\", \"prf_pause\", \"consumption\", \"response_rate_ratio\"], primary=\"response_rate_ratio\")\n@training_volume(track=[\"sessions\", \"responses\", \"reinforcers\"], criterion_sessions=100)\n@microstructure(burst_threshold=2s, prf_pause_method=\"latency_to_first\", report=[\"irt_distribution\", \"bout_statistics\", \"prf_pause\"])\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": {
+            "rule": "first",
+            "time": {
+              "value": 60,
+              "time_unit": "min"
+            },
+            "reinforcers": 60
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "baseline",
+          "params": {
+            "pre_training_sessions": 3
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "steady_state",
+          "params": {
+            "window_sessions": 5,
+            "max_change_pct": 10
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "prf_pause", "consumption", "response_rate_ratio"],
+            "primary": "response_rate_ratio"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "training_volume",
+          "params": {
+            "track": ["sessions", "responses", "reinforcers"],
+            "criterion_sessions": 100
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "burst_threshold": {
+              "value": 2,
+              "time_unit": "s"
+            },
+            "prf_pause_method": "latency_to_first",
+            "report": ["irt_distribution", "bout_statistics", "prf_pause"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Complete measurement preamble for Adams & Dickinson (1981) style overtraining paradigm. All 6 measurement keywords declared as program-level annotations. This is the canonical example for habit formation research use of the DSL."
+  },
+  {
+    "id": "measurement_dependent_measure_timing",
+    "description": "@dependent_measure for FI timing research (scalar expectancy theory)",
+    "input": "@dependent_measure(variables=[\"rate\", \"peak_time\", \"spread\", \"cv\"], primary=\"peak_time\")\n\nFI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "peak_time", "spread", "cv"],
+            "primary": "peak_time"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Timing research DV set: peak_time (scalar expectancy), spread, and CV (Weber fraction). Gibbon (1977)."
+  },
+  {
+    "id": "measurement_dependent_measure_behavioral_economics",
+    "description": "@dependent_measure for demand curve / behavioral economics",
+    "input": "@dependent_measure(variables=[\"rate\", \"breakpoint\", \"demand_elasticity\", \"consumption\"])\n\nPR(start=1, step=2)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "breakpoint", "demand_elasticity", "consumption"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Progressive",
+        "params": {
+          "start": 1,
+          "step": 2
+        }
+      }
+    },
+    "_note": "Behavioral economics DV set. Distinguishes breakpoint (Hodos, 1961) from demand_elasticity (Hursh & Silberberg, 2008)."
+  },
+  {
+    "id": "measurement_dependent_measure_cer",
+    "description": "@dependent_measure for CER / conditioned suppression paradigm",
+    "input": "@dependent_measure(variables=[\"rate\", \"suppression_ratio\"], primary=\"suppression_ratio\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "suppression_ratio"],
+            "primary": "suppression_ratio"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Estes-Skinner CER paradigm. suppression_ratio = B/(A+B) where B = CS period rate, A = pre-CS period rate."
+  },
+  {
+    "id": "measurement_dependent_measure_concurrent_choice",
+    "description": "@dependent_measure for concurrent schedule choice with changeover tracking",
+    "input": "@dependent_measure(variables=[\"rate\", \"changeover_rate\", \"running_rate\"])\n\nConc(VI30s, VI60s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "changeover_rate", "running_rate"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Concurrent",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Matching law study DV set. changeover_rate tracks alternative switching frequency."
+  },
+  {
+    "id": "measurement_microstructure_log_survivor",
+    "description": "@microstructure with log-survivor and reinforcement proximity reports",
+    "input": "@microstructure(irt_bin_width=0.25s, report=[\"irt_distribution\", \"log_survivor\", \"reinforcement_proximity\"])\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "irt_bin_width": {
+              "value": 0.25,
+              "time_unit": "s"
+            },
+            "report": ["irt_distribution", "log_survivor", "reinforcement_proximity"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Molecular analysis configuration. log_survivor for bout threshold identification, reinforcement_proximity for contiguity analysis."
+  },
+  {
+    "id": "measurement_microstructure_fi_scallop",
+    "description": "@microstructure with scallop_index for FI analysis",
+    "input": "@microstructure(report=[\"prf_pause\", \"scallop_index\"])\n\nFI60s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "report": ["prf_pause", "scallop_index"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "FI scallop analysis. scallop_index measures within-interval response acceleration."
+  },
+  {
+    "id": "measurement_phase_end_compound",
+    "description": "@phase_end with compound convergence criteria (all must be met)",
+    "input": "@phase_end(rule=\"all\", min_sessions=20, max_sessions=100, stability=\"steady_state\", cv_threshold=0.15)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "phase_end",
+          "params": {
+            "rule": "all",
+            "min_sessions": 20,
+            "max_sessions": 100,
+            "stability": "steady_state",
+            "cv_threshold": 0.15
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Compound phase termination: at least 20 sessions, stable per @steady_state, CV < 15%, hard cap at 100 sessions. rule=all means all criteria must converge."
+  },
+  {
+    "id": "measurement_phase_end_minimal",
+    "description": "@phase_end with session count only",
+    "input": "@phase_end(rule=\"first\", min_sessions=50)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "phase_end",
+          "params": {
+            "rule": "first",
+            "min_sessions": 50
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Minimal phase_end: run at least 50 sessions. Single criterion with rule=first."
+  },
+  {
+    "id": "measurement_logging_full",
+    "description": "@logging with all event types and microsecond precision",
+    "input": "@logging(events=[\"response\", \"reinforcer\", \"stimulus_onset\", \"stimulus_offset\", \"schedule_state\"], format=\"jsonl\", precision=\"us\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "logging",
+          "params": {
+            "events": ["response", "reinforcer", "stimulus_onset", "stimulus_offset", "schedule_state"],
+            "format": "jsonl",
+            "precision": "us"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Full event logging. schedule_state captures Adj/Pctl parameter shifts. Microsecond precision for HIL setups."
+  },
+  {
+    "id": "measurement_logging_minimal",
+    "description": "@logging with response and reinforcer events only",
+    "input": "@logging(events=[\"response\", \"reinforcer\"])\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "logging",
+          "params": {
+            "events": ["response", "reinforcer"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Minimal logging: responses and reinforcers. format defaults to jsonl, precision to ms."
+  },
+  {
+    "id": "measurement_iri_window_timing_research",
+    "description": "@iri_window for timing research with sequential IRI tracking",
+    "input": "@iri_window(bin_width=5s, normalize=\"proportion\", track_preceding_iri=true, report=[\"distribution\", \"cv\", \"sequential\"])\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "iri_window",
+          "params": {
+            "bin_width": {
+              "value": 5,
+              "time_unit": "s"
+            },
+            "normalize": "proportion",
+            "track_preceding_iri": true,
+            "report": ["distribution", "cv", "sequential"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "IRI analysis for timing research. track_preceding_iri=true enables IRI(n) vs IRI(n-1) sequential dependency analysis."
+  },
+  {
+    "id": "measurement_iri_window_minimal",
+    "description": "@iri_window with default settings",
+    "input": "@iri_window(report=[\"mean\", \"cv\"])\n\nVI60s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "iri_window",
+          "params": {
+            "report": ["mean", "cv"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Minimal IRI reporting: mean and CV. bin_width omitted (adaptive), normalize defaults to 'none', track_preceding_iri defaults to false."
+  },
+  {
+    "id": "measurement_warmup_exclude_standard",
+    "description": "@warmup_exclude with 5-minute analysis exclusion",
+    "input": "@warmup_exclude(duration=5min)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "warmup_exclude",
+          "params": {
+            "duration": {
+              "value": 5,
+              "time_unit": "min"
+            }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Standard 5-minute warmup exclusion. Events still logged but excluded from DV calculations. scope defaults to 'analysis'."
+  },
+  {
+    "id": "measurement_warmup_exclude_full",
+    "description": "@warmup_exclude with logging exclusion",
+    "input": "@warmup_exclude(duration=3min, scope=\"logging_and_analysis\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "warmup_exclude",
+          "params": {
+            "duration": {
+              "value": 3,
+              "time_unit": "min"
+            },
+            "scope": "logging_and_analysis"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Full warmup exclusion: events not logged at all during first 3 minutes."
+  },
+  {
+    "id": "measurement_v1_2_complete_preamble",
+    "description": "Complete v1.2 measurement preamble: all 10 keywords for a comprehensive timing/habit study",
+    "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n@dependent_measure(variables=[\"rate\", \"irt\", \"prf_pause\", \"peak_time\", \"cv\", \"consumption\", \"response_rate_ratio\"], primary=\"rate\")\n@training_volume(track=[\"sessions\", \"responses\", \"reinforcers\"], criterion_sessions=100)\n@microstructure(burst_threshold=2s, prf_pause_method=\"latency_to_first\", report=[\"irt_distribution\", \"log_survivor\", \"bout_statistics\", \"prf_pause\", \"scallop_index\"])\n@phase_end(rule=\"all\", min_sessions=20, stability=\"steady_state\", cv_threshold=0.15)\n@logging(events=[\"response\", \"reinforcer\", \"schedule_state\"], precision=\"ms\")\n@iri_window(bin_width=5s, track_preceding_iri=true, report=[\"distribution\", \"cv\", \"sequential\"])\n@warmup_exclude(duration=5min)\n\nFI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": {
+            "rule": "first",
+            "time": { "value": 60, "time_unit": "min" },
+            "reinforcers": 60
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "baseline",
+          "params": { "pre_training_sessions": 3 }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "steady_state",
+          "params": { "window_sessions": 5, "max_change_pct": 10 }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "dependent_measure",
+          "params": {
+            "variables": ["rate", "irt", "prf_pause", "peak_time", "cv", "consumption", "response_rate_ratio"],
+            "primary": "rate"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "training_volume",
+          "params": {
+            "track": ["sessions", "responses", "reinforcers"],
+            "criterion_sessions": 100
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "microstructure",
+          "params": {
+            "burst_threshold": { "value": 2, "time_unit": "s" },
+            "prf_pause_method": "latency_to_first",
+            "report": ["irt_distribution", "log_survivor", "bout_statistics", "prf_pause", "scallop_index"]
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "phase_end",
+          "params": {
+            "rule": "all",
+            "min_sessions": 20,
+            "stability": "steady_state",
+            "cv_threshold": 0.15
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "logging",
+          "params": {
+            "events": ["response", "reinforcer", "schedule_state"],
+            "precision": "ms"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "iri_window",
+          "params": {
+            "bin_width": { "value": 5, "time_unit": "s" },
+            "track_preceding_iri": true,
+            "report": ["distribution", "cv", "sequential"]
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "warmup_exclude",
+          "params": {
+            "duration": { "value": 5, "time_unit": "min" }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "v1.2 complete preamble: all 10 measurement-annotator keywords. Covers timing research (peak_time, cv, iri_window, scallop_index), habit formation (training_volume, microstructure), molecular analysis (log_survivor, reinforcement_proximity), and session management (phase_end, logging, warmup_exclude). FI 30-s as the canonical timing schedule."
   }
 ]

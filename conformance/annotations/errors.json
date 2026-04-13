@@ -61,5 +61,203 @@
       "type": "SemanticError",
       "code": "STEADY_STATE_INVALID_MIN_SESSIONS"
     }
+  },
+  {
+    "id": "error_dependent_measure_empty_variables",
+    "description": "@dependent_measure variables must contain at least one measure",
+    "input": "@dependent_measure(variables=[])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "DEPENDENT_MEASURE_EMPTY_VARIABLES"
+    }
+  },
+  {
+    "id": "error_dependent_measure_unknown_variable",
+    "description": "@dependent_measure variable value not in enum",
+    "input": "@dependent_measure(variables=[\"rate\", \"happiness\"])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "DEPENDENT_MEASURE_UNKNOWN_VARIABLE"
+    }
+  },
+  {
+    "id": "error_dependent_measure_primary_not_in_variables",
+    "description": "@dependent_measure primary must be one of the declared variables",
+    "input": "@dependent_measure(variables=[\"rate\", \"irt\"], primary=\"prf_pause\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "DEPENDENT_MEASURE_PRIMARY_NOT_IN_VARIABLES"
+    }
+  },
+  {
+    "id": "error_training_volume_empty_track",
+    "description": "@training_volume track must contain at least one metric",
+    "input": "@training_volume(track=[])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_VOLUME_EMPTY_TRACK"
+    }
+  },
+  {
+    "id": "error_training_volume_unknown_metric",
+    "description": "@training_volume track value not in enum",
+    "input": "@training_volume(track=[\"sessions\", \"trials\"])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_VOLUME_UNKNOWN_METRIC"
+    }
+  },
+  {
+    "id": "error_training_volume_nonpositive_criterion",
+    "description": "@training_volume criterion values must be positive integers",
+    "input": "@training_volume(track=[\"sessions\"], criterion_sessions=0)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_VOLUME_NONPOSITIVE_CRITERION"
+    }
+  },
+  {
+    "id": "error_microstructure_nth_missing",
+    "description": "@microstructure prf_pause_method=latency_to_nth requires prf_pause_n",
+    "input": "@microstructure(prf_pause_method=\"latency_to_nth\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_NTH_MISSING"
+    }
+  },
+  {
+    "id": "error_microstructure_nth_forbidden",
+    "description": "@microstructure prf_pause_n is only valid with latency_to_nth",
+    "input": "@microstructure(prf_pause_method=\"latency_to_first\", prf_pause_n=3)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_NTH_FORBIDDEN"
+    }
+  },
+  {
+    "id": "error_microstructure_unknown_method",
+    "description": "@microstructure prf_pause_method value not in enum",
+    "input": "@microstructure(prf_pause_method=\"median_pause\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_UNKNOWN_METHOD"
+    }
+  },
+  {
+    "id": "error_microstructure_unknown_report",
+    "description": "@microstructure report value not in enum",
+    "input": "@microstructure(report=[\"irt_distribution\", \"spectral_analysis\"])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "MICROSTRUCTURE_UNKNOWN_REPORT"
+    }
+  },
+  {
+    "id": "error_phase_end_no_criteria",
+    "description": "@phase_end must specify at least one criterion",
+    "input": "@phase_end(rule=\"all\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PHASE_END_NO_CRITERIA"
+    }
+  },
+  {
+    "id": "error_phase_end_max_less_than_min",
+    "description": "@phase_end max_sessions must be >= min_sessions",
+    "input": "@phase_end(rule=\"all\", min_sessions=50, max_sessions=20)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PHASE_END_MAX_LESS_THAN_MIN"
+    }
+  },
+  {
+    "id": "error_phase_end_unknown_rule",
+    "description": "@phase_end rule value not in enum",
+    "input": "@phase_end(rule=\"majority\", min_sessions=10)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PHASE_END_UNKNOWN_RULE"
+    }
+  },
+  {
+    "id": "error_phase_end_unknown_stability",
+    "description": "@phase_end stability value not in enum",
+    "input": "@phase_end(rule=\"all\", stability=\"visual_inspection\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PHASE_END_UNKNOWN_STABILITY"
+    }
+  },
+  {
+    "id": "error_logging_empty_events",
+    "description": "@logging events must contain at least one event type",
+    "input": "@logging(events=[])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "LOGGING_EMPTY_EVENTS"
+    }
+  },
+  {
+    "id": "error_logging_unknown_event",
+    "description": "@logging event type not in enum",
+    "input": "@logging(events=[\"response\", \"brain_wave\"])\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "LOGGING_UNKNOWN_EVENT"
+    }
+  },
+  {
+    "id": "error_logging_unknown_format",
+    "description": "@logging format value not in enum",
+    "input": "@logging(events=[\"response\"], format=\"parquet\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "LOGGING_UNKNOWN_FORMAT"
+    }
+  },
+  {
+    "id": "error_logging_unknown_precision",
+    "description": "@logging precision value not in enum",
+    "input": "@logging(events=[\"response\"], precision=\"ps\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "LOGGING_UNKNOWN_PRECISION"
+    }
+  },
+  {
+    "id": "error_iri_window_unknown_normalize",
+    "description": "@iri_window normalize value not in enum",
+    "input": "@iri_window(normalize=\"z_score\", report=[\"mean\"])\n\nVI30s",
+    "error": {
+      "type": "SemanticError",
+      "code": "IRI_WINDOW_UNKNOWN_NORMALIZE"
+    }
+  },
+  {
+    "id": "error_iri_window_unknown_report",
+    "description": "@iri_window report value not in enum",
+    "input": "@iri_window(report=[\"histogram\"])\n\nVI30s",
+    "error": {
+      "type": "SemanticError",
+      "code": "IRI_WINDOW_UNKNOWN_REPORT"
+    }
+  },
+  {
+    "id": "error_warmup_exclude_nonpositive",
+    "description": "@warmup_exclude duration must be positive",
+    "input": "@warmup_exclude(duration=0s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "WARMUP_EXCLUDE_NONPOSITIVE"
+    }
+  },
+  {
+    "id": "error_warmup_exclude_unknown_scope",
+    "description": "@warmup_exclude scope value not in enum",
+    "input": "@warmup_exclude(duration=5min, scope=\"hardware_only\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "WARMUP_EXCLUDE_UNKNOWN_SCOPE"
+    }
   }
 ]
