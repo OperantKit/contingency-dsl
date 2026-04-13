@@ -21,6 +21,8 @@ The DSL grammar satisfies four criteria:
 <param_name>    ::= "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
                   | "FRCO" | "FixedRatioChangeover"
+                  | "BO"  | "Blackout"
+                  | "RD"  | "ReinforcementDelay"
 <binding>       ::= "let" <ident> "=" <schedule>
 
 <schedule>      ::= <base_schedule> ("LH" <ws>? <value>)?
@@ -49,6 +51,8 @@ The DSL grammar satisfies four criteria:
                   | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
                   | "FRCO" | "FixedRatioChangeover"
+                  | "RD"  | "ReinforcementDelay"
+                  | "BO"  | "Blackout"
                   | "PR" | "Repeat"
                   | "hodos" | "exponential" | "linear"
                   | "start" | "increment"
@@ -61,8 +65,11 @@ The DSL grammar satisfies four criteria:
                   | "ShockDuration" | "MaxShock"
                   | "fixed" | "escape"
                   | "Overlay"
+                  | "Interpolate" | "Interp"
+                  | "count" | "onset"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
+                  | <interpolate>
 <combinator>    ::= "Conc" | "Alt" | "Conj"
                   | "Chain" | "Tand"
                   | "Mult" | "Mix"
@@ -72,6 +79,7 @@ The DSL grammar satisfies four criteria:
 <keyword_arg>   ::= <kw_name> "=" <value>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
+                   | "BO"  | "Blackout"
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -85,6 +93,11 @@ The DSL grammar satisfies four criteria:
 <lag_mod>       ::= "Lag" <ws>? <number>
                   | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
 <lag_kw_arg>    ::= "length" "=" <number>
+
+<interpolate>   ::= ("Interpolate" | "Interp") "(" <schedule> "," <schedule>
+                    ("," <interp_kw_arg>)+ ")"
+<interp_kw_arg> ::= "count" "=" <number>
+                  | "onset" "=" <value>
 
 <aversive_schedule> ::= <sidman_avoidance>
                       | <discriminated_avoidance>
@@ -248,6 +261,18 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)       -- Solom
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min) -- with safety cutoff
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)  -- fixed US
 DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)                    -- short alias
+
+-- Blackout (§2.5)
+Mult(FR 5, EXT, BO=5-s)                            -- 5-s blackout between components
+Mix(VI 30-s, VI 60-s, BO=3-s)                         -- 3-s blackout (undiscriminated)
+
+-- Reinforcement Delay (§1.7; program-level apparatus delay)
+-- RD = 500-ms
+-- VI 60-s                                          -- all reinforcers delayed by 500 ms
+
+-- Interpolated schedule (Ferster & Skinner, 1957)
+Interpolate(FI 15-min, FI 1-min, count=16)              -- 16 reinforcements on FI 1 inserted into FI 15
+Interp(FI 15-min, FR 50, count=10, onset=3-min)         -- with onset delay; Interp is short alias
 
 -- Punishment overlay (§2.10)
 Overlay(VI 60-s, FR 1)                              -- every response punished on VI 60 baseline

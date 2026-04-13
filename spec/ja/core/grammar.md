@@ -23,6 +23,8 @@ DSL の文法は4つの基準を満たす:
 <param_name>    ::= "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
                   | "FRCO" | "FixedRatioChangeover"
+                  | "BO"  | "Blackout"
+                  | "RD"  | "ReinforcementDelay"
 <binding>       ::= "let" <ident> "=" <schedule>
 
 <schedule>      ::= <base_schedule> ("LH" <ws>? <value>)?
@@ -51,6 +53,8 @@ DSL の文法は4つの基準を満たす:
                   | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
                   | "COD" | "ChangeoverDelay"
                   | "FRCO" | "FixedRatioChangeover"
+                  | "RD"  | "ReinforcementDelay"
+                  | "BO"  | "Blackout"
                   | "PR" | "Repeat"
                   | "hodos" | "exponential" | "linear"
                   | "start" | "increment"
@@ -63,8 +67,11 @@ DSL の文法は4つの基準を満たす:
                   | "ShockDuration" | "MaxShock"
                   | "fixed" | "escape"
                   | "Overlay"
+                  | "Interpolate" | "Interp"
+                  | "count" | "onset"
 
 <compound>      ::= <combinator> "(" <arg_list> ")"
+                  | <interpolate>
 <combinator>    ::= "Conc" | "Alt" | "Conj"
                   | "Chain" | "Tand"
                   | "Mult" | "Mix"
@@ -74,6 +81,7 @@ DSL の文法は4つの基準を満たす:
 <keyword_arg>   ::= <kw_name> "=" <value>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
+                   | "BO"  | "Blackout"
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -87,6 +95,11 @@ DSL の文法は4つの基準を満たす:
 <lag_mod>       ::= "Lag" <ws>? <number>
                   | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
 <lag_kw_arg>    ::= "length" "=" <number>
+
+<interpolate>   ::= ("Interpolate" | "Interp") "(" <schedule> "," <schedule>
+                    ("," <interp_kw_arg>)+ ")"
+<interp_kw_arg> ::= "count" "=" <number>
+                  | "onset" "=" <value>
 
 <aversive_schedule> ::= <sidman_avoidance>
                       | <discriminated_avoidance>
@@ -251,6 +264,18 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)       -- Solom
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min) -- 安全カットオフ付き
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)  -- 固定 US
 DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)                    -- 短縮 alias
+
+-- ブラックアウト（§2.5）
+Mult(FR 5, EXT, BO=5-s)                            -- 成分間に 5 秒のブラックアウト
+Mix(VI 30-s, VI 60-s, BO=3-s)                         -- 3 秒のブラックアウト（無弁別）
+
+-- 強化遅延（§1.7; プログラムレベルの装置遅延）
+-- RD = 500-ms
+-- VI 60-s                                          -- 全強化子が 500 ms 遅延
+
+-- 内挿スケジュール（Ferster & Skinner, 1957）
+Interpolate(FI 15-min, FI 1-min, count=16)              -- FI 15 の背景に FI 1 で 16 強化を内挿
+Interp(FI 15-min, FR 50, count=10, onset=3-min)         -- onset 遅延付き; Interp は短縮 alias
 
 -- 罰の重畳（§2.10）
 Overlay(VI 60-s, FR 1)                              -- VI 60 ベースラインに全反応罰
