@@ -10,6 +10,8 @@
 
 **Caveat (§9).** The annotation system introduces a narrow LL(2)/LL(3) boundary case for program-level annotations. The core schedule grammar (excluding annotations) is strictly LL(2). With annotations, LL(2) holds under standard greedy disambiguation; strict LL(3) applies to one specific token triple. See §9 for analysis.
 
+**Extension (§10).** The Core-Stateful layer (`Pctl`, `Adj`, `Interlock` as defined in `schema/core-stateful/grammar.ebnf`) preserves the LL(2) classification. All new decision points are LL(1); no existing decision points are invalidated. See §10 for the complete FIRST/FOLLOW analysis.
+
 ---
 
 ## 2. Token Vocabulary
@@ -54,12 +56,25 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `EQ` | = | equals sign |
 | `DASH` | - | hyphen/dash (time separator) |
 | `EOF` | — | end of input |
+| `PCTL_KW` | Pctl | percentile schedule keyword (Core-Stateful) |
+| `ADJ_KW` | Adj, Adjusting | adjusting schedule keywords (Core-Stateful) |
+| `INTERLOCK_KW` | Interlock, Interlocking | interlocking schedule keywords (Core-Stateful) |
+| `PCTL_TARGET` | IRT, latency, duration, force, rate | percentile target dimension (Core-Stateful) |
+| `ADJ_TARGET` | delay, ratio, amount | adjusting target dimension (Core-Stateful) |
+| `PCTL_ARG_KW` | window, dir | percentile keyword arg names (Core-Stateful) |
+| `PCTL_DIR_VAL` | below, above | percentile direction values (Core-Stateful) |
+| `ADJ_ARG_KW` | start, step, min, max | adjusting keyword arg names (Core-Stateful) |
+| `INTERLOCK_ARG_KW` | R0, T | interlocking keyword arg names (Core-Stateful) |
 
 **Lexer assumptions:**
 
 - **L1 (Keyword priority):** Reserved words are lexed as their specific token class, never as `IDENT`. All reserved words either begin with uppercase (disjoint from `IDENT` by definition) or are explicitly excluded from the identifier namespace.
 - **L2 (TIME_UNIT contextual reservation):** `s`, `sec`, `ms`, `min` are lexed as `TIME_UNIT`, not `IDENT`. These are contextually reserved (grammar.ebnf lines 87–89).
 - **L3 (PARAM_NAME/KW_NAME overlap):** `LH` is both a `PARAM_NAME` (in param_decl) and `LH_KW` (in schedule LH suffix). The lexer produces a single token; the parser disambiguates by context. For LL(k) analysis, we treat these as the same token class `LH_KW`/`PARAM_NAME` and verify disambiguation by context.
+- **L4 (Core-Stateful keyword priority):** `Pctl`, `Adj`, `Adjusting`, `Interlock`, `Interlocking` are lexed as their specific keyword token classes. All begin with uppercase, disjoint from `IDENT`.
+- **L5 (Core-Stateful contextual reservation):** `PCTL_TARGET` values (IRT, latency, ...), `ADJ_TARGET` values (delay, ratio, amount), `PCTL_DIR_VAL` (below, above), and keyword argument names (window, dir, step, min, max, R0) appear only inside function-call parentheses. Parser context disambiguates from `IDENT`.
+- **L6 (Shared keyword: start):** `start` is reserved by both PR (`PR_PARAM_KW`) and Adj (`ADJ_ARG_KW`). Inside `PR(...)` parentheses it is parsed as `PR_PARAM_KW`; inside `Adj(...)` / `Adjusting(...)` parentheses it is parsed as `ADJ_ARG_KW`. Parser state determines which production is active; no lexer conflict.
+- **L7 (Shared keyword: T):** `T` is reserved as `domain ::= "T"` (for FT/VT/RT) and as `INTERLOCK_ARG_KW` (inside `Interlock(...)`). Parser context (inside Interlock parentheses, expecting keyword args) disambiguates from the domain production (which follows dist in `atomic_or_second`). No syntactic ambiguity.
 
 ---
 
@@ -145,6 +160,33 @@ DaArg             → DA_TEMP_KW EQ Value | MODE_KW EQ DA_MODE
 DaTail            → COMMA DaArg DaTail | ε
 ```
 
+### 3.6 Core-Stateful Schedules
+
+Integration points (additive — no existing productions are modified):
+
+- `Modifier → ... | PctlMod` (Pctl extends modifier)
+- `BaseSchedule → ... | AdjSchedule | InterlockSchedule` (Adj and Interlock extend base_schedule)
+
+```
+PctlMod           → PCTL_KW LPAREN PCTL_TARGET COMMA NUM PctlKwTail RPAREN
+PctlKwTail        → COMMA PctlKwArg PctlKwTail | ε
+PctlKwArg         → PCTL_ARG_KW EQ PctlValue
+PctlValue         → NUM | PCTL_DIR_VAL
+
+AdjSchedule       → ADJ_KW LPAREN ADJ_TARGET COMMA AdjKwArg AdjKwMore RPAREN
+AdjKwMore         → COMMA AdjKwArg AdjKwMore | ε
+AdjKwArg          → ADJ_ARG_KW EQ Value
+
+InterlockSchedule → INTERLOCK_KW LPAREN InterlockKwArg InterlockKwTail RPAREN
+InterlockKwTail   → COMMA InterlockKwArg InterlockKwTail | ε
+InterlockKwArg    → INTERLOCK_ARG_KW EQ Value
+```
+
+**Notes:**
+- `PctlMod` has exactly 2 positional args (target, rank) followed by optional keyword args. No mixed positional/keyword ambiguity (cf. §6).
+- `AdjSchedule` has exactly 1 positional arg (target) followed by mandatory keyword args (`+` in EBNF; at least `start` and `step`). Normalized to CFG as one mandatory `AdjKwArg` plus `AdjKwMore*`.
+- `InterlockSchedule` has only keyword args (R0, T). No positional args.
+
 ---
 
 ## 4. FIRST₁ Sets
@@ -189,6 +231,26 @@ We compute FIRST₁ for every non-terminal that appears as an alternative in a p
 | `PrParams` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `LagKwArgs` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `InterpKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
+
+### 4.4 Core-Stateful Non-terminals
+
+| Non-terminal | FIRST₁ | Derivation |
+|---|---|---|
+| `PctlMod` | {`PCTL_KW`} | from PCTL_KW terminal |
+| `AdjSchedule` | {`ADJ_KW`} | from ADJ_KW terminal |
+| `InterlockSchedule` | {`INTERLOCK_KW`} | from INTERLOCK_KW terminal |
+| `PctlKwArg` | {`PCTL_ARG_KW`} | from PCTL_ARG_KW terminal |
+| `PctlValue` | {`NUM`, `PCTL_DIR_VAL`} | from NUM and PCTL_DIR_VAL |
+| `AdjKwArg` | {`ADJ_ARG_KW`} | from ADJ_ARG_KW terminal |
+| `InterlockKwArg` | {`INTERLOCK_ARG_KW`} | from INTERLOCK_ARG_KW terminal |
+
+### 4.5 Core-Stateful Repetition Decisions
+
+| Repetition | Continue FIRST₁ | Stop (FOLLOW₁) | Disjoint? |
+|---|---|---|---|
+| `PctlKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
+| `AdjKwMore` | {`COMMA`} | {`RPAREN`} | ✓ |
+| `InterlockKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
 
 ---
 
@@ -541,7 +603,7 @@ At the `PosTail` decision point, after consuming a positional schedule:
 
 | # | Decision Point | LL(1)? | LL(2)? | Mechanism |
 |---|---|---|---|---|
-| D1 | `BaseSchedule` (6 alternatives) | ✓ | — | Disjoint FIRST₁ (§5.1) |
+| D1 | `BaseSchedule` (8 alternatives†) | ✓ | — | Disjoint FIRST₁ (§5.1, §10.3) |
 | D2 | `AtomicOrSecond` (3 alternatives) | ✓ | — | Disjoint FIRST₁: SCHED_TYPE / EXT / CRF |
 | D3 | `SecondOrder_opt` (optional) | ✓* | — | Greedy LL(1); LL(2) for PR variant (§5.2, §5.5) |
 | D4 | `LH_opt` (optional) | ✓ | — | LH_KW ∉ FOLLOW₁(Schedule) (§5.3) |
@@ -551,13 +613,20 @@ At the `PosTail` decision point, after consuming a positional schedule:
 | D8 | Program transitions | ✓ | — | AT / PARAM_NAME / LET / FIRST(Schedule) disjoint (§5.7) |
 | D9 | `PosTail` (arg_list continuation) | ✗ | ✓ | **The LL(2) point** (§6) |
 | D10 | `KwTail`, `SidmanTail`, `DaTail`, etc. | ✓ | — | COMMA vs RPAREN (§5.8) |
-| D11 | `Modifier` (4 alternatives) | ✓ | — | DR_KW / PR_KW / REPEAT_KW / LAG_KW disjoint |
+| D11 | `Modifier` (5 alternatives†) | ✓ | — | DR_KW / PR_KW / REPEAT_KW / LAG_KW / PCTL_KW disjoint (§10.3) |
 | D12 | `AversiveSchedule` (2 alternatives) | ✓ | — | SIDMAN_KW / DA_KW disjoint |
 | D13 | `Compound` (2 alternatives) | ✓ | — | COMB / INTERP disjoint |
 | D14 | `AnnotationArgs` (2 alternatives) | ✓ | — | STRING∪NUM vs IDENT disjoint (§9.1) |
 | D15 | `AnnotationArgs_opt` (optional) | ⚠ | ⚠ | See §9 |
+| D16 | `PctlKwTail` repetition | ✓ | — | COMMA vs RPAREN (§10.4.1) |
+| D17 | `PctlValue` (2 alternatives) | ✓ | — | NUM vs PCTL_DIR_VAL (§10.4.2) |
+| D18 | `AdjKwMore` repetition | ✓ | — | COMMA vs RPAREN (§10.4.3) |
+| D19 | `InterlockKwTail` repetition | ✓ | — | COMMA vs RPAREN (§10.4.4) |
+| D20 | `PosTail` with Core-Stateful tokens | — | ✓ | New tokens ∉ KW_NAME (§10.3.3) |
 
 \* Greedy resolution at LL(1); formally LL(2) when LPAREN ∈ FOLLOW₁.
+
+† Count includes Core-Stateful additions (§10). Core-only counts: BaseSchedule = 6, Modifier = 4.
 
 ---
 
