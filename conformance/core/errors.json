@@ -649,6 +649,34 @@
   },
 
   {
+    "id": "error_lh_nonpositive_expression",
+    "description": "FI30 LH0s — zero hold makes reinforcement unavailable; use EXT (constraint 62)",
+    "input": "FI30 LH0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "LH_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_lh_nonpositive_expression_ms",
+    "description": "VI60s LH0ms — zero hold in milliseconds (constraint 62)",
+    "input": "VI60s LH0ms",
+    "error": {
+      "type": "SemanticError",
+      "code": "LH_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_lh_nonpositive_program_level",
+    "description": "LH = 0s at program level — zero hold default is nonpositive (constraint 62)",
+    "input": "LH = 0s\nFI30",
+    "error": {
+      "type": "SemanticError",
+      "code": "LH_NONPOSITIVE_VALUE"
+    }
+  },
+
+  {
     "id": "error_atomic_nonpositive_ratio",
     "description": "FR 0 — zero ratio is nonpositive; use EXT for extinction (constraint 46)",
     "input": "FR 0",
@@ -764,5 +792,79 @@
       "type": "SemanticError",
       "code": "PR_NON_INTEGER_VALUE"
     }
+  },
+
+  {
+    "id": "multi_error_two_missing_values",
+    "description": "Panic-mode recovery (§3.7): both FR and VI lack values; recovery at comma and rparen sync tokens",
+    "input": "Conc(FR, VI)",
+    "errors": [
+      {"type": "ParseError", "code": "EXPECTED_VALUE"},
+      {"type": "ParseError", "code": "EXPECTED_VALUE"}
+    ]
+  },
+  {
+    "id": "multi_error_missing_value_and_unexpected_char",
+    "description": "Panic-mode recovery (§3.7): FR without value recovers at comma, & is unexpected character",
+    "input": "Conc(FR, &x, VI 30s)",
+    "errors": [
+      {"type": "ParseError", "code": "EXPECTED_VALUE"},
+      {"type": "LexError", "code": "UNEXPECTED_CHARACTER"}
+    ]
+  },
+  {
+    "id": "multi_error_lex_errors_multiline",
+    "description": "Panic-mode recovery (§3.7): two lex errors across lines, recovery at newline sync tokens",
+    "input": "let a = $x\nlet b = #y\na",
+    "errors": [
+      {"type": "LexError", "code": "UNEXPECTED_CHARACTER"},
+      {"type": "LexError", "code": "UNEXPECTED_CHARACTER"}
+    ]
+  },
+  {
+    "id": "multi_error_three_parse_errors",
+    "description": "Panic-mode recovery (§3.7): three errors — missing value, invalid char, unclosed paren",
+    "input": "Conc(FR, @z, Alt(VI 30s",
+    "errors": [
+      {"type": "ParseError", "code": "EXPECTED_VALUE"},
+      {"type": "LexError", "code": "UNEXPECTED_CHARACTER"},
+      {"type": "ParseError", "code": "EXPECTED_RPAREN"}
+    ]
+  },
+  {
+    "id": "multi_error_semantic_nonpositive_values",
+    "description": "Multiple semantic errors (§3.7): two nonpositive values detected in validation pass",
+    "input": "Conc(FR 0, VI 0s)",
+    "errors": [
+      {"type": "SemanticError", "code": "ATOMIC_NONPOSITIVE_VALUE"},
+      {"type": "SemanticError", "code": "ATOMIC_NONPOSITIVE_VALUE"}
+    ]
+  },
+  {
+    "id": "multi_error_semantic_mixed_codes",
+    "description": "Multiple semantic errors (§3.7): nonpositive atomic value and nonpositive DR value",
+    "input": "Conc(FR 0, DRL 0s)",
+    "errors": [
+      {"type": "SemanticError", "code": "ATOMIC_NONPOSITIVE_VALUE"},
+      {"type": "SemanticError", "code": "DR_NONPOSITIVE_VALUE"}
+    ]
+  },
+  {
+    "id": "multi_error_semantic_binding_and_keyword",
+    "description": "Multiple semantic errors (§3.7): duplicate binding and invalid keyword arg on Chain",
+    "input": "let x = FR 5\nlet x = VI 30s\nChain(x, FI 60s, COD=2s)",
+    "errors": [
+      {"type": "SemanticError", "code": "DUPLICATE_BINDING"},
+      {"type": "SemanticError", "code": "INVALID_KEYWORD_ARG"}
+    ]
+  },
+  {
+    "id": "multi_error_semantic_nonpositive_and_duplicate_kw",
+    "description": "Multiple semantic errors (§3.7): nonpositive value and duplicate keyword arg",
+    "input": "Conc(FR 0, VI 30s, COD=2s, COD=5s)",
+    "errors": [
+      {"type": "SemanticError", "code": "ATOMIC_NONPOSITIVE_VALUE"},
+      {"type": "SemanticError", "code": "DUPLICATE_KEYWORD_ARG"}
+    ]
   }
 ]
