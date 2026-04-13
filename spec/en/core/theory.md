@@ -100,6 +100,8 @@ DRConstraint ::= DRL(irt_min : ℝ⁺)       -- IRT ≥ threshold
                | DRO(omission_time : ℝ⁺)  -- no response for duration
 ```
 
+**Note on the name "DRO."** The abbreviation stands for "Differential Reinforcement of Other behavior," but this name is historically misleading. Component analyses demonstrate that DRO's effectiveness depends primarily on its *omission/extinction* contingency, not on reinforcing "other" behavior (Mazaleski et al., 1993; Rey et al., 2020; Hronek & Kestner, 2025). The current DSL represents fixed whole-interval DRO; Lindberg et al. (1999) 2×2 taxonomy is deferred to v1.x. See [design-rationale.md §1](../../../docs/en/design-rationale.md#1-dro-why-other-behavior-is-a-misnomer) for the full evidence review.
+
 DR schedules sit orthogonally to the grid and are best understood as **filters** or **modifiers** that can be composed with grid schedules via tandem or conjunctive composition. For example, `Tand(VR 20, DRL 5-s)` requires a variable-ratio response count *and* an inter-response time ≥ 5 seconds.
 
 **Note on DRA/DRI.** Differential Reinforcement of Alternative behavior (DRA) and Differential Reinforcement of Incompatible behavior (DRI) are clinical procedure labels commonly used in applied behavior analysis (Cooper, Heron, & Heward, 2020). Unlike DRO/DRL/DRH, which are single-operandum schedule modifiers defined by temporal parameters, DRA/DRI inherently specify contingencies across *two* response classes (extinction for the target behavior, reinforcement for the alternative). At the schedule level, DRA is expressible as a concurrent arrangement:
@@ -116,7 +118,7 @@ DRI is a special case of DRA where the alternative behavior is physically incomp
 PR(step : ℕ → ℕ) = FR(step(n)) where n increments after each reinforcement
 ```
 
-PR is a *schedule functor* — it maps a step function to a sequence of FR schedules. The DSL restricts step functions to an enumerated set (`hodos`, `linear`, `exponential`) to preserve decidability; arbitrary step functions are available only via the Python API.
+PR is a *schedule functor* — it maps a step function to a sequence of FR schedules. The DSL restricts step functions to an enumerated set (`hodos`, `linear`, `exponential`) to preserve decidability; arbitrary step functions are available only via the Python API. The step function is **syntactically required** — no bare `PR` form exists. Arithmetic and geometric progressions produce qualitatively different response-rate functions, and no consensus default exists in the literature (Killeen et al., 2009; Stafford & Branch, 1998). See [design-rationale.md §2](../../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required) for the evidence review, including why breakpoint ≠ Pmax (Lambert et al., 2026).
 
 ### 1.5 Mapping to Behavioral Theory
 
@@ -519,6 +521,8 @@ Mult(Lag(5, length=8), CRF)
 - `Lag 0` ≡ CRF is a boundary case preserved for consistency. It declares
   the user's intent ("this is a Lag schedule with no variability
   requirement") rather than being optimized away at parse time.
+
+**Why `length` is explicit.** The literature shows no standard sequence length (Page & Neuringer, 1985: 8; Ribeiro et al., 2022: 5; applied research: 1). The DSL exposes `length` because no single default is universally appropriate. Whether variability constitutes a true operant dimension remains debated (Nergaard & Holth, 2020 vs. Reed, 2023); the DSL takes no position. See [design-rationale.md §3](../../../docs/en/design-rationale.md#3-lag-why-length-is-explicit-and-the-operant-dimension-debate) for the full discussion.
 
 ### 2.9 Discriminated Avoidance
 

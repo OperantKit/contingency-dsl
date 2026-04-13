@@ -22,16 +22,39 @@
       "reference": null
     },
     "operandum": {
-      "description": "Response device identification (lever, key, etc.).",
+      "description": "Response device declaration (program-level) and functional assignment (schedule-level). At program level, declares the physical existence and specifications of an operandum (JEAB Apparatus convention: 'Two retractable levers (ENV-112CM) were mounted on the front wall'). At schedule level, references a previously declared operandum by name and assigns it to a schedule component (JEAB Procedure convention: 'Responses on the left lever were reinforced on a VI 30-s schedule').",
       "scope": ["program", "schedule"],
-      "positional": { "type": "string", "required": true },
+      "positional": { "type": "string", "required": true, "description": "Device identity (e.g. 'left_lever', 'center_key'). At schedule level, must match a name declared at program level." },
       "params": {
+        "model": {
+          "type": "string",
+          "required": false,
+          "description": "Manufacturer model identifier (e.g. 'ENV-112CM'). Program level only.",
+          "forbidden_if": { "scope": "schedule", "error": "SCHEDULE_ANNOTATION_PHYSICAL_PARAM" }
+        },
+        "force": {
+          "type": "string",
+          "required": false,
+          "description": "Minimum operating force (e.g. '0.25N'). Program level only.",
+          "forbidden_if": { "scope": "schedule", "error": "SCHEDULE_ANNOTATION_PHYSICAL_PARAM" }
+        },
+        "position": {
+          "type": "string",
+          "required": false,
+          "description": "Mounting position (e.g. 'front_wall_left'). Program level only.",
+          "forbidden_if": { "scope": "schedule", "error": "SCHEDULE_ANNOTATION_PHYSICAL_PARAM" }
+        },
         "component": {
           "type": "integer",
           "minimum": 1,
           "required": false,
-          "description": "Component index for compound schedules. Forbidden at program level (SemanticError: PROGRAM_ANNOTATION_COMPONENT)."
+          "description": "Component index for compound schedules. Schedule level only.",
+          "forbidden_if": { "scope": "program", "error": "PROGRAM_ANNOTATION_COMPONENT" }
         }
+      },
+      "scope_semantics": {
+        "program": "Apparatus declaration — introduces a physical device with optional specifications. No behavioral verbs.",
+        "schedule": "Procedure reference — assigns a declared device to a schedule component. No physical specifications."
       },
       "reference": null
     },

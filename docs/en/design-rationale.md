@@ -1,0 +1,273 @@
+# Design Rationale
+
+This document explains *why* certain DSL design decisions were made,
+with references to the experimental literature. It complements the
+normative specification in `spec/` — the spec says what the grammar *is*;
+this document says why it is that way.
+
+---
+
+## 1. DRO: Why "Other Behavior" Is a Misnomer
+
+### The Name
+
+DRO stands for "Differential Reinforcement of Other behavior." The name
+implies a simple mechanism: when the target behavior is absent for a
+specified interval, *some other behavior* is reinforced, and this
+alternative behavior competes with and displaces the target. Clinicians
+have operated under this assumption for decades.
+
+### What the Evidence Shows
+
+Mazaleski, Iwata, Vollmer, Zarcone, and Smith (1993) separated the two
+components of DRO in a study with three individuals who exhibited
+self-injurious behavior (SIB):
+
+1. **Reinforcement component** — delivering a reinforcer when SIB is
+   absent for the interval.
+2. **Extinction component** — withholding the reinforcer when SIB
+   occurs.
+
+For two of three participants, the reinforcement component *alone* was
+ineffective. DRO only worked when the extinction component was in place.
+The reinforcer delivery was neither necessary nor sufficient; it was the
+*withholding* contingency that did the work.
+
+Two later studies by Rey, Betz, Sleiman, Kuroda, and Podlesnik (2020a,
+2020b) directly tested whether DRO adventitiously reinforces "other"
+behavior. They found that while other behaviors transiently increased
+early in DRO, these increases did not maintain — even as target behavior
+remained suppressed across extended sessions. If DRO worked by
+reinforcing alternatives, those alternatives should have strengthened
+over time. They did not.
+
+Most recently, Hronek and Kestner (2025) examined the asymmetry of
+implementation errors. Commission errors (accidentally reinforcing after
+the target behavior occurs) degraded DRO effectiveness far more than
+omission errors (failing to deliver the reinforcer when earned). This
+asymmetry is predicted by the omission/extinction account but not by the
+alternative-reinforcement account.
+
+### What This Means for the DSL
+
+The current DSL represents DRO with a single time parameter:
+`DRO(omission_time)`. This captures the *omission contingency* — the
+duration for which the target response must be absent. The name "DRO"
+is retained for literature compatibility, but the specification notes
+that the mechanism is omission/extinction, not alternative reinforcement.
+
+Lindberg, Iwata, Kahng, and DeLeon (1999) established a 2x2 taxonomy
+that decomposes DRO along two orthogonal dimensions:
+
+|                | Fixed interval | Variable interval |
+|----------------|----------------|-------------------|
+| **Whole-interval** | Traditional DRO: target must be absent for the *entire* interval | VI-DRO: interval duration varies |
+| **Momentary**  | Check only at the interval endpoint | VM-DRO: check at variable timepoints |
+
+The current DSL implements fixed whole-interval DRO. The full 2x2
+taxonomy is deferred to v1.x, where `DRO` may accept optional keyword
+arguments for `mode` (whole-interval vs. momentary) and `timing` (fixed
+vs. variable).
+
+### References
+
+- Hronek, L. M., & Kestner, K. M. (2025). A human-operant evaluation of commission and omission errors during differential reinforcement of other behavior. *Journal of Applied Behavior Analysis*. https://doi.org/10.1002/jaba.70003
+- Lindberg, J. S., Iwata, B. A., Kahng, S., & DeLeon, I. G. (1999). DRO contingencies: An analysis of variable-momentary schedules. *Journal of Applied Behavior Analysis*, *32*(2), 123-136. https://doi.org/10.1901/jaba.1999.32-123
+- Mazaleski, J. L., Iwata, B. A., Vollmer, T. R., Zarcone, J. R., & Smith, R. G. (1993). Analysis of the reinforcement and extinction components in DRO contingencies with self-injury. *Journal of Applied Behavior Analysis*, *26*(2), 143-156. https://doi.org/10.1901/jaba.1993.26-143
+- Rey, C. N., Betz, A. M., Sleiman, A. A., Kuroda, T., & Podlesnik, C. A. (2020a). The role of adventitious reinforcement during differential reinforcement of other behavior: A systematic replication. *Journal of Applied Behavior Analysis*, *53*(4), 2440-2449. https://doi.org/10.1002/jaba.678
+- Rey, C. N., Betz, A. M., Sleiman, A. A., Kuroda, T., & Podlesnik, C. A. (2020b). Adventitious reinforcement during long-duration DRO exposure. *Journal of Applied Behavior Analysis*, *53*(3), 1716-1733. https://doi.org/10.1002/jaba.697
+
+---
+
+## 2. Progressive Ratio: Why the Step Function Is Required
+
+### The Problem
+
+A bare `PR` statement conceals a choice that changes the *kind* of data
+you collect. Consider two researchers:
+
+- **Researcher A** writes `PR` and gets `hodos` (arithmetic:
+  1, 2, 3, 4, ...). Response rate declines linearly across ratios.
+  Breakpoint at ratio 47.
+- **Researcher B** writes `PR` and gets `hodos` by the same silent
+  default. But their collaborator expected Richardson-Roberts exponential
+  (1, 2, 4, 6, 9, 12, ...). Breakpoint at ratio 95.
+
+Same drug, same dose, same animal — different breakpoints, different
+conclusions about reinforcer efficacy. The silent default masks a
+procedurally meaningful divergence.
+
+### What the Literature Says
+
+**Step function shape changes the response-rate function.**
+Killeen, Posadas-Sanchez, Johansen, and Thrailkill (2009) directly
+compared arithmetic and geometric progressions in pigeons (Experiment 1).
+Under arithmetic steps, response rates declined *linearly* across
+component ratios. Under geometric steps, rates declined with *negative
+acceleration* toward an asymptote. These are not merely quantitatively
+different — they are qualitatively different functional forms. A
+mathematical model derived from the Mathematical Principles of
+Reinforcement (MPR) predicts this difference: the bitonic equation takes
+different shapes depending on the progression type.
+
+**Breakpoint is robust to step size but other measures are not.**
+Stafford and Branch (1998) varied arithmetic step sizes in pigeons. The
+*largest completed ratio* (breakpoint) was relatively unaffected by
+step-size magnitude — a reassuring finding for between-study
+comparisons. However, the *number of ratios completed* and *average
+response rate* both declined with increasing step sizes. Step function
+choice therefore determines which dependent variable is informative.
+
+**No consensus default exists.** The field has not converged:
+
+| Tradition | Step function | Typical use |
+|-----------|--------------|-------------|
+| Hodos (1961) | Arithmetic (+constant) | Original PR; food reinforcement |
+| Richardson & Roberts (1996) | Exponential (5·e^(j/5) - 5) | Drug self-administration; reaches breakpoint within one session |
+| Linear | Arithmetic with custom start/increment | Flexible; used in human operant studies |
+
+Richardson and Roberts' exponential became the *de facto* standard in
+behavioral pharmacology because it reaches breakpoint within a
+practical session length. But this is a practical convenience, not a
+theoretical justification. The Hodos arithmetic progression remains
+standard in basic reinforcement research with food.
+
+### Breakpoint Is Not Pmax
+
+A common assumption in behavioral pharmacology: "PR breakpoint measures
+how much the animal is willing to pay for the drug." This maps PR onto
+demand-curve economics, where Pmax is the price at unit elasticity and
+alpha is the essential-value parameter.
+
+Lambert et al. (2026, *JEAB*, n=96 adults with disabilities) tested this
+mapping directly. Their findings:
+
+- PR breakpoint **correlated with** demand *intensity* (Q0 — consumption
+  at zero price, the "how much do they want it?" question).
+- PR breakpoint **did not correlate with** demand *elasticity* (alpha)
+  or *Pmax* (the "at what price do they stop?" question).
+
+This is a consequential dissociation. If the research question is "how
+essential is this reinforcer?" (intensity), PR breakpoint is informative.
+If the question is "at what price does consumption become elastic?"
+(Pmax), systematic FR variation across sessions is needed — not PR.
+
+Bentzley, Fender, and Aston-Jones (2013) noted the same gap from the
+pharmacology side: no unified mathematical model bridges PR breakpoint
+to the exponential demand parameters (alpha, Q0, Pmax, Omax). The
+relationship remains empirical, not formally derived.
+
+### The DSL's Position
+
+The DSL requires `PR(hodos)`, `PR(linear, ...)`, or
+`PR(exponential, ...)` explicitly. This is a deliberate friction: it
+forces the researcher to commit to a step function and document it in
+the schedule definition itself. When a colleague reads `PR(exponential)`
+in a session file, the progression type is immediately visible — no
+need to check which default the software assumed.
+
+### References
+
+- Bentzley, B. S., Fender, K. M., & Aston-Jones, G. (2013). The behavioral economics of drug self-administration: A review and new analytical approach for within-session procedures. *Psychopharmacology*, *226*(1), 113-125. https://doi.org/10.1007/s00213-012-2899-2
+- Hodos, W. (1961). Progressive ratio as a measure of reward strength. *Science*, *134*(3483), 943-944. https://doi.org/10.1126/science.134.3483.943
+- Killeen, P. R., Posadas-Sanchez, D., Johansen, E. B., & Thrailkill, E. A. (2009). Progressive ratio schedules of reinforcement. *Journal of Experimental Psychology: Animal Behavior Processes*, *35*(1), 35-50. https://doi.org/10.1037/a0012497
+- Lambert, J. M., et al. (2026). Evaluating contributions of progressive ratio analysis to economic metrics of demand. *Journal of the Experimental Analysis of Behavior*. https://doi.org/10.1002/jeab.70077
+- Richardson, N. R., & Roberts, D. C. S. (1996). Progressive ratio schedules in drug self-administration studies in rats. *Journal of Neuroscience Methods*, *66*(1), 1-11. https://doi.org/10.1016/0165-0270(95)00153-0
+- Stafford, D., & Branch, M. N. (1998). Effects of step size and break-point criterion on progressive-ratio performance. *Journal of the Experimental Analysis of Behavior*, *70*(2), 123-138. https://doi.org/10.1901/jeab.1998.70-123
+
+---
+
+## 3. Lag: Why `length` Is Explicit and the Operant Dimension Debate
+
+### The Parameter Problem
+
+When Page and Neuringer (1985) introduced the Lag schedule, they used
+2-key, 8-peck sequences: a pigeon produced a string of 8 left/right
+pecks (e.g., LLRLRRLL), and reinforcement was delivered if the sequence
+differed from each of the previous *n* sequences. The unit of
+variability was the 8-response sequence.
+
+But subsequent researchers chose different sequence lengths:
+
+| Study | Sequence length | Species |
+|-------|----------------|---------|
+| Page & Neuringer (1985) | 8 | Pigeons |
+| Abreu-Rodrigues, Lattal, & Santos (2005) | 4 | Pigeons |
+| Ribeiro, Panetta, & Abreu-Rodrigues (2022) | 5 | Humans |
+| Applied JABA studies (Lee et al., 2002; etc.) | 1 (individual response) | Humans |
+
+There is no standard. The number of possible unique sequences grows
+exponentially with length (2^k for 2 operanda), so `length=4` gives 16
+possibilities while `length=8` gives 256. A Lag 5 requirement is trivial
+to satisfy with 256 options but demanding with 16. The same `n` produces
+different behavioral demands depending on `length`.
+
+The DSL therefore requires `length` to be specified (defaulting to 1
+when omitted, which matches applied research convention). The default is
+a convenience, not a theoretical commitment — and theory.md documents
+the non-standardization to ensure users make an informed choice.
+
+### Is Variability an Operant Dimension?
+
+The Lag schedule rests on a strong claim: that *variability itself* is
+an operant dimension — a behavioral property that can be directly
+strengthened or weakened by its consequences, like rate or force.
+Page and Neuringer (1985) argued yes: Lag contingencies increased
+response entropy beyond what extinction or schedule-induced effects
+could explain.
+
+This claim has been contested. The key challenge:
+
+**Nergaard and Holth (2020)** offered a systematic critique in
+*Perspectives on Behavior Science*:
+
+1. Under delay-of-reinforcement manipulations, variability *increases*
+   rather than decreases — the opposite of what other operant
+   dimensions do.
+2. "Extinction of repetition" is a more parsimonious explanation:
+   repeated sequences go unreinforced and extinguish, leaving variable
+   sequences by elimination.
+3. Sequence-level U-values (the standard measure) may obscure whether
+   reinforcement operates on whole sequences or individual responses.
+
+No formal published rebuttal to Nergaard and Holth has appeared.
+However:
+
+**Reed (2023, *JEAB*)** provided indirect counter-evidence. In three
+experiments with rats, signaled reinforcement (a brief stimulus marking
+the reinforced response) *increased* variability under Lag-8 and
+DRLeast schedules. Under schedules with no variability requirement,
+the same signal *decreased* variability. This pattern — where a
+signaling manipulation modulates a behavioral property in the same
+direction as other operant dimensions — is consistent with variability
+being directly reinforced.
+
+**Galizio, Friedel, and Odum (2020, *JEAB*)** demonstrated resurgence
+of reinforced variability in humans, showing that variability trained
+in Phase 1 could resurge in Phase 3 after Phase 2 training. Resurgence
+is a hallmark of operant learning, though the effect was not robust
+across all participants.
+
+### The DSL's Position
+
+The DSL takes no position on whether variability is a "true" operant
+dimension. `Lag` is provided as a procedural tool whose behavioral
+effects are well-documented regardless of the underlying mechanism.
+The grammar is neutral: it defines what a Lag schedule *does*
+(reinforce sequences differing from the previous *n*), not what it
+*means* theoretically.
+
+This is consistent with the DSL's general philosophy: the specification
+describes contingency arrangements, not behavioral mechanisms. Whether
+DRL performance is "timing" or "counting," whether DRO is "reinforcing
+other behavior" or "omission training," whether Lag is "reinforcing
+variability" or "extinguishing repetition" — these are empirical
+questions that the DSL leaves to the researcher.
+
+### References
+
+- Galizio, A., Friedel, J. E., & Odum, A. L. (2020). An investigation of resurgence of reinforced behavioral variability in humans. *Journal of the Experimental Analysis of Behavior*, *114*(3), 381-393. https://doi.org/10.1002/jeab.637
+- Nergaard, S. K., & Holth, P. (2020). A critical review of the support for variability as an operant dimension. *Perspectives on Behavior Science*, *43*(3), 579-603. https://doi.org/10.1007/s40614-020-00262-y
+- Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
+- Reed, P. (2023). Effect of signaled reinforcement on response variability. *Journal of the Experimental Analysis of Behavior*, *119*(2), 352-368. https://doi.org/10.1002/jeab.825
+- Ribeiro, M. P., Panetta, N., & Abreu-Rodrigues, J. (2022). Effects of variability requirements on difficult sequence learning. *Journal of the Experimental Analysis of Behavior*, *118*(3), 442-461. https://doi.org/10.1002/jeab.798
