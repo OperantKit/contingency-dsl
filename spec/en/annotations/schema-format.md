@@ -535,7 +535,9 @@ The following schema files conform to this specification as of
 | `apparatus.schema.json` | Apparatus | `chamber`, `operandum`, `interface`, `hardware` | Schema Design |
 | `measurement.schema.json` | Measurement | `session_end`, `baseline`, `steady_state` | Schema Design |
 
-Total: 5 schema files, 17 keywords, 4 JEAB categories fully covered.
+Total: 5 annotation schema files, 17 keywords, 4 JEAB categories fully covered.
+
+Note: The `schema/experiment/` directory contains separate schemas for multi-phase experimental designs (`phase-sequence.schema.json`, `experiment.schema.json`). These are not annotation schemas but structural schemas that reference Core AST types and annotations via `$ref`.
 
 ---
 

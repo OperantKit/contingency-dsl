@@ -1,21 +1,26 @@
 # 計算可能性・表現力・アーキテクチャ境界
 
-> [contingency-dsl 理論文書](theory.md)の一部。5層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
+> [contingency-dsl 理論文書](theory.md)の一部。6層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
 
 ---
 
 ## Part IV: 計算可能性・表現力・アーキテクチャ境界
 
-### 4.1 5層アーキテクチャ
+### 4.1 6層アーキテクチャ
 
 強化スケジュールは本質的に**無限過程**を記述する。VI 60 は理論上永遠に走り続けられるし、FR 10 も反応が続く限り強化を提示し続ける。これは欠陥ではなく、行動随伴性の本質的性質である。
 
-5層の責務分���を提案する。計算能力の次元と反応機会の構造の次元で関心を分離する:
+6層の責務分���を提案する。計算能力の次元、反応機会の構造の次元、および実験デザインの構造の次元で関心を分離する:
 
 ```
-┌─────────────────────────┐
-│   contingency-dsl       │
-│   ┌───────────────────┐ │
+┌───────────────────────────────┐
+│   contingency-dsl             │
+│   ┌─────────────────────────┐ │
+│   │ Experiment              │ │  宣言的、フェーズ構造
+│   │ フェーズ系列             │ │  PhaseSequence, Criterion
+│   │ criterion =             │ │  ABA: VI→EXT→VI, Stability(5, 10%)
+│   │   phase_change_rule     │ │  FixedSessions(10)
+│   ├─────────────────────────┤ │
 │   │ Core              │ │  非チューリング完全（CFG）
 │   │ 自由オペラント      │ │  静的、宣言的
 │   │ criterion =       │ │  FR 10, Conc(VI 30-s, VI 60-s)
@@ -31,16 +36,20 @@
 │   │ consequence =     │ │  MTS(comparisons=3, consequence=CRF, ITI=5s)
 │   │   Core schedule   │ │
 │   └───────────────────┘ │
-├─────────────────────────┤
-│   contingency-core       │  チューリング完全
-│   「随伴性がどう          │  動的、手続き的
-│    変化するか」           │  if rate > 5.0: switch(VI → VR)
-├─────────────────────────┤
-│   experiment-core        │  チューリング完全 + 制約
-│   「実験として             │  検証、有限化
-│    成立させる」           │  Session(sched, exit=Reinf(50))
-└─────────────────────────┘
+├───────────────────────────────┤
+│   contingency-core             │  チューリング完全
+│   「随伴性がどう                │  動的、手続き的
+│    変化するか」                 │  if rate > 5.0: switch(VI → VR)
+├───────────────────────────────┤
+│   experiment-core              │  チューリング完全 + 制約
+│   「実験として                   │  検証、有限化
+│    成立させる」                 │  Session(sched, exit=Reinf(50))
+└───────────────────────────────┘
 ```
+
+**Experiment 層**は contingency-dsl 内で三つの Core 層の上位に位置する。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準（Stability, FixedSessions 等）とともに順序付きフェーズに編成する。JEAB 論文に見られる一般的な実験デザインをカバーする。Core 層は「各随伴性が何であるか」を記述し、Experiment 層は「それらの随伴性がフェーズ間でどう配列されるか」を宣言的・非手続き的に記述する。任意のランタイム条件付き遷移（例: 反応率に基づくスケジュール切替）には、引き続き contingency-core が適切な層となる。
+
+Experiment 層は JEAB の慣習に従う: 被験体・装置のアノテーションはフェーズ間で共有され（override されない限り継承）、各 Phase は独自のスケジュールとフェーズ変更基準を指定する。完全なスキーマは `schema/experiment/phase-sequence.schema.json` を参照。
 
 三つの Core 層は二つの独立した軸で区別される:
 
@@ -60,10 +69,11 @@
 
 | 層 | 計算能力 | 記述対象 | 例 |
 |---|---|---|---|
+| **contingency-dsl (Experiment)** | 宣言的（列挙型基準） | 多フェーズ実験デザイン、フェーズ変更基準 | `PhaseSequence(Acquisition→Extinction→Test)`, `Stability(5, 10%)`, `FixedSessions(10)` |
 | **contingency-dsl (Core)** | CFG（非TC） | 単一随伴性の静的構造。リテラル基準 | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
 | **contingency-dsl (Core-Stateful)** | CFG 構文、TC 近傍評価 | 確立された状態依存基準のスケジュール | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
 | **contingency-dsl (Core-TrialBased)** | CFG 構文、離散試行 | ��散試行手続き。刺激–反応マッチング基準 | `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
-| **contingency-core** | TC | 随伴性の動的遷移・適応 | 反応率に基づくスケジュール切替、フェーズ遷移 |
+| **contingency-core** | TC | 随伴性の動的遷移・適応（任意の GTS 遷移） | 反応率に基づくスケジュール切替 |
 | **experiment-core** | TC + 制約 | 実験パラダイムの有限化・検証 | 終了条件、ABA デザイン、安全性制約 |
 
 **contingency-core**（チューリング完全）が可能にするもの:
@@ -80,8 +90,8 @@
 
 したがって:
 - `until` 節は contingency-dsl のスコープ外。ExitConditionConfig は experiment-core に移動すべき
-- contingency-dsl の関心事は「随伴性の静的構造」のみ
-- 動的遷移・適応は contingency-core の責務
+- contingency-dsl の関心事は「随伴性の静的構造」および「宣言的なフェーズ系列」
+- 任意の動的遷移（ランタイム条件付き）は contingency-core の責務
 - 有限化・検証は experiment-core の責務
 
 ### 4.1.1 操作的境界定義: contingency-dsl vs. contingency-core

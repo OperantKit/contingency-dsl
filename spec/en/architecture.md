@@ -1,19 +1,24 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the five-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](theory.md). Describes the six-layer architecture, computability properties, and annotation system.
 
 ---
 
-## 4.1 Five-Layer Architecture
+## 4.1 Six-Layer Architecture
 
 Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies.
 
-We propose a five-layer architecture that separates concerns along the dimensions of computational power and response opportunity structure:
+We propose a six-layer architecture that separates concerns along the dimensions of computational power, response opportunity structure, and experimental design structure:
 
 ```
-┌─────────────────────────┐
-│   contingency-dsl       │
-│   ┌───────────────────┐ │
+┌───────────────────────────────┐
+│   contingency-dsl             │
+│   ┌─────────────────────────┐ │
+│   │ Experiment              │ │  Declarative, phase-structured
+│   │ Phase sequences         │ │  PhaseSequence, Criterion
+│   │ criterion =             │ │  ABA: VI→EXT→VI, Stability(5, 10%)
+│   │   phase_change_rule     │ │  FixedSessions(10)
+│   ├─────────────────────────┤ │
 │   │ Core              │ │  Non-Turing-complete (CFG)
 │   │ Free-operant      │ │  Static, declarative
 │   │ criterion =       │ │  FR 10, Conc(VI 30-s, VI 60-s)
@@ -29,16 +34,20 @@ We propose a five-layer architecture that separates concerns along the dimension
 │   │ consequence =     │ │  MTS(comparisons=3, consequence=CRF, ITI=5s)
 │   │   Core schedule   │ │
 │   └───────────────────┘ │
-├─────────────────────────┤
-│   contingency-core       │  Turing-complete
-│   "How contingencies     │  Dynamic, procedural
-│    change over time"     │  if rate > 5.0: switch(VI → VR)
-├─────────────────────────┤
-│   experiment-core        │  Turing-complete + constraints
-│   "Making it a           │  Verification, finalization
-│    finite experiment"    │  Session(sched, exit=Reinf(50))
-└─────────────────────────┘
+├───────────────────────────────┤
+│   contingency-core             │  Turing-complete
+│   "How contingencies           │  Dynamic, procedural
+│    change over time"           │  if rate > 5.0: switch(VI → VR)
+├───────────────────────────────┤
+│   experiment-core              │  Turing-complete + constraints
+│   "Making it a                 │  Verification, finalization
+│    finite experiment"          │  Session(sched, exit=Reinf(50))
+└───────────────────────────────┘
 ```
+
+The **Experiment layer** sits above the three Core layers within contingency-dsl. It arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, etc.), covering the common experimental designs found in JEAB papers. The Core layers describe *what each contingency is*; the Experiment layer describes *how those contingencies are sequenced across phases* in a declarative, non-procedural manner. For arbitrary runtime-conditioned transitions (e.g., rate-based schedule switching), contingency-core remains the appropriate layer.
+
+The Experiment layer follows the JEAB convention: Subjects and Apparatus annotations are shared across phases (inherited unless overridden), while each Phase specifies its own schedule and phase-change criterion. See `schema/experiment/phase-sequence.schema.json` for the full schema.
 
 The three Core layers are distinguished along two independent axes:
 
@@ -58,10 +67,11 @@ The three Core layers are distinguished along two independent axes:
 
 | Layer | Computational Power | Describes | Examples |
 |-------|-------------------|-----------|----------|
+| **contingency-dsl (Experiment)** | Declarative (enumerated criteria) | Multi-phase experimental designs, phase-change criteria | `PhaseSequence(Acquisition→Extinction→Test)`, `Stability(5, 10%)`, `FixedSessions(10)` |
 | **contingency-dsl (Core)** | CFG (non-TC) | Static contingency structure, literal criteria | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
 | **contingency-dsl (Core-Stateful)** | CFG syntax, TC-proximate eval | Established schedules with runtime-computed criteria | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
 | **contingency-dsl (Core-TrialBased)** | CFG syntax, discrete trials | Trial-based procedures with stimulus–response matching | `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
-| **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, phase transitions |
+| **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, arbitrary GTS transitions |
 | **experiment-core** | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
 **contingency-core** (Turing-complete) enables:
@@ -78,8 +88,8 @@ The three Core layers are distinguished along two independent axes:
 
 Therefore:
 - `until` clauses belong in experiment-core, not contingency-dsl
-- contingency-dsl concerns itself solely with static contingency structure
-- Dynamic transitions are contingency-core's responsibility
+- contingency-dsl concerns itself with static contingency structure and declarative phase sequences
+- Arbitrary dynamic transitions (runtime-conditioned) are contingency-core's responsibility
 - Finalization and verification are experiment-core's responsibility
 
 ## 4.1.1 Operational Boundary: contingency-dsl vs. contingency-core

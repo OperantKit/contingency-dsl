@@ -412,7 +412,9 @@ grammar.ebnf は annotation の構文形を定義する。本仕様は
 | `apparatus.schema.json` | Apparatus | `chamber`, `operandum`, `interface`, `hardware` | Schema Design |
 | `measurement.schema.json` | Measurement | `session_end`, `baseline`, `steady_state` | Schema Design |
 
-合計: 5 スキーマファイル、17 keyword、JEAB 4 カテゴリ完全カバー。
+合計: 5 アノテーションスキーマファイル、17 keyword、JEAB 4 カテゴリ完全カバー。
+
+注: `schema/experiment/` ディレクトリには多フェーズ実験デザイン用の構造スキーマ（`phase-sequence.schema.json`, `experiment.schema.json`）が別途存在する。これらはアノテーションスキーマではなく、Core AST 型とアノテーションを `$ref` で参照する構造スキーマである。
 
 ---
 

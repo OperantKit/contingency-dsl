@@ -32,12 +32,13 @@ itself could collapse in the future; in that event, even the Core would
 require exceptional modification. This DSL fixes the "currently most stable
 layer" as Core; it does not claim "eternally immutable truth."
 
-Accordingly, the DSL adopts the following **four-layer architecture**:
+Accordingly, the DSL adopts the following **five-layer architecture**:
 
 | Layer | Content | Tolerance for change |
 |---|---|---|
 | **Core (empirically stable)** | Three-term contingency, reinforcement schedules, compound schedules, modifiers. Criteria are literal values determined at parse time. CFG + non-TC. | Breaking changes are avoided in principle (see §8 for exceptions) |
 | **Core-Stateful (established, stateful criteria)** | Schedules whose criteria are computed from runtime state (response history, trial outcomes, elapsed time as continuous function). Established in the discipline (§2.1 admission criteria). Parameters are declarative. | §8.1 additive procedure + §2.1 admission gate |
+| **Experiment (declarative phase structure)** | Multi-phase experimental designs. Arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, PerformanceCriterion, etc.). Follows JEAB conventions: shared annotations inherited across phases, per-phase overrides. See `schema/experiment/`. | Additive (new Criterion types may be added). Core schema is not modified. |
 | **Schedule Extension (extended schedule grammar)** | Non-standardized or user-defined schedule constituents. New schedule primitives added at program scope | Each program extends by loading extension modules into its own registry |
 | **Annotation (metadata)** | Extended theories, detailed procedures, interpretation-dependent supplementary information | Freely added or removed in step with theoretical development and decline. Program-scoped |
 

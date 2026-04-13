@@ -27,12 +27,13 @@
 例外的な変更が必要となりうる。本 DSL は「現在のところ最も安定な層」を Core
 として固定するのであって、「永久不変の真理」を主張するものではない。
 
-したがって本 DSL は次の **四層構造** を取る:
+したがって本 DSL は次の **五層構造** を取る:
 
 | 層 | 内容 | 変化の許容度 |
 |---|---|---|
 | **Core（経験的に安定）** | 三項随伴性・強化スケジュール・複合スケジュール・修飾子。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける（例外は §8 参照） |
 | **Core-Stateful（確立された状態依存基準）** | 基準がランタイム状態（反応履歴・試行結果・経過時間の連続関数）から評価時に算出されるスケジュール。学派で確立（§2.1 昇格基準充足）。パラメータは宣言的。 | §8.1 additive 手順 + §2.1 admission gate |
+| **Experiment（宣言的フェーズ構造）** | 多フェーズ実験デザイン。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準（Stability, FixedSessions, PerformanceCriterion 等）とともに順序付きフェーズに編成する。JEAB 慣習に準拠: 共有アノテーションはフェーズ間で継承、フェーズ単位で override 可。`schema/experiment/` 参照。 | Additive（新 Criterion 型の追加可）。Core スキーマは変更しない |
 | **Schedule Extension（拡張 schedule 文法）** | 未標準化・ユーザー定義の schedule 構成素。program-scoped で追加される新 schedule primitive | 各プログラムが自身の registry に extension module をロードすることで拡張 |
 | **Annotation（metadata）** | 拡張理論・詳細手続き・解釈依存の付加情報 | 理論の発展・衰退に追従して自由に増減。program-scoped |
 
