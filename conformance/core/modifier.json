@@ -90,8 +90,8 @@
         "type": "Modifier",
         "modifier": "PR",
         "pr_step": "linear",
-        "pr_start": 1.0,
-        "pr_increment": 5.0
+        "pr_start": 1,
+        "pr_increment": 5
       }
     }
   },
@@ -122,8 +122,8 @@
         "type": "Modifier",
         "modifier": "PR",
         "pr_step": "linear",
-        "pr_start": 5.0,
-        "pr_increment": 5.0
+        "pr_start": 5,
+        "pr_increment": 5
       }
     }
   },
@@ -139,8 +139,8 @@
         "type": "Modifier",
         "modifier": "PR",
         "pr_step": "linear",
-        "pr_start": 1.0,
-        "pr_increment": 1.0
+        "pr_start": 1,
+        "pr_increment": 1
       }
     }
   },
@@ -156,8 +156,8 @@
         "type": "Modifier",
         "modifier": "PR",
         "pr_step": "linear",
-        "pr_start": 2.0,
-        "pr_increment": 2.0
+        "pr_start": 2,
+        "pr_increment": 2
       }
     }
   },
@@ -172,7 +172,7 @@
       "schedule": {
         "type": "Modifier",
         "modifier": "Repeat",
-        "value": 3.0,
+        "value": 3,
         "inner": {
           "type": "Atomic",
           "dist": "F",
@@ -211,7 +211,7 @@
           {
             "type": "Modifier",
             "modifier": "Repeat",
-            "value": 3.0,
+            "value": 3,
             "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
           },
           { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
@@ -245,11 +245,11 @@
       "schedule": {
         "type": "Modifier",
         "modifier": "Repeat",
-        "value": 2.0,
+        "value": 2,
         "inner": {
           "type": "Modifier",
           "modifier": "Repeat",
-          "value": 3.0,
+          "value": 3,
           "inner": {
             "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0
           }
@@ -285,7 +285,7 @@
       "schedule": {
         "type": "Modifier",
         "modifier": "Repeat",
-        "value": 1.0,
+        "value": 1,
         "inner": {
           "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0
         }
@@ -313,11 +313,11 @@
         "combinator": "Tand",
         "components": [
           {
-            "type": "Modifier", "modifier": "Repeat", "value": 2.0,
+            "type": "Modifier", "modifier": "Repeat", "value": 2,
             "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
           },
           {
-            "type": "Modifier", "modifier": "Repeat", "value": 3.0,
+            "type": "Modifier", "modifier": "Repeat", "value": 3,
             "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
           }
         ]

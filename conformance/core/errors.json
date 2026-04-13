@@ -646,5 +646,123 @@
       "type": "SemanticError",
       "code": "DIRECTIONAL_IDENT_NOT_FOUND"
     }
+  },
+
+  {
+    "id": "error_atomic_nonpositive_ratio",
+    "description": "FR 0 — zero ratio is nonpositive; use EXT for extinction (constraint 46)",
+    "input": "FR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_atomic_nonpositive_interval",
+    "description": "VI 0s — zero variable interval is nonpositive (constraint 46)",
+    "input": "VI 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_atomic_negative_value",
+    "description": "FR -1 — negative sign is not part of number production; parse error (grammar: number ::= [0-9]+)",
+    "input": "FR -1",
+    "error": {
+      "type": "ParseError",
+      "code": "EXPECTED_VALUE"
+    }
+  },
+  {
+    "id": "error_atomic_negative_interval",
+    "description": "VI -5s — negative temporal value; parse error at '-' (grammar: number ::= [0-9]+)",
+    "input": "VI -5s",
+    "error": {
+      "type": "ParseError",
+      "code": "EXPECTED_VALUE"
+    }
+  },
+  {
+    "id": "error_dr_nonpositive",
+    "description": "DRL 0s — zero IRT threshold collapses differential contingency (constraint 47)",
+    "input": "DRL 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "DR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_pr_nonpositive_shorthand",
+    "description": "PR 0 — zero progressive ratio start/increment is invalid (constraint 48)",
+    "input": "PR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_pr_nonpositive_start",
+    "description": "PR(linear, start=0) — zero start produces FR 0 which is nonpositive (constraint 48)",
+    "input": "PR(linear, start=0, increment=5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_pr_nonpositive_increment",
+    "description": "PR(linear, increment=0) — zero increment produces constant schedule (constraint 48)",
+    "input": "PR(linear, start=1, increment=0)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_frco_nonpositive",
+    "description": "FRCO=0 — zero changeover ratio is invalid; omit FRCO for no requirement (constraint 49)",
+    "input": "Conc(VI30s, VI60s, FRCO=0)",
+    "error": {
+      "type": "SemanticError",
+      "code": "FRCO_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "error_repeat_non_integer",
+    "description": "Repeat(1.5, S) — fractional count has no behavioral meaning (constraint 60)",
+    "input": "Repeat(1.5, FR5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "REPEAT_NON_INTEGER_COUNT"
+    }
+  },
+  {
+    "id": "error_pr_non_integer_start",
+    "description": "PR start must be integer — response counts are discrete (constraint 61)",
+    "input": "PR(linear, start=1.5, increment=5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NON_INTEGER_VALUE"
+    }
+  },
+  {
+    "id": "error_pr_non_integer_increment",
+    "description": "PR increment must be integer — ratio progression steps are discrete (constraint 61)",
+    "input": "PR(linear, start=1, increment=2.5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NON_INTEGER_VALUE"
+    }
+  },
+  {
+    "id": "error_pr_non_integer_shorthand",
+    "description": "PR 0.5 shorthand — fractional ratio is invalid (constraint 61)",
+    "input": "PR 0.5",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NON_INTEGER_VALUE"
+    }
   }
 ]
