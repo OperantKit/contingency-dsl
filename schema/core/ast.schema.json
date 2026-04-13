@@ -192,51 +192,105 @@
     },
 
     "Modifier": {
+      "description": "Modifier schedule. Discriminated union on the 'modifier' field (Issue #35). Each branch constrains fields to those semantically valid for that modifier subtype.",
+      "oneOf": [
+        { "$ref": "#/$defs/DRModifier" },
+        { "$ref": "#/$defs/PRModifier" },
+        { "$ref": "#/$defs/RepeatModifier" },
+        { "$ref": "#/$defs/LagModifier" },
+        { "$ref": "#/$defs/PctlModifier" }
+      ]
+    },
+
+    "DRModifier": {
       "type": "object",
-      "description": "Modifier schedule: DR (DRL/DRH/DRO with value), PR (with step params), Repeat (with count + inner), Lag (Page & Neuringer, 1985), or Pctl (Core-Stateful: Platt, 1973; Galbicka, 1994).",
+      "description": "Differential Reinforcement modifier (DRL/DRH/DRO). Standalone or combined with a base schedule via Tand.",
       "properties": {
         "type": { "const": "Modifier" },
-        "modifier": {
-          "type": "string",
-          "enum": ["DRL", "DRH", "DRO", "PR", "Repeat", "Lag", "Pctl"]
-        },
+        "modifier": { "type": "string", "enum": ["DRL", "DRH", "DRO"] },
         "value": { "type": "number" },
-        "time_unit": { "$ref": "#/$defs/TimeUnit" },
-        "inner": { "$ref": "#/$defs/ScheduleExpr" },
+        "time_unit": { "$ref": "#/$defs/TimeUnit" }
+      },
+      "required": ["type", "modifier", "value"],
+      "additionalProperties": false
+    },
+
+    "PRModifier": {
+      "type": "object",
+      "description": "Progressive Ratio modifier. Step function determines ratio progression across reinforcements.",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": { "const": "PR" },
         "pr_step": {
           "type": "string",
           "enum": ["hodos", "exponential", "linear"]
         },
         "pr_start": { "type": "number" },
-        "pr_increment": { "type": "number" },
+        "pr_increment": { "type": "number" }
+      },
+      "required": ["type", "modifier", "pr_step"],
+      "additionalProperties": false
+    },
+
+    "RepeatModifier": {
+      "type": "object",
+      "description": "Repeat(n, S) — syntactic sugar for Tand(S, ..., S) [n copies]. Desugared during semantic analysis.",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": { "const": "Repeat" },
+        "value": { "type": "number", "minimum": 1 },
+        "inner": { "$ref": "#/$defs/ScheduleExpr" }
+      },
+      "required": ["type", "modifier", "value", "inner"],
+      "additionalProperties": false
+    },
+
+    "LagModifier": {
+      "type": "object",
+      "description": "Lag schedule (Page & Neuringer, 1985). Reinforces response sequences that differ from the preceding n sequences.",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": { "const": "Lag" },
+        "value": { "type": "number" },
         "length": {
           "type": "integer",
           "minimum": 1,
-          "description": "Sequence length for Lag schedule (Page & Neuringer, 1985). Omitted or set to 1 means individual response is the unit (applied research default). Set to N means the unit is a sequence of N responses (e.g., Page & Neuringer used length=8 for 2-key 8-peck sequences). Only applicable when modifier == 'Lag'."
-        },
+          "description": "Sequence length (Page & Neuringer, 1985). 1 = individual response (applied research default). N = sequence of N responses."
+        }
+      },
+      "required": ["type", "modifier", "value", "length"],
+      "additionalProperties": false
+    },
+
+    "PctlModifier": {
+      "type": "object",
+      "description": "Percentile schedule (Core-Stateful: Platt, 1973; Galbicka, 1994). Reinforces responses whose measured dimension falls at or beyond a percentile threshold of recent responses.",
+      "properties": {
+        "type": { "const": "Modifier" },
+        "modifier": { "const": "Pctl" },
         "pctl_target": {
           "type": "string",
           "enum": ["IRT", "latency", "duration", "force", "rate"],
-          "description": "Core-Stateful: Response dimension to measure (Platt, 1973). IRT: inter-response time. latency: response latency. duration: response duration. force: response force. rate: local response rate. Only applicable when modifier == 'Pctl'."
+          "description": "Response dimension to measure (Platt, 1973)."
         },
         "pctl_rank": {
           "type": "integer",
           "minimum": 0,
           "maximum": 100,
-          "description": "Core-Stateful: Percentile threshold (0–100). Only applicable when modifier == 'Pctl'."
+          "description": "Percentile threshold (0–100)."
         },
         "pctl_window": {
           "type": "integer",
           "minimum": 1,
-          "description": "Core-Stateful: Number of recent responses for distribution calculation. Default: 20. Only applicable when modifier == 'Pctl'."
+          "description": "Number of recent responses for distribution calculation. Default: 20."
         },
         "pctl_dir": {
           "type": "string",
           "enum": ["below", "above"],
-          "description": "Core-Stateful: Reinforcement direction. 'below': reinforce at or below threshold. 'above': reinforce at or above. Default: 'below'. Only applicable when modifier == 'Pctl'."
+          "description": "Reinforcement direction. 'below': at or below threshold. 'above': at or above. Default: 'below'."
         }
       },
-      "required": ["type", "modifier"],
+      "required": ["type", "modifier", "pctl_target", "pctl_rank"],
       "additionalProperties": false
     },
 
