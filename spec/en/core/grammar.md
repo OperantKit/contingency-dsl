@@ -2,6 +2,8 @@
 
 > Part of the [contingency-dsl theory documentation](theory.md). Defines the context-free grammar (BNF) for the DSL.
 
+**Companion document:** [LL(2) Formal Proof](ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ sets, LL(2) parse table, unambiguity proof, and Core-Stateful preservation proof. The grammar has exactly one LL(2) decision point (`PosTail` in compound `arg_list`); all other decision points are LL(1).
+
 ---
 
 ## 3.1 Design Principles

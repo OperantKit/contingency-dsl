@@ -3,6 +3,11 @@
 ; A context-free grammar (CFG) for declaring reinforcement contingencies.
 ; Non-Turing-complete. Parseable by recursive descent in O(n).
 ;
+; LL(2) formal proof: spec/en/core/ll2-proof.md (spec/ja/core/ll2-proof.md)
+;   — FIRST₁/FIRST₂/FOLLOW₂ sets, LL(2) parse table, unambiguity proof,
+;     Core-Stateful preservation proof. The grammar has exactly one LL(2)
+;     decision point (PosTail in compound arg_list); all others are LL(1).
+;
 ; Reference: theory.md (Ferster & Skinner, 1957; Catania, 2013)
 ;
 ; Notation:

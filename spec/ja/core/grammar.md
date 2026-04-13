@@ -2,6 +2,8 @@
 
 > [contingency-dsl 理論文書](theory.md)の一部。DSL の文脈自由文法（BNF）を定義する。
 
+**関連文書:** [LL(2) 形式的証明](ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ 集合、LL(2) 解析表、曖昧性ゼロの証明、Core-Stateful 保存証明。文法の LL(2) 判定点は複合スケジュール `arg_list` 内の `PosTail` のただ1箇所のみ。他の全判定点は LL(1)。
+
 ---
 
 ## Part III: 形式文法
