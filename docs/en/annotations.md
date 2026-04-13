@@ -70,9 +70,9 @@ Subjects / Apparatus / Measurement).
 
 | JEAB Category | Annotator | Keywords |
 |---|---|---|
-| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
+| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
-| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
+| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`), `@feeder` |
 | Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
 
 These form the project's recommended set; programs (runtime / interpreter)
@@ -92,7 +92,7 @@ to the same AST node and do not affect equivalence judgment. See
 
 | Keyword | Purpose | Example |
 |---------|---------|---------|
-| `@reinforcer` | Declares a reinforcer (primary form) | `@reinforcer("food", type="unconditioned")` |
+| `@reinforcer` | Declares a reinforcer (primary form) | `@reinforcer("food", type="unconditioned", access_duration=3)` |
 | `@sd` | Discriminative stimulus identity | `@sd("red_light", component=1)` |
 | `@brief` | Brief stimulus in second-order schedules | `@brief("light", duration=2)` |
 
@@ -114,9 +114,12 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Verify that each `Conc` component has an assigned operandum (referential integrity)
 - Compile to: *"Two response levers were available. The left lever (red light) operated on VI 30-s and the right lever (green light) on VI 60-s. Reinforcement consisted of 3-s access to 10% sucrose solution."*
 
+**`@reinforcer` `access_duration` parameter:** Reinforcer access duration (seconds the hopper remains raised, or access time to the pellet) is owned by `@reinforcer` as an attribute of the reinforcer itself. Ferster & Skinner (1957) used 4-s hopper access as standard but never included it in schedule notation. Making this implicit parameter explicit guarantees reproducibility.
+
 **What does NOT belong here:**
 - Physical specifications of stimuli (LED wavelength, sound dB) → apparatus-annotator
-- Presentation timing (stimulus duration, ISI) → procedure-annotator/temporal
+- Session-level temporal structure (ITI, warm-up, blackout) → procedure-annotator/temporal
+- Physical constraints of reinforcer delivery (minimum IRI) → apparatus-annotator (`@feeder`)
 - Learning history of conditioned stimuli → runtime state, not a declaration
 
 **Reference:**
@@ -133,6 +136,8 @@ Declares **session-level temporal parameters** that affect reproducibility.
 | `@clock` | Time unit declaration | `@clock(unit="s")` |
 | `@warmup` | Pre-session warm-up period | `@warmup(duration=60)` |
 | `@algorithm` | Schedule value generation method | `@algorithm("fleshler-hoffman", n=12)` |
+| `@iti` | Inter-Trial Interval | `@iti(duration=10)` |
+| `@post_blackout` | Post-reinforcement blackout (schedule-inactive period after reinforcer access) | `@post_blackout(duration=2)` |
 
 Note: `@blackout` and `@cod` were initially proposed as temporal annotations but have been **promoted to core grammar** as keyword arguments (`BO=5-s`, `COD=2-s`) because they directly affect contingency structure.
 
@@ -143,16 +148,21 @@ VI 30-s
   @clock(unit="s")
   @algorithm("fleshler-hoffman", n=12, seed=42)
   @warmup(duration=60)
+  @iti(duration=10)
+  @post_blackout(duration=2)
 ```
 
 **What this enables:**
 - Exact reproducibility: another lab can generate the identical VI value sequence from the seed
-- Compile to: *"A variable-interval 30-s schedule (Fleshler & Hoffman, 1962; list length = 12) was used. Sessions began after a 60-s warm-up period during which no reinforcement was available."*
+- Compile to: *"A variable-interval 30-s schedule (Fleshler & Hoffman, 1962; list length = 12) was used. Sessions began after a 60-s warm-up period during which no reinforcement was available. A 2-s blackout followed each reinforcer delivery."*
 
 **Why `@algorithm` matters:** `VI 30` with Fleshler-Hoffman distribution produces different inter-reinforcement intervals than `VI 30` with arithmetic progression or exponential distribution. The schedule notation alone (`VI 30-s`) is ambiguous — `@algorithm` resolves this for reproducibility.
 
+**`@iti` and `@post_blackout` design rationale:** ITI and post-reinforcement blackout do not change the schedule's contingency structure (boundary test: can you discuss FI scallops without `@iti`? → YES). However, they are essential for method description and reproducibility as session-level temporal parameters, on the same level as `@warmup`.
+
 **What does NOT belong here:**
-- Reinforcer duration → procedure-annotator/stimulus (`@reinforcer` duration param)
+- Reinforcer access duration → procedure-annotator/stimulus (`@reinforcer` `access_duration` param)
+- Minimum inter-reinforcement interval (IRI) → apparatus-annotator (`@feeder` `min_cycle` param); a physical recovery time of the delivery device, not session temporal structure
 - Session day number → session metadata, not a time structure
 - Hardware response latency → apparatus-annotator
 
@@ -207,6 +217,7 @@ Declares the **physical equipment** used to run the experiment.
 | `@chamber` | Experimental chamber model | `@chamber("med-associates", model="ENV-007")` |
 | `@interface` | Hardware interface | `@interface("serial", port="/dev/ttyUSB0")` |
 | `@hardware` | Hardware backend | `@hardware("teensy41")` or `@hardware("virtual")` |
+| `@feeder` | Reinforcer delivery device specs | `@feeder("pellet_dispenser", min_cycle=0.5)` |
 
 **Example: Physical experiment setup**
 
@@ -223,6 +234,8 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Target selection for experiment-io / contingency-bench
 - Compile to: *"Sessions were conducted in Med Associates (ENV-007) operant chambers interfaced with a Teensy 4.1 microcontroller via serial connection."*
 - `@hardware("virtual")` selects the software simulation backend instead of physical hardware
+
+**`@feeder` design rationale:** Minimum inter-reinforcement interval (IRI) originates from the physical recovery time of the reinforcer delivery mechanism (pellet dispenser motor cycle, liquid dipper raise/lower time). The same schedule (`VR 3`) has different min_cycle values depending on whether a pellet dispenser (0.5 s) or liquid dipper (3 s) is used. This is an apparatus constraint, not a contingency or session-temporal parameter.
 
 **What does NOT belong here:**
 - Logical names for response devices ("left_lever") → apparatus-annotator (`@operandum`)
@@ -246,12 +259,15 @@ A fully annotated program for a concurrent VI-VI experiment, organized by scopin
 -- Apparatus (program-level)
 @chamber("med-associates", model="ENV-007")
 @hardware("teensy41")
+@feeder("pellet_dispenser", min_cycle=0.5)
 
 -- Session parameters (program-level)
 @clock(unit="s")
 @algorithm("fleshler-hoffman", n=12, seed=42)
 @warmup(duration=300)
-@reinforcer("sucrose", concentration="10%", duration=3)
+@iti(duration=10)
+@post_blackout(duration=2)
+@reinforcer("sucrose", concentration="10%", access_duration=3)
 
 -- Schedule parameters
 COD = 2-s

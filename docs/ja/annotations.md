@@ -70,9 +70,9 @@ Subjects / Apparatus / Measurement）と **1:1 で対応する 4 つの推奨ア
 
 | JEAB カテゴリ | Annotator | Keywords |
 |---|---|---|
-| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
+| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
-| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
+| Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`), `@feeder` |
 | Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
 
 これらは DSL プロジェクトが提示する推奨集合であり、プログラム（runtime /
@@ -85,7 +85,7 @@ interpreter）は自由に採用・拡張・置換できる（詳細は
 
 | キーワード | 目的 | 例 |
 |-----------|------|-----|
-| `@reinforcer` | 強化子の宣言（基本形） | `@reinforcer("food", type="unconditioned")` |
+| `@reinforcer` | 強化子の宣言（基本形） | `@reinforcer("food", type="unconditioned", access_duration=3)` |
 | `@sd` | 弁別刺激の同定 | `@sd("red_light", component=1)` |
 | `@brief` | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
 
@@ -113,9 +113,12 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - 各 `Conc` 成分にオペランダムが割り当てられているか検証できる（参照整合性）
 - コンパイル結果: *「2つの反応レバーが利用可能であった。左レバー（赤色光）は VI 30秒、右レバー（緑色光）は VI 60秒で動作した。強化子は 10%ショ糖溶液への3秒間アクセスであった。」*
 
+**`@reinforcer` の `access_duration` パラメータ:** 強化子アクセス時間（ホッパーが上昇位置にある秒数、ペレットへのアクセス時間）は強化子の属性として `@reinforcer` が所有する。Ferster & Skinner (1957) は 4 秒のホッパーアクセスを標準としたが、スケジュール表記には含めなかった。この暗黙パラメータを明示することで再現性を保証する。
+
 **ここに属さないもの:**
 - 刺激の物理的仕様（LED 波長、音のデシベル）→ apparatus-annotator
-- 呈示時間（刺激持続時間、ISI）→ procedure-annotator/temporal
+- セッションレベルの時間構造（ITI、ウォームアップ、ブラックアウト）→ procedure-annotator/temporal
+- 強化子提示装置の物理的制約（minimum IRI）→ apparatus-annotator（`@feeder`）
 - 条件性刺激の学習履歴 → ランタイム状態であり宣言ではない
 
 **引用:**
@@ -132,6 +135,8 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 | `@clock` | 時間単位の宣言 | `@clock(unit="s")` |
 | `@warmup` | セッション前のウォームアップ期間 | `@warmup(duration=60)` |
 | `@algorithm` | スケジュール値生成アルゴリズム | `@algorithm("fleshler-hoffman", n=12)` |
+| `@iti` | 試行間間隔（Inter-Trial Interval） | `@iti(duration=10)` |
+| `@post_blackout` | 強化後ブラックアウト（強化子アクセス終了後の非活性期間） | `@post_blackout(duration=2)` |
 
 注: `@blackout` と `@cod` は当初 temporal annotation として提案されたが、随伴性構造に直接影響するため**コア文法にキーワード引数として昇格済み**（`BO=5-s`, `COD=2-s`）。
 
@@ -142,16 +147,21 @@ VI 30-s
   @clock(unit="s")
   @algorithm("fleshler-hoffman", n=12, seed=42)
   @warmup(duration=60)
+  @iti(duration=10)
+  @post_blackout(duration=2)
 ```
 
 **これにより可能になること:**
 - 完全な再現性: 別のラボが seed から同一の VI 値系列を生成可能
-- コンパイル結果: *「変動間隔 30秒スケジュール（Fleshler & Hoffman, 1962; リスト長 = 12）を使用した。セッションは、強化が利用不可能な 60秒のウォームアップ期間の後に開始した。」*
+- コンパイル結果: *「変動間隔 30秒スケジュール（Fleshler & Hoffman, 1962; リスト長 = 12）を使用した。セッションは、強化が利用不可能な 60秒のウォームアップ期間の後に開始した。各強化の後、2秒間のブラックアウトが挿入された。」*
 
 **なぜ `@algorithm` が重要か:** Fleshler-Hoffman 分布の `VI 30` と等差数列の `VI 30` では強化間間隔が異なる。スケジュール表記だけ（`VI 30-s`）では曖昧 — `@algorithm` がこれを再現性のために解決する。
 
+**`@iti` と `@post_blackout` の設計根拠:** ITI と強化後ブラックアウトはスケジュールの随伴性構造を変えない（境界テスト: `@iti` なしで FI スキャロップを議論できるか → YES）。しかし、セッションの時間構造としてメソッド記述と再現に不可欠であり、@warmup と同列のセッション時間パラメータである。
+
 **ここに属さないもの:**
-- 強化子の呈示時間 → procedure-annotator/stimulus（`@reinforcer` の duration パラメータ）
+- 強化子のアクセス時間 → procedure-annotator/stimulus（`@reinforcer` の `access_duration` パラメータ）
+- 最小強化間間隔（minimum IRI）→ apparatus-annotator（`@feeder` の `min_cycle` パラメータ）。装置の物理的回復時間であり、セッション時間構造ではない
 - セッション日数（何日目か）→ セッション・メタデータ
 - 装置の応答遅延 → apparatus-annotator
 
@@ -206,6 +216,7 @@ FR 5
 | `@chamber` | 実験チャンバーのモデル | `@chamber("med-associates", model="ENV-007")` |
 | `@interface` | HW インターフェース | `@interface("serial", port="/dev/ttyUSB0")` |
 | `@hardware` | ハードウェアバックエンド | `@hardware("teensy41")` or `@hardware("virtual")` |
+| `@feeder` | 強化子提示装置の物理仕様 | `@feeder("pellet_dispenser", min_cycle=0.5)` |
 
 **例: 物理実験のセットアップ**
 
@@ -222,6 +233,8 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - experiment-io / contingency-bench のターゲット選択
 - コンパイル結果: *「セッションは Med Associates（ENV-007）オペラントチャンバーで実施し、Teensy 4.1 マイコンとシリアル接続でインターフェースした。」*
 - `@hardware("virtual")` でハードウェアなしのシミュレーション・バックエンドを選択
+
+**`@feeder` の設計根拠:** 最小強化間間隔（minimum IRI）はペレットディスペンサーや液体ディッパーの物理的回復時間に由来するハードウェア制約であり、随伴性の理論的性質やセッションの時間構造とは独立。同一スケジュールでも装置が異なれば min_cycle は異なる。Apparatus section に自然に記述される情報である。
 
 **ここに属さないもの:**
 - 反応装置の論理名（"left_lever"）→ apparatus-annotator（`@operandum`）
@@ -245,12 +258,15 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 -- Apparatus（プログラムレベル）
 @chamber("med-associates", model="ENV-007")
 @hardware("teensy41")
+@feeder("pellet_dispenser", min_cycle=0.5)
 
 -- セッションパラメータ（プログラムレベル）
 @clock(unit="s")
 @algorithm("fleshler-hoffman", n=12, seed=42)
 @warmup(duration=300)
-@reinforcer("sucrose", concentration="10%", duration=3)
+@iti(duration=10)
+@post_blackout(duration=2)
+@reinforcer("sucrose", concentration="10%", access_duration=3)
 
 -- スケジュールパラメータ
 COD = 2-s
