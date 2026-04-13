@@ -1,0 +1,215 @@
+[
+  {
+    "id": "conc_verbose_cod",
+    "description": "Verbose alias ChangeoverDelay produces same AST as COD (Catania, 1966)",
+    "input": "Conc(VI30s, VI60s, ChangeoverDelay=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_verbose_frco",
+    "description": "Verbose alias FixedRatioChangeover produces same AST as FRCO (Hunter & Davison, 1985)",
+    "input": "Conc(VI30s, VI60s, FixedRatioChangeover=5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "FRCO": { "value": 5 }
+        }
+      }
+    }
+  },
+  {
+    "id": "mult_verbose_bo",
+    "description": "Verbose alias Blackout produces same AST as BO (Reynolds, 1961)",
+    "input": "Mult(FR5, EXT, Blackout=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Special", "kind": "EXT" }
+        ],
+        "params": {
+          "BO": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "mix_verbose_bo",
+    "description": "Verbose alias Blackout on Mix combinator",
+    "input": "Mix(VI30s, VI60s, Blackout=3s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mix",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "BO": { "value": 3.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_verbose_cod_and_frco",
+    "description": "Both verbose aliases on Conc (ChangeoverDelay + FixedRatioChangeover)",
+    "input": "Conc(VI30s, VI60s, ChangeoverDelay=2s, FixedRatioChangeover=1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "FRCO": { "value": 1 }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_mixed_short_verbose",
+    "description": "Mixed short and verbose aliases on same Conc (COD short, FRCO verbose)",
+    "input": "Conc(VI30s, VI60s, COD=2s, FixedRatioChangeover=3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "FRCO": { "value": 3 }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_verbose_cod_zero",
+    "description": "Verbose ChangeoverDelay=0s is legal (explicit no-delay; Shull & Pliskoff, 1967)",
+    "input": "Conc(VI30s, VI60s, ChangeoverDelay=0s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 0.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "mult_verbose_bo_milliseconds",
+    "description": "Verbose Blackout with millisecond time unit",
+    "input": "Mult(FR5, FR10, Blackout=500ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+        ],
+        "params": {
+          "BO": { "value": 500.0, "time_unit": "ms" }
+        }
+      }
+    }
+  },
+  {
+    "id": "mult_three_verbose_bo",
+    "description": "Three-component Mult with verbose Blackout",
+    "input": "Mult(FR5, FI30s, EXT, Blackout=10s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Special", "kind": "EXT" }
+        ],
+        "params": {
+          "BO": { "value": 10.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_verbose_cod_minutes",
+    "description": "Verbose ChangeoverDelay with minute time unit",
+    "input": "Conc(VI5min, VI10min, ChangeoverDelay=1min)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 5.0, "time_unit": "min" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 10.0, "time_unit": "min" }
+        ],
+        "params": {
+          "COD": { "value": 1.0, "time_unit": "min" }
+        }
+      }
+    }
+  }
+]

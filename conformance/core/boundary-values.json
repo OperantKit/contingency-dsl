@@ -1,0 +1,500 @@
+[
+  {
+    "_comment": "=== Nonpositive atomic values (ast.schema.json: Atomic.value exclusiveMinimum=0) ==="
+  },
+  {
+    "id": "boundary_fr_zero",
+    "description": "FR 0 — zero ratio is nonpositive (use EXT for extinction semantics)",
+    "input": "FR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_vr_zero",
+    "description": "VR 0 — zero variable ratio is nonpositive",
+    "input": "VR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_fi_zero",
+    "description": "FI 0s — zero fixed interval is nonpositive",
+    "input": "FI 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_vi_zero",
+    "description": "VI 0s — zero variable interval is nonpositive",
+    "input": "VI 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_ft_zero",
+    "description": "FT 0s — zero fixed time is nonpositive",
+    "input": "FT 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_rr_zero",
+    "description": "RR 0 — zero random ratio is nonpositive",
+    "input": "RR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_ri_zero",
+    "description": "RI 0s — zero random interval is nonpositive",
+    "input": "RI 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_vt_zero",
+    "description": "VT 0s — zero variable time is nonpositive",
+    "input": "VT 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_rt_zero",
+    "description": "RT 0s — zero random time is nonpositive",
+    "input": "RT 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_fr_zero_compact",
+    "description": "FR0 compact form — same constraint applies without whitespace",
+    "input": "FR0",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  },
+
+  {
+    "_comment": "=== Minimal positive values (valid boundary) ==="
+  },
+  {
+    "id": "boundary_fr_one",
+    "description": "FR 1 — minimum positive ratio (equivalent to CRF)",
+    "input": "FR 1",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 1.0
+      }
+    }
+  },
+  {
+    "id": "boundary_fi_minimal",
+    "description": "FI 0.001s — minimal positive interval (1 millisecond as seconds)",
+    "input": "FI 0.001s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 0.001,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "boundary_fi_1ms",
+    "description": "FI 1ms — minimum integral millisecond",
+    "input": "FI 1ms",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 1.0,
+        "time_unit": "ms"
+      }
+    }
+  },
+  {
+    "id": "boundary_vr_one",
+    "description": "VR 1 — minimum positive variable ratio (degenerate: Fleshler-Hoffman with N=1)",
+    "input": "VR 1",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "R",
+        "value": 1.0
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Nonpositive DR modifier values (theory.md: ℝ⁺ domain) ==="
+  },
+  {
+    "id": "boundary_drl_zero",
+    "description": "DRL 0s — zero IRT threshold is nonpositive (use CRF for unconditional reinforcement)",
+    "input": "DRL 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "DR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_drh_zero",
+    "description": "DRH 0s — zero IRT threshold is nonpositive",
+    "input": "DRH 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "DR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_dro_zero",
+    "description": "DRO 0s — zero omission interval is nonpositive",
+    "input": "DRO 0s",
+    "error": {
+      "type": "SemanticError",
+      "code": "DR_NONPOSITIVE_VALUE"
+    }
+  },
+
+  {
+    "_comment": "=== Valid DR boundary cases ==="
+  },
+  {
+    "id": "boundary_drl_minimal",
+    "description": "DRL 0.1s — minimal positive IRT threshold",
+    "input": "DRL 0.1s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 0.1,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "boundary_drh_minimal",
+    "description": "DRH 0.5s — minimal positive high-rate threshold",
+    "input": "DRH 0.5s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRH",
+        "value": 0.5,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== LH boundary cases (ast.schema.json: hold_duration minimum=0) ==="
+  },
+  {
+    "id": "boundary_lh_zero",
+    "description": "LH 0s — zero hold makes reinforcement practically unavailable (theory.md: LH(0,S) ≅ EXT)",
+    "input": "FI30s LH0s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 0.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+  {
+    "id": "boundary_lh_minimal",
+    "description": "LH 1ms — minimal positive hold duration",
+    "input": "VI60s LH1ms",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 1.0,
+        "time_unit": "ms",
+        "inner": {
+          "type": "Atomic",
+          "dist": "V",
+          "domain": "I",
+          "value": 60.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Lag boundary (Lag 0 already tested as lag_zero_equiv_crf in modifier.json) ==="
+  },
+  {
+    "id": "boundary_lag_one",
+    "description": "Lag 1 — minimum non-trivial lag (must differ from previous response)",
+    "input": "Lag 1",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 1.0,
+        "length": 1
+      }
+    }
+  },
+
+  {
+    "_comment": "=== PR boundary cases ==="
+  },
+  {
+    "id": "boundary_pr_shorthand_zero",
+    "description": "PR 0 — zero progressive ratio start/increment is invalid (AST: pr_start exclusiveMinimum=0)",
+    "input": "PR 0",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_pr_linear_zero_start",
+    "description": "PR(linear, start=0, increment=5) — zero start is invalid",
+    "input": "PR(linear, start=0, increment=5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_pr_linear_zero_increment",
+    "description": "PR(linear, start=1, increment=0) — zero increment produces constant schedule (=CRF at start value)",
+    "input": "PR(linear, start=1, increment=0)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+
+  {
+    "_comment": "=== Repeat boundary (Repeat(0,...) already tested as error_repeat_zero in errors.json) ==="
+  },
+  {
+    "id": "boundary_repeat_one",
+    "description": "Repeat(1, S) ≡ S — identity property (already tested as repeat_1_identity, included for boundary completeness)",
+    "input": "Repeat(1, VI60s)",
+    "pre_expansion": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Repeat",
+        "value": 1.0,
+        "inner": {
+          "type": "Atomic",
+          "dist": "V",
+          "domain": "I",
+          "value": 60.0,
+          "time_unit": "s"
+        }
+      }
+    },
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Large value boundary ==="
+  },
+  {
+    "id": "boundary_fr_large",
+    "description": "FR 999999 — large but valid ratio value",
+    "input": "FR 999999",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 999999.0
+      }
+    }
+  },
+  {
+    "id": "boundary_vi_large",
+    "description": "VI 3600s — large interval (1 hour in seconds)",
+    "input": "VI 3600s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 3600.0,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== Compound boundary: zero and near-zero values in compound params ==="
+  },
+  {
+    "id": "boundary_conc_cod_zero_explicit",
+    "description": "Conc COD=0s — explicit zero delay is valid (Shull & Pliskoff, 1967)",
+    "input": "Conc(VI30s, VI60s, COD=0s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 0.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "boundary_conc_frco_one",
+    "description": "Conc FRCO=1 — minimum FRCO (single changeover response; ast.schema.json: minimum=1)",
+    "input": "Conc(VI30s, VI60s, FRCO=1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "FRCO": { "value": 1 }
+        }
+      }
+    }
+  },
+  {
+    "id": "boundary_conc_frco_zero",
+    "description": "Conc FRCO=0 — zero changeover ratio is invalid (ast.schema.json: FRCO minimum=1)",
+    "input": "Conc(VI30s, VI60s, FRCO=0)",
+    "error": {
+      "type": "SemanticError",
+      "code": "FRCO_NONPOSITIVE_VALUE"
+    }
+  },
+
+  {
+    "_comment": "=== Second-order boundary ==="
+  },
+  {
+    "id": "boundary_second_order_fr1",
+    "description": "FR1(FI30) — minimum second-order overall (1 completion of unit = CRF of unit completions)",
+    "input": "FR1(FI30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "R",
+          "value": 1.0
+        },
+        "unit": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    }
+  },
+  {
+    "id": "boundary_second_order_fr0",
+    "description": "FR0(FI30) — zero second-order overall is nonpositive",
+    "input": "FR0(FI30s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "ATOMIC_NONPOSITIVE_VALUE"
+    }
+  }
+]

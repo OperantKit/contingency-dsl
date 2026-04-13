@@ -69,6 +69,10 @@ not perform semantic analysis should validate against `pre_expansion` only.
 | `aversive.json` | 14 | Sidman avoidance, discriminated avoidance |
 | `program.json` | 4 | Program-level param_decls, bindings |
 | `errors.json` | 56 | Lex errors, parse errors, semantic errors |
+| `compound-kw-aliases.json` | 10 | Verbose keyword alias parsing (ChangeoverDelay, FixedRatioChangeover, Blackout) |
+| `semantic-violations-extended.json` | 34 | Cross-combinator keyword validation, verbose alias errors, alias duplicate detection |
+| `boundary-values.json` | 33 | Zero/edge values for atomic, modifier, LH, Lag, PR, Repeat, compound params |
+| `warnings.json` | 25 | Linter warnings: MISSING_TIME_UNIT, RSI_EXCEEDS_SSI, LAG_LARGE_N, MISSING_INTERPOLATE_ONSET, MISSING_COD |
 
 ### core-stateful/
 

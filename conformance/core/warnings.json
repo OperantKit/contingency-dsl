@@ -1,0 +1,476 @@
+[
+  {
+    "_comment": "=== MISSING_TIME_UNIT (constraint §41): Interval/Time domain without explicit time unit ==="
+  },
+  {
+    "id": "warn_fi_missing_time_unit",
+    "description": "FI 30 without time unit — valid but triggers MISSING_TIME_UNIT (constraint §41). In JEAB Method sections, 'FI 30' would prompt reviewer clarification.",
+    "input": "FI 30",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0
+      }
+    }
+  },
+  {
+    "id": "warn_vi_missing_time_unit",
+    "description": "VI 60 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "VI 60",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0
+      }
+    }
+  },
+  {
+    "id": "warn_ri_missing_time_unit",
+    "description": "RI 30 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "RI 30",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "I",
+        "value": 30.0
+      }
+    }
+  },
+  {
+    "id": "warn_ft_missing_time_unit",
+    "description": "FT 60 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "FT 60",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "T",
+        "value": 60.0
+      }
+    }
+  },
+  {
+    "id": "warn_vt_missing_time_unit",
+    "description": "VT 30 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "VT 30",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "T",
+        "value": 30.0
+      }
+    }
+  },
+  {
+    "id": "warn_rt_missing_time_unit",
+    "description": "RT 30 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "RT 30",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "R",
+        "domain": "T",
+        "value": 30.0
+      }
+    }
+  },
+  {
+    "id": "no_warn_fr_no_time_unit",
+    "description": "FR 5 — Ratio domain is dimensionless; no MISSING_TIME_UNIT warning (constraint §41)",
+    "input": "FR 5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "no_warn_fi_with_time_unit",
+    "description": "FI 30s — explicit time unit suppresses MISSING_TIME_UNIT",
+    "input": "FI 30s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "warn_fi_in_compound_missing_time_unit",
+    "description": "FI 30 inside Conc — warning propagates through compound",
+    "warnings": ["MISSING_TIME_UNIT", "MISSING_COD"],
+    "input": "Conc(FI 30, VI60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ]
+      }
+    }
+  },
+
+  {
+    "_comment": "=== RSI_EXCEEDS_SSI (constraint §20): Sidman RSI > SSI triggers warning ==="
+  },
+  {
+    "id": "warn_sidman_rsi_exceeds_ssi",
+    "description": "Sidman RSI=30s > SSI=20s — responses cannot postpone shocks below SSI baseline (Hineline, 1977)",
+    "input": "Sidman(SSI=20s, RSI=30s)",
+    "warnings": ["RSI_EXCEEDS_SSI"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 30.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_sidman_rsi_equals_ssi",
+    "description": "Sidman RSI=SSI=20s — responses postpone exactly zero additional time; borderline case, may warn",
+    "input": "Sidman(SSI=20s, RSI=20s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 20.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "no_warn_sidman_rsi_less_than_ssi",
+    "description": "Sidman RSI=5s < SSI=20s — standard configuration, no warning",
+    "input": "Sidman(SSI=20s, RSI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Sidman",
+        "params": {
+          "SSI": { "value": 20.0, "time_unit": "s" },
+          "RSI": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== LAG_LARGE_N (constraint §25): Lag n > 50 triggers warning ==="
+  },
+  {
+    "id": "warn_lag_large_n_51",
+    "description": "Lag 51 — just over threshold (> 50); triggers LAG_LARGE_N",
+    "input": "Lag 51",
+    "warnings": ["LAG_LARGE_N"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 51.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "warn_lag_large_n_100",
+    "description": "Lag 100 — well above threshold; triggers LAG_LARGE_N",
+    "input": "Lag 100",
+    "warnings": ["LAG_LARGE_N"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 100.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "no_warn_lag_50",
+    "description": "Lag 50 — at threshold (not exceeding); no warning (constraint §25: n > 50)",
+    "input": "Lag 50",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 50.0,
+        "length": 1
+      }
+    }
+  },
+  {
+    "id": "warn_lag_large_n_parenthesized",
+    "description": "Lag(100, length=8) — large n with length; triggers LAG_LARGE_N",
+    "input": "Lag(100, length=8)",
+    "warnings": ["LAG_LARGE_N"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "Lag",
+        "value": 100.0,
+        "length": 8
+      }
+    }
+  },
+
+  {
+    "_comment": "=== MISSING_INTERPOLATE_ONSET (constraint §39): Interpolate without onset ==="
+  },
+  {
+    "id": "warn_interpolate_missing_onset",
+    "description": "Interpolate without onset — procedurally ambiguous (when does insertion start?). Warning per constraint §39.",
+    "input": "Interpolate(FI15min, FI1min, count=16)",
+    "warnings": ["MISSING_INTERPOLATE_ONSET"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Interpolate",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 15.0, "time_unit": "min" },
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 1.0, "time_unit": "min" }
+        ],
+        "params": {
+          "count": { "value": 16 }
+        }
+      }
+    }
+  },
+  {
+    "id": "no_warn_interpolate_with_onset",
+    "description": "Interpolate with onset — no warning (onset is specified)",
+    "input": "Interpolate(FI15min, FI1min, count=16, onset=3min)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Interpolate",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 15.0, "time_unit": "min" },
+          { "type": "Atomic", "dist": "F", "domain": "I", "value": 1.0, "time_unit": "min" }
+        ],
+        "params": {
+          "count": { "value": 16 },
+          "onset": { "value": 3.0, "time_unit": "min" }
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_interp_alias_missing_onset",
+    "description": "Interp alias: same warning as Interpolate when onset is omitted",
+    "input": "Interp(VI60s, FR30, count=5)",
+    "warnings": ["MISSING_INTERPOLATE_ONSET"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Interpolate",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 30.0 }
+        ],
+        "params": {
+          "count": { "value": 5 }
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== MISSING_COD (constraint §7): Conc without COD ==="
+  },
+  {
+    "id": "warn_conc_missing_cod_basic",
+    "description": "Conc without COD — procedurally essential but not required. Warning per constraint §7 (Herrnstein, 1961).",
+    "input": "Conc(FR5, FR10)",
+    "warnings": ["MISSING_COD"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "no_warn_conc_with_cod_explicit",
+    "description": "Conc with explicit COD — no MISSING_COD warning",
+    "input": "Conc(FR5, FR10, COD=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "no_warn_conc_with_cod_zero",
+    "description": "Conc with explicit COD=0s — no MISSING_COD warning (explicit zero is not omission; constraint §7)",
+    "input": "Conc(FR5, FR10, COD=0s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+        ],
+        "params": {
+          "COD": { "value": 0.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+
+  {
+    "_comment": "=== DR modifier time unit warnings/requirements ==="
+  },
+  {
+    "id": "warn_drl_missing_time_unit",
+    "description": "DRL 5 without time unit — same as Interval/Time domain (MISSING_TIME_UNIT)",
+    "input": "DRL 5",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "warn_drh_missing_time_unit",
+    "description": "DRH 2 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "DRH 2",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRH",
+        "value": 2.0
+      }
+    }
+  },
+  {
+    "id": "warn_dro_missing_time_unit",
+    "description": "DRO 10 without time unit — triggers MISSING_TIME_UNIT",
+    "input": "DRO 10",
+    "warnings": ["MISSING_TIME_UNIT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRO",
+        "value": 10.0
+      }
+    }
+  }
+]

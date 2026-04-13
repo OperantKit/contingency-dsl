@@ -1,0 +1,335 @@
+[
+  {
+    "_comment": "=== Cross-combinator keyword arg validation (gap fill for errors.json) ==="
+  },
+  {
+    "id": "error_cod_on_conj",
+    "description": "COD keyword argument is only valid on Conc combinator (constraint §8)",
+    "input": "Conj(FR5, FI30s, COD=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_cod_on_tand",
+    "description": "COD keyword argument is only valid on Conc combinator",
+    "input": "Tand(FR5, FI30s, COD=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_cod_on_mult",
+    "description": "COD keyword argument is only valid on Conc combinator",
+    "input": "Mult(FR5, EXT, COD=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_cod_on_mix",
+    "description": "COD keyword argument is only valid on Conc combinator",
+    "input": "Mix(FR5, FR10, COD=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_frco_on_chain",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Chain(FR5, FI30s, FRCO=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_frco_on_alt",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Alt(FR10, FI5min, FRCO=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_frco_on_conj",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Conj(FR5, FI30s, FRCO=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_frco_on_mult",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Mult(FR5, EXT, FRCO=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_frco_on_mix",
+    "description": "FRCO keyword argument is only valid on Conc combinator",
+    "input": "Mix(FR5, FR10, FRCO=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_bo_on_conj",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators (constraint §8)",
+    "input": "Conj(FR5, FI30s, BO=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+
+  {
+    "_comment": "=== Verbose alias errors: same constraints apply to verbose forms ==="
+  },
+  {
+    "id": "error_verbose_cod_on_chain",
+    "description": "Verbose ChangeoverDelay on Chain is still invalid (alias does not bypass constraint §8)",
+    "input": "Chain(FR5, FI30s, ChangeoverDelay=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_verbose_cod_on_mult",
+    "description": "Verbose ChangeoverDelay on Mult is still invalid",
+    "input": "Mult(FR5, EXT, ChangeoverDelay=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_verbose_frco_on_chain",
+    "description": "Verbose FixedRatioChangeover on Chain is still invalid",
+    "input": "Chain(FR5, FI30s, FixedRatioChangeover=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_verbose_bo_on_conc",
+    "description": "Verbose Blackout on Conc is still invalid",
+    "input": "Conc(VI30s, VI60s, Blackout=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_verbose_bo_on_chain",
+    "description": "Verbose Blackout on Chain is still invalid",
+    "input": "Chain(FR5, FI30s, Blackout=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_verbose_bo_on_alt",
+    "description": "Verbose Blackout on Alt is still invalid",
+    "input": "Alt(FR5, FI30s, Blackout=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+
+  {
+    "_comment": "=== Duplicate detection across short/verbose alias pairs ==="
+  },
+  {
+    "id": "error_duplicate_cod_short_verbose",
+    "description": "COD + ChangeoverDelay = same parameter, duplicate (constraint §21 analogue)",
+    "input": "Conc(VI30s, VI60s, COD=2s, ChangeoverDelay=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_duplicate_frco_short_verbose",
+    "description": "FRCO + FixedRatioChangeover = same parameter, duplicate",
+    "input": "Conc(VI30s, VI60s, FRCO=3, FixedRatioChangeover=5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_duplicate_bo_short_verbose",
+    "description": "BO + Blackout = same parameter, duplicate",
+    "input": "Mult(FR5, EXT, BO=5s, Blackout=3s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_KEYWORD_ARG"
+    }
+  },
+
+  {
+    "_comment": "=== Interpolate-specific semantic violations ==="
+  },
+  {
+    "id": "error_interpolate_one_component",
+    "description": "Interpolate with only 1 positional component (constraint §37)",
+    "input": "Interpolate(FI15min, count=16)",
+    "error": {
+      "type": "ParseError",
+      "code": "INSUFFICIENT_COMPONENTS"
+    }
+  },
+  {
+    "id": "error_interpolate_count_negative",
+    "description": "Interpolate count must be positive (count=-1)",
+    "input": "Interpolate(FI15min, FI1min, count=-1)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_NONPOSITIVE_COUNT"
+    }
+  },
+  {
+    "id": "error_interpolate_onset_negative",
+    "description": "Interpolate onset must be positive (onset=-5min)",
+    "input": "Interpolate(FI15min, FI1min, count=16, onset=-5min)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_NONPOSITIVE_ONSET"
+    }
+  },
+  {
+    "id": "error_interpolate_duplicate_onset",
+    "description": "Duplicate onset keyword arg",
+    "input": "Interpolate(FI15min, FI1min, count=16, onset=3min, onset=5min)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_INTERPOLATE_KW_ARG"
+    }
+  },
+  {
+    "id": "error_interp_alias_three_components",
+    "description": "Interp alias: same constraints as Interpolate (exactly 2 components)",
+    "input": "Interp(FI15min, FI1min, FR50, count=10)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INTERPOLATE_REQUIRES_TWO"
+    }
+  },
+  {
+    "id": "error_interp_alias_missing_count",
+    "description": "Interp alias: count still required",
+    "input": "Interp(FI15min, FI1min)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_INTERPOLATE_COUNT"
+    }
+  },
+
+  {
+    "_comment": "=== Overlay additional violations ==="
+  },
+  {
+    "id": "error_overlay_one_component",
+    "description": "Overlay with only 1 component (compound requires 2+)",
+    "input": "Overlay(VI60s)",
+    "error": {
+      "type": "ParseError",
+      "code": "INSUFFICIENT_COMPONENTS"
+    }
+  },
+  {
+    "id": "error_overlay_verbose_bo",
+    "description": "Overlay does not accept Blackout (verbose alias doesn't bypass v1.x restriction)",
+    "input": "Overlay(VI60s, FR1, Blackout=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+
+  {
+    "_comment": "=== Sidman additional violations ==="
+  },
+  {
+    "id": "error_sidman_zero_rsi",
+    "description": "Sidman RSI must be strictly positive (constraint §19)",
+    "input": "Sidman(SSI=20s, RSI=0s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SIDMAN_NONPOSITIVE_PARAM"
+    }
+  },
+  {
+    "id": "error_sidman_mixed_time_unit",
+    "description": "Sidman with one dimensionless param and one with unit — the dimensionless one fails",
+    "input": "Sidman(SSI=20, RSI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SIDMAN_TIME_UNIT_REQUIRED"
+    }
+  },
+  {
+    "id": "error_sidman_verbose_alias_missing_rsi",
+    "description": "SidmanAvoidance verbose alias: same constraints as Sidman",
+    "input": "SidmanAvoidance(ShockShockInterval=20s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_SIDMAN_PARAM"
+    }
+  },
+  {
+    "id": "error_sidman_duplicate_rsi_alias",
+    "description": "RSI + ResponseShockInterval = same parameter, duplicate (constraint §21)",
+    "input": "Sidman(SSI=20s, RSI=5s, ResponseShockInterval=10s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_SIDMAN_PARAM"
+    }
+  },
+
+  {
+    "_comment": "=== DA additional violations ==="
+  },
+  {
+    "id": "error_da_iti_equals_csus",
+    "description": "ITI equal to CSUSInterval is also too short (must be strictly greater; constraint §33)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=10s, mode=escape)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DA_ITI_TOO_SHORT"
+    }
+  },
+  {
+    "id": "error_da_missing_all",
+    "description": "DiscriminatedAvoidance with no parameters",
+    "input": "DiscriminatedAvoidance()",
+    "error": {
+      "type": "ParseError",
+      "code": "UNEXPECTED_TOKEN"
+    }
+  },
+  {
+    "id": "error_discrimav_alias_missing_mode",
+    "description": "DiscrimAv short alias: same constraints as DiscriminatedAvoidance",
+    "input": "DiscrimAv(CSUSInterval=10s, ITI=3min)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_DA_PARAM"
+    }
+  }
+]
