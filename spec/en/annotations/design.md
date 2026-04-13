@@ -74,38 +74,11 @@ FI 10 @clock(unit="s")          -- Needed to run the experiment, but
 
 ### Boundary Test (Determining Core vs. Annotation)
 
-Given a proposed candidate `@X`, the following questions determine whether promotion to Core grammar is necessary or whether it can be treated as an annotation:
-
-| # | Question | YES → | NO → |
-|---|---|---|---|
-| 1 | Is `@X` required to discuss the theoretical properties of the schedule (e.g., FI scallop)? | Part of Core grammar. Consider adding to Core, not as an annotation | Annotation candidate |
-| 2 | Does `@X` alter the evaluation semantics of the schedule expression? | A variant of Core grammar (e.g., FI-resetting). Consider adding to Core | Annotation candidate |
-| 3 | Is `@X` mandatory at the Core grammar level (can it be claimed as universally required across the entire DSL spec, independent of any program's registry)? | Consider promotion to Core grammar. However, per design-philosophy §8, breaking changes are avoided in principle | Annotation candidate |
-
-### Note: "Whether It Causes a Parse Error" Cannot Be Determined at the DSL Level
-
-The previous version of the boundary test included a fourth question: "Does the absence of `@X` cause a parse error in Core? → Design flaw."
-This is inconsistent with the **program-scoped closure** principle of design-philosophy §4.2:
-
-- Whether a parse error occurs depends on **the program's registry**.
-- The DSL spec does not presuppose any specific program and does not define closure.
-- Therefore, the question "Is it a parse error for Core?" cannot be answered without fixing a specific registry.
-
-Each program bears the responsibility of defining "what is required and what is optional in its own registry." For concrete examples, see the tier × mode model in [validation-modes.md](validation-modes.md).
-
-### Dangerous Patterns
-
-```
--- NG: Annotation alters Core semantics
-FI 10 @mode("resetting")     -- This is an FI variant. A Core grammar concern
-
--- NG: Core grammar requires a specific annotation
-FI 10 requires @clock, @operandum    -- Do not bake registry dependency into grammar
-
--- OK: Core is independent, annotation is additive
-FI 10                        -- valid (in any registry)
-FI 10 @clock(unit="s")       -- also valid (if the registry recognizes @clock)
-```
+> **Canonical definition:** [boundary-decision.md](boundary-decision.md) §2 (Phase A) and §3 (Phase B).
+>
+> The boundary test (Q1–Q3) and subsequent tier classification (T-A–T-C)
+> are defined in a single document. All proposals should reference that
+> file for the authoritative decision tree and application examples.
 
 ---
 
@@ -704,7 +677,7 @@ By **guaranteeing the existence of both** at the schema level, confusion between
 ```
 
 - `@preparation` is separated from `@history` (catheter patency is a session-level variable)
-- `@phase` determines the identity of the procedure (the same FR 1 under acquisition vs. extinction constitutes a different experiment)
+- `@phase` is a **program-level-only** informational label (Tier 3). It does not alter evaluation semantics — extinction is expressed by changing the schedule to `EXT`, not by annotating an active schedule with `@phase("extinction")`. See [boundary-decision.md](boundary-decision.md) §5 for the full rationale
 
 #### 8.3.2 ABA Clinical — `subject-human` (Separated from `subject-animal`) `Tier 3 (publication)`
 

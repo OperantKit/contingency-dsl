@@ -75,9 +75,9 @@ belong to? Choose one:
 Fill this in when proposing a new keyword `@X`:
 
 ```markdown
-### 1. Core independence (§2 boundary test)
-The following corresponds to Q1-Q3 in annotation-design.md §2.
-The description in §2 is authoritative; if this checklist conflicts with §2, §2 prevails.
+### 1. Core independence (boundary-decision.md Phase A)
+The following corresponds to Q1-Q3 in boundary-decision.md §2.
+boundary-decision.md is authoritative; if this checklist conflicts, that file prevails.
 - [ ] Q1: Can the schedule's theoretical properties (e.g., FI scallop) be discussed without `@X`? → If YES, annotation OK
 - [ ] Q2: Does `@X` alter the evaluation semantics of the schedule expression? → If NO, annotation OK
 - [ ] Q3: Can `@X` be claimed as mandatory at the Core grammar level (i.e., required across the entire DSL spec, independent of any registry)? → If NO, annotation OK

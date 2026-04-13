@@ -324,37 +324,20 @@ Step 6: Manuscript preparation
 
 ### 6.1 Boundary Tests and Their Relationship to Tiers
 
-The boundary tests (Q1-Q3) of annotation-design.md §2 determine the
-**Core vs. Annotation** classification. The specific content of the three
-questions follows the sole definition in §2 and is not restated in this
-document. The tier classification in this section determines, **within a
-specific program (this Python reference implementation)**, which mode requires
-a given element — after §2 has judged it an "annotation candidate." The two
-mechanisms have distinct scopes of responsibility.
+> **Canonical definition:** [boundary-decision.md](boundary-decision.md)
+> §2 (Phase A: Core vs. Annotation, Q1–Q3) and §3 (Phase B: Tier
+> classification, T-A–T-C).
+>
+> The full decision tree, application examples, and reclassification
+> table are maintained in that single document. This section retains
+> only the relationship summary.
 
-Decision flow adopted by this Python reference implementation:
-
-```
-Precondition: the boundary tests (Q1-Q3) of annotation-design.md §2
-have judged the element an "Annotation candidate" rather than
-"consider Core promotion"
-(YES → revise grammar.ebnf under the constraints of design-philosophy §8)
-  ↓
-Tier classification (this document)
-  T-A: Is @X a defaulted parameter? (e.g., @clock unit)
-    YES → Tier 1
-    NO  → ↓
-  T-B: Is @X required when physical HW is connected? (e.g., @session_end)
-    YES → Tier 2 (mandatory in production)
-    NO  → ↓
-  T-C: Is @X required in the publication phase? (e.g., @species)
-    YES → Tier 3 (mandatory in publication)
-    NO  → Tier 1 (informational metadata)
-```
-
-**Note:** The tier classification above is the rule followed by this Python
-reference implementation's validator. A different program may adopt a
-different tier classification; this is permitted by design-philosophy §4.2.
+The boundary tests (Q1–Q3) determine the **Core vs. Annotation**
+classification at the DSL-spec level. The tier classification (T-A–T-C)
+determines, **within a specific program**, which mode requires a given
+element. The two mechanisms have distinct scopes of responsibility.
+See [boundary-decision.md](boundary-decision.md) for the authoritative
+decision flow and examples.
 
 ### 6.2 Reclassification of Existing Proposals from annotation-design.md §8
 
@@ -377,7 +360,7 @@ reclassified by tier as follows:
 | `@pretraining` | **Tier 3** (publication) |
 | `@chamber(model)` | **Tier 3** (publication) |
 | `@context(houselight)` | **Tier 2** (production, physical apparatus) |
-| `@drug`, `@phase`, `@preparation` | **Tier 3** (publication) + `@phase` is Tier 2 |
+| `@drug`, `@phase`, `@preparation` | **Tier 3** (publication). `@phase` is program-level only (see [boundary-decision.md](boundary-decision.md) §5) |
 | `@pr_breakpoint` | **Tier 2** (production) |
 | `@ioa`, `@ethics`, `@function` | **Tier 3** (publication) |
 
@@ -546,7 +529,7 @@ The mechanism by which Tier 2 activation depends on the value of `@hardware` is
 straightforward, but whether additional dynamic tiers are needed should be
 investigated:
 
-- When `@phase("extinction")` is specified, does `@reinforcer` become unnecessary?
+- ~~When `@phase("extinction")` is specified, does `@reinforcer` become unnecessary?~~ Resolved: extinction is expressed by `EXT`, not `FR5 + @phase("extinction")`. `@phase` is Tier 3 informational only. See [boundary-decision.md](boundary-decision.md) §5.
 - In a multiple schedule, does `@sd` become mandatory?
 
 ### 9.2 Tier Ownership
