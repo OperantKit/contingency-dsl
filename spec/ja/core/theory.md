@@ -167,10 +167,40 @@ HOLD_OPEN(t_open)
 
 **代数的性質:**
 
-- `LH(∞, S) = S`（制限なし = 元のスケジュール）
-- `LH(0, S) = EXT`（即時期限切れ = 消去）
-- `LH` は連言（Conj）に還元不可: `Conj` は無状態の同時充足チェックであり、充足イベントにゲートされた状態付き時間窓を表現できない
-- `LH` は T-tau と非同一: T-tau は固定周期クロック駆動、LH は充足イベントトリガー。詳細は [representations.md](representations.md) 参照
+- `LH(∞, S) ≡ S` — 無限の保持は制約を課さない。§2.2.4 参照。
+- `LH(0, S) ≡ EXT` — ゼロの保持は強化を利用不可能にする。§2.2.4 参照。
+- `LH` は連言（Conj）に還元不可: `Conj` は無状態の同時充足チェックであり、充足イベントにゲートされた状態付き時間窓を表現できない。
+- `LH` は T-tau と非同一: T-tau は固定周期クロック駆動、LH は充足イベントトリガー。詳細は [representations.md](representations.md) 参照。
+- LH は**合同な単項スケジュール変換子**である: `LH : (ℝ⁺, Schedule) → Schedule`。
+
+**LH の代数的地位の形式的検証.**
+
+*性質 1（合同性 — 成立）.* LH は意味論的等価を保存する:
+
+```
+S₁ ≡ S₂  ⟹  LH(d, S₁) ≡ LH(d, S₂)
+```
+
+*証明.* S₁ ≡ S₂ ならば、全観察トレースに対して同一の強化帰結列を生成する（定義 4, §2.2.1）。外部の LH ラッパーを持たないスケジュールにおいて、充足イベントは強化イベントと一致する。よって S₁ と S₂ は任意のトレースで同一の位置で充足される。LH の状態機械遷移は内部スケジュールの充足イベントと反応ストリームのみで決定されるため、LH(d, S₁) と LH(d, S₂) は同一の状態遷移を経て同一の帰結を生成する。 ∎
+
+*性質 2（ネストの非可換性 — 合成保存則は不成立）.* 一般に:
+
+```
+LH(d₂, LH(d₁, S)) ≢ LH(d₁, LH(d₂, S))
+```
+
+*反例.* `LH(10, LH(5, FI 30-s))` と `LH(5, LH(10, FI 30-s))` を比較する。
+
+`LH(10, LH(5, FI 30-s))` では: FI 30 が t₀ で充足 → 最初の反応が t₀ から 5 秒以内に必要（内側 LH）→ 2番目の反応が最初の反応から 10 秒以内に必要（外側 LH）。`LH(5, LH(10, FI 30-s))` では: FI 30 が t₀ で充足 → 最初の反応が t₀ から 10 秒以内に必要（内側 LH）→ 2番目の反応が最初の反応から 5 秒以内に必要（外側 LH）。異なる時間的制約を課すため、一方で強化が生じ他方で生じないトレースが存在する。 ∎
+
+*帰結.* LH を「スケジュール代数上の内函子（endofunctor）」とする元の特徴づけは不正確である。LH(d, −) は合同性（≡ による前順序圏での恒等射保存関手則に対応）を満たすが、スケジュール上の自然な圏構造での合成保存関手則は満たさない。正確な特徴づけ: **LH(d, −) は合同な単項スケジュール変換子**である — スケジュールをスケジュールに写し、意味論的等価を保存するが、ネストされた LH の適用は順序依存的である。
+
+**ネストされた LH の意味論.** `LH(d₂, LH(d₁, S))` は以下のように解釈される:
+1. 内部スケジュール `S` が要件を充足する（時刻 `t₀`）。
+2. 内側 LH が `d₁` 秒の窓を開く。反応が `t₁ ∈ [t₀, t₀ + d₁)` で生じなければならない。
+3. 外側 LH が `t₁` から `d₂` 秒の窓を開く。2番目の反応が `t₂ ∈ [t₁, t₁ + d₂)` で生じなければ強化は成立しない。
+
+これは実質的に**2回の逐次的反応**を指定の時間窓内で要求する — 逐次（tandem）的な時間的制約である。内側 LH を充足した反応はその層の充足イベントとして消費され、外側 LH の充足には寄与しない。
 
 **適用範囲:**
 
@@ -183,6 +213,137 @@ HOLD_OPEN(t_open)
 | FR, VR | 意味論的に問題あり（充足反応 = 窓内反応）— v1.0 パーサで警告 |
 
 **参考文献:** Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts. (Ch. 5); Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin, 74*(4), 225–254. https://doi.org/10.1037/h0029813
+
+#### 1.6.1 LH デフォルト伝播 — 属性文法
+
+プログラムレベルの `LH` パラメータ宣言（`LH = d`）は、適格な葉スケジュールノードに伝播するデフォルト Limited Hold を指定する。本節では、自然言語の記述「全ての leaf base_schedules に適用」を**属性文法**（Aho et al., 2006, §5.2）として形式化し、実装者間の解釈の揺らぎを排除する。
+
+**属性の定義.**
+
+| 属性 | 種別 | 型 | スコープ |
+|---|---|---|---|
+| `lh_default` | 合成属性 | `Option<(ℝ⁺, Option<TimeUnit>)>` | `Program` ノード |
+| `inherited_lh` | 継承属性 | `Option<(ℝ⁺, Option<TimeUnit>)>` | 全 `ScheduleExpr` ノード |
+| `effective_lh` | 合成属性 | `Option<(ℝ⁺, Option<TimeUnit>)>` | 葉ノード |
+
+- `lh_default`: `Program.param_decls` から抽出。`LH` 宣言がなければ `⊥`。
+- `inherited_lh`: Program ルートから AST を下降するトップダウン属性。
+- `effective_lh`: 葉ノードに実際に適用される LH。`≠ ⊥` の場合、意味解析器が `leaf ↦ LH(effective_lh, leaf)` の変換を行う。
+
+**フェーズ順序.** LH 伝播は**意味解析**パスであり、**展開後** AST（let 束縛置換および `Repeat` 脱糖後、警告/リンティング前）に対して動作する。
+
+```
+Source → 字句解析 → 構文解析 → [展開前 AST]
+  → 束縛展開 / Repeat 脱糖 → [展開後 AST]
+  → LH デフォルト伝播（本属性文法）→ [解決済み AST]
+  → 警告 / リンティング
+```
+
+この順序により、展開前/後のフェーズ曖昧性が解消される: LH 伝播は常に完全に展開された AST に対して動作し、`IdentifierRef` や `Repeat` ノードは残存しない。
+
+**伝播規則.** `⊥` は LH 値の不在（伝播なし）を表す。
+
+```
+R1  Program → param_decls bindings schedule
+    schedule.inherited_lh = lookup("LH", param_decls)      -- 不在なら ⊥
+
+R2  Compound[C] → C(components[1..n])
+    ただし C ∈ {Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate}
+    ∀i ∈ [1..n]:
+        components[i].inherited_lh = Compound.inherited_lh
+
+R3  Overlay → Overlay(baseline, punisher)
+    baseline.inherited_lh  = Overlay.inherited_lh
+    punisher.inherited_lh  = ⊥
+
+R4  LimitedHold → LH(d, inner)
+    inner.inherited_lh = ⊥
+
+R5  葉ノード: node ∈ {Atomic, Special, Modifier, SecondOrder}
+    node.effective_lh = node.inherited_lh
+    action: effective_lh ≠ ⊥ ならば node ↦ LH(effective_lh, node)
+
+R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
+    inherited_lh は破棄（ラッピングも伝播もなし）
+```
+
+**ノード種別ごとの振る舞い.**
+
+| ノード種別 | 振る舞い | 規則 |
+|---|---|---|
+| `Compound` (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate) | `inherited_lh` を各成分に渡す | R2 |
+| `Overlay` | ベースラインにのみ渡す; 罰子は `⊥` | R3 |
+| `LimitedHold` | 伝播を遮断（明示的 LH がデフォルトに優先） | R4 |
+| `Atomic`, `Special`, `Modifier` (DRL, DRH, DRO, PR, Lag) | `inherited_lh ≠ ⊥` なら LH でラップ | R5 |
+| `SecondOrder` | ノード全体をラップ; unit は個別に伝播しない | R5 |
+| `AversiveSchedule` (Sidman, DiscrimAv) | `inherited_lh` を破棄 | R6 |
+
+**主要な設計判断の根拠.**
+
+*R3 — Overlay 罰子の隔離.* プログラムレベル LH は強化の利用可能性を制約する。`Overlay` の罰子は別の帰結クラス（嫌悪刺激）で動作するため、強化の利用可能性窓を罰スケジュールに伝播させることは手続き的に非整合である。
+
+*R4 — 明示的 LH がデフォルトに優先.* 式レベル COD がプログラムレベル COD に優先するのと同様のオーバーライド意味論（§2.4）。明示的 LH は意図した時間的制約を既に提供しており、デフォルトをさらに伝播すると意図しない二重ゲーティングが生じる。
+
+*R5 — SecondOrder を葉として扱う.* 二次スケジュール（例: `FR5(FI30)`）の unit スケジュールは派生的反応単位を定義する（Kelleher, 1966）。セッションレベル LH は全体の強化配達を制約するものであり、各 unit の内部的時間的力学を制約するものではない。LH を unit 位置に伝播すると手続きが根本的に変わる — 特に行動薬理学では、unit スケジュールの独立した動作が実験変数であることが多い（Goldberg & Kelleher, 1977）。SecondOrder 全体をラップすることで、意図された意味論が保存される: 「二次スケジュールの配置が強化機会を生成した後、*d* 秒以内に収集する必要がある」。
+
+*R6 — 嫌悪スケジュールの隔離.* Sidman 回避と弁別回避には専用の時間的パラメータ（SSI/RSI, CSUSInterval）がある。LH は*強化の利用可能性*を制約する; これらのスケジュールは手続き的に異なるタイムラインで*嫌悪帰結*を配達する（Sidman, 1953）。
+
+**具体例.**
+
+*例 1 — Conc を通じた基本伝播.*
+```
+入力:     LH = 10s
+          Conc(VI 30s, VI 60s)
+解決後:   Conc(VI 30s LH 10s, VI 60s LH 10s)
+```
+トレース: R1 → R2 (×2) → R5 (×2, ラップ).
+
+*例 2 — 式レベルのオーバーライド.*
+```
+入力:     LH = 10s
+          Conc(FR 5, VI 60s LH 20s)
+解決後:   Conc(FR 5 LH 10s, VI 60s LH 20s)
+```
+トレース: R1 → R2 (×2). `FR 5`: R5 (ラップ, + `VACUOUS_LH_RATIO` 警告). `LH(20s, VI 60s)`: R4 (伝播遮断); 明示的 LH 20s が保持。
+
+*例 3 — SecondOrder unit の隔離.*
+```
+入力:     LH = 10s
+          FR 5(FI 30s)
+解決後:   FR 5(FI 30s) LH 10s
+```
+トレース: R1 → R5 (SecondOrder を葉として扱い、ラップ). unit `FI 30s` は不変; LH 窓は 5 回目の unit 完了後に被験体が強化を収集できる時間を制約する。
+
+*例 4 — 入れ子の複合スケジュール.*
+```
+入力:     LH = 10s
+          Conc(Chain(FR 5, FI 30s), VI 60s)
+解決後:   Conc(Chain(FR 5 LH 10s, FI 30s LH 10s), VI 60s LH 10s)
+```
+トレース: R1 → R2 → R2 (Chain 内部) → R5 (×3, ラップ). 各葉が独立にデフォルトを受け取る。
+
+*例 5 — 嫌悪スケジュールの隔離.*
+```
+入力:     LH = 10s
+          Sidman(SSI=20s, RSI=5s)
+解決後:   Sidman(SSI=20s, RSI=5s)
+```
+トレース: R1 → R6 (`inherited_lh` 破棄).
+
+*例 6 — LH param_decl なし（恒等）.*
+```
+入力:     Conc(VI 30s, VI 60s)
+解決後:   Conc(VI 30s, VI 60s)
+```
+トレース: R1 (`lh_default = ⊥`). 伝播は生じない。
+
+**適合テストスイート.** `conformance/core/lh_propagation.json` が全伝播規則のテストベクトルを提供する。各テストはパーサ出力（`expected`, 伝播前）と解決済み AST（`resolved`, 伝播後）の両方を指定する。
+
+**参考文献.**
+- Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, Techniques, and Tools* (2nd ed.). Addison-Wesley. (§5.2: Inherited Attributes)
+- Goldberg, S. R., & Kelleher, R. T. (1977). Reinforcement of behavior by cocaine injections. In E. H. Ellinwood & M. M. Kilbey (Eds.), *Cocaine and other stimulants* (pp. 523–544). Plenum Press.
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *Journal of the Experimental Analysis of Behavior*, *9*(5), 475–485. https://doi.org/10.1901/jeab.1966.9-475
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, *46*(4), 253–261. https://doi.org/10.1037/h0060730
 
 
 ---

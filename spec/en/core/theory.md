@@ -159,11 +159,40 @@ HOLD_OPEN
 ```
 
 **Algebraic properties:**
-- `LH(∞, S) = S` — infinite hold is the identity (no constraint).
-- `LH(0, S) ≅ EXT` — zero hold makes reinforcement practically unavailable.
+- `LH(∞, S) ≡ S` — infinite hold is the identity (no constraint). See §2.2.4.
+- `LH(0, S) ≡ EXT` — zero hold makes reinforcement unavailable. See §2.2.4.
 - LH is **not reducible to Conj**: `Conj(S, TimeWindow(d))` checks simultaneous satisfaction against the same observation (stateless). LH is state-dependent — it gates access based on a satisfaction event timestamp recorded across ticks.
 - LH is **not a special case of T-tau**: T-tau duty cycles are fixed, clock-driven, and response-independent in their cycling. LH's window is triggered by `S`'s satisfaction event, not by a recurring timer. See [representations.md](representations.md) for the formal relationship.
-- LH is a **unary schedule transformer** (endofunctor on the schedule algebra): `LH : (ℝ⁺, Schedule) → Schedule`.
+- LH is a **congruent unary schedule transformer**: `LH : (ℝ⁺, Schedule) → Schedule`.
+
+**Formal verification of LH's algebraic status.** LH(d, −) is a mapping from schedules to schedules. Its algebraic properties with respect to the semantic equivalence relation (§2.2.1) are:
+
+*Property 1 (Congruence — HOLDS).* LH preserves semantic equivalence:
+
+```
+S₁ ≡ S₂  ⟹  LH(d, S₁) ≡ LH(d, S₂)
+```
+
+*Proof.* If S₁ ≡ S₂, they produce identical reinforcement outcomes for all observation traces (Definition 4, §2.2.1). For a schedule without an outer LH wrapper, the satisfaction event coincides with the reinforcement event. Therefore S₁ and S₂ satisfy at the same trace positions for any trace. Since LH's state machine transitions are determined entirely by the inner schedule's satisfaction events and the response stream, LH(d, S₁) and LH(d, S₂) undergo identical state transitions for any trace, producing identical outcomes. ∎
+
+*Property 2 (Non-commutativity of nesting — composition law FAILS).* In general:
+
+```
+LH(d₂, LH(d₁, S)) ≢ LH(d₁, LH(d₂, S))
+```
+
+*Counterexample.* Consider `LH(10, LH(5, FI 30-s))` vs. `LH(5, LH(10, FI 30-s))`.
+
+In `LH(10, LH(5, FI 30-s))`: FI 30 is satisfied at t₀. A first response must occur within 5 s of t₀ (inner LH). A second response must then occur within 10 s of the first response (outer LH). In `LH(5, LH(10, FI 30-s))`: FI 30 is satisfied at t₀. A first response must occur within 10 s of t₀ (inner LH). A second response must then occur within 5 s of the first response (outer LH). These impose different temporal constraints, so a trace exists that reinforces under one but not the other. ∎
+
+*Consequence.* The original characterization of LH as an "endofunctor on the schedule algebra" is imprecise. LH(d, −) satisfies the congruence property (which corresponds to the identity-preservation functor law in the preorder category induced by ≡), but does NOT satisfy the composition-preservation functor law in any natural category structure on schedules. The correct characterization is: **LH(d, −) is a congruent unary schedule transformer** — it maps schedules to schedules and preserves semantic equivalence, but nested LH application is order-dependent.
+
+**Semantics of nested LH.** `LH(d₂, LH(d₁, S))` is interpreted as follows:
+1. The inner schedule `S` runs until its criterion is satisfied (at time `t₀`).
+2. The inner LH opens a window of `d₁` seconds. A response must occur at some `t₁ ∈ [t₀, t₀ + d₁)` for the inner LH to be satisfied.
+3. The outer LH then opens a window of `d₂` seconds from `t₁`. A second response must occur at some `t₂ ∈ [t₁, t₁ + d₂)` for reinforcement to be delivered.
+
+This effectively requires **two sequential responses** within specified time windows — a tandem-like temporal constraint. The response that satisfies the inner LH is consumed as that layer's satisfaction event; it does not also satisfy the outer LH.
 
 **Canonical scope:**
 - Interval schedules (FI, VI): primary usage — Ferster & Skinner (1957, Ch. 5).
@@ -178,6 +207,137 @@ HOLD_OPEN
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts. (Ch. 5)
 - Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
+
+#### 1.6.1 LH Default Propagation — Attribute Grammar
+
+The program-level `LH` parameter declaration (`LH = d`) specifies a default limited hold that propagates to eligible leaf schedule nodes. This subsection formalizes the propagation rules as an **attribute grammar** (Aho et al., 2006, §5.2), replacing the informal description "applies to all leaf base_schedules."
+
+**Attributes.**
+
+| Attribute | Kind | Type | Scope |
+|---|---|---|---|
+| `lh_default` | Synthesized | `Option<(ℝ⁺, Option<TimeUnit>)>` | `Program` node |
+| `inherited_lh` | Inherited | `Option<(ℝ⁺, Option<TimeUnit>)>` | All `ScheduleExpr` nodes |
+| `effective_lh` | Synthesized | `Option<(ℝ⁺, Option<TimeUnit>)>` | Leaf nodes |
+
+- `lh_default`: extracted from `Program.param_decls`. Value is `⊥` if no `LH` declaration is present.
+- `inherited_lh`: the LH default flowing top-down from the Program root through the AST.
+- `effective_lh`: the LH that actually wraps a leaf node. If `≠ ⊥`, the semantic analyzer performs the transformation `leaf ↦ LH(effective_lh, leaf)`.
+
+**Phase ordering.** LH propagation is a **semantic analysis** pass that operates on the **post-expansion** AST — after let-binding substitution and `Repeat` desugaring, but before warnings/linting. The pipeline:
+
+```
+Source → Lex → Parse → [Pre-expansion AST]
+  → Binding expansion / Repeat desugaring → [Post-expansion AST]
+  → LH default propagation (this AG) → [Resolved AST]
+  → Warnings / Linting
+```
+
+This ordering resolves the pre/post-expansion phase ambiguity: LH propagation always operates on fully expanded ASTs, where no `IdentifierRef` or `Repeat` nodes remain.
+
+**Propagation rules.** `⊥` denotes the absence of an LH value (no propagation).
+
+```
+R1  Program → param_decls bindings schedule
+    schedule.inherited_lh = lookup("LH", param_decls)      -- ⊥ if absent
+
+R2  Compound[C] → C(components[1..n])
+    where C ∈ {Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate}
+    ∀i ∈ [1..n]:
+        components[i].inherited_lh = Compound.inherited_lh
+
+R3  Overlay → Overlay(baseline, punisher)
+    baseline.inherited_lh  = Overlay.inherited_lh
+    punisher.inherited_lh  = ⊥
+
+R4  LimitedHold → LH(d, inner)
+    inner.inherited_lh = ⊥
+
+R5  Leaf: node ∈ {Atomic, Special, Modifier, SecondOrder}
+    node.effective_lh = node.inherited_lh
+    action: if effective_lh ≠ ⊥ then node ↦ LH(effective_lh, node)
+
+R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
+    inherited_lh is discarded (no wrapping, no propagation)
+```
+
+**Summary by node type.**
+
+| Node type | Behavior | Rule |
+|---|---|---|
+| `Compound` (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate) | Pass `inherited_lh` to each component | R2 |
+| `Overlay` | Pass to baseline; punisher gets `⊥` | R3 |
+| `LimitedHold` | Block propagation (explicit overrides default) | R4 |
+| `Atomic`, `Special`, `Modifier` (DRL, DRH, DRO, PR, Lag) | Wrap with LH if `inherited_lh ≠ ⊥` | R5 |
+| `SecondOrder` | Wrap entire node as a unit; unit schedule is not individually propagated | R5 |
+| `AversiveSchedule` (Sidman, DiscrimAv) | Discard `inherited_lh` | R6 |
+
+**Rationale for key design decisions.**
+
+*R3 — Overlay punisher isolation.* Program-level LH constrains reinforcement availability. The punishment contingency in an `Overlay` operates on a separate consequence class (aversive stimuli). Propagating a reinforcement-availability window to a punishment schedule would be procedurally incoherent.
+
+*R4 — Explicit LH overrides default.* Expression-level LH overrides program-level LH, analogous to expression-level COD overriding program-level COD (§2.4). The explicit LH already provides the intended temporal constraint; propagating the default further would create unintended double-gating.
+
+*R5 — SecondOrder as leaf.* In second-order schedules (e.g., `FR5(FI30)`), the unit schedule defines a derived response unit (Kelleher, 1966). The session-level LH constrains overall reinforcement delivery, not each unit's internal temporal dynamics. Propagating LH into the unit position would fundamentally alter the procedure — particularly in behavioral pharmacology, where the unit schedule's independent operation is often the experimental variable of interest (Goldberg & Kelleher, 1977). Wrapping the entire SecondOrder preserves the intended semantics: "once the second-order arrangement produces a reinforcement opportunity, you have *d* seconds to collect it."
+
+*R6 — Aversive schedule isolation.* Sidman avoidance and discriminated avoidance have dedicated temporal parameters (SSI/RSI, CSUSInterval) that govern consequence timing. LH constrains *reinforcement availability*; these schedules deliver *aversive consequences* on procedurally distinct timelines (Sidman, 1953).
+
+**Worked examples.**
+
+*Example 1 — Basic propagation through Conc.*
+```
+Input:    LH = 10s
+          Conc(VI 30s, VI 60s)
+Resolved: Conc(VI 30s LH 10s, VI 60s LH 10s)
+```
+Trace: R1 → R2 (×2) → R5 (×2, wrap).
+
+*Example 2 — Expression-level override.*
+```
+Input:    LH = 10s
+          Conc(FR 5, VI 60s LH 20s)
+Resolved: Conc(FR 5 LH 10s, VI 60s LH 20s)
+```
+Trace: R1 → R2 (×2). `FR 5`: R5 (wrap, + `VACUOUS_LH_RATIO` warning). `LH(20s, VI 60s)`: R4 (blocks propagation); explicit LH 20s retained.
+
+*Example 3 — SecondOrder unit isolation.*
+```
+Input:    LH = 10s
+          FR 5(FI 30s)
+Resolved: FR 5(FI 30s) LH 10s
+```
+Trace: R1 → R5 (SecondOrder treated as leaf, wrap). The unit `FI 30s` is untouched; the LH window constrains when the subject can collect reinforcement after the 5th unit completion.
+
+*Example 4 — Nested compound.*
+```
+Input:    LH = 10s
+          Conc(Chain(FR 5, FI 30s), VI 60s)
+Resolved: Conc(Chain(FR 5 LH 10s, FI 30s LH 10s), VI 60s LH 10s)
+```
+Trace: R1 → R2 → R2 (into Chain) → R5 (×3, wrap). Each leaf independently receives the default.
+
+*Example 5 — Aversive schedule isolation.*
+```
+Input:    LH = 10s
+          Sidman(SSI=20s, RSI=5s)
+Resolved: Sidman(SSI=20s, RSI=5s)
+```
+Trace: R1 → R6 (`inherited_lh` discarded).
+
+*Example 6 — No LH param_decl (identity).*
+```
+Input:    Conc(VI 30s, VI 60s)
+Resolved: Conc(VI 30s, VI 60s)
+```
+Trace: R1 (`lh_default = ⊥`). No propagation occurs.
+
+**Conformance test suite.** `conformance/core/lh_propagation.json` provides test vectors for all propagation rules. Each test specifies both the parser output (`expected`, pre-propagation) and the resolved AST (`resolved`, post-propagation).
+
+**References.**
+- Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, Techniques, and Tools* (2nd ed.). Addison-Wesley. (§5.2: Inherited Attributes)
+- Goldberg, S. R., & Kelleher, R. T. (1977). Reinforcement of behavior by cocaine injections. In E. H. Ellinwood & M. M. Kilbey (Eds.), *Cocaine and other stimulants* (pp. 523–544). Plenum Press.
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order schedules. *Journal of the Experimental Analysis of Behavior*, *9*(5), 475–485. https://doi.org/10.1901/jeab.1966.9-475
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, *46*(4), 253–261. https://doi.org/10.1037/h0060730
 
 ### 1.7 Reinforcement Delay — Response-Consequence Temporal Interval
 
