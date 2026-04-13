@@ -63,7 +63,7 @@ class ModifierSchedule:
 
 @dataclass(frozen=True)
 class LimitedHoldSchedule:
-    hold_duration: float      # seconds; must be >= 0
+    hold_duration: float      # seconds; must be > 0 (constraint 62)
     inner: ScheduleExpr       # the wrapped schedule
 
 @dataclass(frozen=True)

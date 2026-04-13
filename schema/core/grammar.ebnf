@@ -232,6 +232,9 @@ repeat        ::= "Repeat" "(" number "," schedule ")"
 ; Reference: Page, S., & Neuringer, A. (1985). Variability is an operant.
 ;   Journal of Experimental Psychology: Animal Behavior Processes, 11(3),
 ;   429-452. https://doi.org/10.1037/0097-7403.11.3.429
+;
+; LL(1) after LAG_KW: peek NUM → shorthand, LPAREN → parenthesized.
+; Proof: spec/en/core/ll2-proof.md §5.6 (D7).
 
 lag_mod       ::= "Lag" ws? number                              -- shorthand: Lag 5
                 | "Lag" "(" number ("," lag_kw_arg)* ")"        -- parenthesized: Lag(5, length=8)
@@ -646,3 +649,10 @@ string_literal     ::= '"' [^"]* '"'
 ;     convention (Hodos, 1961; Richardson & Roberts, 1996) uses integer
 ;     progressions exclusively. This matches ast.schema.json type=integer,
 ;     minimum=1 on PRModifier.pr_start and PRModifier.pr_increment.
+; 62. LimitedHold: hold_duration must be strictly positive (> 0).
+;     `FI30 LH0s`, `VI60s LH0ms` → SemanticError (LH_NONPOSITIVE_VALUE).
+;     Program-level `LH = 0s` → same error.
+;     Rationale: LH(0, S) ≡ EXT (theory.md §2.2.4) — the hold window
+;     closes before any response can occur, making reinforcement unavailable.
+;     Use `EXT` for extinction semantics. This constraint matches
+;     ast.schema.json exclusiveMinimum=0 on LimitedHold.hold_duration.

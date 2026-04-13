@@ -231,28 +231,15 @@
   },
 
   {
-    "_comment": "=== LH boundary cases (ast.schema.json: hold_duration minimum=0) ==="
+    "_comment": "=== LH boundary cases (ast.schema.json: hold_duration exclusiveMinimum=0) ==="
   },
   {
     "id": "boundary_lh_zero",
-    "description": "LH 0s — zero hold makes reinforcement practically unavailable (theory.md: LH(0,S) ≅ EXT)",
+    "description": "LH 0s — zero hold makes reinforcement unavailable; use EXT (constraint 62, LH_NONPOSITIVE_VALUE)",
     "input": "FI30s LH0s",
-    "expected": {
-      "type": "Program",
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 0.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "I",
-          "value": 30.0,
-          "time_unit": "s"
-        }
-      }
+    "error": {
+      "type": "SemanticError",
+      "code": "LH_NONPOSITIVE_VALUE"
     }
   },
   {

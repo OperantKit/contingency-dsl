@@ -62,7 +62,7 @@ class ModifierSchedule:
 @dataclass(frozen=True)
 class LimitedHoldSchedule:
     inner: ScheduleExpr
-    hold_duration: float  # 秒; 負値は構築時に ValueError
+    hold_duration: float  # 秒; > 0 必須（制約 62）; 非正値は LH_NONPOSITIVE_VALUE
 
 @dataclass(frozen=True)
 class AversiveSchedule:

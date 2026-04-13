@@ -34,7 +34,14 @@ Each JSON file contains an array of test cases:
 
 ### Success cases
 
-`expected` contains the AST matching `schema/core/ast.schema.json`.
+`expected` contains the AST matching `schema/core/ast.schema.json` (universal schema).
+
+For phase-specific validation:
+- `pre_expansion` fields validate against `schema/core/ast-parsed.schema.json` (Phase 1: includes IdentifierRef, RepeatModifier)
+- `expected` fields validate against `schema/core/ast-resolved.schema.json` (Phase 2/3: no IdentifierRef, no RepeatModifier)
+- `resolved` fields validate against `schema/core/ast-resolved.schema.json` (Phase 3: post-LH-propagation)
+
+Execution engines SHOULD validate against `ast-resolved.schema.json` to reject unresolved ASTs.
 
 ### Error cases
 
@@ -48,6 +55,25 @@ Each JSON file contains an array of test cases:
   }
 }
 ```
+
+### Multi-error cases
+
+Tests with multiple errors use `errors` (array) instead of `error` (single object):
+
+```json
+{
+  "id": "multi_error_case_id",
+  "input": "input with multiple errors",
+  "errors": [
+    {"type": "ParseError", "code": "FIRST_ERROR_CODE"},
+    {"type": "LexError", "code": "SECOND_ERROR_CODE"}
+  ]
+}
+```
+
+Parsers that implement panic-mode recovery (§3.7 SHOULD) MUST detect all listed errors
+in the specified order. Parsers without multi-error recovery MUST detect at least the
+first error in the list.
 
 ### Semantic analysis cases
 
@@ -76,7 +102,7 @@ LH default propagation should validate against `expected` only.
 | `binding.json` | 7 | let bindings, expansion |
 | `aversive.json` | 14 | Sidman avoidance, discriminated avoidance |
 | `program.json` | 4 | Program-level param_decls, bindings |
-| `errors.json` | 56 | Lex errors, parse errors, semantic errors |
+| `errors.json` | 64 | Lex errors, parse errors, semantic errors, multi-error recovery (§3.7) |
 | `compound-kw-aliases.json` | 10 | Verbose keyword alias parsing (ChangeoverDelay, FixedRatioChangeover, Blackout) |
 | `semantic-violations-extended.json` | 34 | Cross-combinator keyword validation, verbose alias errors, alias duplicate detection |
 | `boundary-values.json` | 33 | Zero/edge values for atomic, modifier, LH, Lag, PR, Repeat, compound params |

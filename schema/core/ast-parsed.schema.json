@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://operantkit.dev/contingency-dsl/ast-schema.json",
-  "title": "contingency-dsl AST (Universal)",
-  "description": "Universal AST schema for contingency-dsl v1.0. Accepts ASTs from all compilation phases (1-3). For phase-specific validation, use: ast-parsed.schema.json (Phase 1: pre-expansion, includes IdentifierRef and RepeatModifier) or ast-resolved.schema.json (Phase 2/3: post-expansion, IdentifierRef and RepeatModifier removed). Execution engines SHOULD validate against ast-resolved.schema.json to reject unresolved ASTs.",
+  "$id": "https://operantkit.dev/contingency-dsl/ast-parsed-schema.json",
+  "title": "contingency-dsl AST (Phase 1: Pre-expansion)",
+  "description": "Phase 1 (Pre-expansion) AST schema. Validates parser output before semantic analysis. Includes IdentifierRef (let-bound references) and RepeatModifier (syntactic sugar for Tand). See also: ast-resolved.schema.json for Phase 2/3 post-expansion validation.",
 
   "$defs": {
     "Program": {
@@ -11,7 +11,7 @@
         "type": { "const": "Program" },
         "program_annotations": {
           "type": "array",
-          "description": "Session-wide annotation defaults. Appear before param_decls in source. Schedule-level annotations override these for the attached expression. Optional field: absent ≡ empty array (unannotated program).",
+          "description": "Session-wide annotation defaults. Appear before param_decls in source. Schedule-level annotations override these for the attached expression. Optional field: absent = empty array (unannotated program).",
           "items": { "$ref": "#/$defs/Annotation" }
         },
         "param_decls": {
@@ -43,7 +43,7 @@
         },
         "params": {
           "type": "object",
-          "description": "Named parameters (key=value pairs). Time values (e.g., time=60min in source) are normalized to a number in the canonical unit (seconds by default) before storage; the original unit is not preserved in the AST.",
+          "description": "Named parameters (key=value pairs). Time values are normalized to seconds before storage.",
           "additionalProperties": {
             "oneOf": [
               { "type": "string" },
@@ -81,7 +81,7 @@
     },
 
     "ScheduleExpr": {
-      "description": "Discriminated union of schedule expression types. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed (bindings resolved, Repeat desugared to Tand). (3) Resolved: post-expansion + LH default propagation applied (§1.6.1). Conformance tests use 'expected' for phase 1/2 and 'resolved' for phase 3.",
+      "description": "Discriminated union of schedule expression types (Phase 1: Pre-expansion). All 8 branches are valid, including IdentifierRef (unresolved let-bound references) and RepeatModifier (syntactic sugar for Tand).",
       "oneOf": [
         { "$ref": "#/$defs/Atomic" },
         { "$ref": "#/$defs/Special" },
@@ -90,13 +90,13 @@
         { "$ref": "#/$defs/LimitedHold" },
         { "$ref": "#/$defs/SecondOrder" },
         { "$ref": "#/$defs/AversiveSchedule" },
-        { "$ref": "#/$defs/IdentifierRef", "$comment": "Pre-expansion only. Absent in post-expansion and resolved ASTs." }
+        { "$ref": "#/$defs/IdentifierRef" }
       ]
     },
 
     "Atomic": {
       "type": "object",
-      "description": "Parametric atomic schedule: dist × domain with a numeric value. Examples: FR5, VI60s, RT20ms",
+      "description": "Parametric atomic schedule: dist x domain with a numeric value. Examples: FR5, VI60s, RT20ms",
       "properties": {
         "type": { "const": "Atomic" },
         "dist": { "$ref": "#/$defs/Distribution" },
@@ -121,7 +121,7 @@
 
     "Compound": {
       "type": "object",
-      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. v1.1: COD and FRCO for Conc, BO for Mult/Mix.",
+      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters.",
       "properties": {
         "type": { "const": "Compound" },
         "combinator": { "$ref": "#/$defs/Combinator" },
@@ -138,10 +138,10 @@
 
     "CombinatorParams": {
       "type": "object",
-      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. Semantic pass validates per-combinator validity.",
+      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only.",
       "properties": {
         "COD": {
-          "description": "Changeover Delay: minimum time after operandum switch before reinforcement is available (Catania, 1966). Conc-only. Symmetric (scalar 'value') or directional ('base' + 'directional' overrides; Pliskoff, 1971; Williams & Bell, 1999). Discriminated on 'value' key (symmetric) vs 'directional' key (asymmetric).",
+          "description": "Changeover Delay (Catania, 1966). Conc-only. Symmetric (scalar) or directional (Pliskoff, 1971).",
           "oneOf": [
             {
               "type": "object",
@@ -155,11 +155,11 @@
             },
             {
               "type": "object",
-              "description": "Directional COD: per-direction delays (Pliskoff, 1971). Optional 'base' provides default for unspecified directions; 'directional' entries override specific (from, to) pairs. dir_ref identifiers are resolved to 1-indexed integers in the AST.",
+              "description": "Directional COD: per-direction delays (Pliskoff, 1971).",
               "properties": {
                 "base": {
                   "type": "object",
-                  "description": "Base COD for all unspecified directions (from scalar COD=Xs).",
+                  "description": "Base COD for all unspecified directions.",
                   "properties": {
                     "value": { "type": "number", "minimum": 0 },
                     "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -169,7 +169,7 @@
                 },
                 "directional": {
                   "type": "array",
-                  "description": "Direction-specific COD overrides. Each entry specifies a (from, to) component pair and the COD value for that transition.",
+                  "description": "Direction-specific COD overrides.",
                   "items": {
                     "type": "object",
                     "properties": {
@@ -191,7 +191,7 @@
         },
         "FRCO": {
           "type": "object",
-          "description": "Fixed-Ratio Changeover: number of responses required on new operandum before reinforcement is available (Hunter & Davison, 1985; Pliskoff & Fetterman, 1981). Conc-only, optional.",
+          "description": "Fixed-Ratio Changeover (Hunter & Davison, 1985). Conc-only, optional.",
           "properties": {
             "value": { "type": "integer", "minimum": 1 }
           },
@@ -200,7 +200,7 @@
         },
         "BO": {
           "type": "object",
-          "description": "Blackout: response-independent dark period between component transitions (Reynolds, 1961). Mult/Mix-only, optional. Omission = no blackout (immediate transition).",
+          "description": "Blackout: response-independent dark period between transitions (Reynolds, 1961). Mult/Mix-only.",
           "properties": {
             "value": { "type": "number", "minimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -210,7 +210,7 @@
         },
         "count": {
           "type": "object",
-          "description": "Number of reinforcements during the interpolated block (Ferster & Skinner, 1957). Interpolate-only, required. Must be a positive integer; no time unit.",
+          "description": "Number of reinforcements during the interpolated block (Ferster & Skinner, 1957). Interpolate-only, required.",
           "properties": {
             "value": { "type": "integer", "minimum": 1 }
           },
@@ -219,7 +219,7 @@
         },
         "onset": {
           "type": "object",
-          "description": "Time on background schedule before interpolation begins (Ferster & Skinner, 1957). Interpolate-only, optional but recommended (linter warns on omission). Must be positive; time unit required.",
+          "description": "Time on background schedule before interpolation begins (Ferster & Skinner, 1957). Interpolate-only.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -232,7 +232,7 @@
     },
 
     "Modifier": {
-      "description": "Modifier schedule. Discriminated union on the 'modifier' field (Issue #35). Each branch constrains fields to those semantically valid for that modifier subtype.",
+      "description": "Modifier schedule. Discriminated union on the 'modifier' field. Phase 1 includes RepeatModifier (desugared to Tand in Phase 2).",
       "oneOf": [
         { "$ref": "#/$defs/DRModifier" },
         { "$ref": "#/$defs/PRModifier" },
@@ -244,7 +244,7 @@
 
     "DRModifier": {
       "type": "object",
-      "description": "Differential Reinforcement modifier (DRL/DRH/DRO). Standalone usage implies an implicit CRF base schedule (i.e., DRL5s ≡ Tand(CRF, DRL5s)); when combined with an explicit base schedule via Tand or Conj, the explicit base replaces the implicit CRF. See defaults.md §Standalone DR modifier.",
+      "description": "Differential Reinforcement modifier (DRL/DRH/DRO).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "type": "string", "enum": ["DRL", "DRH", "DRO"] },
@@ -257,7 +257,7 @@
 
     "PRModifier": {
       "type": "object",
-      "description": "Progressive Ratio modifier. Step function (required) determines ratio progression across reinforcements. Bare PR without explicit step function is a parse error.",
+      "description": "Progressive Ratio modifier.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "PR" },
@@ -274,7 +274,7 @@
 
     "RepeatModifier": {
       "type": "object",
-      "description": "Repeat(n, S) — syntactic sugar for Tand(S, ..., S) [n copies]. Pre-expansion only: desugared to Compound(Tand) during semantic analysis. Absent in post-expansion and resolved ASTs.",
+      "description": "Repeat(n, S) — syntactic sugar for Tand(S, ..., S) [n copies]. Pre-expansion only: desugared to Compound(Tand) during semantic analysis. Absent in post-expansion and resolved ASTs. Use ast-resolved.schema.json to enforce absence.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Repeat" },
@@ -287,7 +287,7 @@
 
     "LagModifier": {
       "type": "object",
-      "description": "Lag schedule (Page & Neuringer, 1985). Reinforces response sequences that differ from the preceding n sequences.",
+      "description": "Lag schedule (Page & Neuringer, 1985).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Lag" },
@@ -295,7 +295,7 @@
         "length": {
           "type": "integer",
           "minimum": 1,
-          "description": "Sequence length (Page & Neuringer, 1985). 1 = individual response (applied research default). N = sequence of N responses."
+          "description": "Sequence length. 1 = individual response."
         }
       },
       "required": ["type", "modifier", "value", "length"],
@@ -304,30 +304,26 @@
 
     "PctlModifier": {
       "type": "object",
-      "description": "Percentile schedule (Core-Stateful: Platt, 1973; Galbicka, 1994). Reinforces responses whose measured dimension falls at or beyond a percentile threshold of recent responses.",
+      "description": "Percentile schedule (Core-Stateful: Platt, 1973; Galbicka, 1994).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Pctl" },
         "pctl_target": {
           "type": "string",
-          "enum": ["IRT", "latency", "duration", "force", "rate"],
-          "description": "Response dimension to measure (Platt, 1973)."
+          "enum": ["IRT", "latency", "duration", "force", "rate"]
         },
         "pctl_rank": {
           "type": "integer",
           "minimum": 0,
-          "maximum": 100,
-          "description": "Percentile threshold (0–100)."
+          "maximum": 100
         },
         "pctl_window": {
           "type": "integer",
-          "minimum": 1,
-          "description": "Number of recent responses for distribution calculation. Default: 20."
+          "minimum": 1
         },
         "pctl_dir": {
           "type": "string",
-          "enum": ["below", "above"],
-          "description": "Reinforcement direction. 'below': at or below threshold. 'above': at or above. Default: 'below'."
+          "enum": ["below", "above"]
         }
       },
       "required": ["type", "modifier", "pctl_target", "pctl_rank"],
@@ -339,7 +335,7 @@
       "description": "Temporal availability window. FI30 LH10 = FI 30s with 10s hold.",
       "properties": {
         "type": { "const": "LimitedHold" },
-        "hold_duration": { "type": "number", "exclusiveMinimum": 0 },
+        "hold_duration": { "type": "number", "minimum": 0 },
         "time_unit": { "$ref": "#/$defs/TimeUnit" },
         "inner": { "$ref": "#/$defs/ScheduleExpr" }
       },
@@ -349,15 +345,15 @@
 
     "SecondOrder": {
       "type": "object",
-      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple schedule (v1.0). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
+      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement.",
       "properties": {
         "type": { "const": "SecondOrder" },
         "overall": {
-          "description": "The outer schedule that arranges reinforcement contingent on unit completions. Its value field is always interpreted as a unit completion count, not an individual response count (see spec/en/core/theory.md §2.11).",
+          "description": "The outer schedule arranging reinforcement contingent on unit completions.",
           "$ref": "#/$defs/Atomic"
         },
         "unit": {
-          "description": "The inner schedule that defines the derived response unit. Each completion of this schedule counts as one unit for the overall schedule.",
+          "description": "The inner schedule defining the derived response unit.",
           "$ref": "#/$defs/Atomic"
         }
       },
@@ -366,7 +362,7 @@
     },
 
     "AversiveSchedule": {
-      "description": "Aversive schedule primitive. v1.x introduces Sidman free-operant avoidance (Sidman, 1953) and discriminated avoidance (Solomon & Wynne, 1953). The contingency structure differs from the F/V/R × R/I/T reinforcement matrix and requires a dedicated node type.",
+      "description": "Aversive schedule primitive: Sidman free-operant avoidance (Sidman, 1953) and discriminated avoidance (Solomon & Wynne, 1953).",
       "oneOf": [
         {
           "type": "object",
@@ -393,11 +389,11 @@
 
     "SidmanParams": {
       "type": "object",
-      "description": "Parameters for Sidman free-operant avoidance (Sidman, 1953). Both SSI and RSI are mandatory; no defaults. Formally: next_shock(t) = max(last_shock + SSI, last_response + RSI).",
+      "description": "Parameters for Sidman free-operant avoidance (Sidman, 1953).",
       "properties": {
         "SSI": {
           "type": "object",
-          "description": "Shock-Shock Interval: baseline time between shocks in absence of response. Must be positive; time unit required.",
+          "description": "Shock-Shock Interval.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -407,7 +403,7 @@
         },
         "RSI": {
           "type": "object",
-          "description": "Response-Shock Interval: postponement time triggered by each response. Must be positive; time unit required. Linter warns if RSI > SSI.",
+          "description": "Response-Shock Interval.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -422,11 +418,11 @@
 
     "DiscrimAvParams": {
       "type": "object",
-      "description": "Parameters for discriminated avoidance (Solomon & Wynne, 1953). CSUSInterval, ITI, and mode are mandatory. ShockDuration is required for mode=fixed. MaxShock is optional for mode=escape.",
+      "description": "Parameters for discriminated avoidance (Solomon & Wynne, 1953).",
       "properties": {
         "CSUSInterval": {
           "type": "object",
-          "description": "CS-US Interval: time from CS onset to US onset. Must be positive; time unit required.",
+          "description": "CS-US Interval.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -436,7 +432,7 @@
         },
         "ITI": {
           "type": "object",
-          "description": "Inter-Trial Interval: CS-onset to next CS-onset. Must be positive and > CSUSInterval; time unit required.",
+          "description": "Inter-Trial Interval.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -446,12 +442,11 @@
         },
         "mode": {
           "type": "string",
-          "enum": ["fixed", "escape"],
-          "description": "US delivery mode. 'fixed': US presented for a fixed ShockDuration. 'escape': US terminated by response (optional MaxShock safety cutoff)."
+          "enum": ["fixed", "escape"]
         },
         "ShockDuration": {
           "type": "object",
-          "description": "Duration of the fixed US presentation. Required when mode=fixed; forbidden when mode=escape.",
+          "description": "Duration of fixed US. Required when mode=fixed; forbidden when mode=escape.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -461,7 +456,7 @@
         },
         "MaxShock": {
           "type": "object",
-          "description": "Safety cutoff for escape-terminated US (Solomon & Wynne, 1953 used 2min). Optional when mode=escape; forbidden when mode=fixed. Null/absent = no cutoff.",
+          "description": "Safety cutoff for escape-terminated US. Optional when mode=escape; forbidden when mode=fixed.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -476,7 +471,7 @@
 
     "IdentifierRef": {
       "type": "object",
-      "description": "Reference to a let-bound name. Present only in pre-expansion AST; removed after semantic analysis.",
+      "description": "Reference to a let-bound name. Present only in pre-expansion AST (Phase 1); removed after semantic analysis. Absent from ast-resolved.schema.json.",
       "properties": {
         "type": { "const": "IdentifierRef" },
         "name": { "type": "string", "pattern": "^[a-z_][a-zA-Z0-9_]*$" }
