@@ -4,6 +4,11 @@ tmp/
 .env
 .DS_Store
 
+# Generated artifacts (reproducible from schema/*/grammar.ebnf via scripts/)
+# Release binaries are published to GitHub Releases, not tracked in git.
+dist/
+!dist/.gitkeep
+
 # Package-local scratch / planning / draft / review traces
 # See operantkit/.claude/rules/common/local-scratch-and-privacy.md
 .local/

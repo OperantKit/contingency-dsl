@@ -39,6 +39,7 @@ FI30 LH10                    -- Limited Hold: 10s availability window
 - **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — How to enrich schedules with experimental metadata
 - **[Theory (EN)](spec/en/theory.md)** / **[理論 (JA)](spec/ja/theory.md)** — Formal algebraic type system
 - **[Grammar (EN)](spec/en/grammar.md)** / **[文法 (JA)](spec/ja/grammar.md)** — BNF, notational flexibility, dual API
+- **[Tooling (EN)](docs/en/tooling.md)** / **[ツーリング (JA)](docs/ja/tooling.md)** — Tree-sitter, Langium LSP, GitHub Releases
 
 ## Conformance testing
 
