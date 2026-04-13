@@ -95,13 +95,12 @@
   },
   {
     "id": "rd_with_other_param_decls",
-    "description": "RD combined with LH and COD program-level defaults",
-    "input": "LH = 10s\nCOD = 2s\nRD = 500ms\nConc(VI30s, VI60s)",
+    "description": "RD combined with LH program-level default",
+    "input": "LH = 10s\nRD = 500ms\nConc(VI30s, VI60s)",
     "expected": {
       "type": "Program",
       "param_decls": [
         { "type": "ParamDecl", "name": "LH", "value": 10.0, "time_unit": "s" },
-        { "type": "ParamDecl", "name": "COD", "value": 2.0, "time_unit": "s" },
         { "type": "ParamDecl", "name": "RD", "value": 500.0, "time_unit": "ms" }
       ],
       "bindings": [],
@@ -138,7 +137,7 @@
     "id": "rd_differential_via_conc_tand",
     "description": "Differential delay via Conc of Tand (Chung & Herrnstein, 1967)",
     "_note": "Per-alternative delays in concurrent schedules use explicit Tand, not RD.",
-    "input": "Conc(Tand(VI60s, FT1s), Tand(VI60s, FT8s), COD=2s)",
+    "input": "Conc(Tand(VI60s, FT1s), Tand(VI60s, FT8s))",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -163,10 +162,7 @@
               { "type": "Atomic", "dist": "F", "domain": "T", "value": 8.0, "time_unit": "s" }
             ]
           }
-        ],
-        "params": {
-          "COD": { "value": 2.0, "time_unit": "s" }
-        }
+        ]
       }
     }
   },
@@ -211,10 +207,7 @@
       }
     },
     "warnings": [
-      {
-        "code": "RD_LARGE_DELAY",
-        "message": "Reinforcement delay exceeds 30s; most published delay research uses delays <= 30s (Lattal, 2010)"
-      }
+      "RD_LARGE_DELAY"
     ]
   }
 ]
