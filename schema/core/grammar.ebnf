@@ -138,19 +138,24 @@ reserved      ::= "let" | "def"
 
 ; === Compound schedules ===
 ;
-; Keyword arguments (COD=2s, FRCO=5, BO=5s) follow all positional (schedule) arguments.
-; LL(2) parseable: kw_name followed by "=" disambiguates keyword from schedule.
-; Parser accepts keyword args syntactically; semantic pass validates per-combinator:
-;   - Conc: COD (optional, linter warning if omitted), FRCO (optional — fixed-ratio
-;           changeover, Hunter & Davison, 1985). Mult/Mix: BO (optional). Overlay:
-;           no keyword args in v1.x. Others: keyword args → SemanticError.
+; Keyword arguments follow all positional (schedule) arguments.
+; Two forms:
+;   1. Scalar:      COD=2s, FRCO=5, BO=5s
+;   2. Directional: COD(1->2)=2s, COD(rich->lean)=5s
+;
+; LL(2) parseable:
+;   - kw_name "=" → scalar form
+;   - kw_name "(" → directional form
+;   - ident "=" in positional position → keyword (not schedule); LL(2) on "="
+;
+; Parser accepts both forms syntactically; semantic pass validates per-combinator:
+;   - Conc: COD (scalar or directional), FRCO (scalar only). Mult/Mix: BO (scalar).
+;     Overlay: no keyword args in v1.x. Others: keyword args → SemanticError.
+;   - Directional form: valid for COD on Conc only in v1.1. Other kw_names with
+;     directional form → SemanticError (INVALID_DIRECTIONAL_KW).
 ;   - Overlay: exactly 2 positional components (baseline + punisher). Semantic
 ;     constraint enforces this. v1.x targets all responses; changeover-specific
 ;     targeting is planned for v1.y via Conc kw_arg extension.
-;
-; Keyword argument values may be scalar (value) or list (value_list).
-; LL(1) decidable: after "=", peek at next token; "[" → value_list, otherwise value.
-; Semantic pass validates which keyword args accept value_list (v1.1: COD only).
 
 compound      ::= combinator "(" arg_list ")"
                 | interpolate
@@ -160,9 +165,10 @@ combinator    ::= "Conc" | "Alt" | "Conj"
                 | "Overlay"
 arg_list      ::= positional_args ("," keyword_arg)*
 positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
-keyword_arg   ::= kw_name "=" kw_value
-kw_value      ::= value | value_list
-value_list    ::= "[" value "," value ("," value)* "]"   -- 2+ elements
+keyword_arg   ::= scalar_kw_arg | directional_kw_arg
+scalar_kw_arg ::= kw_name "=" value
+directional_kw_arg ::= kw_name "(" dir_ref "->" dir_ref ")" "=" value
+dir_ref       ::= number | ident
 kw_name       ::= "COD" | "ChangeoverDelay"
                  | "FRCO" | "FixedRatioChangeover"
                  | "BO" | "Blackout"
@@ -578,31 +584,43 @@ string_literal     ::= '"' [^"]* '"'
 ;     operandum after a changeover (Hunter & Davison, 1985). Zero responses
 ;     is no changeover requirement, which is the implicit default when FRCO
 ;     is omitted entirely.
-; 50. COD keyword arg: value_list form (asymmetric COD; Pliskoff, 1971).
-;     Per-departure-component semantics: element i is the COD imposed when
-;     leaving component i. Length of value_list MUST equal the number of
-;     positional components in the Conc. Mismatch → SemanticError
-;     (ASYMMETRIC_COD_LENGTH_MISMATCH).
-;     Example: `Conc(VI30s, VI60s, COD=[2s, 5s])` — 2s when leaving VI30,
-;     5s when leaving VI60.
-;     Rationale: Pliskoff (1971) showed that prospective delay (the COD
-;     on the destination side) more strongly suppresses switching than
-;     retrospective delay. Sakagami (1989) used asymmetric COD in
-;     concurrent interval-ratio schedules where switching costs differ
-;     between the ratio and interval sides.
-; 51. COD value_list: each element must include a time unit (s/ms/min).
-;     Element without time unit → Linter WARNING (MISSING_TIME_UNIT),
-;     consistent with scalar COD and constraint 41.
-; 52. COD value_list: each element must be ≥ 0 (minimum: 0).
-;     Negative element → SemanticError (same validation as scalar COD).
-; 53. COD value_list with all identical values → Linter WARNING
-;     (REDUNDANT_ASYMMETRIC_COD). Suggest using scalar form.
-;     `Conc(VI30s, VI60s, COD=[2s, 2s])` → WARNING; use `COD=2s` instead.
-; 54. value_list in keyword_arg: valid only for COD on Conc in v1.1.
-;     Other keyword args (FRCO, BO, count, onset) with value_list →
-;     SemanticError (INVALID_VALUE_LIST).
-;     Future: BO may accept value_list for asymmetric blackout (v1.2+).
-; 55. Asymmetric COD is expression-level only. Program-level param_decl
-;     does not accept value_list (grammar enforces: param_decl uses value,
-;     not kw_value). Program-level COD provides a symmetric default;
-;     expression-level asymmetric COD overrides it entirely.
+; 50. Directional keyword arg form `kw_name(dir_ref->dir_ref)=value`:
+;     valid for COD on Conc only in v1.1. Other kw_names (FRCO, BO) or
+;     non-Conc combinators with directional form → SemanticError
+;     (INVALID_DIRECTIONAL_KW).
+;     Future: BO may accept directional form for asymmetric blackout.
+;     Reference: Pliskoff (1971); Williams & Bell (1999) described
+;     asymmetric COD as "VI 60-s → VI 30-s 切替時に 2-s COD".
+; 51. dir_ref as integer: 1-indexed. Must be in range [1, N] where N is
+;     the number of positional components. Out of range → SemanticError
+;     (DIRECTIONAL_INDEX_OUT_OF_RANGE).
+; 52. dir_ref as identifier: must resolve to a let-bound name that appears
+;     as a positional component of the enclosing Conc. Unresolvable →
+;     SemanticError (DIRECTIONAL_IDENT_NOT_FOUND).
+; 53. Self-referencing direction: `COD(1->1)=2s` → SemanticError
+;     (DIRECTIONAL_SELF_REFERENCE). A component cannot have a COD for
+;     switching to itself.
+; 54. Duplicate directional: two entries with the same (from, to) pair →
+;     SemanticError (DUPLICATE_DIRECTIONAL_KW).
+;     E.g., `COD(1->2)=2s, COD(1->2)=5s` → error.
+;     Verbose alias does not bypass: `COD(1->2)=2s, ChangeoverDelay(1->2)=5s`
+;     → same error (same parameter, same direction).
+; 55. Scalar COD + directional COD coexistence: scalar provides base for
+;     all unspecified directions; directional overrides specific directions.
+;     Resolution: effective_COD(x->y) = directional(x->y) if specified,
+;     else scalar_COD.
+;     Example: `Conc(VI30s, VI60s, COD=2s, COD(2->1)=5s)` →
+;     COD(1->2) = 2s (from base), COD(2->1) = 5s (overridden).
+; 56. Directional COD without scalar base: unspecified directions default
+;     to runtime COD=0s (consistent with symmetric COD omission behavior).
+;     Linter WARNING (MISSING_COD) is NOT triggered if at least one
+;     directional COD or scalar COD is present.
+; 57. Directional COD values: each value follows the same rules as scalar
+;     COD (time unit per constraint 41, value ≥ 0).
+; 58. All directional COD values specified for every direction pair with
+;     identical values → Linter WARNING (REDUNDANT_DIRECTIONAL_COD).
+;     Suggest using scalar form.
+; 59. Directional COD is expression-level only. Program-level param_decl
+;     does not accept directional form (grammar enforces: param_decl uses
+;     scalar value only). Program-level COD provides a symmetric base;
+;     expression-level directional COD overrides specific directions.

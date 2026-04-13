@@ -269,14 +269,45 @@ Alternating(components, discriminated: bool)
 
 ### 2.2 Algebraic Properties
 
+#### 2.2.1 Equivalence Relations — Definitions
+
+This specification uses three distinct relations on schedule expressions. All algebraic claims in this section and throughout the specification are stated under these definitions.
+
+**Definition 1 (Syntactic equality).** Two schedule expressions `S₁` and `S₂` are *syntactically equal*, written `S₁ =_syn S₂`, if and only if their AST representations are structurally identical — i.e., every node type, combinator, parameter value, and child ordering is the same. Syntactic equality is decidable by recursive structural comparison.
+
+**Definition 2 (Observation trace).** An *observation trace* is a finite sequence of timestamped events `τ = ⟨(e₁, t₁), (e₂, t₂), …, (eₙ, tₙ)⟩` where each `eᵢ` is either a response event or a time-tick event and `t₁ ≤ t₂ ≤ … ≤ tₙ`. Let `T` denote the set of all finite observation traces.
+
+**Definition 3 (Reinforcement outcome sequence).** Given a schedule expression `S` and an observation trace `τ ∈ T`, the *reinforcement outcome sequence* `outcome(S, τ)` is the sequence of reinforcement decisions (reinforced / not reinforced) that `S` produces when processing `τ` from a canonical initial state `σ₀`. The canonical initial state has all counters at zero, all timers at zero, and an empty reinforcement history.
+
+**Definition 4 (Semantic equivalence, ≡).** Two schedule expressions `S₁` and `S₂` are *semantically equivalent*, written `S₁ ≡ S₂`, if and only if they produce identical reinforcement outcome sequences for every possible observation trace:
+
+```
+S₁ ≡ S₂  ⟺  ∀τ ∈ T. outcome(S₁, τ) = outcome(S₂, τ)
+```
+
+Informally: no observer can distinguish `S₁` from `S₂` by examining reinforcement outcomes alone, regardless of the subject's behavior. Semantic equivalence is an equivalence relation (reflexive, symmetric, transitive). The negation is written `≢`.
+
+**Definition 5 (Sound rewrite rule, →).** A *sound rewrite rule* `S₁ → S₂` is a directed AST transformation such that `S₁ ≡ S₂`. Rewrite rules are applied left-to-right; a conforming implementation MAY apply any sound rewrite rule as an optimization pass but MUST NOT apply unsound rewrites. The notation `S₁ ≡ S₂` implies both `S₁ → S₂` and `S₂ → S₁` are sound.
+
+**Notation convention.** Throughout this specification:
+- `≡` and `≢` denote semantic equivalence and its negation (Definition 4).
+- `=` is used only in mathematical prose (e.g., `n + 1 = m`) or in informal glosses where the context makes the intended relation unambiguous.
+- `=_syn` denotes syntactic equality when the distinction matters (Definition 1).
+
+#### 2.2.2 Fundamental Theorems
+
 **Theorem 1 (Commutativity).**
-- `Conc(A, B) = Conc(B, A)` — operandum assignment is arbitrary (modulo labeling).
-- `Alt(A, B) = Alt(B, A)` — disjunction is commutative.
-- `Conj(A, B) = Conj(B, A)` — conjunction is commutative.
-- `Chain(A, B) ≠ Chain(B, A)` — sequential order matters.
-- `Tand(A, B) ≠ Tand(B, A)` — sequential order matters.
-- `Mult(A, B) ≠ Mult(B, A)` — alternation order matters.
-- `Mix(A, B) ≠ Mix(B, A)` — alternation order matters.
+- `Conc(A, B) ≡ Conc(B, A)` — operandum assignment is arbitrary (modulo labeling).
+- `Alt(A, B) ≡ Alt(B, A)` — disjunction is commutative.
+- `Conj(A, B) ≡ Conj(B, A)` — conjunction is commutative.
+- `Chain(A, B) ≢ Chain(B, A)` — sequential order matters.
+- `Tand(A, B) ≢ Tand(B, A)` — sequential order matters.
+- `Mult(A, B) ≢ Mult(B, A)` — alternation order matters.
+- `Mix(A, B) ≢ Mix(B, A)` — alternation order matters.
+
+*Proof sketch (commutativity of Alt).* For any trace `τ`, `outcome(Alt(A, B), τ)` reinforces at step `i` iff `A` or `B` would reinforce at step `i`. Since disjunction is commutative, `outcome(Alt(A, B), τ) = outcome(Alt(B, A), τ)`. ∎
+
+*Counterexample (non-commutativity of Chain).* Consider `Chain(FR 1, FI 10-s)` vs. `Chain(FI 10-s, FR 1)`. In the first, a single response completes the FR link and transitions to the FI link. In the second, 10 seconds must elapse first. The trace `τ = ⟨(response, t=0)⟩` reinforces under neither, but `τ' = ⟨(response, t=0), (response, t=11)⟩` reinforces under the first but not the second (which requires the FI to be satisfied first, then one more response). ∎
 
 **Theorem 2 (Associativity).** All seven combinators are associative in the sense that they flatten to N-ary compositions:
 - `Conc(A, Conc(B, C)) ≡ Conc(A, B, C)`
@@ -284,23 +315,82 @@ Alternating(components, discriminated: bool)
 - `Conj(A, Conj(B, C)) ≡ Conj(A, B, C)`
 - `Chain(A, Chain(B, C)) ≡ Chain(A, B, C)`
 - `Tand(A, Tand(B, C)) ≡ Tand(A, B, C)`
+- `Mult(A, Mult(B, C)) ≡ Mult(A, B, C)`
+- `Mix(A, Mix(B, C)) ≡ Mix(A, B, C)`
 
 **Theorem 3 (Identity Elements).**
-- `Alt(S, EXT) = S` — EXT is the identity for Alt (never-satisfied OR'd with S is just S).
-- `Conj(S, CRF) = S` — CRF (always satisfied on first response) is the identity for Conj.
-- `Chain(CRF, S) = S` — CRF as initial link is immediately satisfied.
+- `Alt(S, EXT) ≡ S` — EXT is the identity for Alt (never-satisfied OR'd with S is just S).
+- `Conj(S, CRF) ≡ S` — CRF (always satisfied on first response) is the identity for Conj.
+- `Chain(CRF, S) ≡ S` — CRF as initial link is immediately satisfied.
 
 **Theorem 4 (Annihilator Elements).**
-- `Conj(S, EXT) = EXT` — if EXT is never satisfied, the conjunction can never be satisfied.
-- `Alt(S, CRF) = CRF` — CRF is always satisfied first.
+- `Conj(S, EXT) ≡ EXT` — if EXT is never satisfied, the conjunction can never be satisfied.
+- `Alt(S, CRF) ≡ CRF` — CRF is always satisfied first.
 
-**Non-distributivity.** In general, compound schedule composition does NOT distribute:
+**Theorem 5 (Non-distributivity).** In general, compound schedule composition does NOT distribute:
 
 ```
 Alt(A, Conj(B, C)) ≢ Conj(Alt(A, B), Alt(A, C))
 ```
 
 This is semantically significant: parenthesization determines contingency structure and must be explicit in the DSL.
+
+#### 2.2.3 Repeat Algebraic Properties
+
+`Repeat(n, S)` is defined as syntactic sugar for `Tand(S, S, …, S)` with `n` copies of `S` (§1.4). The following properties are derived from the Tand desugaring and the semantic equivalence definition above.
+
+**Theorem 6 (Repeat identity).**
+```
+Repeat(1, S) ≡ S
+```
+*Proof.* `Repeat(1, S)` desugars to `Tand(S)`, a unary tandem, which is semantically equivalent to `S` itself (a single-component sequential composition is the component). ∎
+
+**Theorem 7 (Repeat exponent rule).**
+```
+Repeat(m, Repeat(n, S)) ≡ Repeat(m × n, S)
+```
+*Proof.* The left-hand side desugars to `m` copies of `Tand(S, …, S)` [each with `n` copies], concatenated as a tandem. By associativity of Tand (Theorem 2), this flattens to `Tand(S, …, S)` with `m × n` copies, which is `Repeat(m × n, S)`. ∎
+
+**Theorem 8 (Repeat additive decomposition).**
+```
+Repeat(m + n, S) ≡ Tand(Repeat(m, S), Repeat(n, S))
+```
+*Proof.* Both sides desugar to `Tand(S, …, S)` with `m + n` copies by associativity of Tand. ∎
+
+**Completeness as syntactic sugar.** `Repeat(n, S)` always expands to a finite `Tand`, so `Repeat` introduces no new semantic primitives. The meaning of any `Repeat` expression is fully determined by the `Tand` semantics.
+
+#### 2.2.4 LH Boundary Identities
+
+From the LH definition (§1.6):
+
+- `LH(∞, S) ≡ S` — infinite hold imposes no temporal constraint.
+- `LH(0, S) ≡ EXT` — zero hold makes reinforcement unavailable (the hold window closes before any response can occur).
+
+#### 2.2.5 Sound Rewrite Rules (Summary)
+
+The following table collects all sound rewrite rules derived from Theorems 1–8 and §1.6. A conforming implementation MAY apply these as optimization passes. The `Direction` column indicates whether the rule is applied left-to-right only (→) or is bidirectional (↔, i.e., full semantic equivalence).
+
+| # | Rule | Direction | Priority | Theorem |
+|---|------|-----------|----------|---------|
+| R1 | `Alt(S, EXT) → S` | → | 1 | Thm 3 |
+| R2 | `Alt(EXT, S) → S` | → | 1 | Thm 1 + Thm 3 |
+| R3 | `Conj(S, CRF) → S` | → | 1 | Thm 3 |
+| R4 | `Conj(CRF, S) → S` | → | 1 | Thm 1 + Thm 3 |
+| R5 | `Chain(CRF, S) → S` | → | 1 | Thm 3 |
+| R6 | `Conj(S, EXT) → EXT` | → | 2 | Thm 4 |
+| R7 | `Conj(EXT, S) → EXT` | → | 2 | Thm 1 + Thm 4 |
+| R8 | `Alt(S, CRF) → CRF` | → | 2 | Thm 4 |
+| R9 | `Alt(CRF, S) → CRF` | → | 2 | Thm 1 + Thm 4 |
+| R10 | `Repeat(1, S) → S` | → | 3 | Thm 6 |
+| R11 | `LH(∞, S) → S` | → | 3 | §1.6 |
+| R12 | `LH(0, S) → EXT` | → | 3 | §1.6 |
+| R13 | `Conc(A, Conc(B, C)) ↔ Conc(A, B, C)` | ↔ | 4 | Thm 2 |
+| R14 | `Alt(A, Alt(B, C)) ↔ Alt(A, B, C)` | ↔ | 4 | Thm 2 |
+| R15 | `Conj(A, Conj(B, C)) ↔ Conj(A, B, C)` | ↔ | 4 | Thm 2 |
+| R16 | `Chain(A, Chain(B, C)) ↔ Chain(A, B, C)` | ↔ | 4 | Thm 2 |
+| R17 | `Tand(A, Tand(B, C)) ↔ Tand(A, B, C)` | ↔ | 4 | Thm 2 |
+
+**Priority** indicates the recommended application order when multiple rules match. Lower numbers are applied first. Rules R1–R12 are *simplifying* (the right-hand side has fewer AST nodes); R13–R17 are *structural* (flattening nested compositions).
 
 ### 2.3 Recursive Composition
 
@@ -355,21 +445,30 @@ Conc(VI 30-s, VI 60-s)                    -- inherits COD=2-s
 Conc(VI 30-s, VI 60-s, COD=5-s)           -- expression-level overrides program-level
 ```
 
-**Asymmetric COD.** When changeover costs differ by switch direction, COD accepts a value list with per-departure-component delays (Pliskoff, 1971). Element *i* specifies the COD imposed when leaving component *i*:
+**Directional COD.** When changeover costs differ by switch direction, COD accepts a directional form specifying the (from, to) component pair and the delay for that transition (Pliskoff, 1971; Williams & Bell, 1999). Direction references may use 1-indexed integers or `let`-bound identifiers:
 
 ```
-Conc(VI 30-s, VI 60-s, COD=[2-s, 5-s])    -- 2s leaving VI30, 5s leaving VI60
-Conc(VI 30-s, VR 20, COD=[1-s, 3-s])      -- interval-ratio with asymmetric cost
-                                           -- (Sakagami, 1989)
+-- Fully explicit directional (index-based)
+Conc(VI 30-s, VI 60-s, COD(1->2)=2-s, COD(2->1)=5-s)
+
+-- Base + override: "COD was 2s, except from VR 20 it was 5s"
+Conc(VI 30-s, VR 20, COD=2-s, COD(2->1)=5-s)
+
+-- With let-bound labels (self-documenting)
+let interval = VI 30-s
+let ratio    = VR 20
+Conc(interval, ratio, COD(interval->ratio)=1-s, COD(ratio->interval)=3-s)
 ```
 
-Semantic rules for asymmetric COD:
-- Value list length **must** equal the number of positional components. Mismatch → `ASYMMETRIC_COD_LENGTH_MISMATCH`.
-- All-identical values trigger Linter WARNING `REDUNDANT_ASYMMETRIC_COD`; use scalar form instead.
-- Program-level `param_decl` accepts scalar COD only (symmetric default). Expression-level asymmetric COD overrides it entirely.
-- Per-element validation: each element follows the same rules as scalar COD (time unit required, ≥ 0).
+**Base + override semantics.** Scalar `COD=Xs` provides a base delay for all unspecified directions. Directional entries `COD(x->y)=Ys` override specific transitions. This maps to the common JEAB Method section phrasing: "The COD was 2 s, except for switches from the VR 20 schedule, where it was 5 s."
 
-**Per-departure-component semantics.** The COD is associated with the component the organism is *leaving*, not the specific transition pair. This captures the standard experimental manipulation in Pliskoff (1971) and later asymmetric-COD studies. For the rare case where COD depends on the specific departure–arrival pair (n×(n−1) matrix), see the `contingency-core` layer.
+Semantic rules for directional COD:
+- `dir_ref` as integer must be in range [1, N]. As identifier, must resolve to a `let`-bound component name.
+- Self-referencing direction (`COD(1->1)`) → `DIRECTIONAL_SELF_REFERENCE`.
+- Duplicate direction pair → `DUPLICATE_DIRECTIONAL_KW`.
+- Directional form valid for COD on Conc only; other keyword args → `INVALID_DIRECTIONAL_KW`.
+- Program-level `param_decl` accepts scalar COD only (symmetric base). Expression-level directional COD overrides specific directions.
+- Per-value validation: same rules as scalar COD (time unit required, ≥ 0).
 
 **Future (v1.2):** Resetting COD (timer restarts on re-switch during active COD).
 

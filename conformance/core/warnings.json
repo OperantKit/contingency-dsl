@@ -474,10 +474,10 @@
     }
   },
   {
-    "id": "warn_redundant_asymmetric_cod",
-    "description": "Asymmetric COD with all identical values — suggest scalar form (constraint 53)",
-    "input": "Conc(VI30s, VI60s, COD=[2s, 2s])",
-    "warnings": ["REDUNDANT_ASYMMETRIC_COD"],
+    "id": "warn_redundant_directional_cod",
+    "description": "All directions specified with identical values — suggest scalar form (constraint 58)",
+    "input": "Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=2s)",
+    "warnings": ["REDUNDANT_DIRECTIONAL_COD"],
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -491,9 +491,9 @@
         ],
         "params": {
           "COD": {
-            "values": [
-              { "value": 2.0, "time_unit": "s" },
-              { "value": 2.0, "time_unit": "s" }
+            "directional": [
+              { "from": 1, "to": 2, "value": 2.0, "time_unit": "s" },
+              { "from": 2, "to": 1, "value": 2.0, "time_unit": "s" }
             ]
           }
         }
@@ -501,9 +501,9 @@
     }
   },
   {
-    "id": "warn_asymmetric_cod_no_missing_cod",
-    "description": "Asymmetric COD does NOT trigger MISSING_COD — COD is present",
-    "input": "Conc(VI30s, VI60s, COD=[2s, 5s])",
+    "id": "warn_directional_cod_no_missing_cod",
+    "description": "Directional COD present — MISSING_COD warning is NOT triggered (constraint 56)",
+    "input": "Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=5s)",
     "warnings": [],
     "expected": {
       "type": "Program",
@@ -518,9 +518,9 @@
         ],
         "params": {
           "COD": {
-            "values": [
-              { "value": 2.0, "time_unit": "s" },
-              { "value": 5.0, "time_unit": "s" }
+            "directional": [
+              { "from": 1, "to": 2, "value": 2.0, "time_unit": "s" },
+              { "from": 2, "to": 1, "value": 5.0, "time_unit": "s" }
             ]
           }
         }

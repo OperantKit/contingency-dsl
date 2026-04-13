@@ -49,9 +49,9 @@ class CompoundSchedule:
     components: tuple[ScheduleExpr, ...]
     params: dict[str, Any] | None = None
     # v1.1 params examples:
-    #   Symmetric COD:   {"COD": {"value": 2.0, "time_unit": "s"}}
-    #   Asymmetric COD:  {"COD": {"values": [{"value": 2.0, "time_unit": "s"}, {"value": 5.0, "time_unit": "s"}]}}
-    #   FRCO:            {"FRCO": {"value": 5}}
+    #   Symmetric COD:    {"COD": {"value": 2.0, "time_unit": "s"}}
+    #   Directional COD:  {"COD": {"base": {...}, "directional": [{"from": 2, "to": 1, "value": 5.0, ...}]}}
+    #   FRCO:             {"FRCO": {"value": 5}}
 
 @dataclass(frozen=True)
 class ModifierSchedule:
@@ -88,17 +88,25 @@ def to_runtime(expr: ScheduleExpr) -> Schedule:
         case CompoundSchedule("Conc", components, params):
             cod = params.get("COD") if params else None
             frco = params.get("FRCO") if params else None
-            # Asymmetric COD: "values" key = per-departure-component delays
+            # Directional COD: "directional" key = per-(from,to) overrides
             # Symmetric COD: "value" key = uniform delay
-            if cod and "values" in cod:
-                changeover_delays = [v["value"] for v in cod["values"]]
+            if cod and "directional" in cod:
+                base = cod.get("base", {}).get("value", 0.0)
+                n = len(components)
+                # Build n×n matrix; diagonal unused
+                cod_matrix = [[base] * n for _ in range(n)]
+                for entry in cod["directional"]:
+                    cod_matrix[entry["from"] - 1][entry["to"] - 1] = entry["value"]
             elif cod:
-                changeover_delays = [cod["value"]] * len(components)
+                cod_matrix = None  # symmetric — single value
+                base = cod["value"]
             else:
-                changeover_delays = None
+                cod_matrix = None
+                base = None
             return ConcurrentSchedule(
                 [to_runtime(c) for c in components],
-                changeover_delays=changeover_delays,
+                changeover_delay=base,
+                changeover_delay_matrix=cod_matrix,
                 changeover_ratio=frco["value"] if frco else None,
             )
         case CompoundSchedule("Chain", components, _):

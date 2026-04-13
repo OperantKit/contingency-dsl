@@ -585,48 +585,66 @@
     }
   },
   {
-    "id": "error_asymmetric_cod_length_mismatch_short",
-    "description": "Asymmetric COD with fewer elements than Conc components (constraint 50)",
-    "input": "Conc(VI30s, VI60s, VI120s, COD=[2s, 5s])",
+    "id": "error_directional_cod_self_reference",
+    "description": "Self-referencing direction COD(1->1) is invalid (constraint 53)",
+    "input": "Conc(VI30s, VI60s, COD(1->1)=2s)",
     "error": {
       "type": "SemanticError",
-      "code": "ASYMMETRIC_COD_LENGTH_MISMATCH"
+      "code": "DIRECTIONAL_SELF_REFERENCE"
     }
   },
   {
-    "id": "error_asymmetric_cod_length_mismatch_long",
-    "description": "Asymmetric COD with more elements than Conc components (constraint 50)",
-    "input": "Conc(VI30s, VI60s, COD=[2s, 5s, 3s])",
+    "id": "error_directional_cod_index_out_of_range",
+    "description": "Directional COD index exceeds component count (constraint 51)",
+    "input": "Conc(VI30s, VI60s, COD(1->3)=2s)",
     "error": {
       "type": "SemanticError",
-      "code": "ASYMMETRIC_COD_LENGTH_MISMATCH"
+      "code": "DIRECTIONAL_INDEX_OUT_OF_RANGE"
     }
   },
   {
-    "id": "error_value_list_on_frco",
-    "description": "value_list not valid for FRCO keyword arg (constraint 54)",
-    "input": "Conc(VI30s, VI60s, FRCO=[3, 5])",
+    "id": "error_directional_cod_duplicate",
+    "description": "Duplicate directional COD for same (from, to) pair (constraint 54)",
+    "input": "Conc(VI30s, VI60s, COD(1->2)=2s, COD(1->2)=5s)",
     "error": {
       "type": "SemanticError",
-      "code": "INVALID_VALUE_LIST"
+      "code": "DUPLICATE_DIRECTIONAL_KW"
     }
   },
   {
-    "id": "error_value_list_on_bo",
-    "description": "value_list not valid for BO keyword arg in v1.1 (constraint 54)",
-    "input": "Mult(FR5, EXT, BO=[5s, 3s])",
+    "id": "error_directional_frco",
+    "description": "Directional form not valid for FRCO (constraint 50)",
+    "input": "Conc(VI30s, VI60s, FRCO(1->2)=3)",
     "error": {
       "type": "SemanticError",
-      "code": "INVALID_VALUE_LIST"
+      "code": "INVALID_DIRECTIONAL_KW"
     }
   },
   {
-    "id": "error_asymmetric_cod_on_chain",
-    "description": "Asymmetric COD on non-Conc combinator (COD is Conc-only, constraint 8)",
-    "input": "Chain(FR5, VI30s, COD=[2s, 5s])",
+    "id": "error_directional_bo",
+    "description": "Directional form not valid for BO in v1.1 (constraint 50)",
+    "input": "Mult(FR5, EXT, BO(1->2)=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_DIRECTIONAL_KW"
+    }
+  },
+  {
+    "id": "error_directional_cod_on_chain",
+    "description": "Directional COD on non-Conc combinator (constraint 8 + 50)",
+    "input": "Chain(FR5, VI30s, COD(1->2)=2s)",
     "error": {
       "type": "SemanticError",
       "code": "INVALID_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_directional_cod_ident_not_found",
+    "description": "Directional COD references unbound identifier (constraint 52)",
+    "input": "Conc(VI30s, VI60s, COD(rich->lean)=2s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DIRECTIONAL_IDENT_NOT_FOUND"
     }
   }
 ]

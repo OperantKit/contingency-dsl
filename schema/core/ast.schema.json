@@ -140,11 +140,11 @@
       "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. Semantic pass validates per-combinator validity.",
       "properties": {
         "COD": {
-          "description": "Changeover Delay: minimum time after operandum switch before reinforcement is available (Catania, 1966). Conc-only. Symmetric (scalar) or asymmetric (per-departure-component array; Pliskoff, 1971). Discriminated on 'value' (scalar) vs 'values' (array).",
+          "description": "Changeover Delay: minimum time after operandum switch before reinforcement is available (Catania, 1966). Conc-only. Symmetric (scalar 'value') or directional ('base' + 'directional' overrides; Pliskoff, 1971; Williams & Bell, 1999). Discriminated on 'value' key (symmetric) vs 'directional' key (asymmetric).",
           "oneOf": [
             {
               "type": "object",
-              "description": "Symmetric COD: same delay regardless of switch direction (default).",
+              "description": "Symmetric COD: same delay regardless of switch direction.",
               "properties": {
                 "value": { "type": "number", "minimum": 0 },
                 "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -154,23 +154,36 @@
             },
             {
               "type": "object",
-              "description": "Asymmetric COD: per-departure-component delays (Pliskoff, 1971). Element i is the COD imposed when leaving component i. Array length MUST equal the number of Conc components.",
+              "description": "Directional COD: per-direction delays (Pliskoff, 1971). Optional 'base' provides default for unspecified directions; 'directional' entries override specific (from, to) pairs. dir_ref identifiers are resolved to 1-indexed integers in the AST.",
               "properties": {
-                "values": {
+                "base": {
+                  "type": "object",
+                  "description": "Base COD for all unspecified directions (from scalar COD=Xs).",
+                  "properties": {
+                    "value": { "type": "number", "minimum": 0 },
+                    "time_unit": { "$ref": "#/$defs/TimeUnit" }
+                  },
+                  "required": ["value"],
+                  "additionalProperties": false
+                },
+                "directional": {
                   "type": "array",
+                  "description": "Direction-specific COD overrides. Each entry specifies a (from, to) component pair and the COD value for that transition.",
                   "items": {
                     "type": "object",
                     "properties": {
+                      "from": { "type": "integer", "minimum": 1, "description": "1-indexed source component" },
+                      "to": { "type": "integer", "minimum": 1, "description": "1-indexed destination component" },
                       "value": { "type": "number", "minimum": 0 },
                       "time_unit": { "$ref": "#/$defs/TimeUnit" }
                     },
-                    "required": ["value"],
+                    "required": ["from", "to", "value"],
                     "additionalProperties": false
                   },
-                  "minItems": 2
+                  "minItems": 1
                 }
               },
-              "required": ["values"],
+              "required": ["directional"],
               "additionalProperties": false
             }
           ]

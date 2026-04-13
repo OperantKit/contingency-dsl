@@ -150,17 +150,17 @@ bridge layer — the AST does not contain an implicit COD.
   WARNING for VI-VI concurrent schedules (Shull & Pliskoff, 1967).
 - Default behavior: symmetric, non-resetting.
 - COD and FRCO may coexist: `Conc(VI30s, VI60s, COD=2s, FRCO=5)`.
-- **Asymmetric COD** (Pliskoff, 1971): value list form specifies
-  per-departure-component delays. Element *i* is the COD when leaving
-  component *i*. `Conc(VI30s, VI60s, COD=[2s, 5s])` means 2s when
-  leaving VI30, 5s when leaving VI60.
-  - Value list length must equal number of Conc components.
+- **Directional COD** (Pliskoff, 1971; Williams & Bell, 1999):
+  `COD(x->y)=value` specifies the COD for a specific (from, to) pair.
+  `Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=5s)` means 2s when
+  switching 1→2, 5s when switching 2→1.
+  - **Base + override**: `COD=2s, COD(2->1)=5s` — base 2s for all
+    directions, overridden to 5s for the 2→1 transition.
+  - dir_ref: 1-indexed integer or let-bound identifier.
   - Program-level `param_decl` accepts scalar (symmetric) only.
-    Expression-level asymmetric COD overrides program-level entirely.
-  - All-identical values → Linter WARNING (`REDUNDANT_ASYMMETRIC_COD`).
-  - Asymmetric COD + FRCO: both may coexist.
-    `Conc(VI30s, VI60s, COD=[2s, 5s], FRCO=5)` — asymmetric time-based
-    delay with symmetric response-based requirement.
+  - Directional COD + FRCO: both may coexist.
+    `Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=5s, FRCO=5)` —
+    directional time-based delay with symmetric response requirement.
 
 **Terminology note.** Earlier drafts used the abbreviation `COR` (Changeover
 Response), but this abbreviation is not established in the EAB literature.
