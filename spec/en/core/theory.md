@@ -104,6 +104,8 @@ DRConstraint ::= DRL(irt_min : ℝ⁺)       -- IRT ≥ threshold
 
 DR schedules sit orthogonally to the grid and are best understood as **filters** or **modifiers** that can be composed with grid schedules via tandem or conjunctive composition. For example, `Tand(VR 20, DRL 5-s)` requires a variable-ratio response count *and* an inter-response time ≥ 5 seconds.
 
+**Standalone DR modifiers.** A DR modifier written without an enclosing combinator (e.g., `DRL 5-s` as a top-level schedule expression) is semantically equivalent to that modifier applied to an implicit CRF base schedule — i.e., `DRL 5-s` ≡ `Tand(CRF, DRL 5-s)`. This matches standard laboratory notation: "DRL 20-s" in the literature denotes a schedule in which every response satisfying the IRT criterion is reinforced (Ferster & Skinner, 1957, Ch. 8; Kramer & Rilling, 1970). The implicit CRF is a semantic default documented in [defaults.md](../../../schema/core/defaults.md); conforming parsers emit a `Modifier` AST node without desugaring.
+
 **Note on DRA/DRI.** Differential Reinforcement of Alternative behavior (DRA) and Differential Reinforcement of Incompatible behavior (DRI) are clinical procedure labels commonly used in applied behavior analysis (Cooper, Heron, & Heward, 2020). Unlike DRO/DRL/DRH, which are single-operandum schedule modifiers defined by temporal parameters, DRA/DRI inherently specify contingencies across *two* response classes (extinction for the target behavior, reinforcement for the alternative). At the schedule level, DRA is expressible as a concurrent arrangement:
 
 ```

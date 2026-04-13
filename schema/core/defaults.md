@@ -151,6 +151,44 @@ Reference: Kelleher, R. T., & Fry, W. (1962). Stimulus functions in
 chained fixed-interval schedules. *JEAB*, 5(2), 167-173.
 https://doi.org/10.1901/jeab.1962.5-167
 
+## Standalone DR modifier (DRL/DRH/DRO)
+
+A DR modifier written without an enclosing combinator is a valid schedule
+expression. It denotes the DR constraint applied to an **implicit CRF
+(FR 1)** base schedule.
+
+| Written | Equivalent expansion | Semantics |
+|---------|---------------------|-----------|
+| `DRL5s` | `Tand(CRF, DRL5s)` | Reinforce every response whose IRT ≥ 5 s |
+| `DRH2s` | `Tand(CRF, DRH2s)` | Reinforce every response whose IRT ≤ 2 s |
+| `DRO10s` | `Tand(CRF, DRO10s)` | Deliver reinforcer if no target response occurs for 10 s |
+
+This matches standard laboratory usage: "DRL 20-s" in the literature
+denotes a schedule in which every response satisfying the IRT criterion
+is reinforced — i.e., CRF gated by a temporal filter (Ferster & Skinner,
+1957, Ch. 8; Kramer & Rilling, 1970).
+
+When a DR modifier appears inside an explicit combinator (e.g.,
+`Tand(VR20, DRL5s)`), the combinator's base schedule replaces the
+implicit CRF.
+
+**AST note.** The implicit CRF is a *semantic* default, not an AST
+transformation. Conforming parsers emit a `Modifier` node; desugaring
+to `Tand(CRF, Modifier)` is optional and implementation-defined.
+
+**DRO specificity.** Standalone `DRO10s` means "deliver reinforcement
+contingent on the absence of the target response for 10 s." The implicit
+CRF applies to the *reinforcement delivery*, not to the target response
+class (which is under extinction by definition of the omission
+contingency). See [design-rationale.md §1](../../../docs/en/design-rationale.md#1-dro-why-other-behavior-is-a-misnomer).
+
+References:
+- Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*.
+  Appleton-Century-Crofts.
+- Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low
+  rates: A selective critique. *Psychological Bulletin*, 74(4), 225-254.
+  https://doi.org/10.1037/h0029813
+
 ## Lag schedule (v1.x)
 
 **v1.x:** `Lag` is a differential reinforcement modifier for operant

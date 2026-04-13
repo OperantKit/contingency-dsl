@@ -204,7 +204,7 @@
 
     "DRModifier": {
       "type": "object",
-      "description": "Differential Reinforcement modifier (DRL/DRH/DRO). Standalone or combined with a base schedule via Tand.",
+      "description": "Differential Reinforcement modifier (DRL/DRH/DRO). Standalone usage implies an implicit CRF base schedule (i.e., DRL5s ≡ Tand(CRF, DRL5s)); when combined with an explicit base schedule via Tand or Conj, the explicit base replaces the implicit CRF. See defaults.md §Standalone DR modifier.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "type": "string", "enum": ["DRL", "DRH", "DRO"] },
