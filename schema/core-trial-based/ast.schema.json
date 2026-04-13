@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contingency-dsl-core-trial-based-ast",
+  "title": "contingency-dsl Core-TrialBased AST",
+  "description": "AST node definitions for Core-TrialBased layer schedules. Additive to schema/core/ast.schema.json — ScheduleExpr.oneOf gains TrialBased.",
+
+  "$defs": {
+    "TrialBased": {
+      "type": "object",
+      "description": "A discrete-trial schedule. Response opportunities are structured as trials (stimulus presentation → selection → consequence → ITI), unlike free-operant Core/Core-Stateful schedules.",
+      "properties": {
+        "type": { "const": "TrialBased" },
+        "trial_type": {
+          "type": "string",
+          "enum": ["MTS"],
+          "description": "Trial-based procedure type. v1.x: MTS only."
+        },
+        "comparisons": {
+          "type": "integer",
+          "minimum": 2,
+          "description": "Number of comparison stimuli per trial (Cumming & Berryman, 1965)."
+        },
+        "consequence": {
+          "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Core schedule executed on correct response."
+        },
+        "incorrect": {
+          "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Core schedule executed on incorrect response. Default: EXT."
+        },
+        "ITI": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Inter-trial interval value in canonical unit."
+        },
+        "ITI_unit": {
+          "$ref": "../../core/ast.schema.json#/$defs/TimeUnit",
+          "description": "Time unit for ITI."
+        },
+        "mts_type": {
+          "type": "string",
+          "enum": ["identity", "arbitrary"],
+          "default": "arbitrary",
+          "description": "Matching type. identity: physical match. arbitrary: class-based match (requires @stimulus_classes)."
+        }
+      },
+      "required": ["type", "trial_type", "comparisons", "consequence", "ITI", "ITI_unit"],
+      "additionalProperties": false
+    }
+  }
+}

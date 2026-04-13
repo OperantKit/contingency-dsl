@@ -1,0 +1,142 @@
+; contingency-dsl v1.x — Core-TrialBased Grammar
+;
+; Additive grammar extension for the Core-TrialBased layer.
+; Core-TrialBased schedules have discrete trial response opportunities,
+; as opposed to Core/Core-Stateful schedules whose response opportunities
+; are free-operant (continuous).
+;
+; This file defines production rules to be appended to schema/core/grammar.ebnf.
+; No existing Core production rules are modified.
+;
+; Integration point (additive to Core grammar):
+;   base_schedule ::= ... | trial_based_schedule
+
+trial_based_schedule ::= mts_schedule
+
+; =====================================================================
+; §1. Matching-to-Sample (MTS) — Cumming & Berryman (1965); Sidman (1971)
+; =====================================================================
+;
+; A conditional discrimination procedure in which a sample stimulus
+; controls the selection of a matching comparison stimulus.
+;
+; Syntax:
+;   MTS(comparisons=3, consequence=CRF, ITI=5s)                -- minimal
+;   MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=5s) -- with incorrect
+;   MTS(comparisons=2, consequence=CRF, incorrect=FT5s,
+;       ITI=10s, type=identity)                                 -- fully specified
+;
+; All arguments are keyword-only (no positional arguments).
+;
+; Keyword arguments:
+;   comparisons (required): number of comparison stimuli per trial (integer >= 2)
+;   consequence (required): Core schedule for correct response
+;   incorrect   (optional): Core schedule for incorrect response (default: EXT)
+;   ITI         (required): inter-trial interval duration (time value)
+;   type        (optional): "identity" | "arbitrary" (default: "arbitrary")
+;
+; LL(2) disambiguation:
+;   After "MTS" token, expect "(". Inside parentheses:
+;   All arguments are keyword form: IDENT "=" value/schedule.
+;   "consequence" "=" and "incorrect" "=" are followed by a schedule
+;   expression (not a simple value), requiring the parser to enter
+;   schedule parsing mode for these two parameters.
+;
+; Note: v1.0 restricts consequence/incorrect to atomic_or_second | "CRF" | "EXT"
+; via semantic constraints, fully avoiding LL(2) ambiguity with compound arg lists.
+;
+; Cumming, W. W., & Berryman, R. (1965). The complex discriminated operant:
+;   Studies of matching-to-sample and related problems. In D. I. Mostofsky
+;   (Ed.), Stimulus generalization (pp. 284-330). Stanford University Press.
+;
+; Sidman, M. (1971). Reading and auditory-visual equivalences. Journal of
+;   Speech and Hearing Research, 14(1), 5-13.
+;   https://doi.org/10.1044/jshr.1401.05
+
+mts_schedule  ::= "MTS" "(" mts_kw_arg ("," mts_kw_arg)* ")"
+
+mts_kw_arg    ::= "comparisons" "=" number
+                | "consequence" "=" schedule
+                | "incorrect"   "=" schedule
+                | "ITI"         "=" value
+                | "type"        "=" mts_type
+
+mts_type      ::= "identity" | "arbitrary"
+
+; === Reserved words (additive to grammar.ebnf `reserved`) ===
+
+; reserved      ::= ... (existing)
+;                 | "MTS"
+;                 | "comparisons" | "consequence" | "incorrect"
+;                 | "identity" | "arbitrary"
+;
+; Note: "ITI" begins with uppercase, consistent with DSL conventions
+; for temporal parameter names (cf. "SSI", "RSI", "COD").
+;
+; "type" is NOT reserved globally — it appears only inside MTS(...)
+; parentheses in the context IDENT "=" mts_type. Parser position
+; disambiguates. A let-binding named "type" at top level does NOT
+; collide because mts_type is parsed only after the "MTS" "(" ...
+; "type" "=" token sequence.
+
+; === Semantic constraints ===
+;
+; M1. comparisons must be an integer >= 2.
+;     Less than 2, non-integer → SemanticError (MTS_INVALID_COMPARISONS).
+;     Rationale: selection requires at least 2 alternatives.
+;
+; M2. comparisons must NOT carry a time unit.
+;     `MTS(comparisons=3s, ...)` → SemanticError (MTS_COMPARISONS_TIME_UNIT).
+;     Rationale: comparisons is a dimensionless count.
+;
+; M3. consequence is required. Omission → SemanticError (MISSING_MTS_PARAM).
+;
+; M4. ITI is required. Omission → SemanticError (MISSING_MTS_PARAM).
+;
+; M5. ITI must be positive (> 0).
+;     Zero or negative → SemanticError (MTS_NONPOSITIVE_ITI).
+;     Rationale: ITI=0 eliminates trial boundary.
+;
+; M6. ITI must include a time unit (s/ms/min).
+;     Dimensionless → SemanticError (MTS_ITI_TIME_UNIT_REQUIRED).
+;
+; M7. mts_type must be "identity" or "arbitrary".
+;     Unknown type → SemanticError (MTS_INVALID_TYPE).
+;
+; M8. consequence must NOT be a compound schedule (Conc, Chain, etc.).
+;     Compound → SemanticError (MTS_INVALID_CONSEQUENCE).
+;     Rationale: trial consequence is a single atomic event.
+;
+; M9. incorrect must NOT be a compound schedule.
+;     Same rationale as M8.
+;
+; M10. consequence/incorrect must NOT be a trial_based_schedule.
+;      Recursive nesting → SemanticError (MTS_RECURSIVE_CONSEQUENCE).
+;
+; M11. Duplicate keyword arguments → SemanticError (DUPLICATE_MTS_KW_ARG).
+;
+; W1. comparisons > 9 → Linter WARNING (MTS_MANY_COMPARISONS).
+;     Rationale: research typically uses 2–6. Chance level drops below 11%.
+;
+; W2. consequence=EXT → Linter WARNING (MTS_NO_REINFORCEMENT).
+;     Rationale: all-probe block? Usually mixed with reinforced trials.
+;
+; W3. type=identity with @stimulus_classes annotation present →
+;     Linter WARNING (MTS_IDENTITY_WITH_CLASSES).
+;     Rationale: identity MTS uses physical identity, not class membership.
+;
+; W4. type=arbitrary without @stimulus_classes annotation →
+;     Linter WARNING (MTS_ARBITRARY_WITHOUT_CLASSES).
+;     Rationale: arbitrary MTS requires class definitions for correctness.
+;
+; W5. ITI < 1s → Linter WARNING (MTS_SHORT_ITI).
+;     Rationale: very short ITI may impair trial discrimination.
+
+; === Modifier incompatibility ===
+;
+; Trial-based schedules are incompatible with free-operant modifiers.
+; Applying DRL, DRH, DRO, Pctl, or Lag directly to a trial_based_schedule
+; produces SemanticError (TRIAL_BASED_MODIFIER_INCOMPATIBLE).
+;
+; Combinators (Conc, Mult, Chain, etc.) are syntactically permitted.
+; Semantically inappropriate combinations are flagged by Linter WARNINGs.

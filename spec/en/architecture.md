@@ -1,26 +1,33 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the four-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](theory.md). Describes the five-layer architecture, computability properties, and annotation system.
 
 ---
 
-## 4.1 Four-Layer Architecture
+## 4.1 Five-Layer Architecture
 
 Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies.
 
-We propose a four-layer architecture that separates concerns along the dimension of computational power:
+We propose a five-layer architecture that separates concerns along the dimensions of computational power and response opportunity structure:
 
 ```
 ┌─────────────────────────┐
 │   contingency-dsl       │
 │   ┌───────────────────┐ │
 │   │ Core              │ │  Non-Turing-complete (CFG)
-│   │ criterion =       │ │  Static, declarative
-│   │   literal_value   │ │  FR 10, Conc(VI 30-s, VI 60-s)
+│   │ Free-operant      │ │  Static, declarative
+│   │ criterion =       │ │  FR 10, Conc(VI 30-s, VI 60-s)
+│   │   literal_value   │ │
 │   ├───────────────────┤ │
 │   │ Core-Stateful     │ │  CFG syntax, TC-proximate evaluation
-│   │ criterion =       │ │  Parameters declarative, criteria runtime-computed
-│   │   f(runtime_state)│ │  Pctl(IRT, 50), Adj(start=FR1, step=2)
+│   │ Free-operant      │ │  Parameters declarative, criteria runtime-computed
+│   │ criterion =       │ │  Pctl(IRT, 50), Adj(start=FR1, step=2)
+│   │   f(runtime_state)│ │
+│   ├───────────────────┤ │
+│   │ Core-TrialBased   │ │  CFG syntax, discrete trials
+│   │ Discrete trial    │ │  Stimulus–response matching criterion
+│   │ consequence =     │ │  MTS(comparisons=3, consequence=CRF, ITI=5s)
+│   │   Core schedule   │ │
 │   └───────────────────┘ │
 ├─────────────────────────┤
 │   contingency-core       │  Turing-complete
@@ -33,10 +40,27 @@ We propose a four-layer architecture that separates concerns along the dimension
 └─────────────────────────┘
 ```
 
+The three Core layers are distinguished along two independent axes:
+
+```
+                      Response Opportunity
+                 Free-operant    Discrete trial
+                 ┌─────────────┬─────────────┐
+  Criterion      │             │             │
+  Literal        │    Core     │             │
+                 │  FR,VI,DRL  │  Core-      │
+                 ├─────────────┤  TrialBased │
+  Runtime        │   Core-     │    MTS      │
+  state          │  Stateful   │             │
+                 │  Pctl,Adj   │             │
+                 └─────────────┴─────────────┘
+```
+
 | Layer | Computational Power | Describes | Examples |
 |-------|-------------------|-----------|----------|
 | **contingency-dsl (Core)** | CFG (non-TC) | Static contingency structure, literal criteria | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
 | **contingency-dsl (Core-Stateful)** | CFG syntax, TC-proximate eval | Established schedules with runtime-computed criteria | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
+| **contingency-dsl (Core-TrialBased)** | CFG syntax, discrete trials | Trial-based procedures with stimulus–response matching | `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
 | **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, phase transitions |
 | **experiment-core** | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
@@ -86,20 +110,24 @@ Is the AST fully determined at parse time? (P1)
     YES → Does the schedule identity remain invariant — no transitions
           to a schedule not already a subtree of the original expression? (P3)
       NO  → contingency-core
-      YES → Are criteria compared against literal values?
-        YES → Core
-        NO (compared against runtime-computed values) → Core-Stateful
+      YES → Are response opportunities discrete trials?
+        YES → Core-TrialBased
+        NO  → Are criteria compared against literal values?
+          YES → Core
+          NO (compared against runtime-computed values) → Core-Stateful
 ```
 
 ### Comparison Table
 
-| Property | Core | Core-Stateful | contingency-core |
-|---|---|---|---|
-| AST structure | Fixed at parse time | Fixed at parse time | Changes during session |
-| Parameters | Literal values | Literal values | May be computed or switched |
-| Criterion value | Literal | f(runtime_state), rule fixed at parse time | May depend on arbitrary state |
-| Active schedule identity | Invariant | Invariant | Transitions to different schedule |
-| Computational model | CFG (non-TC) | CFG syntax, TC-proximate eval | Turing-complete |
+| Property | Core | Core-Stateful | Core-TrialBased | contingency-core |
+|---|---|---|---|---|
+| AST structure | Fixed at parse time | Fixed at parse time | Fixed at parse time | Changes during session |
+| Parameters | Literal values | Literal values | Literal values | May be computed or switched |
+| Criterion value | Literal | f(runtime_state), rule fixed at parse time | Stimulus–response matching | May depend on arbitrary state |
+| Response opportunity | Free-operant (continuous) | Free-operant (continuous) | Discrete trial | Any |
+| Consequence | Implicit | Implicit | Explicit (Core schedule ref) | Any |
+| Active schedule identity | Invariant | Invariant | Invariant | Transitions to different schedule |
+| Computational model | CFG (non-TC) | CFG syntax, TC-proximate eval | CFG syntax | Turing-complete |
 
 The critical distinction between Core-Stateful and contingency-core: in Core-Stateful, the schedule expression is **self-contained** — the criterion computation rule is declared within the expression itself (e.g., `Pctl(IRT, 50)` declares a fixed percentile rule). In contingency-core, the system must evaluate **external conditions** (response rate, multi-trial outcome patterns, another subject's behavior) to determine which schedule expression should be **currently active**, and that expression may be structurally different from the previous one.
 
