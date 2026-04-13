@@ -1,0 +1,480 @@
+[
+  {
+    "id": "mts_minimal",
+    "description": "Minimal MTS — comparisons, consequence, ITI only (defaults: incorrect=EXT, mts_type=arbitrary)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_with_incorrect",
+    "description": "MTS with explicit incorrect consequence (FT 5-s timeout)",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=FT5s, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "T",
+          "value": 5.0,
+          "time_unit": "s"
+        },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_fully_specified",
+    "description": "Fully specified MTS — all keyword arguments explicit (Sidman & Tailby, 1982 style)",
+    "input": "MTS(comparisons=2, consequence=CRF, incorrect=EXT, ITI=10s, type=identity)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 10.0,
+        "ITI_unit": "s",
+        "mts_type": "identity"
+      }
+    }
+  },
+  {
+    "id": "mts_arbitrary_explicit",
+    "description": "Explicit type=arbitrary (redundant but legal)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, type=arbitrary)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_iti_ms",
+    "description": "MTS with millisecond ITI",
+    "input": "MTS(comparisons=2, consequence=CRF, ITI=500ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 500.0,
+        "ITI_unit": "ms",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_iti_min",
+    "description": "MTS with minute-scale ITI",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=1min)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 1.0,
+        "ITI_unit": "min",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_comparisons_2",
+    "description": "Minimum comparisons (2) — binary forced-choice",
+    "input": "MTS(comparisons=2, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_comparisons_6",
+    "description": "Six comparisons — common in stimulus equivalence research (Fields et al., 1984)",
+    "input": "MTS(comparisons=6, consequence=CRF, ITI=8s, type=arbitrary)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 6,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 8.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_consequence_vi",
+    "description": "Intermittent reinforcement for correct response (probe/maintenance phase)",
+    "input": "MTS(comparisons=3, consequence=VI30s, ITI=10s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": {
+          "type": "Atomic",
+          "dist": "V",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 10.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_incorrect_ft_timeout",
+    "description": "Incorrect consequence as FT timeout (correction procedure proxy)",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=FT10s, ITI=5s, type=identity)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "T",
+          "value": 10.0,
+          "time_unit": "s"
+        },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "identity"
+      }
+    }
+  },
+  {
+    "id": "mts_let_binding",
+    "description": "MTS bound via let",
+    "input": "let trial = MTS(comparisons=3, consequence=CRF, ITI=5s)\ntrial",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "trial",
+          "value": {
+            "type": "TrialBased",
+            "trial_type": "MTS",
+            "comparisons": 3,
+            "consequence": { "type": "Special", "kind": "CRF" },
+            "incorrect": { "type": "Special", "kind": "EXT" },
+            "ITI": 5.0,
+            "ITI_unit": "s",
+            "mts_type": "arbitrary"
+          }
+        }
+      ],
+      "schedule": {
+        "type": "IdentifierRef",
+        "name": "trial"
+      }
+    }
+  },
+  {
+    "id": "mts_kwarg_order_independent",
+    "description": "Keyword argument order does not affect AST",
+    "input": "MTS(ITI=5s, type=identity, comparisons=2, consequence=CRF, incorrect=EXT)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "identity"
+      }
+    }
+  },
+  {
+    "id": "mts_with_annotations",
+    "description": "MTS with species and stimulus_classes annotations",
+    "input": "@species(\"Homo sapiens\") @n(12)\nMTS(comparisons=3, consequence=CRF, ITI=5s, type=arbitrary) @stimulus_classes(3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        { "type": "Annotation", "keyword": "species", "positional": "Homo sapiens" },
+        { "type": "Annotation", "keyword": "n", "positional": 12 }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      },
+      "annotations": [
+        { "type": "Annotation", "keyword": "stimulus_classes", "positional": 3 }
+      ]
+    }
+  },
+
+  { "_comment": "=== Compound schedule usage (spec/en/core-trial-based/grammar.md §Compound Usage) ===" },
+
+  {
+    "id": "mts_in_mult",
+    "description": "Multiple schedule: MTS alternating with EXT (Reynolds, 1961 style component analysis)",
+    "input": "Mult(MTS(comparisons=3, consequence=CRF, ITI=5s), EXT)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "TrialBased",
+            "trial_type": "MTS",
+            "comparisons": 3,
+            "consequence": { "type": "Special", "kind": "CRF" },
+            "incorrect": { "type": "Special", "kind": "EXT" },
+            "ITI": 5.0,
+            "ITI_unit": "s",
+            "mts_type": "arbitrary"
+          },
+          { "type": "Special", "kind": "EXT" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "mts_in_chain",
+    "description": "Chained: FR5 then MTS trial (conditioned reinforcement analysis)",
+    "input": "Chain(FR5, MTS(comparisons=3, consequence=CRF, ITI=5s))",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Chain",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+          {
+            "type": "TrialBased",
+            "trial_type": "MTS",
+            "comparisons": 3,
+            "consequence": { "type": "Special", "kind": "CRF" },
+            "incorrect": { "type": "Special", "kind": "EXT" },
+            "ITI": 5.0,
+            "ITI_unit": "s",
+            "mts_type": "arbitrary"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "mts_mult_training_test",
+    "description": "Multiple schedule: training MTS alternating with test MTS via let bindings (stimulus equivalence paradigm)",
+    "input": "let ab_training = MTS(comparisons=3, consequence=CRF, incorrect=FT3s, ITI=5s)\nlet ba_test = MTS(comparisons=3, consequence=EXT, ITI=5s)\nMult(ab_training, ba_test)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "ab_training",
+          "value": {
+            "type": "TrialBased",
+            "trial_type": "MTS",
+            "comparisons": 3,
+            "consequence": { "type": "Special", "kind": "CRF" },
+            "incorrect": {
+              "type": "Atomic",
+              "dist": "F",
+              "domain": "T",
+              "value": 3.0,
+              "time_unit": "s"
+            },
+            "ITI": 5.0,
+            "ITI_unit": "s",
+            "mts_type": "arbitrary"
+          }
+        },
+        {
+          "type": "Binding",
+          "name": "ba_test",
+          "value": {
+            "type": "TrialBased",
+            "trial_type": "MTS",
+            "comparisons": 3,
+            "consequence": { "type": "Special", "kind": "EXT" },
+            "incorrect": { "type": "Special", "kind": "EXT" },
+            "ITI": 5.0,
+            "ITI_unit": "s",
+            "mts_type": "arbitrary"
+          }
+        }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          { "type": "IdentifierRef", "name": "ab_training" },
+          { "type": "IdentifierRef", "name": "ba_test" }
+        ]
+      }
+    }
+  },
+
+  { "_comment": "=== Boundary value: comparisons=9 should NOT trigger W1 ===" },
+
+  {
+    "id": "mts_comparisons_9_no_warning",
+    "description": "Boundary: comparisons=9 does NOT trigger MTS_MANY_COMPARISONS (W1 threshold is > 9)",
+    "input": "MTS(comparisons=9, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 9,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+
+  { "_comment": "=== Boundary value: ITI=1s should NOT trigger W5 ===" },
+
+  {
+    "id": "mts_iti_1s_no_warning",
+    "description": "Boundary: ITI=1s does NOT trigger MTS_SHORT_ITI (W5 threshold is < 1s)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=1s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 1.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+
+  { "_comment": "=== Limited Hold on MTS (compatible modifier) ===" },
+
+  {
+    "id": "mts_with_limited_hold",
+    "description": "MTS with LH — response window constraint on COMPARISON state (standard MTS procedure)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "s",
+        "inner": {
+          "type": "TrialBased",
+          "trial_type": "MTS",
+          "comparisons": 3,
+          "consequence": { "type": "Special", "kind": "CRF" },
+          "incorrect": { "type": "Special", "kind": "EXT" },
+          "ITI": 5.0,
+          "ITI_unit": "s",
+          "mts_type": "arbitrary"
+        }
+      }
+    }
+  }
+]

@@ -1,0 +1,351 @@
+[
+  { "_comment": "=== Semantic errors (M1–M11 from grammar.ebnf) ===" },
+
+  {
+    "id": "mts_error_comparisons_less_than_2",
+    "description": "M1: comparisons must be >= 2 — selection requires at least 2 alternatives",
+    "input": "MTS(comparisons=1, consequence=CRF, ITI=5s)",
+    "error": "MTS_INVALID_COMPARISONS"
+  },
+  {
+    "id": "mts_error_comparisons_zero",
+    "description": "M1: comparisons=0 is invalid",
+    "input": "MTS(comparisons=0, consequence=CRF, ITI=5s)",
+    "error": "MTS_INVALID_COMPARISONS"
+  },
+  {
+    "id": "mts_error_comparisons_negative",
+    "description": "M1: negative comparisons",
+    "input": "MTS(comparisons=-3, consequence=CRF, ITI=5s)",
+    "error": "MTS_INVALID_COMPARISONS"
+  },
+  {
+    "id": "mts_error_comparisons_fractional",
+    "description": "M1: non-integer comparisons",
+    "input": "MTS(comparisons=2.5, consequence=CRF, ITI=5s)",
+    "error": "MTS_INVALID_COMPARISONS"
+  },
+  {
+    "id": "mts_error_comparisons_time_unit",
+    "description": "M2: comparisons is dimensionless, must not carry a time unit",
+    "input": "MTS(comparisons=3s, consequence=CRF, ITI=5s)",
+    "error": "MTS_COMPARISONS_TIME_UNIT"
+  },
+  {
+    "id": "mts_error_missing_consequence",
+    "description": "M3: consequence is required",
+    "input": "MTS(comparisons=3, ITI=5s)",
+    "error": "MISSING_MTS_PARAM"
+  },
+  {
+    "id": "mts_error_missing_iti",
+    "description": "M4: ITI is required",
+    "input": "MTS(comparisons=3, consequence=CRF)",
+    "error": "MISSING_MTS_PARAM"
+  },
+  {
+    "id": "mts_error_missing_comparisons",
+    "description": "M3/M4 variant: comparisons is required",
+    "input": "MTS(consequence=CRF, ITI=5s)",
+    "error": "MISSING_MTS_PARAM"
+  },
+  {
+    "id": "mts_error_iti_zero",
+    "description": "M5: ITI must be positive — ITI=0 eliminates trial boundary",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=0s)",
+    "error": "MTS_NONPOSITIVE_ITI"
+  },
+  {
+    "id": "mts_error_iti_negative",
+    "description": "M5: negative ITI",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=-5s)",
+    "error": "MTS_NONPOSITIVE_ITI"
+  },
+  {
+    "id": "mts_error_iti_no_time_unit",
+    "description": "M6: ITI must include a time unit (s/ms/min)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5)",
+    "error": "MTS_ITI_TIME_UNIT_REQUIRED"
+  },
+  {
+    "id": "mts_error_invalid_type",
+    "description": "M7: mts_type must be 'identity' or 'arbitrary'",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, type=symbolic)",
+    "error": "MTS_INVALID_TYPE"
+  },
+  {
+    "id": "mts_error_consequence_compound",
+    "description": "M8: consequence must not be a compound schedule",
+    "input": "MTS(comparisons=3, consequence=Conc(VI30s, VI60s, COD=2s), ITI=5s)",
+    "error": "MTS_INVALID_CONSEQUENCE"
+  },
+  {
+    "id": "mts_error_consequence_chain",
+    "description": "M8: consequence must not be a compound schedule (Chain)",
+    "input": "MTS(comparisons=3, consequence=Chain(FR5, FI30s), ITI=5s)",
+    "error": "MTS_INVALID_CONSEQUENCE"
+  },
+  {
+    "id": "mts_error_incorrect_compound",
+    "description": "M9: incorrect must not be a compound schedule",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=Conc(EXT, FT5s), ITI=5s)",
+    "error": "MTS_INVALID_CONSEQUENCE"
+  },
+  {
+    "id": "mts_error_consequence_recursive_mts",
+    "description": "M10: consequence must not be a trial_based_schedule — no recursive nesting",
+    "input": "MTS(comparisons=3, consequence=MTS(comparisons=2, consequence=CRF, ITI=3s), ITI=5s)",
+    "error": "MTS_RECURSIVE_CONSEQUENCE"
+  },
+  {
+    "id": "mts_error_incorrect_recursive_mts",
+    "description": "M10: incorrect must not be a trial_based_schedule",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=MTS(comparisons=2, consequence=CRF, ITI=3s), ITI=5s)",
+    "error": "MTS_RECURSIVE_CONSEQUENCE"
+  },
+  {
+    "id": "mts_error_duplicate_comparisons",
+    "description": "M11: duplicate keyword argument — comparisons",
+    "input": "MTS(comparisons=3, comparisons=4, consequence=CRF, ITI=5s)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+  {
+    "id": "mts_error_duplicate_consequence",
+    "description": "M11: duplicate keyword argument — consequence",
+    "input": "MTS(comparisons=3, consequence=CRF, consequence=EXT, ITI=5s)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+  {
+    "id": "mts_error_duplicate_iti",
+    "description": "M11: duplicate keyword argument — ITI",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, ITI=10s)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+  {
+    "id": "mts_error_duplicate_type",
+    "description": "M11: duplicate keyword argument — type",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, type=identity, type=arbitrary)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+  {
+    "id": "mts_error_no_args",
+    "description": "ParseError: MTS requires keyword arguments",
+    "input": "MTS()",
+    "error": "PARSE_ERROR"
+  },
+
+  { "_comment": "=== Modifier incompatibility (free-operant modifiers on trial-based) ===" },
+
+  {
+    "id": "mts_error_drl_modifier",
+    "description": "DRL is a free-operant modifier, incompatible with trial-based schedules",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) DRL5s",
+    "error": "TRIAL_BASED_MODIFIER_INCOMPATIBLE"
+  },
+  {
+    "id": "mts_error_drh_modifier",
+    "description": "DRH is a free-operant modifier, incompatible with trial-based schedules",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) DRH10/60s",
+    "error": "TRIAL_BASED_MODIFIER_INCOMPATIBLE"
+  },
+  {
+    "id": "mts_error_dro_modifier",
+    "description": "DRO is a free-operant modifier, incompatible with trial-based schedules",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) DRO30s",
+    "error": "TRIAL_BASED_MODIFIER_INCOMPATIBLE"
+  },
+  {
+    "id": "mts_error_pctl_modifier",
+    "description": "Pctl is a free-operant modifier, incompatible with trial-based schedules",
+    "input": "Pctl(IRT, 50) MTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": "TRIAL_BASED_MODIFIER_INCOMPATIBLE"
+  },
+  {
+    "id": "mts_error_lag_modifier",
+    "description": "Lag is a free-operant modifier, incompatible with trial-based schedules",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) Lag5",
+    "error": "TRIAL_BASED_MODIFIER_INCOMPATIBLE"
+  },
+
+  { "_comment": "=== Linter warnings (W1–W5 from grammar.ebnf) ===" },
+
+  {
+    "id": "mts_warn_many_comparisons",
+    "description": "W1: comparisons > 9 — research typically uses 2–6; chance level drops below 11%",
+    "input": "MTS(comparisons=12, consequence=CRF, ITI=5s)",
+    "warning": "MTS_MANY_COMPARISONS",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 12,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_comparisons_boundary",
+    "description": "W1: comparisons=10 triggers warning (> 9)",
+    "input": "MTS(comparisons=10, consequence=CRF, ITI=5s)",
+    "warning": "MTS_MANY_COMPARISONS",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 10,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_no_reinforcement",
+    "description": "W2: consequence=EXT — all-probe block with no reinforcement",
+    "input": "MTS(comparisons=3, consequence=EXT, ITI=5s)",
+    "warning": "MTS_NO_REINFORCEMENT",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "EXT" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_identity_with_stimulus_classes",
+    "description": "W3: type=identity with @stimulus_classes — identity MTS uses physical identity, not class membership",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, type=identity) @stimulus_classes(3)",
+    "warning": "MTS_IDENTITY_WITH_CLASSES",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "identity"
+      },
+      "annotations": [
+        { "type": "Annotation", "keyword": "stimulus_classes", "positional": 3 }
+      ]
+    }
+  },
+  {
+    "id": "mts_warn_arbitrary_without_stimulus_classes",
+    "description": "W4: type=arbitrary without @stimulus_classes — arbitrary MTS requires class definitions for correctness",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, type=arbitrary)",
+    "warning": "MTS_ARBITRARY_WITHOUT_CLASSES",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_default_arbitrary_without_stimulus_classes",
+    "description": "W4: default type (implicit arbitrary) without @stimulus_classes also triggers",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "warning": "MTS_ARBITRARY_WITHOUT_CLASSES",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_short_iti",
+    "description": "W5: ITI < 1s — very short ITI may impair trial discrimination",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=200ms)",
+    "warning": "MTS_SHORT_ITI",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 200.0,
+        "ITI_unit": "ms",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+
+  { "_comment": "=== Limited Hold linter warning (W7) ===" },
+
+  {
+    "id": "mts_warn_long_lh",
+    "description": "W7: LH > 5min on MTS — effectively removes the time constraint",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s) LH10min",
+    "warning": "MTS_LONG_LH",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "LimitedHold",
+        "hold_duration": 10.0,
+        "time_unit": "min",
+        "inner": {
+          "type": "TrialBased",
+          "trial_type": "MTS",
+          "comparisons": 3,
+          "consequence": { "type": "Special", "kind": "CRF" },
+          "incorrect": { "type": "Special", "kind": "EXT" },
+          "ITI": 5.0,
+          "ITI_unit": "s",
+          "mts_type": "arbitrary"
+        }
+      }
+    }
+  }
+]

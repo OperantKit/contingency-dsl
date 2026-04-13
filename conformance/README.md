@@ -10,6 +10,7 @@ Tests are organized to mirror `schema/`:
 conformance/
 ├── core/              — Core grammar tests (atomic, compound, modifier, binding, etc.)
 ├── core-stateful/     — Core-Stateful layer tests (percentile, adjusting, interlocking)
+├── core-trial-based/  — Core-TrialBased layer tests (MTS matching-to-sample)
 ├── annotations/       — Annotation system tests (program-level, measurement, errors)
 └── representations/
     └── t-tau/         — T-tau coordinate transform tests (to/from/roundtrip/errors)
@@ -75,6 +76,13 @@ not perform semantic analysis should validate against `pre_expansion` only.
 |------|-------|-------|
 | `percentile.json` | 10 | Pctl minimal, all targets, compound, let binding, annotations |
 | `errors.json` | 16 | Pctl semantic errors (rank, window, target, dir, time unit, duplicates) + linter warnings |
+
+### core-trial-based/
+
+| File | Cases | Scope |
+|------|-------|-------|
+| `mts.json` | 19 | MTS minimal, fully specified, time units, let binding, annotations, kwarg order, compound (Mult/Chain), boundary values, LH |
+| `errors.json` | 29 | MTS semantic errors (M1–M11), modifier incompatibility (5), linter warnings (W1–W5 + W7, 8 cases) |
 
 ### annotations/
 
