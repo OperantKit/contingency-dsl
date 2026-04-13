@@ -158,6 +158,11 @@ Conc(VI 30-s LH 5-s, VI 60-s LH 10-s, COD=2-s) -- per-component hold
 
 ## Level 4: Second-Order Schedules ⚠️
 
+> **Terminology note: component, unit, and link** — This DSL distinguishes three terms for positions within compound schedules.
+> - **Component**: a position within `Conc` / `Mult` (e.g., each side of `Conc(VI 30-s, VI 60-s)`)
+> - **Unit**: the repeated response pattern within a second-order schedule (e.g., `FR 10` in `FI 120-s(FR 10)`)
+> - **Link**: a sequential position within `Chain` / `Tand` (e.g., the initial and terminal links of `Chain(FR 5, FI 30-s)`)
+
 **This is the syntax most likely to confuse newcomers.** It looks like a function call, but it is not.
 
 ```
