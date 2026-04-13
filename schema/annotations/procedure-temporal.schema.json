@@ -43,10 +43,11 @@
       "positional": { "type": "string", "required": true, "description": "Algorithm name (e.g., 'fleshler-hoffman', 'arithmetic')" },
       "params": {
         "n": {
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 1,
           "required": false,
-          "description": "List length for generated values"
+          "default": null,
+          "description": "Series length (number of intervals) for generated values. When null (default), the runtime chooses an appropriate value. Fleshler & Hoffman (1962) discussed N=12 and N=20; the choice of N affects the shape of the resulting interval distribution."
         },
         "seed": {
           "type": "integer",

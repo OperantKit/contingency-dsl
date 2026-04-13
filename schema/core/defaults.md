@@ -17,6 +17,21 @@ VI60s:arith       -- arithmetic progression
 VI60s:exp         -- exponential (constant-probability)
 ```
 
+### Fleshler-Hoffman series length (`n`)
+
+| Written | Default `n` | Notes |
+|---------|-------------|-------|
+| `@algorithm("fleshler-hoffman")` | `null` (runtime-dependent) | Educational use; runtime chooses N |
+| `@algorithm("fleshler-hoffman", n=12)` | 12 | Explicit; recommended for publication |
+
+When `n` is omitted (or explicitly `null`), the DSL does not prescribe a series
+length — the runtime implementation selects an appropriate value. This is
+permitted for educational contexts where exact replication is not the goal.
+
+For published research, `n` should always be specified explicitly. Fleshler &
+Hoffman (1962) discussed N=12 and N=20; the choice of N affects the shape of
+the resulting interval distribution and therefore experimental reproducibility.
+
 Reference: Fleshler, M., & Hoffman, H. S. (1962). A progression for generating
 variable-interval schedules. *JEAB*, 5(4), 529-530.
 
@@ -33,9 +48,10 @@ Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 
 ## Progressive Ratio step function
 
-| Written | Default | Notes |
-|---------|---------|-------|
-| ~~`PR`~~ | — | **Removed in v1.0.** Bare `PR` is no longer valid; write `PR(hodos)` explicitly. See [design-rationale.md §2](../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required). |
+| Written | Expansion | Notes |
+|---------|-----------|-------|
+| ~~`PR`~~ | — | **Removed in v1.0.** Bare `PR` (no number, no parens) is a ParseError. |
+| `PR n` | `PR(linear, start=n, increment=n)` | Jarmolowicz & Lattal (2010) notation. `PR 5` → FR 5, FR 10, FR 15, ... |
 | `PR(linear)` | `start=1, increment=5` | Linear default parameters |
 
 ## Limited Hold

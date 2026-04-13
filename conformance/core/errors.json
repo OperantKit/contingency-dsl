@@ -577,11 +577,11 @@
   },
   {
     "id": "error_pr_bare",
-    "description": "Bare PR without step function is not valid; step must be explicit",
+    "description": "Bare PR without number or parenthesized options is not valid",
     "input": "PR",
     "error": {
       "type": "ParseError",
-      "code": "EXPECTED_LPAREN"
+      "code": "EXPECTED_LPAREN_OR_NUMBER"
     }
   }
 ]

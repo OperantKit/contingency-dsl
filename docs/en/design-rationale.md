@@ -159,17 +159,28 @@ relationship remains empirical, not formally derived.
 
 ### The DSL's Position
 
-The DSL requires `PR(hodos)`, `PR(linear, ...)`, or
-`PR(exponential, ...)` explicitly. This is a deliberate friction: it
-forces the researcher to commit to a step function and document it in
-the schedule definition itself. When a colleague reads `PR(exponential)`
-in a session file, the progression type is immediately visible — no
-need to check which default the software assumed.
+The DSL offers two forms, both requiring the researcher to commit to
+a progression type:
+
+- **Shorthand:** `PR 5` — expands to `PR(linear, start=5, increment=5)`,
+  producing FR 5, FR 10, FR 15, ... This follows the notation proposed
+  by Jarmolowicz and Lattal (2010) in *The Behavior Analyst*: the
+  number after `PR` is the arithmetic step size, and the starting ratio
+  equals the step size. This is the natural form for educational and
+  clinical contexts, consistent with `FR 10`, `VI 30-s`, and other
+  `KEYWORD NUMBER` schedule notations in the DSL.
+- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, or
+  `PR(exponential)` — for full parametric control. Use this when the
+  progression does not follow the simple `ratio(n) = step × n` pattern.
+
+Bare `PR` without a number or parenthesized options is a parse error.
+The researcher must always specify which progression they intend.
 
 ### References
 
 - Bentzley, B. S., Fender, K. M., & Aston-Jones, G. (2013). The behavioral economics of drug self-administration: A review and new analytical approach for within-session procedures. *Psychopharmacology*, *226*(1), 113-125. https://doi.org/10.1007/s00213-012-2899-2
 - Hodos, W. (1961). Progressive ratio as a measure of reward strength. *Science*, *134*(3483), 943-944. https://doi.org/10.1126/science.134.3483.943
+- Jarmolowicz, D. P., & Lattal, K. A. (2010). On distinguishing progressively increasing response requirements for reinforcement. *The Behavior Analyst*, *33*(1), 33-47. https://doi.org/10.1007/BF03392202
 - Killeen, P. R., Posadas-Sanchez, D., Johansen, E. B., & Thrailkill, E. A. (2009). Progressive ratio schedules of reinforcement. *Journal of Experimental Psychology: Animal Behavior Processes*, *35*(1), 35-50. https://doi.org/10.1037/a0012497
 - Lambert, J. M., et al. (2026). Evaluating contributions of progressive ratio analysis to economic metrics of demand. *Journal of the Experimental Analysis of Behavior*. https://doi.org/10.1002/jeab.70077
 - Richardson, N. R., & Roberts, D. C. S. (1996). Progressive ratio schedules in drug self-administration studies in rats. *Journal of Neuroscience Methods*, *66*(1), 1-11. https://doi.org/10.1016/0165-0270(95)00153-0

@@ -317,15 +317,18 @@ FOLLOW₁(Value) の和集合:
 
 **LL(1).** ∎
 
-### 5.5 PrMod（決定的 — LL(1)）
-
-v1.0 ではステップ関数の明示が必須であるため、`PR` の後には常に `LPAREN` が続く:
+### 5.5 PrMod（2つの選択肢 — LL(1)）
 
 ```
-PrMod ::= PR_KW LPAREN PrOpts RPAREN
+PrMod ::= PR_KW LPAREN PrOpts RPAREN     -- 明示形式: PR(hodos), PR(linear, ...)
+        | PR_KW NUM                        -- 略記形式: PR 5 (Jarmolowicz & Lattal, 2010)
 ```
 
-オプション分岐は存在しない。`PR_KW` の後、構文解析器は無条件に `LPAREN` を期待する。この生成規則は **LL(1) 決定的**である。∎
+`PR_KW` の後、構文解析器は次のトークンを確認する:
+- `LPAREN` → 明示形式（PrOpts に入る）
+- `NUM` → 略記形式（算術, start=n, increment=n）
+
+`{LPAREN} ∩ {NUM} = ∅`。**LL(1) 決定的。** ∎
 
 ### 5.6 LagMod（2つの選択肢）
 

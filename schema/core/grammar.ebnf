@@ -193,7 +193,9 @@ modifier      ::= dr_mod | pr_mod | repeat | lag_mod
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 
-pr_mod        ::= "PR" "(" pr_opts ")"
+pr_mod        ::= "PR" "(" pr_opts ")"                   ; explicit: PR(hodos), PR(linear, increment=5)
+                | "PR" ws? number                        ; shorthand: PR 5 → linear, start=5, increment=5
+                                                         ;   Jarmolowicz & Lattal (2010, The Behavior Analyst)
 pr_opts       ::= pr_step ("," pr_param)*
 pr_step       ::= "hodos" | "exponential" | "linear"
 pr_param      ::= "start" "=" number

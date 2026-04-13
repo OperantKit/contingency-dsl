@@ -158,6 +158,8 @@ VI 30-s
 
 **Why `@algorithm` matters:** `VI 30` with Fleshler-Hoffman distribution produces different inter-reinforcement intervals than `VI 30` with arithmetic progression or exponential distribution. The schedule notation alone (`VI 30-s`) is ambiguous — `@algorithm` resolves this for reproducibility.
 
+**`@algorithm` `n` parameter:** The `n` parameter specifies the series length (number of intervals) in the Fleshler-Hoffman progression. Fleshler & Hoffman (1962) discussed N=12 and N=20; the choice of N affects the shape of the resulting interval distribution. When `n` is omitted, it defaults to `null`, meaning the runtime chooses an appropriate value. This is intentional for educational contexts where the focus is on understanding the schedule type rather than exact replication. For published research, explicitly specifying `n` is strongly recommended to ensure reproducibility.
+
 **`@iti` and `@post_blackout` design rationale:** ITI and post-reinforcement blackout do not change the schedule's contingency structure (boundary test: can you discuss FI scallops without `@iti`? → YES). However, they are essential for method description and reproducibility as session-level temporal parameters, on the same level as `@warmup`.
 
 **What does NOT belong here:**

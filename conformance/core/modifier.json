@@ -111,6 +111,57 @@
     }
   },
   {
+    "id": "pr_shorthand_5",
+    "description": "PR 5 shorthand (Jarmolowicz & Lattal, 2010): arithmetic, start=5, increment=5 → FR 5, FR 10, FR 15, ...",
+    "input": "PR 5",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "linear",
+        "pr_start": 5.0,
+        "pr_increment": 5.0
+      }
+    }
+  },
+  {
+    "id": "pr_shorthand_1",
+    "description": "PR 1 shorthand: arithmetic, start=1, increment=1 → FR 1, FR 2, FR 3, ...",
+    "input": "PR 1",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "linear",
+        "pr_start": 1.0,
+        "pr_increment": 1.0
+      }
+    }
+  },
+  {
+    "id": "pr_shorthand_no_space",
+    "description": "PR2 without space (compact form)",
+    "input": "PR2",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "linear",
+        "pr_start": 2.0,
+        "pr_increment": 2.0
+      }
+    }
+  },
+  {
     "id": "repeat_3_fr10",
     "description": "Repeat(3, FR10) — syntactic sugar for Tand(FR10, FR10, FR10)",
     "input": "Repeat(3, FR10)",

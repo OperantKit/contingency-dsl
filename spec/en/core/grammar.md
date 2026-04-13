@@ -76,6 +76,7 @@ The DSL grammar satisfies four criteria:
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
 <pr_mod>        ::= "PR" "(" <pr_opts> ")"
+                  | "PR" <ws>? <number>
 <pr_opts>       ::= <pr_step> ("," <pr_param>)*
 <pr_step>       ::= "hodos" | "exponential" | "linear"
 <pr_param>      ::= "start" "=" <number>

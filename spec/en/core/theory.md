@@ -118,7 +118,12 @@ DRI is a special case of DRA where the alternative behavior is physically incomp
 PR(step : ℕ → ℕ) = FR(step(n)) where n increments after each reinforcement
 ```
 
-PR is a *schedule functor* — it maps a step function to a sequence of FR schedules. The DSL restricts step functions to an enumerated set (`hodos`, `linear`, `exponential`) to preserve decidability; arbitrary step functions are available only via the Python API. The step function is **syntactically required** — no bare `PR` form exists. Arithmetic and geometric progressions produce qualitatively different response-rate functions, and no consensus default exists in the literature (Killeen et al., 2009; Stafford & Branch, 1998). See [design-rationale.md §2](../../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required) for the evidence review, including why breakpoint ≠ Pmax (Lambert et al., 2026).
+PR is a *schedule functor* — it maps a step function to a sequence of FR schedules. The DSL offers two syntactic forms:
+
+- **Shorthand:** `PR n` — arithmetic progression with step size *n* (Jarmolowicz & Lattal, 2010). `PR 5` expands to `PR(linear, start=5, increment=5)`, producing FR 5, FR 10, FR 15, ... This matches the notation proposed in *The Behavior Analyst* and is the natural form for educational and clinical contexts.
+- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, `PR(exponential)` — for full control over the step function. Bare `PR` without a number or parenthesized options is a parse error.
+
+Arithmetic and geometric progressions produce qualitatively different response-rate functions, and no consensus default step function exists (Killeen et al., 2009; Stafford & Branch, 1998). See [design-rationale.md §2](../../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required) for the evidence review, including why breakpoint ≠ Pmax (Lambert et al., 2026).
 
 ### 1.5 Mapping to Behavioral Theory
 

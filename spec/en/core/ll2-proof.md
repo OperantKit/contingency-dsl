@@ -333,15 +333,18 @@ Union of all FOLLOW₁(Value):
 
 **LL(1).** ∎
 
-### 5.5 PrMod (deterministic — LL(1))
-
-Since v1.0 requires the step function to be explicit, `PR` is always followed by `LPAREN`:
+### 5.5 PrMod (2 alternatives — LL(1))
 
 ```
-PrMod ::= PR_KW LPAREN PrOpts RPAREN
+PrMod ::= PR_KW LPAREN PrOpts RPAREN     -- explicit form: PR(hodos), PR(linear, ...)
+        | PR_KW NUM                        -- shorthand form: PR 5 (Jarmolowicz & Lattal, 2010)
 ```
 
-There is no optional branch. After `PR_KW`, the parser unconditionally expects `LPAREN`. This production is **LL(1) deterministic**. ∎
+After `PR_KW`, the parser inspects the next token:
+- `LPAREN` → explicit form (enter PrOpts)
+- `NUM` → shorthand form (arithmetic, start=n, increment=n)
+
+`{LPAREN} ∩ {NUM} = ∅`. **LL(1) deterministic.** ∎
 
 ### 5.6 LagMod (2 alternatives)
 
