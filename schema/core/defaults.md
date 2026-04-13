@@ -46,6 +46,18 @@ variable-interval schedules. *JEAB*, 5(4), 529-530.
 The `time_unit` field in the AST is `null` when not explicitly declared.
 Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 
+**v1.0:** Interval and Time domain schedules (FI, VI, RI, FT, VT, RT) without
+an explicit time unit emit a linter WARNING (code `MISSING_TIME_UNIT`). The
+expression remains valid and parseable, but the omission is flagged for
+procedural clarity. Ratio domain schedules (FR, VR, RR) are dimensionless and
+never trigger this warning.
+
+Rationale: In JEAB Method sections, writing "FI 30" without a unit would prompt
+a reviewer to ask whether 30 seconds, 30 milliseconds, or 30 minutes is
+intended. This follows the same design philosophy as `MISSING_COD` for Conc
+(Herrnstein, 1961) — procedurally essential information that is permitted to
+omit for conceptual or pedagogical use, but flagged to encourage explicitness.
+
 ## Progressive Ratio step function
 
 | Written | Expansion | Notes |
@@ -61,6 +73,62 @@ Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 | No `LH` specified | No availability window (infinite hold) |
 | `LimitedHold = 10s` (program-level) | Applied individually to all leaf base_schedules |
 | `FI30 LH10` (expression-level) | Overrides program-level default for that expression |
+
+## Reinforcement Delay (RD)
+
+**v1.x:** RD is a **program-level param_decl only** (no expression-level
+suffix). It specifies the session-wide temporal interval between any
+schedule satisfaction event and the delivery of the consequence — typically
+representing apparatus-imposed delay (e.g., feeder actuation time).
+
+| Parameter | Alias | Syntax (param_decl) | Dimension |
+|-----------|-------|---------------------|-----------|
+| RD | ReinforcementDelay | `RD = 500ms` | Time (s/ms/min) |
+
+| Written | Behavior |
+|---------|----------|
+| No `RD` specified | No explicit delay (immediate delivery) |
+| `RD = 500ms` (program-level) | Session-wide: runtime delays all consequence delivery by 500 ms |
+| `RD = 0s` | Explicit immediate delivery (no linter warning) |
+
+- `RD=0s` is legal and does NOT trigger a linter warning.
+- `RD > 30s` triggers Linter WARNING `RD_LARGE_DELAY`.
+- Time unit is mandatory. `RD = 5` (dimensionless) → `RD_TIME_UNIT_REQUIRED`.
+
+**RD has no expression-level syntax.** Per-schedule delays are already
+expressible via existing combinators:
+
+| Delay type | DSL expression | Reference |
+|---|---|---|
+| Nonresetting (unsignaled) | `Tand(VI 60-s, FT 5-s)` | Sizemore & Lattal (1978) |
+| Resetting (unsignaled) | `Tand(VI 60-s, DRO 5-s)` | Lattal (2010) |
+| Signaled | `Chain(VI 60-s, FT 5-s)` | Richards (1981) |
+| Differential (concurrent) | `Conc(Tand(VI 60-s, FT 1-s), Tand(VI 60-s, FT 8-s), COD=2-s)` | Chung & Herrnstein (1967) |
+| Adjusting (choice) | `Adj(delay, start=10-s, step=1-s)` | Mazur (1987) |
+
+The program-level `RD` param_decl captures the remaining case: session-wide
+apparatus delay that applies uniformly to all reinforcement events.
+
+**Design rationale.** Even brief delays — including feeder actuation time
+(≈0.5 s) — systematically modulate response patterns (Lattal, 2010). In
+the delay-of-reinforcement literature, per-schedule delay is operationalized
+as a tandem FT requirement (Sizemore & Lattal, 1978: "responses on the
+VI 60-s schedule were followed by a tandem FT t-s requirement before
+reinforcer delivery"). The DSL reuses this established formulation rather
+than introducing a redundant expression-level modifier.
+
+References:
+- Lattal, K. A. (2010). Delayed reinforcement of operant behavior. *JEAB*,
+  93(1), 129-139. https://doi.org/10.1901/jeab.2010.93-129
+- Sizemore, O. J., & Lattal, K. A. (1978). Unsignalled delay of
+  reinforcement in variable-interval schedules. *JEAB*, 30(2), 169-175.
+  https://doi.org/10.1901/jeab.1978.30-169
+- Richards, R. W. (1981). A comparison of signaled and unsignaled delay of
+  reinforcement. *JEAB*, 35(2), 145-152.
+  https://doi.org/10.1901/jeab.1981.35-145
+- Chung, S.-H., & Herrnstein, R. J. (1967). Choice and delay of
+  reinforcement. *JEAB*, 10(1), 67-74.
+  https://doi.org/10.1901/jeab.1967.10-67
 
 ## Concurrent changeover delay (COD) and fixed-ratio changeover (FRCO)
 

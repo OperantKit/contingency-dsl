@@ -61,7 +61,7 @@
       "description": "Program-level parameter declaration. LH applies to all leaf schedules. COD/FRCO apply to all Conc combinators. BO applies to all Mult/Mix combinators. Expression-level overrides program-level.",
       "properties": {
         "type": { "const": "ParamDecl" },
-        "name": { "type": "string", "enum": ["LH", "COD", "FRCO", "BO"] },
+        "name": { "type": "string", "enum": ["LH", "COD", "FRCO", "BO", "RD"] },
         "value": { "type": "number" },
         "time_unit": { "$ref": "#/$defs/TimeUnit" }
       },

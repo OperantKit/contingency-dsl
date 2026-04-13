@@ -38,6 +38,7 @@ param_name    ::= "LH" | "LimitedHold"
                 | "COD" | "ChangeoverDelay"
                 | "FRCO" | "FixedRatioChangeover"
                 | "BO"  | "Blackout"
+                | "RD"  | "ReinforcementDelay"
 
 binding       ::= "let" ident "=" schedule
 
@@ -107,6 +108,7 @@ reserved      ::= "let" | "def"
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
                 | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
+                | "RD"  | "ReinforcementDelay"   -- v1.x: reinforcement delay (Lattal, 2010)
                 | "COD" | "ChangeoverDelay"    -- v1.1: changeover delay (Herrnstein, 1961)
                 | "FRCO" | "FixedRatioChangeover" -- v1.1: fixed-ratio changeover (Hunter & Davison, 1985)
                 | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix; Reynolds, 1961)
@@ -501,3 +503,32 @@ string_literal     ::= '"' [^"]* '"'
 ;     but omission is permitted for conceptual/pedagogical use (same pattern as COD for Conc).
 ; 40. Interpolate combinator: duplicate keyword args → SemanticError
 ;     (DUPLICATE_INTERPOLATE_KW_ARG). E.g., count=5, count=10 → error.
+; 41. Interval/Time domain: time unit omission triggers Linter WARNING
+;     (MISSING_TIME_UNIT). Not a SemanticError.
+;     `FI 30` or `VT 60` without s/ms/min → WARNING.
+;     `FI 30s` or `VT 60ms` (explicit unit) → no warning.
+;     Ratio domain (`FR 5`, `VR 10`) is dimensionless and never triggers this.
+;     Rationale: In JEAB Method sections, "FI 30" without a time unit would
+;     prompt a reviewer to ask for clarification. Procedural reproducibility
+;     requires explicit temporal units. Same design philosophy as MISSING_COD
+;     (constraint 7) and SIDMAN_TIME_UNIT_REQUIRED (constraint 18).
+; 42. RD (ReinforcementDelay) param_decl: value MUST include a time unit
+;     (s/ms/min). Dimensionless values → SemanticError (RD_TIME_UNIT_REQUIRED).
+;     Rationale: reinforcement delay is intrinsically temporal.
+; 43. RD param_decl: value must be non-negative (≥ 0).
+;     Negative values → SemanticError (RD_NEGATIVE_VALUE).
+;     RD=0s is legal (explicit immediate delivery, no linter warning).
+; 44. Program-level RD param_decl is a session-wide directive: the runtime
+;     imposes the specified delay between any schedule satisfaction event and
+;     consequence delivery. Unlike LH and COD, RD has NO expression-level
+;     syntax — it is a param_decl only.
+;     Rationale: Per-schedule delays are expressed via Tand(S, FT d) for
+;     nonresetting delay or Tand(S, DRO d) for resetting delay (Sizemore &
+;     Lattal, 1978). Per-alternative delays in concurrent schedules use
+;     Conc(Tand(S1, FT d1), Tand(S2, FT d2)). Signaled delays use
+;     Chain(S, FT d) (Lattal, 2010). The program-level RD param_decl
+;     captures the common case of session-wide apparatus delay (e.g., feeder
+;     actuation time) that applies uniformly to all reinforcement events.
+; 45. RD param_decl: large delay values (> 30s) trigger Linter WARNING
+;     (RD_LARGE_DELAY). Most published delay research uses delays ≤ 30 s
+;     (Lattal, 2010). Not an error.

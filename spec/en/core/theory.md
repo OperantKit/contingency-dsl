@@ -179,6 +179,46 @@ HOLD_OPEN
 - Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
 
+### 1.7 Reinforcement Delay — Response-Consequence Temporal Interval
+
+**The problem.** The temporal interval between the response that satisfies a schedule requirement and the delivery of the consequence is a fundamental parameter of any contingency. Even brief delays — including feeder actuation time (≈0.5 s in standard operant chambers) — systematically modulate response patterns and can be confounded with schedule effects if not controlled (Lattal, 2010). This parameter must be expressible in the DSL.
+
+**Per-schedule delay is a tandem arrangement.** In the delay-of-reinforcement literature, a delay imposed on a specific schedule is operationalized as a tandem FT requirement. Sizemore and Lattal (1978) described their procedure as: "responses on the VI 60-s schedule were followed by a tandem FT *t*-s requirement before reinforcer delivery." This is directly expressible in the DSL using existing combinators:
+
+| Delay type | DSL expression | Semantics | Reference |
+|---|---|---|---|
+| Nonresetting, unsignaled | `Tand(VI 60-s, FT 5-s)` | After VI satisfaction, wait 5 s regardless of responses | Sizemore & Lattal (1978) |
+| Resetting, unsignaled | `Tand(VI 60-s, DRO 5-s)` | After VI satisfaction, wait 5 s; responses restart the timer | Lattal (2010) |
+| Signaled | `Chain(VI 60-s, FT 5-s)` | After VI, discriminative stimulus changes; food after 5 s | Richards (1981) |
+| Differential (concurrent) | `Conc(Tand(VI 60-s, FT 1-s), Tand(VI 60-s, FT 8-s), COD=2-s)` | Each alternative has its own delay | Chung & Herrnstein (1967) |
+| Adjusting (choice) | `Adj(delay, start=10-s, step=1-s)` | Delay adjusts per trial (Core-Stateful) | Mazur (1987) |
+
+No new expression-level primitive is needed: `Tand(S, FT d)` is the established formalization of per-schedule reinforcement delay, and the DSL already supports it.
+
+**Session-wide apparatus delay.** The remaining gap is the common case where *all* reinforcement events in a session share the same apparatus-imposed latency. This is expressed via a program-level `param_decl`:
+
+```
+RD = 500ms
+VI 60-s
+```
+
+The `RD` param_decl instructs the runtime to impose a uniform delay between any schedule satisfaction event and consequence delivery. It has no expression-level syntax — when per-schedule specificity is needed, the user writes an explicit `Tand(S, FT d)`.
+
+**Properties:**
+- `RD = 0s` is legal (explicit immediate delivery).
+- Time unit is mandatory (delay is intrinsically temporal).
+- `RD > 30s` triggers a linter warning (most published research uses delays ≤ 30 s).
+- `RD` does not specify signaling, resetting, or response-handling during the delay — those procedural details are properties of the `Tand`/`Chain`/`DRO` arrangement or runtime configuration.
+
+**Position in the grammar.** `RD` is a `param_decl` keyword (alongside `LH`, `COD`, `FRCO`, `BO`), not a schedule expression modifier. This reflects the literature: Lattal (2010) reviews delay as a *procedural parameter* that applies to the session arrangement, while per-schedule delays are tandem schedule structures that belong in the schedule expression itself.
+
+**References:**
+- Lattal, K. A. (2010). Delayed reinforcement of operant behavior. *Journal of the Experimental Analysis of Behavior*, *93*(1), 129–139. https://doi.org/10.1901/jeab.2010.93-129
+- Sizemore, O. J., & Lattal, K. A. (1978). Unsignalled delay of reinforcement in variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *30*(2), 169–175. https://doi.org/10.1901/jeab.1978.30-169
+- Richards, R. W. (1981). A comparison of signaled and unsignaled delay of reinforcement. *Journal of the Experimental Analysis of Behavior*, *35*(2), 145–152. https://doi.org/10.1901/jeab.1981.35-145
+- Chung, S.-H., & Herrnstein, R. J. (1967). Choice and delay of reinforcement. *Journal of the Experimental Analysis of Behavior*, *10*(1), 67–74. https://doi.org/10.1901/jeab.1967.10-67
+- Renner, K. E. (1964). Delay of reinforcement: A historical review. *Psychological Bulletin*, *61*(5), 341–361. https://doi.org/10.1037/h0048335
+
 ---
 
 ## Part II: Composition Algebra — Compound Schedule Combinators
