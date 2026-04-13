@@ -42,9 +42,9 @@ We propose a four-layer architecture that separates concerns along the dimension
 
 **contingency-core** (Turing-complete) enables:
 - "Switch from VR to VI when response rate exceeds threshold"
-- "Increment PR until breakpoint"
-- "Adaptive DRO (dynamically adjust threshold on criterion achievement)"
-- "Titration procedures (adjust stimulus intensity based on responding)"
+- "Adaptive DRO with externally-conditioned adjustment rules (e.g., if rate < threshold then increase DRO interval, else decrease by 2×step)"
+- "Titration with conditional branching logic (e.g., adjust step size based on multi-trial outcome pattern)"
+- "Yoking procedures (one subject's schedule parameters determined by another subject's behavior)"
 
 **experiment-core** (TC + constraints) guarantees:
 - Termination (session exit conditions enforced)
@@ -57,6 +57,93 @@ Therefore:
 - contingency-dsl concerns itself solely with static contingency structure
 - Dynamic transitions are contingency-core's responsibility
 - Finalization and verification are experiment-core's responsibility
+
+## 4.1.1 Operational Boundary: contingency-dsl vs. contingency-core
+
+The four-layer diagram above uses the terms "static" and "dynamic" informally. This section provides an **operational definition** — a litmus test that determines, for any given procedure, which layer it belongs to.
+
+### One-Sentence Summary
+
+> contingency-dsl describes *what the contingency is*; contingency-core describes *how the contingency changes into a different contingency*.
+
+### Schedule Expression Invariance (SEI) — The Three-Property Test
+
+A procedure belongs to contingency-dsl (Core or Core-Stateful) if and only if **all three** of the following properties hold. Violation of any single property places it in contingency-core.
+
+**P1 — Expression Tree Fixity.** The schedule expression tree (AST) is fully determined at parse time and does not structurally change during the session. The set of schedule nodes, their types, and their combinatorial structure remain identical from the first reinforcement cycle to the last.
+
+**P2 — Parameter Enumerability.** All schedule parameters are either (a) literal values determined at parse time, or (b) computed by a closed-form function whose definition is itself a literal, parse-time-fixed specification. The *rule* for computing a parameter is fixed; only its *output* may vary.
+
+**P3 — Single-Schedule Identity.** The schedule can be identified by a single, stable expression throughout the session. There is no point during the session at which the active contingency transitions to a structurally different schedule expression not already present as a subtree of the original expression.
+
+### Decision Flowchart
+
+```
+Is the AST fully determined at parse time? (P1)
+  NO  → contingency-core
+  YES → Are all parameters literal or computed by a parse-time-fixed rule? (P2)
+    NO  → contingency-core
+    YES → Does the schedule identity remain invariant — no transitions
+          to a schedule not already a subtree of the original expression? (P3)
+      NO  → contingency-core
+      YES → Are criteria compared against literal values?
+        YES → Core
+        NO (compared against runtime-computed values) → Core-Stateful
+```
+
+### Comparison Table
+
+| Property | Core | Core-Stateful | contingency-core |
+|---|---|---|---|
+| AST structure | Fixed at parse time | Fixed at parse time | Changes during session |
+| Parameters | Literal values | Literal values | May be computed or switched |
+| Criterion value | Literal | f(runtime_state), rule fixed at parse time | May depend on arbitrary state |
+| Active schedule identity | Invariant | Invariant | Transitions to different schedule |
+| Computational model | CFG (non-TC) | CFG syntax, TC-proximate eval | Turing-complete |
+
+The critical distinction between Core-Stateful and contingency-core: in Core-Stateful, the schedule expression is **self-contained** — the criterion computation rule is declared within the expression itself (e.g., `Pctl(IRT, 50)` declares a fixed percentile rule). In contingency-core, the system must evaluate **external conditions** (response rate, multi-trial outcome patterns, another subject's behavior) to determine which schedule expression should be **currently active**, and that expression may be structurally different from the previous one.
+
+### Boundary Case Classifications
+
+**Case 1: Adaptive DRO.**
+
+- *Fixed step-function adaptation* (e.g., threshold increases by 1 s on each criterion achievement): expressible as `Adj(delay, start=5s, step=1s)`. All three properties hold. → **Core-Stateful.**
+- *Externally-conditioned adaptation* (e.g., if response rate drops below X, increase threshold; otherwise decrease by 2× step): the parameter computation rule itself is a conditional expression, not a fixed closed-form function. P2 is violated. → **contingency-core.**
+
+**Case 2: Titration.**
+
+- *Fixed staircase method* (e.g., +0.1 on correct, −0.1 on incorrect): expressible as `Adj(amount, start=0.4, step=0.1)`. Structurally identical to Progressive Ratio — the rule is fixed at parse time; only the current value varies. → **Core-Stateful.**
+- *Conditional-branching titration* (e.g., increase if correct on 3 of last 5 trials, otherwise decrease by 2× step): requires control flow that the DSL cannot express. P2 is violated. → **contingency-core.**
+
+**Case 3: Phase-internal schedule changes.**
+
+- *Fixed sequential order* (e.g., "complete FR 5 ten times, then VI 30"): expressible as `Tand(Repeat(10, FR 5), VI 30-s)`. The transition target is a subtree already present in the original AST. All three properties hold. → **Core.**
+- *Behavior-criterion-triggered transition* (e.g., "switch from FR 5 to VI 30 when response rate exceeds threshold"): the AST must change from one schedule to a structurally different one based on an external evaluation. P1 and P3 are violated. → **contingency-core.**
+
+### Recommended Computational Model for contingency-core: Guarded Transition System (GTS)
+
+Based on the SEI definition, contingency-core's defining characteristic is *schedule expression transitions conditioned on runtime behavioral state*. This maps naturally to a **guarded transition system**:
+
+```
+State      = ScheduleExpr            -- each state is a contingency-dsl expression
+Guard      = BoolExpr(RuntimeState)  -- condition on behavioral observables
+Transition = (State, Guard, State)   -- if guard is satisfied, transition S1 → S2
+```
+
+**Properties:**
+
+| Property | Specification |
+|---|---|
+| States | Each state is a valid contingency-dsl expression (Core or Core-Stateful) |
+| Guards | Boolean expressions over defined runtime observables (response rate, reinforcement count, time elapsed, cumulative responses, etc.) |
+| Transitions | Deterministic: at most one guard may be true at any point, or a priority ordering resolves ties |
+| Initial state | The first state in the definition |
+| Terminal states | States with no outgoing transitions (session continues under this schedule until experiment-core terminates) |
+| Composability | A contingency-core program is itself a valid "schedule" for experiment-core to wrap with exit conditions |
+
+This model preserves composability: contingency-dsl expressions form the *vocabulary* (what a contingency is), and contingency-core transitions form the *grammar* (how contingencies change). Experiment-core then provides *finalization* (making the whole thing a finite experiment).
+
+---
 
 ## 4.2 Branching Is Inherent in the Combinator Algebra
 
@@ -169,7 +256,7 @@ These properties are decidable by syntax tree traversal. In a Turing-complete la
 
 - **PR step functions**: Enumerated within the DSL (`hodos`, `linear`, `exponential`). Arbitrary functions available only via the Python API.
 - **Fleshler-Hoffman generation**: `seed` parameter for deterministic generation. Runtime randomness is the engine's responsibility.
-- **DR thresholds**: Scalar values only. Dynamic thresholds (adaptive DRO) are delegated to contingency-core.
+- **DR thresholds**: Scalar values only in Core. Fixed step-function adaptation (e.g., `Adj(delay, start=5s, step=1s)`) belongs in Core-Stateful. Only adaptive DRO with externally-conditioned adjustment rules (conditional branching on behavioral criteria) is delegated to contingency-core. See §4.1.1 for the operational boundary definition.
 
 ## 4.7 Annotation Architecture — Orthogonal Annotation Dimensions
 
@@ -471,8 +558,8 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 | Layer | Computational Power | Responsibility | Expressible Range |
 |-------|-------------------|----------------|-------------------|
-| **contingency-dsl** | CFG (non-TC) | Static contingency structure | 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings |
-| **contingency-core** | TC | Dynamic contingency transitions | Conditional transitions, titration, adaptive DRO, state machines |
+| **contingency-dsl** | CFG (non-TC) | Static contingency structure (SEI: P1-P3 hold, §4.1.1) | 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings |
+| **contingency-core** | TC | Dynamic contingency transitions (SEI: any of P1-P3 violated, §4.1.1) | Guarded transitions between DSL expressions, conditional-branching titration/DRO, yoking |
 | **experiment-core** | TC + constraints | Experimental finalization/verification | Exit conditions, ABA designs, safety constraints, static verification |
 | **contingency-py** | Runtime | Evaluation engine | `is_satisfied()` judgment, state management, FH sequence cycling |
 
