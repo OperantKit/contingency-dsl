@@ -376,21 +376,6 @@ string_literal     ::= '"' [^"]* '"'
 ; See spec/ja/annotation-design.md §3 and §3.7 for the rationale behind this
 ; 1:1 annotator-to-category correspondence.
 ;
-; Restructuring history:
-; - @operandum: stimulus-annotator → apparatus-annotator (2026-04-12)
-; - @operandum: scope-based dual semantics (2026-04-13)
-;     program-level = Apparatus declaration (physical specs: model, force, position)
-;     schedule-level = Procedure reference (component assignment, no physical params)
-;     Follows JEAB convention: Apparatus introduces devices, Procedure references
-;     them by name. Parallels existing @feeder (Apparatus) / @reinforcer (Procedure).
-; - stimulus-annotator + temporal-annotator → procedure-annotator with
-;   two sub-annotators (2026-04-12)
-; - subject-annotator → subjects-annotator (2026-04-12, plural form to
-;   match JEAB "Subjects" heading)
-; - measurement-annotator: newly introduced (2026-04-12) to close the
-;   Measurement category gap (formerly empty).
-; - social-annotator, clinical-annotator: moved under extensions/ subdir
-;   (2026-04-12) to make "extension" status explicit in the file layout.
 ;
 ; Annotation aliases: within an annotator, multiple keywords may map to the
 ; same AST node ("type alias"). Alias relationships are declared by the
