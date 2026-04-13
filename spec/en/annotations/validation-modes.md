@@ -116,7 +116,7 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 |---|---|---|
 | `@clock(unit="s")` | `"s"` | ratio schedules are dimensionless; interval/time schedules use seconds |
 | `@algorithm("fleshler-hoffman")` | Fleshler-Hoffman (1962) | de facto laboratory standard |
-| `@hardware("virtual")` | `"virtual"` | default backend |
+| `@hardware` (omitted) | virtual | default; omission means simulation — no `@hardware` annotation needed |
 | `@random(seed=<current_time>)` | current time | execution is possible even without reproducibility |
 
 **Behavior on omission**: the validator operates with the default value. No warning is emitted.
@@ -124,8 +124,8 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 
 ### Tier 2 — Production Requirements
 
-**Elements required when `@hardware` specifies a value other than virtual (i.e., physical hardware).**
-**Not required for simulation (`@hardware("virtual")`).**
+**Elements required when `@hardware` is present (i.e., physical hardware is declared).**
+**Not required when `@hardware` is omitted (virtual by default).**
 
 | Element | Rationale |
 |---|---|
@@ -196,15 +196,15 @@ parse("@species(\"rat\")")   # still parses OK (annotation accepted)
 
 ```python
 lint("FR 5", mode="dev")
-# → OK (warning: no @hardware specified, assuming @hardware("virtual"))
+# → OK (no @hardware — virtual by default)
 
-lint("Conc(VI 30-s, VI 60-s, COD=2-s) @hardware(\"virtual\")", mode="dev")
-# → OK
+lint("Conc(VI 30-s, VI 60-s, COD=2-s)", mode="dev")
+# → OK (virtual by default)
 ```
 
 - **Scope**: Tier 0-1
 - **Use cases**: student learning, theoretical verification, simulation runs, CI tests
-- **Assumption**: `@hardware("virtual")` or default (treated as virtual)
+- **Assumption**: `@hardware` omitted → virtual (simulation mode)
 - **Errors**: parse/semantic error
 - **Warnings**: info-level output if Tier 1 defaulted elements are unspecified (not treated as errors)
 - **Example**: `FR 5` alone can be run as a simulation
@@ -221,7 +221,7 @@ lint("FR 5 @hardware(\"teensy41\")", mode="production")
 
 - **Scope**: Tier 0-2
 - **Use cases**: gatekeeper for physical experiments, final pre-experiment verification
-- **Activation condition**: automatically activated when `@hardware` is set to anything other than virtual
+- **Activation condition**: automatically activated when `@hardware` is present (any value implies physical hardware)
 - **Errors**: missing Tier 2 elements
 - **Warnings**: missing Tier 3 elements (noting that their absence will cause problems at publication)
 
@@ -492,14 +492,16 @@ tier, severity, and message fields.
 
 ### 8.2 Dynamic Activation of Tier 2
 
-When `@hardware` is `"virtual"`, Tier 2 requirements are relaxed:
+When `@hardware` is omitted, the program is virtual by default and Tier 2
+requirements do not apply. The presence of any `@hardware` annotation
+activates Tier 2:
 
 ```python
-# This passes even in production mode (virtual HW)
-validate(parse('FR 5 @hardware("virtual")'), mode="production")
-# → OK (Tier 2 elements are not required for virtual)
+# No @hardware → virtual → Tier 2 not required
+validate(parse('FR 5'), mode="production")
+# → OK (virtual by default, Tier 2 elements not required)
 
-# This fails in production mode
+# @hardware present → physical → Tier 2 required
 validate(parse('FR 5 @hardware("teensy41")'), mode="production")
 # → ERROR: @session_end required (Tier 2)
 # → ERROR: @response required (Tier 2)
@@ -527,7 +529,7 @@ error[E-tier2]: @session_end is required for physical HW
   |     ^^^^^^^^^^^^^^^ physical HW specified here
   |
   = note: this requirement is active in mode="production"
-  = note: to skip this check, use @hardware("virtual") or mode="dev"
+  = note: to skip this check, omit @hardware (virtual by default) or use mode="dev"
   = help: add @session_end(rule="first", time=60min, reinforcers=60)
 ```
 

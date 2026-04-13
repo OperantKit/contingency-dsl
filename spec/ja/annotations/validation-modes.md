@@ -109,7 +109,7 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 |---|---|---|
 | `@clock(unit="s")` | `"s"` | ratio schedules は dimensionless、interval/time は秒 |
 | `@algorithm("fleshler-hoffman")` | Fleshler-Hoffman (1962) | 事実上の lab standard |
-| `@hardware("virtual")` | `"virtual"` | default バックエンド |
+| `@hardware`（省略時） | virtual | デフォルト; 省略はシミュレーションを意味する — `@hardware` 記述不要 |
 | `@random(seed=<current_time>)` | 現在時刻 | 非再現でも実行は可能 |
 
 **省略時の挙動**: validator が default を使って動作。warning なし。
@@ -117,8 +117,8 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 
 ### Tier 2 — Production Requirements
 
-**`@hardware` が virtual 以外（physical HW）のとき必須となる要素。**
-**シミュレーション（`@hardware("virtual")`）では不要。**
+**`@hardware` が存在する（物理 HW を宣言する）とき必須となる要素。**
+**`@hardware` 省略時（virtual がデフォルト）は不要。**
 
 | 要素 | 根拠 |
 |---|---|
@@ -189,15 +189,15 @@ parse("@species(\"rat\")")   # 依然として parse OK（annotation 受理）
 
 ```python
 lint("FR 5", mode="dev")
-# → OK (warning: no @hardware specified, assuming @hardware("virtual"))
+# → OK (@hardware なし — デフォルトで virtual)
 
-lint("Conc(VI 30-s, VI 60-s, COD=2-s) @hardware(\"virtual\")", mode="dev")
-# → OK
+lint("Conc(VI 30-s, VI 60-s, COD=2-s)", mode="dev")
+# → OK (デフォルトで virtual)
 ```
 
 - **対象**: Tier 0-1
 - **用途**: 学生の学習、理論検証、シミュレーション実行、CI テスト
-- **前提**: `@hardware("virtual")` またはデフォルト（virtual 扱い）
+- **前提**: `@hardware` 省略 → virtual（シミュレーションモード）
 - **エラー**: parse/semantic error
 - **警告**: Tier 1 の defaulted 要素が未指定なら info 出力（エラーにしない）
 - **例**: `FR 5` 単体でシミュレーション実行可能
@@ -214,7 +214,7 @@ lint("FR 5 @hardware(\"teensy41\")", mode="production")
 
 - **対象**: Tier 0-2
 - **用途**: 実機実験のゲートキーパー、実験前の最終検証
-- **発動条件**: `@hardware` が virtual 以外のとき自動発動
+- **発動条件**: `@hardware` が存在するとき自動発動（値を問わず、物理 HW を意味する）
 - **エラー**: Tier 2 要素の欠落
 - **警告**: Tier 3 要素の欠落（publication で困る旨）
 
@@ -476,14 +476,15 @@ validate(ast, mode="publication")
 
 ### 8.2 Tier 2 の動的発動
 
-`@hardware` が `"virtual"` なら Tier 2 要素は緩和される:
+`@hardware` が省略されている場合、プログラムはデフォルトで virtual であり、
+Tier 2 要素は要求されない。`@hardware` が存在すれば Tier 2 が発動する:
 
 ```python
-# これは production mode でも通る（virtual HW なので）
-validate(parse('FR 5 @hardware("virtual")'), mode="production")
-# → OK (Tier 2 要素は virtual では要求されない)
+# @hardware なし → virtual → Tier 2 不要
+validate(parse('FR 5'), mode="production")
+# → OK (デフォルトで virtual、Tier 2 要素は不要)
 
-# これは production mode で落ちる
+# @hardware あり → 物理 → Tier 2 必須
 validate(parse('FR 5 @hardware("teensy41")'), mode="production")
 # → ERROR: @session_end required (Tier 2)
 # → ERROR: @response required (Tier 2)
@@ -511,7 +512,7 @@ error[E-tier2]: @session_end is required for physical HW
   |     ^^^^^^^^^^^^^^^ physical HW specified here
   |
   = note: this requirement is active in mode="production"
-  = note: to skip this check, use @hardware("virtual") or mode="dev"
+  = note: to skip this check, omit @hardware (virtual by default) or use mode="dev"
   = help: add @session_end(rule="first", time=60min, reinforcers=60)
 ```
 

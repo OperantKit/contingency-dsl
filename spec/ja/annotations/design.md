@@ -7,6 +7,7 @@
 
 関連文書:
 - [ja/design-philosophy.md](design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
+- [schema-format.md](schema-format.md) — Annotation Schema Format（言語非依存メタDSL）
 - [validation-modes.md](validation-modes.md) — 各プログラムにおける tier × mode 検証の設計例
 - [grammar.ebnf](../../grammar.ebnf) §4.7 — Annotation 構文とプログラムスコープ closure
 
@@ -44,13 +45,20 @@ design-philosophy §4.2 以降、この前提は **撤回** されている:
 
 ### 現状との関係
 
+言語非依存なスキーマフォーマットは [schema-format.md](schema-format.md)
+（Annotation Schema Format）として正式に仕様化された。JSON Schema 2020-12
+ベースに DSL 固有の拡張（`keywords`, `scope`, `positional`,
+`required_if`/`forbidden_if`, `aliases`, `errors`）を載せた形式である。
+2026-04-13 時点で推奨 5 annotator スキーマすべてが本フォーマットに適合する。
+
 本 spec は、既存の `contingency-dsl-py` の `AnnotationModule` Protocol を
 「**DSL プロジェクトが提供する Python リファレンス実装**」として位置付ける。
 他言語実装は同等の schema 形式に従う限り自由に構築でき、Python 実装との
 準拠関係は schema 記述によって担保される。
 
 ```
-言語非依存 schema（推奨・参照）
+Annotation Schema Format (schema-format.md)
+    ↓ schema/annotations/*.schema.json
     ↓ 各プログラムが実装
 AnnotationModule (Python)  ← 参照実装
 AnnotationModule (Rust)    ← 参照実装（将来）
@@ -270,66 +278,19 @@ Alias 関係は DSL プロジェクトが推奨するが、強制ではない。
 architecture.md §4.7.2 / §4.7.3 / §4.7.7 / §4.7.10、docs/annotations.md、
 grammar.ebnf §4.7 コメント、本文書 §3（推奨 annotator 一覧）。
 
-### 3.6.2 未解決（HIGH priority 後続タスク）
+### 3.6.2 設計決定
 
-次の 3 件は論点が確定しておらず、後続の議論を要する:
+**`@algorithm`** — Procedure に維持。schedule 値の生成方法を指定するもので、
+効果の測定方法ではない。JEAB 慣習でも Procedure 節に記述される。
 
-**DIVERGENCE A: `@algorithm` の分類 — 解決済み（2026-04-12）**
+**`@hardware`** — 物理ハードウェア専用（Apparatus カテゴリ）。省略時は
+virtual/シミュレーションモード（validation-modes §4.2 参照）。
 
-- 配置: temporal-annotator → Procedure（**確定**）
-- 論点: `@algorithm("fleshler-hoffman", n=12, seed=42)` は「VI の interval 値を
-  どう生成するか」の methodological note であり、被験体が経験する手続きそのものではない。
-  JEAB 論文では Procedure 節に括弧書きで入ることが多いが、それは「手続きの一部」
-  ではなく「手続きを実装する数理的方法の出典」である。
-- **判断: Procedure に維持。** `@algorithm` は schedule 値の**生成方法**であり、
-  効果の**測定方法**ではない。Measurement の scope は「いつ・どう読み取るか」であり、
-  生成は対象外。JEAB 論文の慣習でも Procedure 節に記述される。Procedure カテゴリ内の
-  methodological sub-role として適切に機能している。
-
-**DIVERGENCE B: `@hardware("virtual")` の分類 — 既知の設計制限**
-
-- 配置: apparatus-annotator → Apparatus（**現状維持**）
-- 論点: `@hardware("teensy41")` は物理ハードウェア宣言（Apparatus）だが、
-  `@hardware("virtual")` は物理装置の不在を宣言する runtime context であり、
-  Apparatus の意味ではない。同一 keyword が値によって異なるカテゴリを
-  意味する多義性を持つ。
-- **判断: 既知の設計制限として文書化し、現状維持。** program-scoped closure の
-  下では各プログラムが `@hardware` の値を解釈できれば実用的に問題ない。
-  論文コンパイル時の Apparatus 節出力ロジックは `@hardware("virtual")` を検出した
-  場合に "simulated runtime" 等の Methods 節記述に迂回させること。
-- **将来の推奨純化パス:** `@hardware` を物理 HW 限定とし、仮想実行は別 keyword
-  `@runtime("virtual")` を新設する。これは破壊的変更を伴うため、慎重に検討する。
-
-**DIVERGENCE C: Measurement カテゴリが空である**
-
-- 現状: design-philosophy §4.1 で Measurement を推奨 4 カテゴリの一つとして
-  定義しているが、どの annotator も Measurement に割り当てられていない。
-- 本来 Measurement に属すべき annotation の例:
-  - `@session_end(rule="first", time=60min, reinforcers=60)` — セッション終了条件
-  - `@baseline(pre_training_sessions=3)` — ベースライン（operant level）測定
-  - `@steady_state(window_sessions=5, max_change_pct=10, measure="rate")` — 安定性基準
-  - `@phase_end(criterion="stability", min_sessions=10)` — phase 終了条件
-  - `@dependent_measure(measure="rate", window="whole_session")` — 主要従属変数の宣言
-  - `@logging(resolution="10ms", events=["response", "reinforcer", "sd"])` — データ記録仕様
-- これらは Subjects / Apparatus / Procedure のいずれにも属さず、
-  「いつ測定を終了するか、何を測定として採用するか」という独立次元。
-- **解決済み（2026-04-12）:** `measurement-annotator` が新設され、最小 keyword
-  セット（`@session_end`, `@baseline`, `@steady_state`）が v1.x で提供される。
-  詳細は §3.7 の annotator 再編および
-  [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
-  を参照。上記の例のうち `@phase_end`, `@dependent_measure`, `@logging` は
-  将来の拡張候補として measurement-annotator/README.md に記録されている。
-
-### 3.6.3 残る DIVERGENCE の対応方針
-
-DIVERGENCE A は 2026-04-12 に解決済み（Procedure に維持）。
-
-残る DIVERGENCE B は未解決:
-
-- **DIVERGENCE B（`@hardware` 多義性）:** 実用的な問題は限定的だが、型安全性の
-  観点から将来の純化（`@hardware` を物理限定、`@runtime` を新設）が望ましい。
-  これは既知の設計制限として文書化し、program-scoped closure の下で各プログラムが
-  `@hardware("virtual")` を特殊ケースとして処理することを推奨する。
+**`@session_end` / `@baseline` / `@steady_state`** — Measurement カテゴリ。
+`measurement-annotator` が v1.x で提供。将来の拡張候補（`@phase_end`,
+`@dependent_measure`, `@logging`）は
+[measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
+に記録。
 
 ## 3.7 Annotator 命名規則 — JEAB カテゴリとの 1:1 対応
 

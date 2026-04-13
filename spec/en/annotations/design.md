@@ -7,6 +7,7 @@ Where the two documents conflict, **design-philosophy.md takes precedence as the
 
 Related documents:
 - [en/design-philosophy.md](design-philosophy.md) §4 — Annotation layer structure and categories (canonical)
+- [schema-format.md](schema-format.md) — Annotation Schema Format (language-independent meta-DSL)
 - [validation-modes.md](validation-modes.md) — Design examples of tier × mode validation for each program
 - [grammar.ebnf](../../grammar.ebnf) §4.7 — Annotation syntax and program-scope closure
 
@@ -34,11 +35,19 @@ Since design-philosophy §4.2, this assumption has been **retracted**:
 
 ### Relationship to the Current State
 
+The language-agnostic schema format is now formally specified in
+[schema-format.md](schema-format.md) (Annotation Schema Format).
+It is based on JSON Schema 2020-12 with DSL-specific extensions
+(`keywords`, `scope`, `positional`, `required_if`/`forbidden_if`,
+`aliases`, `errors`). All 5 recommended annotator schemas conform
+to this format as of 2026-04-13.
+
 This spec positions the existing `contingency-dsl-py` `AnnotationModule` Protocol as the **"Python reference implementation provided by the DSL project."**
-Other language implementations may be freely constructed as long as they follow an equivalent schema format; conformance with the Python implementation is guaranteed through the schema description.
+Other language implementations may be freely constructed as long as they follow the schema format; conformance with the Python implementation is guaranteed through the schema description.
 
 ```
-Language-agnostic schema (recommended / reference)
+Annotation Schema Format (schema-format.md)
+    ↓ schema/annotations/*.schema.json
     ↓ Each program implements
 AnnotationModule (Python)  ← reference implementation
 AnnotationModule (Rust)    ← reference implementation (future)
@@ -228,65 +237,19 @@ This section documents the current state based on the annotation category audit 
 
 **Scope of impact:** stimulus-annotator/README, apparatus-annotator/README, architecture.md §4.7.2 / §4.7.3 / §4.7.7 / §4.7.10, docs/annotations.md, grammar.ebnf §4.7 comments, this document §3 (recommended annotator list).
 
-### 3.6.2 Unresolved (HIGH-Priority Follow-Up Tasks)
+### 3.6.2 Design Decisions
 
-The following three items have unresolved design questions and require further discussion:
+**`@algorithm`** — Maintained in Procedure. Specifies the generation method for schedule
+values (e.g., Fleshler-Hoffman), not the measurement method for effects. JEAB convention
+places algorithm notes in the Procedure section.
 
-**DIVERGENCE A: Classification of `@algorithm` — Resolved (2026-04-12)**
+**`@hardware`** — Physical hardware only (Apparatus category). Omission means
+virtual/simulation mode (see validation-modes §4.2).
 
-- Placement: temporal-annotator → Procedure (**confirmed**)
-- Issue: `@algorithm("fleshler-hoffman", n=12, seed=42)` is a methodological note about "how to generate interval values for VI," not a procedure the subject experiences. In JEAB papers, it usually appears in parenthetical notation within the Procedure section, but this is "a citation of the mathematical method used to implement the procedure," not "part of the procedure itself."
-- **Decision: Maintain in Procedure.** `@algorithm` specifies the **generation method** for
-  schedule values, not the **measurement method** for effects. Measurement's scope is
-  "when and how to read effects," and generation is outside that scope. JEAB convention
-  also places algorithm notes in the Procedure section. It functions appropriately as a
-  methodological sub-role within the Procedure category.
-
-**DIVERGENCE B: Classification of `@hardware("virtual")` — Known Design Limitation**
-
-- Placement: apparatus-annotator → Apparatus (**maintained**)
-- Issue: `@hardware("teensy41")` is a physical hardware declaration (Apparatus), but
-  `@hardware("virtual")` declares the absence of physical equipment and is a runtime
-  context, not an Apparatus in the intended sense. The same keyword carries different
-  category semantics depending on its value — a polysemy issue.
-- **Decision: Documented as a known design limitation; status quo maintained.** Under
-  program-scoped closure, there is no practical problem as long as the program can
-  interpret the value of `@hardware`. When compiling to a paper, the Apparatus section
-  output logic must detect `@hardware("virtual")` and redirect to a Methods section
-  description such as "simulated runtime."
-- **Recommended future purification path:** Restrict `@hardware` to physical hardware
-  and introduce a new keyword `@runtime("virtual")` for virtual execution. This is a
-  breaking change and should be considered carefully.
-
-**DIVERGENCE C: Measurement Category Is Empty**
-
-- Current state: design-philosophy §4.1 defines Measurement as one of the four recommended categories, but no annotator is assigned to Measurement.
-- Examples of annotations that should belong to Measurement:
-  - `@session_end(rule="first", time=60min, reinforcers=60)` — Session termination criteria
-  - `@baseline(pre_training_sessions=3)` — Baseline (operant level) measurement
-  - `@steady_state(window_sessions=5, max_change_pct=10, measure="rate")` — Steady-state criteria
-  - `@phase_end(criterion="stability", min_sessions=10)` — Phase termination criteria
-  - `@dependent_measure(measure="rate", window="whole_session")` — Declaration of the primary dependent variable
-  - `@logging(resolution="10ms", events=["response", "reinforcer", "sd"])` — Data recording specifications
-- These belong to none of Subjects / Apparatus / Procedure and represent an independent dimension: "when to terminate measurement and what to adopt as the measure."
-- **Resolved (2026-04-12):** `measurement-annotator` has been established, and a
-  minimal keyword set (`@session_end`, `@baseline`, `@steady_state`) is provided
-  in v1.x. For details, see the annotator reorganization in §3.7 and
-  [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md).
-  Of the examples above, `@phase_end`, `@dependent_measure`, and `@logging` are
-  recorded as future expansion candidates in measurement-annotator/README.md.
-
-### 3.6.3 Remaining DIVERGENCE Action Plan
-
-DIVERGENCE A was resolved on 2026-04-12 (maintained in Procedure).
-
-The remaining DIVERGENCE B is unresolved:
-
-- **DIVERGENCE B (`@hardware` polysemy):** The practical impact is limited, but
-  from a type-safety perspective, future purification (restricting `@hardware` to
-  physical hardware, introducing `@runtime` as a new keyword) is desirable.
-  This is documented as a known design limitation, and programs are recommended
-  to handle `@hardware("virtual")` as a special case under program-scoped closure.
+**`@session_end` / `@baseline` / `@steady_state`** — Measurement category. Provided by
+`measurement-annotator` in v1.x. Future candidates (`@phase_end`, `@dependent_measure`,
+`@logging`) are recorded in
+[measurement-annotator/README.md](../../annotations/measurement-annotator/README.md).
 
 ## 3.7 Annotator Naming Convention — 1:1 Correspondence with JEAB Categories
 

@@ -216,7 +216,7 @@ Declares the **physical equipment** used to run the experiment.
 |---------|---------|---------|
 | `@chamber` | Experimental chamber model | `@chamber("med-associates", model="ENV-007")` |
 | `@interface` | Hardware interface | `@interface("serial", port="/dev/ttyUSB0")` |
-| `@hardware` | Hardware backend | `@hardware("teensy41")` or `@hardware("virtual")` |
+| `@hardware` | Physical hardware backend | `@hardware("teensy41")` — omit for simulation |
 | `@feeder` | Reinforcer delivery device specs | `@feeder("pellet_dispenser", min_cycle=0.5)` |
 
 **Example: Physical experiment setup**
@@ -233,7 +233,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 **What this enables:**
 - Target selection for experiment-io / contingency-bench
 - Compile to: *"Sessions were conducted in Med Associates (ENV-007) operant chambers interfaced with a Teensy 4.1 microcontroller via serial connection."*
-- `@hardware("virtual")` selects the software simulation backend instead of physical hardware
+- Omitting `@hardware` means simulation mode (virtual by default)
 
 **`@feeder` design rationale:** Minimum inter-reinforcement interval (IRI) originates from the physical recovery time of the reinforcer delivery mechanism (pellet dispenser motor cycle, liquid dipper raise/lower time). The same schedule (`VR 3`) has different min_cycle values depending on whether a pellet dispenser (0.5 s) or liquid dipper (3 s) is used. This is an apparatus constraint, not a contingency or session-temporal parameter.
 

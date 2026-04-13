@@ -215,7 +215,7 @@ FR 5
 |-----------|------|-----|
 | `@chamber` | 実験チャンバーのモデル | `@chamber("med-associates", model="ENV-007")` |
 | `@interface` | HW インターフェース | `@interface("serial", port="/dev/ttyUSB0")` |
-| `@hardware` | ハードウェアバックエンド | `@hardware("teensy41")` or `@hardware("virtual")` |
+| `@hardware` | 物理ハードウェアバックエンド | `@hardware("teensy41")` — シミュレーション時は省略 |
 | `@feeder` | 強化子提示装置の物理仕様 | `@feeder("pellet_dispenser", min_cycle=0.5)` |
 
 **例: 物理実験のセットアップ**
@@ -232,7 +232,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 **これにより可能になること:**
 - experiment-io / contingency-bench のターゲット選択
 - コンパイル結果: *「セッションは Med Associates（ENV-007）オペラントチャンバーで実施し、Teensy 4.1 マイコンとシリアル接続でインターフェースした。」*
-- `@hardware("virtual")` でハードウェアなしのシミュレーション・バックエンドを選択
+- `@hardware` を省略するとシミュレーションモード（デフォルトで virtual）
 
 **`@feeder` の設計根拠:** 最小強化間間隔（minimum IRI）はペレットディスペンサーや液体ディッパーの物理的回復時間に由来するハードウェア制約であり、随伴性の理論的性質やセッションの時間構造とは独立。同一スケジュールでも装置が異なれば min_cycle は異なる。Apparatus section に自然に記述される情報である。
 

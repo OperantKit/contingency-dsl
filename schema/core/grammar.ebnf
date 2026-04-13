@@ -374,9 +374,7 @@ string_literal     ::= '"' [^"]* '"'
 ;   extensions/clinical-annotator  : "function" | "target" | "replacement" (ABA)
 ;
 ; See spec/ja/annotation-design.md §3 and §3.7 for the rationale behind this
-; 1:1 annotator-to-category correspondence, and §3.6 for the open
-; followups on @algorithm position, @hardware("virtual") multi-category,
-; and the historical Measurement gap.
+; 1:1 annotator-to-category correspondence.
 ;
 ; Restructuring history:
 ; - @operandum: stimulus-annotator → apparatus-annotator (2026-04-12)

@@ -49,7 +49,7 @@
       "reference": null
     },
     "hardware": {
-      "description": "Hardware backend. Known limitation: 'virtual' value serves as runtime context rather than apparatus declaration (DIVERGENCE B).",
+      "description": "Physical hardware backend. Presence implies physical apparatus. Omission means virtual/simulation mode.",
       "scope": ["program"],
       "positional": { "type": "string", "required": true },
       "params": {},
