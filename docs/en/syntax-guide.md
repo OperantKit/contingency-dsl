@@ -194,7 +194,7 @@ Time →
 ```
 
 1. The organism repeatedly completes FR 10 (10 responses per unit)
-2. After each unit, a **brief stimulus** may be presented (conditioned reinforcer)
+2. After each unit, a **brief stimulus** (a short-duration stimulus presentation, typically functioning as a conditioned reinforcer) may be presented
 3. Once 120 seconds have elapsed **AND** the next FR 10 unit is completed → primary reinforcement (food)
 4. The cycle restarts
 

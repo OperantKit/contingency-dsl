@@ -29,7 +29,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 
 **What this does:** Two response keys are simultaneously available. The left key operates on VI 30-s, the right on VI 60-s. After switching keys, a 2-second changeover delay must elapse before reinforcement becomes available on the new key.
 
-**Why COD matters:** Without COD, rapid key-switching inflates the obtained reinforcement rate on both alternatives, destroying the orderly relationship between reinforcement rate and response allocation that the matching law describes (Herrnstein, 1961). Omitting COD in a concurrent VI-VI arrangement is a procedural concern. The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit `COD` specification — `COD=0-s` is accepted for control conditions and silences the warning. Omitting COD defaults to `COD=0-s` at runtime.
+**Why COD matters:** Without COD, rapid key-switching inflates the obtained reinforcement rate on both alternatives, disrupting the orderly relationship between reinforcement rate and response allocation that the matching law describes (Herrnstein, 1961). Omitting COD in a concurrent VI-VI arrangement is a procedural concern. The DSL emits a linter WARNING (`MISSING_COD`) recommending explicit `COD` specification — `COD=0-s` is accepted for control conditions and silences the warning. Omitting COD defaults to `COD=0-s` at runtime.
 
 **Reference:**
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *JEAB*, *4*, 267-272. https://doi.org/10.1901/jeab.1961.4-267
@@ -69,7 +69,7 @@ Jwaideh (1973) showed that removing the stimulus change (Tand) shortens post-rei
 FI 600-s(FR 10)
 ```
 
-**What this does:** The rat repeatedly completes FR 10 units (10 lever presses per unit). After each unit, a brief stimulus (e.g., 2-second light previously paired with drug infusion) is presented. Once the FI 600-s (10-minute) interval has elapsed and the next FR 10 unit is completed, the rat receives a cocaine infusion.
+**What this does:** The rat repeatedly completes FR 10 units (10 lever presses per unit). After each unit, a brief stimulus (a short-duration stimulus presentation, typically functioning as a conditioned reinforcer — e.g., 2-second light previously paired with drug infusion) is presented. Once the FI 600-s (10-minute) interval has elapsed and the next FR 10 unit is completed, the rat receives a cocaine infusion.
 
 **Why it exists:** In drug self-administration research, you need:
 
