@@ -16,11 +16,11 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 |---|---|---|---|
 | **Core** | 16 | 420 | ✅ Primary coverage |
 | **Core-Stateful** | 4 | 92 | ✅ Full coverage |
-| **Core-Trial-Based** | 2 | 62 | ✅ Full coverage |
+| **Core-Trial-Based** | 3 | 84 | ✅ Full coverage |
 | **Experiment** | 3 | 20 | ✅ Full coverage |
 | **Annotations** | 3 | 69 | ✅ Full coverage |
 | **Representations (T-τ)** | 4 | 33 | ✅ Full coverage |
-| **Total** | **33** | **696** | |
+| **Total** | **34** | **718** | |
 
 ---
 
@@ -129,12 +129,14 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 | # | Production | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| T1 | `trial_based_schedule` | `core-trial-based/mts.json` | (transitive via mts_schedule) | ✅ |
+| T1 | `trial_based_schedule` | `core-trial-based/mts.json`, `core-trial-based/gonogo.json` | (transitive via mts_schedule, gonogo_schedule) | ✅ Both branches |
 | T2 | `mts_schedule` | `core-trial-based/mts.json` | `mts_minimal` .. `mts_with_limited_hold` | ✅ 23 cases |
 | T3 | `mts_kw_arg` | `core-trial-based/mts.json` | comparisons, consequence, incorrect, ITI, type | ✅ All 5 |
 | T4 | `mts_type` | `core-trial-based/mts.json` | identity: `mts_fully_specified`; arbitrary: `mts_arbitrary_explicit` | ✅ Both |
+| T5 | `gonogo_schedule` | `core-trial-based/gonogo.json` | `gonogo_minimal` .. `gonogo_with_limited_hold_kwarg` | ✅ 22 cases |
+| T6 | `gonogo_kw_arg` | `core-trial-based/gonogo.json` | responseWindow, consequence, incorrect, falseAlarm, ITI, LH | ✅ All 6 |
 
-**Summary:** 4 productions; all with dedicated coverage.
+**Summary:** 6 productions; all with dedicated coverage.
 
 ---
 
@@ -159,6 +161,10 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | MTS + combinator interaction | core-trial-based/grammar.md | `core-trial-based/mts.json` | `mts_in_mult`, `mts_in_chain`, `mts_mult_training_test` | ✅ |
 | MTS + LH compatibility | core-trial-based/grammar.ebnf §LH | `core-trial-based/mts.json` | `mts_with_limited_hold` | ✅ |
 | Trial-based modifier incompatibility | core-trial-based/grammar.ebnf | `core-trial-based/errors.json` | `mts_error_drl_modifier` .. `mts_error_lag_modifier` | ✅ 5 cases |
+| GoNoGo trial structure | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | 22 cases (10 valid + 2 boundary + 2 LH + 8 error) | ✅ |
+| GoNoGo + combinator interaction | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | `gonogo_in_mult`, `gonogo_in_chain`, `gonogo_mult_training_probe` | ✅ |
+| GoNoGo + LH redundancy | core-trial-based/grammar.ebnf §LH | `core-trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
+| GoNoGo SDT-style asymmetric consequence | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | `gonogo_sdt_style` | ✅ |
 
 ---
 
@@ -334,7 +340,19 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `DUPLICATE_MTS_KW_ARG` | SemanticError | `core-trial-based/errors.json` | `mts_error_duplicate_comparisons`, `mts_error_duplicate_consequence`, `mts_error_duplicate_iti`, `mts_error_duplicate_type` | ✅ 4 cases |
 | `TRIAL_BASED_MODIFIER_INCOMPATIBLE` | SemanticError | `core-trial-based/errors.json` | `mts_error_drl_modifier`, `mts_error_drh_modifier`, `mts_error_dro_modifier`, `mts_error_pctl_modifier`, `mts_error_lag_modifier` | ✅ 5 cases |
 
-### §3.15 Representations — T-τ Errors
+### §3.15 Core-Trial-Based Semantic Errors — GoNoGo
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_responseWindow_zero` | ✅ |
+| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_responseWindow_no_unit` | ✅ |
+| `MISSING_GONOGO_PARAM` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_missing_responseWindow`, `gonogo_error_missing_consequence` | ✅ 2 cases |
+| `GONOGO_NONPOSITIVE_ITI` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_negative_iti` | ✅ |
+| `GONOGO_INVALID_CONSEQUENCE` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_compound_consequence` | ✅ |
+| `GONOGO_RECURSIVE_CONSEQUENCE` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_recursive_consequence` | ✅ |
+| `DUPLICATE_GONOGO_KW_ARG` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_duplicate_kwarg` | ✅ |
+
+### §3.16 Representations — T-τ Errors
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
@@ -346,7 +364,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `FROM_TTAU_RATIO_DOMAIN_ERROR` | RepresentationError | `representations/t-tau/from_ttau.json` | `from_ttau_ratio_domain_error` | ✅ |
 | `TO_TTAU_RATIO_DOMAIN_ERROR` | RepresentationError | `representations/t-tau/to_ttau.json` | `to_ttau_fr5_error`, `to_ttau_vr10_error`, `to_ttau_rr20_error` | ✅ 3 cases |
 
-### §3.16 Annotation Errors
+### §3.17 Annotation Errors
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
@@ -426,6 +444,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | `core-trial-based/errors.json` | `mts_warn_arbitrary_without_stimulus_classes`, `mts_warn_default_arbitrary_without_stimulus_classes` | ✅ 2 cases |
 | `MTS_SHORT_ITI` | `core-trial-based/errors.json` | `mts_warn_short_iti` | ✅ |
 | `MTS_LONG_LH` | `core-trial-based/errors.json` | `mts_warn_long_lh` | ✅ |
+| `GONOGO_LH_REDUNDANT` | `core-trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
 
 ---
 
@@ -447,6 +466,8 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | `core/atomic.json` | `atomic_fr5_no_warning`, `atomic_vi60s_no_warning` | Clean valid cases produce no diagnostics |
 | `core-trial-based/mts.json` | `mts_comparisons_9_no_warning` | comparisons=9 does NOT trigger MTS_MANY_COMPARISONS |
 | `core-trial-based/mts.json` | `mts_iti_1s_no_warning` | ITI=1s does NOT trigger MTS_SHORT_ITI |
+| `core-trial-based/gonogo.json` | `gonogo_responseWindow_boundary_500ms` | responseWindow=500ms does NOT trigger GONOGO_SHORT_RESPONSE_WINDOW |
+| `core-trial-based/gonogo.json` | `gonogo_iti_1s_no_warning` | ITI=1s does NOT trigger GONOGO_SHORT_ITI |
 
 ---
 
@@ -476,6 +497,7 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | `core-stateful/interlocking.json` | 12 | 0 | 0 | 12 |
 | `core-stateful/errors.json` | 0 | 38 | 16 | 54 |
 | `core-trial-based/mts.json` | 23 | 0 | 0 | 23 |
+| `core-trial-based/gonogo.json` | 14 | 8 | 2 | 22 † |
 | `core-trial-based/errors.json` | 0 | 29 | 10 | 39 |
 | `annotations/measurement.json` | 29 | 0 | 0 | 29 |
 | `annotations/program-level.json` | 4 | 0 | 0 | 4 |
@@ -484,7 +506,7 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | `representations/t-tau/from_ttau.json` | 8 | 1 | 0 | 9 |
 | `representations/t-tau/roundtrip.json` | 6 | 0 | 0 | 6 |
 | `representations/t-tau/errors.json` | 0 | 7 | 0 | 7 |
-| **Total** | **375** | **288** | **71** | **676** † |
+| **Total** | **389** | **296** | **73** | **698** † |
 
 † Some test cases contain both warnings and valid ASTs; counted once in the dominant category.
 
@@ -512,6 +534,7 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | R-4 | Core-Stateful error codes (Pctl/Adj/Interlock) | 2026-04-14 — 54 error/warning cases |
 | R-5 | Core-Trial-Based error codes (MTS) | 2026-04-14 — 39 error/warning cases |
 | R-6 | T-τ representation errors | 2026-04-14 — 7 error cases + 3 ratio-domain errors |
+| R-7 | Core-Trial-Based GoNoGo coverage | 2026-04-15 — 22 conformance cases (14 valid + 8 error + 2 warning); Langium + Tree-sitter grammar regenerated |
 
 ---
 
@@ -522,12 +545,13 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | Core (Parse) | 11 | — | ✅ |
 | Core (Semantic) | 42 | 8 | ✅ |
 | Core-Stateful | 16 | 9 | ✅ |
-| Core-Trial-Based | 11 | 6 | ✅ |
+| Core-Trial-Based (MTS) | 11 | 6 | ✅ |
+| Core-Trial-Based (GoNoGo) | 7 | 1 | ✅ |
 | Annotations | 34 | — | ✅ |
 | Representations (T-τ) | 7 | — | ✅ |
-| **Total** | **121** | **23** | **✅ 100%** |
+| **Total** | **128** | **24** | **✅ 100%** |
 
 ---
 
-*Last updated: 2026-04-14*
+*Last updated: 2026-04-15*
 *References: grammar.ebnf (Core), grammar.ebnf (Core-Stateful), grammar.ebnf (Core-Trial-Based)*
