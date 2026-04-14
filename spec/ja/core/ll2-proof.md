@@ -40,8 +40,8 @@
 | `DA_TEMP_KW` | CSUSInterval, ITI, ShockDuration, MaxShock | DA 時間パラメータキーワード |
 | `MODE_KW` | mode | DA モードキーワード |
 | `DA_MODE` | fixed, escape | DA モード値 |
-| `PR_STEP` | hodos, exponential, linear | PR ステップ関数キーワード |
-| `PR_PARAM_KW` | start, increment | PR パラメータキーワード |
+| `PR_STEP` | hodos, exponential, linear, geometric | PR ステップ関数キーワード |
+| `PR_PARAM_KW` | start, increment, ratio | PR パラメータキーワード |
 | `LENGTH_KW` | length | Lag 長さキーワード |
 | `INTERP_KW` | count, onset | 挿入スケジュールのキーワード引数名 |
 | `NUM` | [0-9]+ ("." [0-9]+)? | 数値リテラル |

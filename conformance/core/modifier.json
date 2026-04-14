@@ -111,6 +111,38 @@
     }
   },
   {
+    "id": "pr_geometric",
+    "description": "Progressive Ratio with geometric step (start=1, ratio=2): 1, 2, 4, 8, 16, ...",
+    "input": "PR(geometric, start=1, ratio=2)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "geometric",
+        "pr_start": 1,
+        "pr_ratio": 2
+      }
+    }
+  },
+  {
+    "id": "pr_geometric_defaults",
+    "description": "Progressive Ratio with geometric step, default params (start=1, ratio=2)",
+    "input": "PR(geometric)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "geometric"
+      }
+    }
+  },
+  {
     "id": "pr_shorthand_5",
     "description": "PR 5 shorthand (Jarmolowicz & Lattal, 2010): arithmetic, start=5, increment=5 → FR 5, FR 10, FR 15, ...",
     "input": "PR 5",

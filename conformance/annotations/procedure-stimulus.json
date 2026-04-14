@@ -1,0 +1,452 @@
+[
+  {
+    "id": "stimulus_reinforcer_positional_only",
+    "description": "@reinforcer with positional argument only (stimulus identity)",
+    "input": "@reinforcer(\"sucrose\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "sucrose"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Minimal @reinforcer: positional (required) only. No type/concentration/duration."
+  },
+  {
+    "id": "stimulus_reinforcer_full_params",
+    "description": "@reinforcer with all parameters (sucrose pellet with classification)",
+    "input": "@reinforcer(\"sucrose\", type=\"unconditioned\", concentration=\"32%\", duration=3)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "sucrose",
+          "params": {
+            "type": "unconditioned",
+            "concentration": "32%",
+            "duration": 3
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Full @reinforcer: unconditioned sucrose, 32% concentration, 3s access duration."
+  },
+  {
+    "id": "stimulus_reinforcer_conditioned",
+    "description": "@reinforcer with type=conditioned (token economy)",
+    "input": "@reinforcer(\"token\", type=\"conditioned\")\n\nFR10",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "token",
+          "params": {
+            "type": "conditioned"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 10.0
+      }
+    }
+  },
+  {
+    "id": "stimulus_reinforcer_schedule_level",
+    "description": "@reinforcer at schedule level (attached to specific component)",
+    "input": "Conc(VI30s, VI60s)\n  @reinforcer(\"food_pellet\")\n  @reinforcer(\"sucrose_water\")",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Schedule-level @reinforcer attached to compound. Annotation attachment to specific components is handled by annotation-binding pass."
+  },
+  {
+    "id": "stimulus_punisher_alias",
+    "description": "@punisher is an alias for @reinforcer (same AST node)",
+    "input": "@punisher(\"shock\", duration=0.5)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "shock",
+          "params": {
+            "duration": 0.5
+          },
+          "label": "punisher"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Alias: @punisher collapses to keyword=reinforcer. The source keyword is preserved as 'label' (pragmatic hint) per schema alias_note."
+  },
+  {
+    "id": "stimulus_consequent_stimulus_alias",
+    "description": "@consequentStimulus is an alias for @reinforcer",
+    "input": "@consequentStimulus(\"light\")\n\nFT10s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "light",
+          "label": "consequentStimulus"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "T",
+        "value": 10.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Alias: @consequentStimulus collapses to keyword=reinforcer with label preserving source."
+  },
+  {
+    "id": "stimulus_sd_minimal",
+    "description": "@sd with positional stimulus identity only",
+    "input": "Mult(VI30s, EXT)\n  @sd(\"red_light\")",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": null,
+            "domain": null,
+            "value": null,
+            "schedule_type": "EXT"
+          }
+        ]
+      }
+    },
+    "_note": "@sd is schedule-level only. Identifies the discriminative stimulus for the Mult schedule."
+  },
+  {
+    "id": "stimulus_sd_with_component",
+    "description": "@sd with component index for compound schedule",
+    "input": "Mult(VI30s, EXT)\n  @sd(\"red_light\", component=1)\n  @sd(\"green_light\", component=2)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Mult",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": null,
+            "domain": null,
+            "value": null,
+            "schedule_type": "EXT"
+          }
+        ]
+      }
+    },
+    "_note": "Mult(VI30, EXT) with discriminative stimuli: red_light for component 1 (VI30), green_light for component 2 (EXT). Classic Mult schedule with SD."
+  },
+  {
+    "id": "stimulus_brief_second_order",
+    "description": "@brief for second-order schedule brief stimulus",
+    "input": "FR5(FI30s)\n  @brief(\"light\", duration=0.5)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "R",
+          "value": 5.0
+        },
+        "unit": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    },
+    "_note": "Brief stimulus in second-order schedule (Kelleher, 1966). 0.5s light presented after each FI30 completion."
+  },
+  {
+    "id": "stimulus_stimulus_classes_shorthand",
+    "description": "@stimulus_classes with shorthand integer positional (auto-generate class labels)",
+    "input": "@stimulus_classes(3)\n\nMTS(samples=3, comparisons=3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus_classes",
+          "positional": 3
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "MTS",
+        "params": {
+          "samples": 3,
+          "comparisons": 3
+        }
+      }
+    },
+    "_note": "Shorthand: 3 stimulus classes with auto-generated labels (A, B, C)."
+  },
+  {
+    "id": "stimulus_stimulus_classes_named",
+    "description": "@stimulus_classes with named class definitions (Sidman & Tailby, 1982)",
+    "input": "@stimulus_classes(A=[\"A1\",\"A2\",\"A3\"], B=[\"B1\",\"B2\",\"B3\"])\n\nMTS(samples=3, comparisons=3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus_classes",
+          "params": {
+            "A": ["A1", "A2", "A3"],
+            "B": ["B1", "B2", "B3"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "MTS",
+        "params": {
+          "samples": 3,
+          "comparisons": 3
+        }
+      }
+    },
+    "_note": "Named stimulus classes per Sidman & Tailby (1982). Defines class function κ."
+  },
+  {
+    "id": "stimulus_training_basic",
+    "description": "@training with relations and criterion",
+    "input": "@training(relations=[\"AB\", \"BC\"], criterion=90)\n\nMTS(samples=3, comparisons=3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "MTS",
+        "params": {
+          "samples": 3,
+          "comparisons": 3
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "training",
+            "params": {
+              "relations": ["AB", "BC"],
+              "criterion": 90
+            }
+          }
+        ]
+      }
+    },
+    "_note": "@training is schedule-level. Train AB and BC relations to 90% criterion."
+  },
+  {
+    "id": "stimulus_training_with_consecutive_blocks",
+    "description": "@training requiring consecutive blocks meeting criterion",
+    "input": "@training(relations=[\"AB\"], criterion=90, consecutive_blocks=2)\n\nMTS(samples=3, comparisons=3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "MTS",
+        "params": {
+          "samples": 3,
+          "comparisons": 3
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "training",
+            "params": {
+              "relations": ["AB"],
+              "criterion": 90,
+              "consecutive_blocks": 2
+            }
+          }
+        ]
+      }
+    },
+    "_note": "Stricter mastery: 90% on 2 consecutive blocks."
+  },
+  {
+    "id": "stimulus_testing_probe",
+    "description": "@testing with emergent relations and probe ratio",
+    "input": "@testing(relations=[\"BA\", \"CA\", \"BC\", \"CB\"], probe_ratio=1.0)\n\nMTS(samples=3, comparisons=3)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "MTS",
+        "params": {
+          "samples": 3,
+          "comparisons": 3
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "testing",
+            "params": {
+              "relations": ["BA", "CA", "BC", "CB"],
+              "probe_ratio": 1.0
+            }
+          }
+        ]
+      }
+    },
+    "_note": "Stimulus equivalence testing: symmetry (BA, CA) and transitivity (BC, CB). probe_ratio=1.0 means all probes (no reinforcement)."
+  },
+  {
+    "id": "stimulus_complete_procedure_preamble",
+    "description": "Complete procedure-stimulus preamble for a concurrent VI study",
+    "input": "@reinforcer(\"sucrose\", type=\"unconditioned\", concentration=\"32%\", duration=3)\n\nCOD = 2s\n\nConc(VI30s, VI60s)\n  @sd(\"red_light\", component=1)\n  @sd(\"green_light\", component=2)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "sucrose",
+          "params": {
+            "type": "unconditioned",
+            "concentration": "32%",
+            "duration": 3
+          }
+        }
+      ],
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "COD",
+          "value": 2.0,
+          "time_unit": "s"
+        }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Canonical concurrent schedule with full stimulus specification: program-level reinforcer, COD parameter, and per-component discriminative stimuli."
+  }
+]

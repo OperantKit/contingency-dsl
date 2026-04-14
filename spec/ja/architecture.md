@@ -260,7 +260,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 ### 4.6 制御された拡張ポイント
 
-- **PR のステップ関数:** DSL 内では `hodos` / `linear` / `exponential` の列挙に限定。任意関数は Python API レベルでのみ利用可能。
+- **PR のステップ関数:** DSL 内では `hodos` / `linear` / `exponential` / `geometric` の列挙に限定。任意関数は Python API レベルでのみ利用可能。
 - **Fleshler-Hoffman 生成:** `seed` パラメータによる決定的生成。実行時のランダム性はランタイムエンジンの責務。
 - **DR の閾値:** Core ではスカラー値のみ。固定ステップ関数による適応（例: `Adj(delay, start=5s, step=1s)`）は Core-Stateful に属する。外部条件に基づく調整ルール（行動基準に対する条件分岐）を伴う適応的 DRO のみ contingency-core に委任。操作的境界定義は §4.1.1 を参照。
 

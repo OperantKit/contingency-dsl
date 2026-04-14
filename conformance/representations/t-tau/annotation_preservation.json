@@ -1,0 +1,200 @@
+[
+  {
+    "id": "annot_forward_single",
+    "law": "forward_preservation",
+    "description": "Single annotation preserved through to_ttau",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 10.0,
+      "time_unit": "s",
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" }
+      ]
+    },
+    "expected_ttau": {
+      "T": 10.0,
+      "tau": 10.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" }
+      ]
+    }
+  },
+  {
+    "id": "annot_forward_multiple",
+    "law": "forward_preservation",
+    "description": "Multiple annotations preserved through to_ttau",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 10.0,
+      "time_unit": "s",
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" },
+        { "type": "Annotation", "keyword": "clock", "params": { "unit": "s" } }
+      ]
+    },
+    "expected_ttau": {
+      "T": 10.0,
+      "tau": 10.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" },
+        { "type": "Annotation", "keyword": "clock", "params": { "unit": "s" } }
+      ]
+    }
+  },
+  {
+    "id": "annot_forward_no_annotations",
+    "law": "forward_preservation",
+    "description": "Unannotated schedule: absent annotations remain absent",
+    "input": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "I",
+      "value": 30.0,
+      "time_unit": "s"
+    },
+    "expected_ttau": {
+      "T": 30.0,
+      "tau": 30.0
+    },
+    "note": "No annotations field in input → no annotations field in output"
+  },
+  {
+    "id": "annot_forward_vi_with_params",
+    "law": "forward_preservation",
+    "description": "Annotation with named params preserved through VI → T-tau",
+    "input": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "I",
+      "value": 60.0,
+      "time_unit": "s",
+      "annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus",
+          "positional": "tone",
+          "params": { "frequency": 1000, "duration": 0.5 }
+        }
+      ]
+    },
+    "expected_ttau": {
+      "T": 60.0,
+      "tau": 60.0,
+      "annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus",
+          "positional": "tone",
+          "params": { "frequency": 1000, "duration": 0.5 }
+        }
+      ]
+    }
+  },
+  {
+    "id": "annot_backward_single",
+    "law": "backward_preservation",
+    "description": "Single annotation preserved through from_ttau",
+    "input_ttau": {
+      "T": 30.0,
+      "tau": 30.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "sucrose" }
+      ]
+    },
+    "disambig": { "domain": "I", "distribution": "F" },
+    "expected": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 30.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "sucrose" }
+      ]
+    }
+  },
+  {
+    "id": "annot_backward_multiple",
+    "law": "backward_preservation",
+    "description": "Multiple annotations preserved through from_ttau",
+    "input_ttau": {
+      "T": 20.0,
+      "tau": 20.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" },
+        { "type": "Annotation", "keyword": "subject", "params": { "species": "rat", "strain": "Long-Evans" } }
+      ]
+    },
+    "disambig": { "domain": "T", "distribution": "V" },
+    "expected": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "T",
+      "value": 20.0,
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" },
+        { "type": "Annotation", "keyword": "subject", "params": { "species": "rat", "strain": "Long-Evans" } }
+      ]
+    }
+  },
+  {
+    "id": "annot_roundtrip_fi",
+    "law": "roundtrip_preservation",
+    "description": "FI(10) with annotations: full roundtrip preserves all annotations",
+    "input": {
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 10.0,
+      "time_unit": "s",
+      "annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "pellet" },
+        { "type": "Annotation", "keyword": "clock", "params": { "unit": "s" } }
+      ]
+    },
+    "disambig": { "domain": "I", "distribution": "F" },
+    "expected_annotations_identical": true
+  },
+  {
+    "id": "annot_roundtrip_vt",
+    "law": "roundtrip_preservation",
+    "description": "VT(45) with complex annotation: roundtrip preserves annotation structure",
+    "input": {
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "T",
+      "value": 45.0,
+      "time_unit": "s",
+      "annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus",
+          "positional": "light",
+          "params": { "color": "green", "intensity": 80 }
+        },
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "water" },
+        { "type": "Annotation", "keyword": "deprivation", "params": { "hours": 23 } }
+      ]
+    },
+    "disambig": { "domain": "T", "distribution": "V" },
+    "expected_annotations_identical": true
+  },
+  {
+    "id": "annot_roundtrip_empty",
+    "law": "roundtrip_preservation",
+    "description": "Unannotated schedule: roundtrip does not introduce annotations",
+    "input": {
+      "type": "Atomic",
+      "dist": "R",
+      "domain": "I",
+      "value": 20.0,
+      "time_unit": "s"
+    },
+    "disambig": { "domain": "I", "distribution": "R" },
+    "expected_annotations_identical": true,
+    "note": "No annotations in → no annotations out. Implementations must not inject annotations during conversion."
+  }
+]

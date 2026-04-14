@@ -1,0 +1,326 @@
+[
+  {
+    "id": "apparatus_chamber_minimal",
+    "description": "@chamber with positional manufacturer only",
+    "input": "@chamber(\"med-associates\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "med-associates"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "apparatus_chamber_with_model",
+    "description": "@chamber with manufacturer and model number",
+    "input": "@chamber(\"med-associates\", model=\"ENV-007\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "med-associates",
+          "params": {
+            "model": "ENV-007"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Med Associates ENV-007 standard modular test chamber — the most common JEAB apparatus."
+  },
+  {
+    "id": "apparatus_operandum_program_level",
+    "description": "@operandum at program level (apparatus declaration)",
+    "input": "@operandum(\"left_lever\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "left_lever"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Program-level @operandum: declares a physical device. No behavioral assignment."
+  },
+  {
+    "id": "apparatus_operandum_full_declaration",
+    "description": "@operandum at program level with full physical specifications",
+    "input": "@operandum(\"left_lever\", model=\"ENV-112CM\", force=\"0.25N\", position=\"front_wall_left\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "left_lever",
+          "params": {
+            "model": "ENV-112CM",
+            "force": "0.25N",
+            "position": "front_wall_left"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Full JEAB Apparatus declaration: retractable lever ENV-112CM, 0.25N force, mounted left on front wall."
+  },
+  {
+    "id": "apparatus_operandum_schedule_level",
+    "description": "@operandum at schedule level (procedure reference to declared device)",
+    "input": "@operandum(\"left_lever\")\n@operandum(\"right_lever\")\n\nConc(VI30s, VI60s)\n  @operandum(\"left_lever\", component=1)\n  @operandum(\"right_lever\", component=2)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "left_lever"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "right_lever"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Dual scope: program-level declarations (Apparatus section) + schedule-level references (Procedure section). Schedule-level @operandum must reference a program-level declared name."
+  },
+  {
+    "id": "apparatus_interface_minimal",
+    "description": "@interface with positional protocol string",
+    "input": "@interface(\"MED-PC\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "interface",
+          "positional": "MED-PC"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "apparatus_interface_with_port",
+    "description": "@interface with protocol and serial port",
+    "input": "@interface(\"serial\", port=\"/dev/ttyUSB0\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "interface",
+          "positional": "serial",
+          "params": {
+            "port": "/dev/ttyUSB0"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Serial interface to hardware. Relevant for HIL (Hardware-in-the-Loop) setups."
+  },
+  {
+    "id": "apparatus_hardware_positional",
+    "description": "@hardware with positional backend name",
+    "input": "@hardware(\"med-associates\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "med-associates"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Presence of @hardware implies physical apparatus. Omission means virtual/simulation mode."
+  },
+  {
+    "id": "apparatus_hw_alias",
+    "description": "@hw is an alias for @hardware",
+    "input": "@hw(\"arduino\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "arduino",
+          "label": "hw"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Alias: @hw collapses to keyword=hardware. label preserves source form."
+  },
+  {
+    "id": "apparatus_complete_preamble",
+    "description": "Complete apparatus-annotator preamble for a two-lever concurrent study",
+    "input": "@chamber(\"med-associates\", model=\"ENV-007\")\n@operandum(\"left_lever\", model=\"ENV-112CM\", force=\"0.25N\", position=\"front_wall_left\")\n@operandum(\"right_lever\", model=\"ENV-112CM\", force=\"0.25N\", position=\"front_wall_right\")\n@interface(\"MED-PC\")\n@hardware(\"med-associates\")\n\nCOD = 2s\n\nConc(VI30s, VI60s)\n  @operandum(\"left_lever\", component=1)\n  @operandum(\"right_lever\", component=2)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "med-associates",
+          "params": {
+            "model": "ENV-007"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "left_lever",
+          "params": {
+            "model": "ENV-112CM",
+            "force": "0.25N",
+            "position": "front_wall_left"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "operandum",
+          "positional": "right_lever",
+          "params": {
+            "model": "ENV-112CM",
+            "force": "0.25N",
+            "position": "front_wall_right"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "interface",
+          "positional": "MED-PC"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "med-associates"
+        }
+      ],
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "COD",
+          "value": 2.0,
+          "time_unit": "s"
+        }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ]
+      }
+    },
+    "_note": "Canonical JEAB Apparatus section for Conc VI VI with two-lever setup. Program-level declarations (physical specs), schedule-level references (behavioral assignment). COD = 2s standard changeover delay."
+  }
+]

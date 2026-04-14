@@ -1,0 +1,291 @@
+[
+  {
+    "id": "subjects_species_only",
+    "description": "@species with positional string",
+    "input": "@species(\"rat\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "rat"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "subjects_species_pigeon",
+    "description": "@species with pigeon (Columba livia)",
+    "input": "@species(\"pigeon\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "pigeon"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Pigeon (Columba livia) — the canonical JEAB subject species alongside rat."
+  },
+  {
+    "id": "subjects_strain_only",
+    "description": "@strain with positional string",
+    "input": "@strain(\"Sprague-Dawley\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "strain",
+          "positional": "Sprague-Dawley"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "subjects_deprivation_food",
+    "description": "@deprivation with food deprivation (establishing operation)",
+    "input": "@deprivation(hours=23, target=\"food\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 23,
+            "target": "food"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Standard 23-hour food deprivation establishing operation."
+  },
+  {
+    "id": "subjects_deprivation_water",
+    "description": "@deprivation with water deprivation",
+    "input": "@deprivation(hours=22, target=\"water\")\n\nVI60s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 22,
+            "target": "water"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "subjects_history_naive",
+    "description": "@history with experimentally naive subjects",
+    "input": "@history(\"naive\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "history",
+          "positional": "naive"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "subjects_history_experienced",
+    "description": "@history with experienced subjects",
+    "input": "@history(\"experienced: 6 months lever-press training\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "history",
+          "positional": "experienced: 6 months lever-press training"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "subjects_n_basic",
+    "description": "@n with integer subject count",
+    "input": "@n(6)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "n",
+          "positional": 6
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "subjects_complete_preamble",
+    "description": "Complete subjects-annotator preamble (all 5 keywords)",
+    "input": "@species(\"rat\")\n@strain(\"Long-Evans\")\n@deprivation(hours=23, target=\"food\")\n@history(\"naive\")\n@n(8)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "rat"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "strain",
+          "positional": "Long-Evans"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 23,
+            "target": "food"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "history",
+          "positional": "naive"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "n",
+          "positional": 8
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Canonical JEAB Subjects section: species, strain, deprivation (establishing operation), experimental history, and group size."
+  },
+  {
+    "id": "subjects_zebrafish",
+    "description": "Subjects preamble for zebrafish (Danio rerio) study",
+    "input": "@species(\"zebrafish\")\n@strain(\"AB\")\n@deprivation(hours=24, target=\"food\")\n@history(\"naive\")\n@n(12)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "zebrafish"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "strain",
+          "positional": "AB"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 24,
+            "target": "food"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "history",
+          "positional": "naive"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "n",
+          "positional": 12
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "Zebrafish (Danio rerio, AB strain) — increasingly used in operant research."
+  }
+]

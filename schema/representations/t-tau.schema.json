@@ -88,6 +88,28 @@
     ]
   },
 
+  "annotation_preservation": {
+    "description": "Functor law: representation transforms preserve annotations (DESIGN.md §5).",
+    "laws": [
+      {
+        "name": "forward_preservation",
+        "property": "to_ttau(S).annotations == S.annotations",
+        "description": "Annotations on the input schedule appear unchanged on the T-tau output."
+      },
+      {
+        "name": "backward_preservation",
+        "property": "from_ttau(R, domain, dist).annotations == R.annotations",
+        "description": "Annotations on the T-tau representation appear unchanged on the lattice output."
+      },
+      {
+        "name": "roundtrip_preservation",
+        "property": "from_ttau(to_ttau(S), domain, dist).annotations == S.annotations",
+        "description": "Annotations survive a full round-trip without modification."
+      }
+    ],
+    "conformance": "conformance/representations/t-tau/annotation_preservation.json"
+  },
+
   "roundtrip": {
     "description": "Identity property for lossless round-trips.",
     "property": "from_ttau(to_ttau(S), domain=S.domain, distribution=S.dist) == S",

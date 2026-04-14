@@ -263,10 +263,11 @@
         "modifier": { "const": "PR" },
         "pr_step": {
           "type": "string",
-          "enum": ["hodos", "exponential", "linear"]
+          "enum": ["hodos", "exponential", "linear", "geometric"]
         },
         "pr_start": { "type": "integer", "minimum": 1 },
-        "pr_increment": { "type": "integer", "minimum": 1 }
+        "pr_increment": { "type": "integer", "minimum": 1 },
+        "pr_ratio": { "type": "number", "exclusiveMinimum": 1 }
       },
       "required": ["type", "modifier", "pr_step"],
       "additionalProperties": false

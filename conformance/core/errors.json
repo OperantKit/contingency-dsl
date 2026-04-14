@@ -189,6 +189,15 @@
     }
   },
   {
+    "id": "error_reserved_pr_step_geometric",
+    "description": "Reserved word 'geometric' (PR step function) cannot be used as identifier",
+    "input": "let geometric = FR5\ngeometric",
+    "error": {
+      "type": "ParseError",
+      "code": "RESERVED_WORD"
+    }
+  },
+  {
     "id": "error_reserved_pr_param_increment",
     "description": "Reserved word 'increment' (PR parameter) cannot be used as identifier",
     "input": "let increment = FR5\nincrement",
@@ -215,6 +224,47 @@
       "code": "INVALID_SECOND_ORDER_OVERALL"
     }
   },
+
+  {
+    "_comment": "=== Second-order unit: compound inner rejected (constraint §5, v1.0 freeze) ==="
+  },
+  {
+    "id": "error_second_order_chain_unit",
+    "description": "Chain as second-order unit is not allowed (constraint §5: simple schedules only)",
+    "input": "FR5(Chain(FR3, FI10))",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_SECOND_ORDER_UNIT"
+    }
+  },
+  {
+    "id": "error_second_order_tand_unit",
+    "description": "Tand as second-order unit is not allowed (constraint §5)",
+    "input": "FI120(Tand(FR5, FI30))",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_SECOND_ORDER_UNIT"
+    }
+  },
+  {
+    "id": "error_second_order_conc_unit",
+    "description": "Conc as second-order unit is not allowed (constraint §5)",
+    "input": "VI60(Conc(FR5, FI30))",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_SECOND_ORDER_UNIT"
+    }
+  },
+  {
+    "id": "error_second_order_mult_unit",
+    "description": "Mult as second-order unit is not allowed (constraint §5)",
+    "input": "FR10(Mult(FR5, EXT))",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_SECOND_ORDER_UNIT"
+    }
+  },
+
   {
     "id": "error_frco_on_tand",
     "description": "FRCO keyword argument is only valid on Conc combinator",

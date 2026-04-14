@@ -126,7 +126,8 @@ Conj(Lag 1, FR 3)                      -- varied AND 3 responses per reinforcer
 ```
 PR(hodos)                       -- Hodos (1961) step function
 PR(linear, start=1, increment=5) -- Linear: 1, 6, 11, 16, ...
-PR(exponential)                 -- Exponential growth
+PR(exponential)                 -- Exponential: Richardson & Roberts (1996)
+PR(geometric, start=1, ratio=2) -- Geometric: 1, 2, 4, 8, 16, ...
 ```
 
 ### Percentile Schedule (Core-Stateful)

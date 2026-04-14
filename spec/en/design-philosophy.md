@@ -357,8 +357,9 @@ basis of the §2.1 disciplinary-establishment criteria. The remaining
 candidate:
 
 - `conjugate-extension` — Continuous reinforcement procedures in the Rovee-Collier tradition (admission criterion E2 not yet satisfied)
+- `yoked-extension` — Yoked control procedures (Church, 1964). Requires cross-subject reinforcement parameter referencing, which exceeds the single-program scope of Core. To be addressed via a multi-subject extension layer such as social-annotator.
 
-This candidate may be added after the v1.0 Core freeze and will follow
+These candidates may be added after the v1.0 Core freeze and will follow
 the additive extension procedure described in §8.1.
 
 ## 6. Implementation Language Strategy
@@ -447,6 +448,7 @@ When a breaking change is judged unavoidable:
 This document is the superordinate document that states the "why" of
 design and sits above the following spec documents:
 
+- [evaluation-criteria.md](evaluation-criteria.md) — Six axes for evaluating design decisions (derived from this document)
 - [grammar.ebnf](../../grammar.ebnf) — Core grammar
 - [ast-schema.json](../../ast-schema.json) — Abstract syntax tree schema
 - [annotation-design.md](annotation-design.md) — Annotation boundary principles and the AnnotationModule Protocol

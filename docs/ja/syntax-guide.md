@@ -124,7 +124,8 @@ Conj(Lag 1, FR 3)                      -- 変動的かつ 3 反応ごとに強�
 ```
 PR(hodos)                       -- Hodos (1961) ステップ関数
 PR(linear, start=1, increment=5) -- 線形: 1, 6, 11, 16, ...
-PR(exponential)                 -- 指数的増加
+PR(exponential)                 -- 指数関数: Richardson & Roberts (1996)
+PR(geometric, start=1, ratio=2) -- 幾何級数: 1, 2, 4, 8, 16, ...
 ```
 
 ### Percentile Schedule（Core-Stateful）

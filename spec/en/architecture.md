@@ -304,7 +304,7 @@ These properties are decidable by syntax tree traversal. In a Turing-complete la
 
 ## 4.6 Controlled Extension Points
 
-- **PR step functions**: Enumerated within the DSL (`hodos`, `linear`, `exponential`). Arbitrary functions available only via the Python API.
+- **PR step functions**: Enumerated within the DSL (`hodos`, `linear`, `exponential`, `geometric`). Arbitrary functions available only via the Python API.
 - **Fleshler-Hoffman generation**: `seed` parameter for deterministic generation. Runtime randomness is the engine's responsibility.
 - **DR thresholds**: Scalar values only in Core. Fixed step-function adaptation (e.g., `Adj(delay, start=5s, step=1s)`) belongs in Core-Stateful. Only adaptive DRO with externally-conditioned adjustment rules (conditional branching on behavioral criteria) is delegated to contingency-core. See §4.1.1 for the operational boundary definition.
 

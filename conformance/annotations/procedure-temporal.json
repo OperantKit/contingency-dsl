@@ -1,0 +1,231 @@
+[
+  {
+    "id": "temporal_clock_seconds",
+    "description": "@clock with unit=s (seconds)",
+    "input": "@clock(unit=\"s\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "s"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "temporal_clock_milliseconds",
+    "description": "@clock with unit=ms (milliseconds)",
+    "input": "@clock(unit=\"ms\")\n\nFI500ms",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "ms"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 500.0,
+        "time_unit": "ms"
+      }
+    },
+    "_note": "Millisecond clock for high-precision timing studies (e.g., temporal bisection)."
+  },
+  {
+    "id": "temporal_clock_minutes",
+    "description": "@clock with unit=min (minutes)",
+    "input": "@clock(unit=\"min\")\n\nFI5min",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "min"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 5.0,
+        "time_unit": "min"
+      }
+    }
+  },
+  {
+    "id": "temporal_warmup_basic",
+    "description": "@warmup with duration in seconds",
+    "input": "@warmup(duration=300)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "warmup",
+          "params": {
+            "duration": 300
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "300s (5 min) warmup period before schedule activation."
+  },
+  {
+    "id": "temporal_algorithm_fleshler_hoffman",
+    "description": "@algorithm specifying Fleshler-Hoffman (1962) value generation",
+    "input": "@algorithm(\"fleshler-hoffman\", n=12)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "fleshler-hoffman",
+          "params": {
+            "n": 12
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Fleshler & Hoffman (1962) algorithm with N=12 series length. The progression generates N intervals with a constant-probability distribution."
+  },
+  {
+    "id": "temporal_algorithm_fleshler_hoffman_with_seed",
+    "description": "@algorithm with Fleshler-Hoffman and random seed for reproducibility",
+    "input": "@algorithm(\"fleshler-hoffman\", n=20, seed=42)\n\nVI60s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "fleshler-hoffman",
+          "params": {
+            "n": 20,
+            "seed": 42
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "N=20 was discussed by Fleshler & Hoffman (1962). seed=42 ensures exact reproducibility across runs."
+  },
+  {
+    "id": "temporal_algorithm_arithmetic",
+    "description": "@algorithm with arithmetic (equal-step) value generation",
+    "input": "@algorithm(\"arithmetic\")\n\nVR20",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "arithmetic"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "R",
+        "value": 20.0
+      }
+    },
+    "_note": "Arithmetic (evenly-spaced) series for VR. Simple alternative to Fleshler-Hoffman."
+  },
+  {
+    "id": "temporal_complete_preamble",
+    "description": "Complete procedure-temporal preamble with clock, warmup, and algorithm",
+    "input": "@clock(unit=\"s\")\n@warmup(duration=300)\n@algorithm(\"fleshler-hoffman\", n=12, seed=42)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "s"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "warmup",
+          "params": {
+            "duration": 300
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "fleshler-hoffman",
+          "params": {
+            "n": 12,
+            "seed": 42
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "_note": "Complete temporal preamble for a standard VI experiment: second-resolution clock, 5-minute warmup, Fleshler-Hoffman N=12 series."
+  }
+]

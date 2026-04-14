@@ -316,6 +316,7 @@ Percentile および Adjusting は §2.1 の学派確立基準充足により Co
 昇格した。残る候補:
 
 - `conjugate-extension` — Rovee-Collier 系の連続強化手続き（昇格基準 E2 未充足）
+- `yoked-extension` — Yoked 統制手続き（Church, 1964）。被験体間の強化パラメータ参照を要するため、単一プログラムスコープの Core では表現できない。social-annotator 等の multi-subject 拡張層で対応する。
 
 v1.0 Core 凍結後の追加候補であり、§8.1 の additive extension 手順に従って追加する。
 
@@ -391,6 +392,7 @@ Core の安定性は経験的観察に基づくものであり、絶対的な保
 
 本文書は「設計の *なぜ*」を述べる上位文書であり、以下の spec 群の上位に位置する:
 
+- [evaluation-criteria.md](evaluation-criteria.md) — 設計判断を評価する 6 軸（本文書から導出）
 - [grammar.ebnf](../../grammar.ebnf) — Core 文法
 - [ast-schema.json](../../ast-schema.json) — 抽象構文木のスキーマ
 - [annotation-design.md](annotation-design.md) — Annotation 境界原則と AnnotationModule Protocol

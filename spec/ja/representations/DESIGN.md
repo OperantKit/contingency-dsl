@@ -95,7 +95,79 @@ approximate_ttau(FR(5), irt=2.0)
 
 ---
 
-## 5. ディレクトリ構造
+## 5. Annotation 保存則 (Functor Law)
+
+### 原則: representation 変換は annotation を保存する
+
+representation は座標変換であり、annotation は直交的メタデータである（§1）。
+したがって、すべての representation 変換 `T: Lattice → R` について
+**annotation は変換を越えて保存される**ことを公理とする。
+
+### 形式的定義
+
+任意の representation 変換 `forward` / `backward` について、
+以下の 2 つの不変条件（functor law）が成り立たなければならない:
+
+```
+Law 1 (Annotation Preservation):
+  forward(S).annotations == S.annotations
+  backward(R).annotations == R.annotations
+
+Law 2 (Roundtrip Identity — §2 条件 4 の強化):
+  backward(forward(S), disambig).annotations == S.annotations
+```
+
+ここで `S` は annotation 付きスケジュール式、`R` は annotation 付き
+representation、`disambig` は逆変換に必要な曖昧性解消パラメータである。
+
+### 根拠
+
+1. **annotation はコアの意味論を変えない**（annotations/design.md §2）。
+   座標変換もコアの意味論を変えない（§1）。両者は直交する情報層であり、
+   一方の操作が他方に影響してはならない。
+2. **情報保存の要件**（§2 条件 4）は変換のコアパラメータについて述べているが、
+   annotation は「付加された情報」であり、座標変換で破棄される正当な理由がない。
+3. 将来 response-rate × reinforcement-rate 空間などの representation を
+   追加する際、この保存則がなければ annotation の振る舞いが representation ごとに
+   不定となり、仕様の一貫性が崩壊する。
+
+### Representation 固有 annotation の扱い
+
+近似変換（§4）が付与する `IRTAssumption` のような**変換過程で生成される情報**は、
+元の annotation set とは区別される。これらは result type（`TTauApprox`）の
+構造的フィールドとして表現し、annotation set には混入させない。
+
+```
+入力:   FI 10 @reinforcer("pellet") @clock(unit="s")
+                ↓ to_ttau
+出力:   TTau(T=10, tau=10) @reinforcer("pellet") @clock(unit="s")
+                ↓ from_ttau(domain="I", distribution="F")
+復元:   FI 10 @reinforcer("pellet") @clock(unit="s")
+```
+
+近似変換の場合:
+
+```
+入力:   FR 5 @reinforcer("pellet")
+                ↓ approximate_ttau(irt=2.0)
+出力:   TTauApprox(T=10, tau=10, assumption=IRTAssumption(irt=2.0))
+            @reinforcer("pellet")
+        ↑ annotation は保存、assumption は型の構造的フィールド
+```
+
+### 検証方法
+
+annotation 保存則は conformance テストで検証する:
+
+- `conformance/representations/t-tau/annotation_preservation.json`
+  — annotation 付きスケジュールの forward / backward / roundtrip テスト
+
+新しい representation を追加する場合（§7 レビュー機構）、
+annotation 保存の conformance テストの提出を機械的検証の要件に含める。
+
+---
+
+## 6. ディレクトリ構造
 
 ```
 representations/
@@ -103,10 +175,11 @@ representations/
 └── t-tau/
     ├── README.md            # T-tau の形式的定義・変換規則
     └── conformance/         # 変換テスト（JSON）
-        ├── to_ttau.json     # 格子 → T-tau
-        ├── from_ttau.json   # T-tau → 格子
-        ├── roundtrip.json   # ラウンドトリップ検証
-        └── errors.json      # 定義域外・型エラーのテスト
+        ├── to_ttau.json                # 格子 → T-tau
+        ├── from_ttau.json              # T-tau → 格子
+        ├── roundtrip.json              # ラウンドトリップ検証
+        ├── errors.json                 # 定義域外・型エラーのテスト
+        └── annotation_preservation.json # Annotation 保存則テスト（§5）
 ```
 
 将来、別の座標系（例: response-rate × reinforcement-rate 空間）を追加する場合は、
@@ -114,7 +187,10 @@ representations/
 
 ---
 
-## 6. レビュー機構
+## 7. レビュー機構
+
+> **注:** 新しい representation を追加する場合、機械的検証に
+> annotation 保存の conformance テスト提出を含めること（§5 参照）。
 
 新しい representation を追加する場合、以下のレビューを経る:
 

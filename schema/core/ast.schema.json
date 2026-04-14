@@ -263,10 +263,11 @@
         "modifier": { "const": "PR" },
         "pr_step": {
           "type": "string",
-          "enum": ["hodos", "exponential", "linear"]
+          "enum": ["hodos", "exponential", "linear", "geometric"]
         },
         "pr_start": { "type": "integer", "minimum": 1 },
-        "pr_increment": { "type": "integer", "minimum": 1 }
+        "pr_increment": { "type": "integer", "minimum": 1 },
+        "pr_ratio": { "type": "number", "exclusiveMinimum": 1 }
       },
       "required": ["type", "modifier", "pr_step"],
       "additionalProperties": false
@@ -349,7 +350,7 @@
 
     "SecondOrder": {
       "type": "object",
-      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple schedule (v1.0). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
+      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple (atomic) schedule (v1.0, frozen — compound inner rejected as INVALID_SECOND_ORDER_UNIT). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
       "properties": {
         "type": { "const": "SecondOrder" },
         "overall": {

@@ -125,6 +125,7 @@ choice therefore determines which dependent variable is informative.
 | Hodos (1961) | Arithmetic (+constant) | Original PR; food reinforcement |
 | Richardson & Roberts (1996) | Exponential (5·e^(j/5) - 5) | Drug self-administration; reaches breakpoint within one session |
 | Linear | Arithmetic with custom start/increment | Flexible; used in human operant studies |
+| Geometric | Multiplicative (start × ratio^n) | Killeen et al. (2009); qualitatively different rate function from arithmetic |
 
 Richardson and Roberts' exponential became the *de facto* standard in
 behavioral pharmacology because it reaches breakpoint within a
@@ -169,9 +170,10 @@ a progression type:
   equals the step size. This is the natural form for educational and
   clinical contexts, consistent with `FR 10`, `VI 30-s`, and other
   `KEYWORD NUMBER` schedule notations in the DSL.
-- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, or
-  `PR(exponential)` — for full parametric control. Use this when the
-  progression does not follow the simple `ratio(n) = step × n` pattern.
+- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`,
+  `PR(exponential)`, or `PR(geometric, start=1, ratio=2)` — for full
+  parametric control. Use this when the progression does not follow the
+  simple `ratio(n) = step × n` pattern.
 
 Bare `PR` without a number or parenthesized options is a parse error.
 The researcher must always specify which progression they intend.

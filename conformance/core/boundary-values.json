@@ -361,6 +361,51 @@
   },
 
   {
+    "id": "boundary_pr_geometric_ratio_one",
+    "description": "PR(geometric, start=1, ratio=1) — ratio=1 produces constant schedule (not progressive)",
+    "input": "PR(geometric, start=1, ratio=1)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_GEOMETRIC_RATIO_NOT_PROGRESSIVE"
+    }
+  },
+  {
+    "id": "boundary_pr_geometric_ratio_below_one",
+    "description": "PR(geometric, start=10, ratio=0.5) — ratio<1 produces decreasing schedule (not progressive)",
+    "input": "PR(geometric, start=10, ratio=0.5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_GEOMETRIC_RATIO_NOT_PROGRESSIVE"
+    }
+  },
+  {
+    "id": "boundary_pr_geometric_zero_start",
+    "description": "PR(geometric, start=0, ratio=2) — zero start is invalid",
+    "input": "PR(geometric, start=0, ratio=2)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PR_NONPOSITIVE_VALUE"
+    }
+  },
+  {
+    "id": "boundary_pr_geometric_fractional_ratio",
+    "description": "PR(geometric, start=1, ratio=1.5) — fractional ratio is valid (produces 1, 1.5→2, 2.25→2, ...); rounding is runtime concern",
+    "input": "PR(geometric, start=1, ratio=1.5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "geometric",
+        "pr_start": 1,
+        "pr_ratio": 1.5
+      }
+    }
+  },
+
+  {
     "_comment": "=== Repeat boundary (Repeat(0,...) already tested as error_repeat_zero in errors.json) ==="
   },
   {

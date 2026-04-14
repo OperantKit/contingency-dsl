@@ -326,5 +326,154 @@
       "type": "SemanticError",
       "code": "IRI_WINDOW_NONPOSITIVE_BIN"
     }
+  },
+
+  {
+    "id": "error_stimulus_classes_too_few",
+    "description": "@stimulus_classes must define at least 2 classes",
+    "input": "@stimulus_classes(1)\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "STIMULUS_CLASSES_TOO_FEW"
+    }
+  },
+  {
+    "id": "error_stimulus_classes_duplicate_stimulus",
+    "description": "@stimulus_classes: same stimulus identity in multiple classes",
+    "input": "@stimulus_classes(A=[\"X1\",\"X2\"], B=[\"X2\",\"X3\"])\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "STIMULUS_CLASSES_DUPLICATE_STIMULUS"
+    },
+    "_note": "X2 appears in both class A and class B. Each stimulus must belong to exactly one class."
+  },
+  {
+    "id": "error_training_empty_relations",
+    "description": "@training relations must contain at least 1 element",
+    "input": "@training(relations=[])\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_EMPTY_RELATIONS"
+    }
+  },
+  {
+    "id": "error_training_invalid_criterion",
+    "description": "@training criterion must be 0-100",
+    "input": "@training(relations=[\"AB\"], criterion=150)\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_INVALID_CRITERION"
+    }
+  },
+  {
+    "id": "error_testing_empty_relations",
+    "description": "@testing relations must contain at least 1 element",
+    "input": "@testing(relations=[])\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TESTING_EMPTY_RELATIONS"
+    }
+  },
+  {
+    "id": "error_testing_invalid_probe_ratio",
+    "description": "@testing probe_ratio must be 0-1",
+    "input": "@testing(relations=[\"BA\"], probe_ratio=1.5)\n\nMTS(samples=3, comparisons=3)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TESTING_INVALID_PROBE_RATIO"
+    }
+  },
+  {
+    "id": "error_operandum_physical_param_at_schedule_level",
+    "description": "@operandum model/force/position params are forbidden at schedule level",
+    "input": "@operandum(\"left_lever\")\n\nFR5\n  @operandum(\"left_lever\", model=\"ENV-112CM\")",
+    "error": {
+      "type": "SemanticError",
+      "code": "SCHEDULE_ANNOTATION_PHYSICAL_PARAM"
+    },
+    "_note": "Physical specifications (model, force, position) belong in program-level declaration only."
+  },
+  {
+    "id": "error_operandum_component_at_program_level",
+    "description": "@operandum component param is forbidden at program level",
+    "input": "@operandum(\"left_lever\", component=1)\n\nConc(VI30s, VI60s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PROGRAM_ANNOTATION_COMPONENT"
+    },
+    "_note": "component index only makes sense at schedule level (behavioral assignment)."
+  },
+  {
+    "id": "error_clock_unknown_unit",
+    "description": "@clock unit must be one of: s, ms, min",
+    "input": "@clock(unit=\"hours\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "CLOCK_UNKNOWN_UNIT"
+    }
+  },
+  {
+    "id": "error_warmup_nonpositive_duration",
+    "description": "@warmup duration must be positive",
+    "input": "@warmup(duration=0)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "WARMUP_NONPOSITIVE_DURATION"
+    }
+  },
+  {
+    "id": "error_algorithm_nonpositive_n",
+    "description": "@algorithm n must be >= 1",
+    "input": "@algorithm(\"fleshler-hoffman\", n=0)\n\nVI30s",
+    "error": {
+      "type": "SemanticError",
+      "code": "ALGORITHM_NONPOSITIVE_N"
+    }
+  },
+  {
+    "id": "error_deprivation_negative_hours",
+    "description": "@deprivation hours must be non-negative",
+    "input": "@deprivation(hours=-1, target=\"food\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "DEPRIVATION_NEGATIVE_HOURS"
+    }
+  },
+  {
+    "id": "error_n_nonpositive",
+    "description": "@n must be >= 1",
+    "input": "@n(0)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "N_NONPOSITIVE"
+    }
+  },
+  {
+    "id": "error_reinforcer_unknown_type",
+    "description": "@reinforcer type must be 'unconditioned' or 'conditioned'",
+    "input": "@reinforcer(\"sucrose\", type=\"primary\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "REINFORCER_UNKNOWN_TYPE"
+    },
+    "_note": "type enum: unconditioned | conditioned. 'primary' is folk psychology — use 'unconditioned'."
+  },
+  {
+    "id": "error_reinforcer_negative_duration",
+    "description": "@reinforcer duration must be non-negative",
+    "input": "@reinforcer(\"sucrose\", duration=-1)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "REINFORCER_NEGATIVE_DURATION"
+    }
+  },
+  {
+    "id": "error_brief_negative_duration",
+    "description": "@brief duration must be non-negative",
+    "input": "FR5(FI30s)\n  @brief(\"light\", duration=-0.5)",
+    "error": {
+      "type": "SemanticError",
+      "code": "BRIEF_NEGATIVE_DURATION"
+    }
   }
 ]

@@ -65,6 +65,7 @@ omit for conceptual or pedagogical use, but flagged to encourage explicitness.
 | ~~`PR`~~ | — | **Removed in v1.0.** Bare `PR` (no number, no parens) is a ParseError. |
 | `PR n` | `PR(linear, start=n, increment=n)` | Jarmolowicz & Lattal (2010) notation. `PR 5` → FR 5, FR 10, FR 15, ... |
 | `PR(linear)` | `start=1, increment=5` | Linear default parameters |
+| `PR(geometric)` | `start=1, ratio=2` | Geometric default parameters (doubling: 1, 2, 4, 8, ...) |
 
 ## Limited Hold
 
