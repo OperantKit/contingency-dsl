@@ -184,7 +184,9 @@ bridge layer — the AST does not contain an implicit COD.
   (same priority rule as LH).
 - `COD=0s` is legal (explicit no-delay), but parsers SHOULD emit a lint
   WARNING for VI-VI concurrent schedules (Shull & Pliskoff, 1967).
-- Default behavior: symmetric, non-resetting.
+- Default behavior: symmetric, resetting (each changeover starts a fresh
+  COD timer; this follows from the standard definition — "since the last
+  changeover," Catania, 1966).
 - COD and FRCO may coexist: `Conc(VI30s, VI60s, COD=2s, FRCO=5)`.
 - **Directional COD** (Pliskoff, 1971; Williams & Bell, 1999):
   `COD(x->y)=value` specifies the COD for a specific (from, to) pair.

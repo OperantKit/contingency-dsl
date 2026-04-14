@@ -606,7 +606,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)           -- 2-s changeover delay
 Conc(VI 30-s, VI 60-s, COD=0-s)           -- explicit no-delay (control condition)
 ```
 
-**Default behavior:** Symmetric (same delay regardless of switch direction), non-resetting (switching again during active COD does not restart the timer).
+**Default behavior:** Symmetric (same delay regardless of switch direction), resetting (each changeover starts a fresh COD timer). This follows from the standard definition: reinforcement is withheld for a period "since the last changeover" (Catania, 1966), meaning each new changeover anchors a new timer.
 
 **Fixed-Ratio Changeover (FRCO):** A response-based alternative to time-based COD. FRCO requires N responses on the new operandum before reinforcement becomes available (Hunter & Davison, 1985; Pliskoff & Fetterman, 1981). FRCO and COD may coexist:
 
