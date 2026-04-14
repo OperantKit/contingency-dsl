@@ -86,6 +86,21 @@ The disciplinary-establishment criteria require:
   (E4) parametric study or theoretical integration, (E5) applied/
   translational use with human participants.
 
+**Promotion process:** To promote a schedule to Core-Stateful, follow these steps:
+
+1. **Proposal:** Submit an RFC to spec/ containing (a) the operational
+   definition of the target schedule, (b) evidence of N1–N3 + E1–E5
+   satisfaction (with citations), (c) confirmation that all parameters are
+   declarative, and (d) a proposed syntax (grammar addition).
+2. **Review:** The project owner approves the RFC. In borderline cases,
+   the eab-researcher agent verifies disciplinary-establishment criteria
+   and the pl-theorist agent verifies grammatical consistency.
+3. **Implementation:** After approval, add production rules to
+   `schema/core-stateful/grammar.ebnf`, AST nodes to ast-schema.json, and
+   update both Python and Rust parsers, following the §8.1 additive procedure.
+4. **Recording:** Add the promoted schedule to the constituents table below
+   and remove it from §5.6.
+
 **Current Core-Stateful constituents:**
 
 | Schedule | Origin | Criterion = f(?) |
@@ -323,7 +338,7 @@ Criteria for determining "Is it an annotation or a Schedule Extension?":
 | Question | Annotation | Schedule Extension |
 |---|---|---|
 | Does it alter the structure of the procedure? | No (metadata only) | Yes (new schedule constituent) |
-| Does it require dynamic computation or state maintenance? | No (static declarations only) | Often yes |
+| Does it satisfy the §2.1 disciplinary-establishment criteria? | (N/A — metadata is not a promotion candidate) | No (if satisfied, it is a Core-Stateful promotion candidate) |
 | Does it change the evaluation result of an existing Core schedule expression? | No | Yes (introduces new evaluation) |
 | Syntactic position in source | Post-fixed to expression (`FR 5 @name(...)`) | The expression form itself (`Name(...)`) |
 
