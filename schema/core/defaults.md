@@ -71,9 +71,10 @@ omit for conceptual or pedagogical use, but flagged to encourage explicitness.
 
 | Written | Behavior |
 |---------|----------|
-| No `LH` specified | No availability window (infinite hold) |
-| `LimitedHold = 10s` (program-level) | Applied individually to all leaf base_schedules |
-| `FI30 LH10` (expression-level) | Overrides program-level default for that expression |
+| No `LH` specified | No availability window (infinite hold); `limitedHold` property absent |
+| `LimitedHold = 10s` (program-level) | `limitedHold` property set on all leaf schedules (Atomic, Special, DRModifier, SecondOrder, TrialBased) |
+| `FI30 LH10` (expression-level) | `limitedHold=10` set on that schedule node; overrides program-level default |
+| `Conc(VI30, VI60) LH10` | SemanticError (`LH_ON_COMPOUND`); use per-component LH or program-level default |
 
 ## Reinforcement Delay (RD)
 

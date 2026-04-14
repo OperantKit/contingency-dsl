@@ -12,10 +12,8 @@
           "label": "FI_Training_1",
           "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
           "schedule": {
-            "type": "LimitedHold",
-            "hold_duration": 3.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 2.0, "time_unit": "s" }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 2.0, "time_unit": "s",
+            "limitedHold": 3.0, "limitedHoldUnit": "s"
           }
         },
         {
@@ -23,10 +21,8 @@
           "label": "FI_Training_2",
           "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
           "schedule": {
-            "type": "LimitedHold",
-            "hold_duration": 3.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 4.0, "time_unit": "s" }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 4.0, "time_unit": "s",
+            "limitedHold": 3.0, "limitedHoldUnit": "s"
           }
         },
         {
@@ -34,10 +30,8 @@
           "label": "FI_Training_3",
           "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
           "schedule": {
-            "type": "LimitedHold",
-            "hold_duration": 3.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 8.0, "time_unit": "s" }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 8.0, "time_unit": "s",
+            "limitedHold": 3.0, "limitedHoldUnit": "s"
           }
         },
         {
@@ -45,10 +39,8 @@
           "label": "FI_Training_4",
           "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
           "schedule": {
-            "type": "LimitedHold",
-            "hold_duration": 3.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 12.0, "time_unit": "s" }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 12.0, "time_unit": "s",
+            "limitedHold": 3.0, "limitedHoldUnit": "s"
           }
         },
         {
@@ -56,10 +48,8 @@
           "label": "FI_Training_5",
           "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
           "schedule": {
-            "type": "LimitedHold",
-            "hold_duration": 3.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 18.0, "time_unit": "s" }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 18.0, "time_unit": "s",
+            "limitedHold": 3.0, "limitedHoldUnit": "s"
           }
         }
       ]

@@ -202,9 +202,8 @@
           "type": "Binding",
           "name": "base",
           "value": {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+            "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0,
+            "limitedHold": 10.0
           }
         }
       ],
@@ -215,9 +214,11 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "limitedHold": 10.0
       }
     }
   },

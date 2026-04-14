@@ -219,7 +219,7 @@ A GoNoGo trial is a finite-state machine with 4 states:
          ▼                                      │
     ┌──────────┐                                │
     │ STIMULUS │  ← SD or SΔ presented          │
-    └──────────┘    response_window starts       │
+    └──────────┘    responseWindow starts       │
          │                                      │
     ┌────┴────┐                                 │
     │         │                                 │
@@ -273,10 +273,10 @@ A GoNoGo trial is parameterized by:
 
 ```
 GoNoGo_params = {
-  response_window: ℝ⁺ × TimeUnit  -- duration of response opportunity
+  responseWindow: ℝ⁺ × TimeUnit  -- duration of response opportunity
   consequence:     ScheduleExpr    -- hit consequence
   incorrect:       ScheduleExpr    -- error consequence (default: EXT)
-  false_alarm:     ScheduleExpr    -- NoGo error consequence (default: = incorrect)
+  falseAlarm:     ScheduleExpr    -- NoGo error consequence (default: = incorrect)
   iti:             ℝ⁺ × TimeUnit   -- inter-trial interval
 }
 ```
@@ -302,7 +302,7 @@ and response occurrence `r ∈ {true, false}`, the outcome function is:
 outcome(t, r) =
   (Go,   true)  → HIT               → execute consequence
   (Go,   false) → MISS              → execute incorrect
-  (NoGo, true)  → FALSE_ALARM       → execute false_alarm
+  (NoGo, true)  → FALSE_ALARM       → execute falseAlarm
   (NoGo, false) → CORRECT_REJECTION → EXT (no programmed consequence)
 ```
 
@@ -319,7 +319,7 @@ the SΔ — there is no response to reinforce. Reinforcing correct
 rejections would require a different contingency (e.g., DRO within
 trials), which is a distinct procedure reserved for future extension.
 
-The `false_alarm` parameter allows the common variant where false
+The `falseAlarm` parameter allows the common variant where false
 alarms receive a different consequence from misses — typically a
 timeout (Nevin, 1969). This models the signal detection theory
 arrangement where response bias is manipulated by differential
@@ -343,19 +343,19 @@ successive discrimination, `Mult(schedule, EXT)` for free-operant
 successive discrimination. This follows the response opportunity
 axis established in §1.
 
-### 3A.6 The response_window Parameter
+### 3A.6 The responseWindow Parameter
 
-The `response_window` parameter is the **structural parameter** of
+The `responseWindow` parameter is the **structural parameter** of
 GoNoGo, analogous to `comparisons` in MTS:
 
 | | MTS | GoNoGo |
 |---|---|---|
-| **Structural parameter** | `comparisons` (integer ≥ 2) | `response_window` (ℝ⁺ × TimeUnit) |
+| **Structural parameter** | `comparisons` (integer ≥ 2) | `responseWindow` (ℝ⁺ × TimeUnit) |
 | **What it defines** | Number of selection alternatives | Duration of response opportunity |
 | **Without it** | No selection task | No miss/CR determination |
 | **Domain** | Dimensionless count | Temporal duration |
 
-Without `response_window`, a Go/No-Go trial has no defined endpoint
+Without `responseWindow`, a Go/No-Go trial has no defined endpoint
 for the STIMULUS state — there is no principled way to distinguish
 "has not yet responded" from "miss" or "correct rejection."
 
@@ -436,7 +436,7 @@ with trial-based schedules, while modifiers are not.
 
 ### 5.1 Core Schedules as Consequence Parameters
 
-Trial-based `consequence`, `incorrect`, and `false_alarm` parameters
+Trial-based `consequence`, `incorrect`, and `falseAlarm` parameters
 accept Core `ScheduleExpr` values. This creates an embedding:
 
 ```
@@ -447,7 +447,7 @@ MTS:
 GoNoGo:
   TrialBased.consequence : ScheduleExpr    (Core)  — hit
   TrialBased.incorrect   : ScheduleExpr    (Core)  — miss + FA fallback
-  TrialBased.false_alarm : ScheduleExpr    (Core)  — FA override
+  TrialBased.falseAlarm : ScheduleExpr    (Core)  — FA override
 ```
 
 The consequence schedule executes within the CONSEQUENCE state of the

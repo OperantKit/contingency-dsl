@@ -214,11 +214,14 @@ This distinction has concrete consequences:
 | Notation | `FI 30 LH 10` — schedule is the subject |
 | Python API | `FI(30, limitedHold=10)` or `FI(30, LH=10)` |
 | Grammar | `<schedule> ::= <base_schedule> ("LH" <value>)?` — postfix clause |
+| AST | `limitedHold` is an optional property on leaf nodes, not a wrapper node |
 | Conceptual | LH is a schedule parameter, not a schedule transformer |
 
 All notation in this specification uses the qualifier form `S LH d`. No separate denotational notation is needed — the qualifier syntax is directly used in algebraic reasoning.
 
-The grammar reflects this: `<schedule> ::= <base_schedule> ("LH" <value>)?` places LH as a postfix clause, not as a node in `<modifier>` (where DRL, DRH, DRO reside). DRL/DRH/DRO are modifiers because they wrap an inner schedule and impose a differential reinforcement criterion; LH qualifies when reinforcement *availability* expires after the schedule's own criterion is met.
+The grammar reflects this: `<schedule> ::= <base_schedule> ("LH" <value>)?` places LH as a postfix clause, not as a node in `<modifier>` (where DRL, DRH, DRO reside). In the AST, LH is represented as optional `limitedHold` / `limitedHoldUnit` properties on the qualifying schedule node — not as a separate `LimitedHold` wrapper. This aligns with the behavioral literature where LH is always an attribute of a specific schedule, not applied to compound arrangements. Applying LH to a Compound schedule is a SemanticError (`LH_ON_COMPOUND`); use per-component LH or program-level `LH = Xs` default propagation instead.
+
+DRL/DRH/DRO are modifiers because they wrap an inner schedule and impose a differential reinforcement criterion; LH qualifies when reinforcement *availability* expires after the schedule's own criterion is met.
 
 **Position in the schedule taxonomy.** LH is a **temporal availability qualifier** — a constraint on *when* the reinforcement opportunity remains available after the schedule criterion is met. It is placed in the base grammar (not an annotation) because, like DRL, it directly determines the reinforcement function that quantitative models (matching law, behavioral momentum) depend on.
 
@@ -244,7 +247,7 @@ The program-level `LH` parameter declaration (`LH = d`) specifies a default limi
 
 - `lh_default`: extracted from `Program.param_decls`. Value is `⊥` if no `LH` declaration is present.
 - `inherited_lh`: the LH default flowing top-down from the Program root through the AST.
-- `effective_lh`: the LH that actually qualifies a leaf node. If `≠ ⊥`, the semantic analyzer performs the transformation `leaf ↦ leaf LH effective_lh`.
+- `effective_lh`: the LH that actually qualifies a leaf node. If `≠ ⊥`, the semantic analyzer sets `leaf.limitedHold = effective_lh`.
 
 **Phase ordering.** LH propagation is a **semantic analysis** pass that operates on the **post-expansion** AST — after let-binding substitution and `Repeat` desugaring, but before warnings/linting. The pipeline:
 
@@ -272,12 +275,12 @@ R3  Overlay → Overlay(baseline, punisher)
     baseline.inherited_lh  = Overlay.inherited_lh
     punisher.inherited_lh  = ⊥
 
-R4  LimitedHold → inner LH d
-    inner.inherited_lh = ⊥
+R4  Leaf with explicit LH: node.limitedHold ≠ ⊥
+    node retains its explicit limitedHold (no override by inherited_lh)
 
-R5  Leaf: node ∈ {Atomic, Special, Modifier, SecondOrder}
+R5  Leaf without explicit LH: node ∈ {Atomic, Special, DRModifier, SecondOrder, TrialBased}
     node.effective_lh = node.inherited_lh
-    action: if effective_lh ≠ ⊥ then node ↦ node LH effective_lh
+    action: if effective_lh ≠ ⊥ then set node.limitedHold = effective_lh
 
 R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
     inherited_lh is discarded (no qualification, no propagation)
@@ -289,18 +292,17 @@ R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
 |---|---|---|
 | `Compound` (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate) | Pass `inherited_lh` to each component | R2 |
 | `Overlay` | Pass to baseline; punisher gets `⊥` | R3 |
-| `LimitedHold` | Block propagation (explicit overrides default) | R4 |
-| `Atomic`, `Special`, `Modifier` (DRL, DRH, DRO, PR, Lag) | Wrap with LH if `inherited_lh ≠ ⊥` | R5 |
-| `SecondOrder` | Wrap entire node as a unit; unit schedule is not individually propagated | R5 |
+| Leaf with explicit `limitedHold` | Retain explicit value (no override) | R4 |
+| `Atomic`, `Special`, `DRModifier`, `SecondOrder`, `TrialBased` | Set `limitedHold` property if `inherited_lh ≠ ⊥` | R5 |
 | `AversiveSchedule` (Sidman, DiscrimAv) | Discard `inherited_lh` | R6 |
 
 **Rationale for key design decisions.**
 
 *R3 — Overlay punisher isolation.* Program-level LH constrains reinforcement availability. The punishment contingency in an `Overlay` operates on a separate consequence class (aversive stimuli). Propagating a reinforcement-availability window to a punishment schedule would be procedurally incoherent.
 
-*R4 — Explicit LH overrides default.* Expression-level LH overrides program-level LH, analogous to expression-level COD overriding program-level COD (§2.4). The explicit LH already provides the intended temporal constraint; propagating the default further would create unintended double-gating.
+*R4 — Explicit LH overrides default.* Expression-level LH (`limitedHold` property already set) overrides program-level LH, analogous to expression-level COD overriding program-level COD (§2.4). The explicit LH already provides the intended temporal constraint; propagating the default further would create unintended double-gating.
 
-*R5 — SecondOrder as leaf.* In second-order schedules (e.g., `FR5(FI30)`), the unit schedule defines a derived response unit (Kelleher, 1966). The session-level LH constrains overall reinforcement delivery, not each unit's internal temporal dynamics. Propagating LH into the unit position would fundamentally alter the procedure — particularly in behavioral pharmacology, where the unit schedule's independent operation is often the experimental variable of interest (Goldberg & Kelleher, 1977). Wrapping the entire SecondOrder preserves the intended semantics: "once the second-order arrangement produces a reinforcement opportunity, you have *d* seconds to collect it."
+*R5 — SecondOrder as leaf.* In second-order schedules (e.g., `FR5(FI30)`), the unit schedule defines a derived response unit (Kelleher, 1966). The session-level LH constrains overall reinforcement delivery, not each unit's internal temporal dynamics. Propagating LH into the unit position would fundamentally alter the procedure — particularly in behavioral pharmacology, where the unit schedule's independent operation is often the experimental variable of interest (Goldberg & Kelleher, 1977). Setting `limitedHold` on the SecondOrder node preserves the intended semantics: "once the second-order arrangement produces a reinforcement opportunity, you have *d* seconds to collect it."
 
 *R6 — Aversive schedule isolation.* Sidman avoidance and discriminated avoidance have dedicated temporal parameters (SSI/RSI, CSUSInterval) that govern consequence timing. LH constrains *reinforcement availability*; these schedules deliver *aversive consequences* on procedurally distinct timelines (Sidman, 1953).
 
@@ -312,7 +314,7 @@ Input:    LH = 10s
           Conc(VI 30s, VI 60s)
 Resolved: Conc(VI 30s LH 10s, VI 60s LH 10s)
 ```
-Trace: R1 → R2 (×2) → R5 (×2, wrap).
+Trace: R1 → R2 (×2) → R5 (×2, set limitedHold).
 
 *Example 2 — Expression-level override.*
 ```
@@ -320,7 +322,7 @@ Input:    LH = 10s
           Conc(FR 5, VI 60s LH 20s)
 Resolved: Conc(FR 5 LH 10s, VI 60s LH 20s)
 ```
-Trace: R1 → R2 (×2). `FR 5`: R5 (qualify, + `VACUOUS_LH_RATIO` warning). `VI 60s LH 20s`: R4 (blocks propagation); explicit LH 20s retained.
+Trace: R1 → R2 (×2). `FR 5`: R5 (set limitedHold, + `VACUOUS_LH_RATIO` warning). `VI 60s LH 20s`: R4 (explicit limitedHold already set, no override).
 
 *Example 3 — SecondOrder unit isolation.*
 ```
@@ -328,7 +330,7 @@ Input:    LH = 10s
           FR 5(FI 30s)
 Resolved: FR 5(FI 30s) LH 10s
 ```
-Trace: R1 → R5 (SecondOrder treated as leaf, wrap). The unit `FI 30s` is untouched; the LH window constrains when the subject can collect reinforcement after the 5th unit completion.
+Trace: R1 → R5 (SecondOrder treated as leaf, set limitedHold). The unit `FI 30s` is untouched; the LH window constrains when the subject can collect reinforcement after the 5th unit completion.
 
 *Example 4 — Nested compound.*
 ```
@@ -336,7 +338,7 @@ Input:    LH = 10s
           Conc(Chain(FR 5, FI 30s), VI 60s)
 Resolved: Conc(Chain(FR 5 LH 10s, FI 30s LH 10s), VI 60s LH 10s)
 ```
-Trace: R1 → R2 → R2 (into Chain) → R5 (×3, wrap). Each leaf independently receives the default.
+Trace: R1 → R2 → R2 (into Chain) → R5 (×3, set limitedHold). Each leaf independently receives the default.
 
 *Example 5 — Aversive schedule isolation.*
 ```

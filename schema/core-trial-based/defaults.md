@@ -40,13 +40,13 @@ When a parameter is omitted, the following values apply.
 
 | Written | Default | Rationale |
 |---------|---------|-----------|
-| `GoNoGo(response_window=5s, consequence=CRF, ITI=10s)` | `incorrect=EXT` | Extinction is the standard consequence for errors (miss and false alarm) in Go/No-Go procedures. Non-reinforcement of errors is the procedural baseline; explicit timeout or correction requires deliberate specification. |
+| `GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)` | `incorrect=EXT` | Extinction is the standard consequence for errors (miss and false alarm) in Go/No-Go procedures. Non-reinforcement of errors is the procedural baseline; explicit timeout or correction requires deliberate specification. |
 
 ### False alarm consequence
 
 | Written | Default | Rationale |
 |---------|---------|-----------|
-| `GoNoGo(response_window=5s, consequence=CRF, ITI=10s)` | `false_alarm=EXT` (= incorrect) | By default, false alarms receive the same consequence as misses. Nevin (1969) demonstrated SDT-style arrangements where false alarms produce timeout while misses produce extinction — the `false_alarm` parameter enables this asymmetric arrangement without changing `incorrect`. |
+| `GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)` | `falseAlarm=EXT` (= incorrect) | By default, false alarms receive the same consequence as misses. Nevin (1969) demonstrated SDT-style arrangements where false alarms produce timeout while misses produce extinction — the `falseAlarm` parameter enables this asymmetric arrangement without changing `incorrect`. |
 
 ### Correct rejection (implicit, not a parameter)
 
@@ -58,13 +58,13 @@ When a parameter is omitted, the following values apply.
 
 | Condition | Code | Rationale |
 |-----------|------|-----------|
-| `false_alarm` specified but `incorrect` omitted (default `EXT`) | `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | User explicitly differentiated false alarm consequence but left miss consequence at default EXT. May be intentional (SDT-style) — warning, not error. |
+| `falseAlarm` specified but `incorrect` omitted (default `EXT`) | `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | User explicitly differentiated false alarm consequence but left miss consequence at default EXT. May be intentional (SDT-style) — warning, not error. |
 
 ### Parameters with no default (all required)
 
 | Parameter | Why no default |
 |-----------|---------------|
-| `response_window` | Duration of response opportunity varies widely across preparations (500 ms to 30+ s). No single value is standard. This is the structural parameter that defines Go/No-Go as a discrete-trial procedure. |
+| `responseWindow` | Duration of response opportunity varies widely across preparations (500 ms to 30+ s). No single value is standard. This is the structural parameter that defines Go/No-Go as a discrete-trial procedure. |
 | `consequence` | Reinforcement schedule for hits must be explicitly specified. CRF is common but not universal (e.g., intermittent reinforcement in maintenance phases). |
 | `ITI` | Inter-trial interval varies widely across preparations (1 s to 30+ s). No principled default exists. |
 

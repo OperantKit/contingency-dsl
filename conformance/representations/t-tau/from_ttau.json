@@ -119,14 +119,11 @@
       "distribution": "F"
     },
     "expected": {
-      "type": "LimitedHold",
-      "hold_duration": 30.0,
-      "inner": {
-        "type": "Atomic",
-        "dist": "F",
-        "domain": "I",
-        "value": 60.0
-      }
+      "type": "Atomic",
+      "dist": "F",
+      "domain": "I",
+      "value": 60.0,
+      "limitedHold": 30.0
     }
   },
   {
@@ -141,14 +138,11 @@
       "distribution": "V"
     },
     "expected": {
-      "type": "LimitedHold",
-      "hold_duration": 45.0,
-      "inner": {
-        "type": "Atomic",
-        "dist": "V",
-        "domain": "T",
-        "value": 90.0
-      }
+      "type": "Atomic",
+      "dist": "V",
+      "domain": "T",
+      "value": 90.0,
+      "limitedHold": 45.0
     }
   },
   {

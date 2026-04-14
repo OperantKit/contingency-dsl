@@ -167,11 +167,14 @@ S LH h
 | 記法 | `FI 30 LH 10` — スケジュールが主語 |
 | Python API | `FI(30, limitedHold=10)` or `FI(30, LH=10)` |
 | 文法 | `<schedule> ::= <base_schedule> ("LH" <value>)?` — 後置節 |
+| AST | `limitedHold` は葉ノードの optional プロパティ（ラッパーノードではない） |
 | 概念 | LH はスケジュールパラメータであり、スケジュール変換子ではない |
 
 代数的推論を含め、本仕様では一貫して qualifier 形式 `S LH d` を使用する。
 
-文法はこれを反映している: `<schedule> ::= <base_schedule> ("LH" <value>)?` は LH を後置節として配置し、`<modifier>`（DRL, DRH, DRO が属する）には含めない。DRL/DRH/DRO は内部スケジュールを包んで差異強化基準を課す modifier であるのに対し、LH はスケジュール固有の要件充足後の強化*利用可能性*の失効を修飾する qualifier である。
+文法はこれを反映している: `<schedule> ::= <base_schedule> ("LH" <value>)?` は LH を後置節として配置し、`<modifier>`（DRL, DRH, DRO が属する）には含めない。AST では、LH は修飾対象のスケジュールノードの optional `limitedHold` / `limitedHoldUnit` プロパティとして表現される — 独立した `LimitedHold` ラッパーノードではない。これは行動分析の文献で LH が常に個別スケジュールの属性として記述され、複合スケジュール全体に適用されない点と整合する。Compound スケジュールへの LH 適用は SemanticError（`LH_ON_COMPOUND`）。代わりにコンポーネント個別の LH またはプログラムレベル `LH = Xs` デフォルト伝播を使用する。
+
+DRL/DRH/DRO は内部スケジュールを包んで差異強化基準を課す modifier であるのに対し、LH はスケジュール固有の要件充足後の強化*利用可能性*の失効を修飾する qualifier である。
 
 **状態機械:**
 
@@ -281,12 +284,12 @@ R3  Overlay → Overlay(baseline, punisher)
     baseline.inherited_lh  = Overlay.inherited_lh
     punisher.inherited_lh  = ⊥
 
-R4  LimitedHold → inner LH d
-    inner.inherited_lh = ⊥
+R4  明示的 LH を持つ葉ノード: node.limitedHold ≠ ⊥
+    node は明示的な limitedHold を保持（inherited_lh で上書きしない）
 
-R5  葉ノード: node ∈ {Atomic, Special, Modifier, SecondOrder}
+R5  明示的 LH を持たない葉ノード: node ∈ {Atomic, Special, DRModifier, SecondOrder, TrialBased}
     node.effective_lh = node.inherited_lh
-    action: effective_lh ≠ ⊥ ならば node ↦ node LH effective_lh
+    action: effective_lh ≠ ⊥ ならば node.limitedHold = effective_lh をセット
 
 R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
     inherited_lh は破棄（ラッピングも伝播もなし）
@@ -298,9 +301,8 @@ R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
 |---|---|---|
 | `Compound` (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Interpolate) | `inherited_lh` を各成分に渡す | R2 |
 | `Overlay` | ベースラインにのみ渡す; 罰子は `⊥` | R3 |
-| `LimitedHold` | 伝播を遮断（明示的 LH がデフォルトに優先） | R4 |
-| `Atomic`, `Special`, `Modifier` (DRL, DRH, DRO, PR, Lag) | `inherited_lh ≠ ⊥` なら LH でラップ | R5 |
-| `SecondOrder` | ノード全体をラップ; unit は個別に伝播しない | R5 |
+| 明示的 `limitedHold` を持つ葉ノード | 明示値を保持（デフォルトで上書きしない） | R4 |
+| `Atomic`, `Special`, `DRModifier`, `SecondOrder`, `TrialBased` | `inherited_lh ≠ ⊥` なら `limitedHold` プロパティをセット | R5 |
 | `AversiveSchedule` (Sidman, DiscrimAv) | `inherited_lh` を破棄 | R6 |
 
 **主要な設計判断の根拠.**
@@ -1178,7 +1180,7 @@ EXT は決して強化しない自明な 1 状態マシンである。CRF は FR
 
 #### 2.13.5 修飾子とラッパーの表示
 
-**LimitedHold。** `⟦S⟧ = (Σ_S, σ_S, δ_S)` とする。
+**LimitedHold（limitedHold プロパティ）。** `⟦S⟧ = (Σ_S, σ_S, δ_S)` とする。
 
 ```
 ⟦S LH d⟧ = (Σ_S × LHPhase, (σ_S, Waiting), δ)  where

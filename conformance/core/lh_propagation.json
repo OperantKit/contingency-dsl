@@ -31,18 +31,8 @@
         "type": "Compound",
         "combinator": "Conc",
         "components": [
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
-          },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" }
         ]
       }
     }
@@ -72,16 +62,13 @@
       ],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 5.0,
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
         "time_unit": "s",
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "I",
-          "value": 30.0,
-          "time_unit": "s"
-        }
+        "limitedHold": 5.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -104,12 +91,7 @@
         "combinator": "Conc",
         "components": [
           { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 20.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 20.0, "limitedHoldUnit": "s" }
         ]
       }
     },
@@ -123,18 +105,8 @@
         "type": "Compound",
         "combinator": "Conc",
         "components": [
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
-          },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 20.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0, "limitedHold": 10.0, "limitedHoldUnit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 20.0, "limitedHoldUnit": "s" }
         ]
       }
     },
@@ -167,14 +139,11 @@
       ],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "SecondOrder",
-          "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
-          "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
-        }
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" },
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -212,21 +181,13 @@
         "combinator": "Conc",
         "components": [
           {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": {
-              "type": "SecondOrder",
-              "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
-              "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
-            }
+            "type": "SecondOrder",
+            "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+            "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" },
+            "limitedHold": 10.0,
+            "limitedHoldUnit": "s"
           },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" }
         ]
       }
     }
@@ -340,12 +301,7 @@
         "type": "Compound",
         "combinator": "Overlay",
         "components": [
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" },
           { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
         ]
       }
@@ -395,26 +351,11 @@
             "type": "Compound",
             "combinator": "Chain",
             "components": [
-              {
-                "type": "LimitedHold",
-                "hold_duration": 10.0,
-                "time_unit": "s",
-                "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
-              },
-              {
-                "type": "LimitedHold",
-                "hold_duration": 10.0,
-                "time_unit": "s",
-                "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
-              }
+              { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0, "limitedHold": 10.0, "limitedHoldUnit": "s" },
+              { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" }
             ]
           },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" }
         ]
       }
     },
@@ -448,15 +389,12 @@
       ],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 8.0,
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0,
         "time_unit": "s",
-        "inner": {
-          "type": "Modifier",
-          "modifier": "DRL",
-          "value": 5.0,
-          "time_unit": "s"
-        }
+        "limitedHold": 8.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -523,15 +461,12 @@
       ],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "R",
-          "value": 5.0
-        }
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0,
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     },
     "warnings": ["VACUOUS_LH_RATIO"]
@@ -559,10 +494,10 @@
       ],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "time_unit": "s",
-        "inner": { "type": "Special", "kind": "EXT" }
+        "type": "Special",
+        "kind": "EXT",
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -602,18 +537,8 @@
         "type": "Compound",
         "combinator": "Mult",
         "components": [
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
-          },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Special", "kind": "EXT" }
-          }
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0, "limitedHold": 10.0, "limitedHoldUnit": "s" },
+          { "type": "Special", "kind": "EXT", "limitedHold": 10.0, "limitedHoldUnit": "s" }
         ],
         "params": {
           "BO": { "value": 5.0, "time_unit": "s" }
@@ -661,18 +586,8 @@
         "type": "Compound",
         "combinator": "Conc",
         "components": [
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
-          },
-          {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "time_unit": "s",
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
-          }
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s", "limitedHold": 10.0, "limitedHoldUnit": "s" }
         ]
       }
     }

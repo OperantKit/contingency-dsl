@@ -263,17 +263,14 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 30.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "AdjustingSchedule",
-          "adj_target": "delay",
-          "adj_start": { "value": 10.0, "time_unit": "s" },
-          "adj_step": { "value": 1.0, "time_unit": "s" },
-          "adj_min": null,
-          "adj_max": null
-        }
+        "type": "AdjustingSchedule",
+        "adj_target": "delay",
+        "adj_start": { "value": 10.0, "time_unit": "s" },
+        "adj_step": { "value": 1.0, "time_unit": "s" },
+        "adj_min": null,
+        "adj_max": null,
+        "limitedHold": 30.0,
+        "limitedHoldUnit": "s"
       }
     }
   },

@@ -461,19 +461,16 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "TrialBased",
-          "trial_type": "MTS",
-          "comparisons": 3,
-          "consequence": { "type": "Special", "kind": "CRF" },
-          "incorrect": { "type": "Special", "kind": "EXT" },
-          "ITI": 5.0,
-          "ITI_unit": "s",
-          "mts_type": "arbitrary"
-        }
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     }
   }

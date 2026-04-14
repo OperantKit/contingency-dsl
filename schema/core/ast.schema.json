@@ -81,13 +81,13 @@
     },
 
     "ScheduleExpr": {
-      "description": "Discriminated union of schedule expression types. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed (bindings resolved, Repeat desugared to Tand). (3) Resolved: post-expansion + LH default propagation applied (§1.6.1). Conformance tests use 'expected' for phase 1/2 and 'resolved' for phase 3.",
+      "description": "Discriminated union of schedule expression types. LimitedHold is represented as an optional property (limitedHold, limitedHoldUnit) on leaf schedule nodes (Atomic, Special, DRModifier, SecondOrder, TrialBased), not as a wrapper node. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed. (3) Resolved: post-expansion + LH default propagation applied (§1.6.1).",
       "oneOf": [
         { "$ref": "#/$defs/Atomic" },
         { "$ref": "#/$defs/Special" },
         { "$ref": "#/$defs/Compound" },
         { "$ref": "#/$defs/Modifier" },
-        { "$ref": "#/$defs/LimitedHold" },
+
         { "$ref": "#/$defs/SecondOrder" },
         { "$ref": "#/$defs/AversiveSchedule" },
         { "$ref": "#/$defs/IdentifierRef", "$comment": "Pre-expansion only. Absent in post-expansion and resolved ASTs." }
@@ -102,7 +102,9 @@
         "dist": { "$ref": "#/$defs/Distribution" },
         "domain": { "$ref": "#/$defs/Domain" },
         "value": { "type": "number", "exclusiveMinimum": 0 },
-        "time_unit": { "$ref": "#/$defs/TimeUnit" }
+        "time_unit": { "$ref": "#/$defs/TimeUnit" },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration. FI30s LH10s → limitedHold=10." },
+        "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
       "required": ["type", "dist", "domain", "value"],
       "additionalProperties": false
@@ -113,7 +115,9 @@
       "description": "Boundary schedules with no parameters: EXT (zero element) or CRF (identity = FR1).",
       "properties": {
         "type": { "const": "Special" },
-        "kind": { "type": "string", "enum": ["EXT", "CRF"] }
+        "kind": { "type": "string", "enum": ["EXT", "CRF"] },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration." },
+        "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
       "required": ["type", "kind"],
       "additionalProperties": false
@@ -249,7 +253,9 @@
         "type": { "const": "Modifier" },
         "modifier": { "type": "string", "enum": ["DRL", "DRH", "DRO"] },
         "value": { "type": "number", "exclusiveMinimum": 0 },
-        "time_unit": { "$ref": "#/$defs/TimeUnit" }
+        "time_unit": { "$ref": "#/$defs/TimeUnit" },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration. DRL3s LH8s → limitedHold=8 (Kramer & Rilling, 1970)." },
+        "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
       "required": ["type", "modifier", "value"],
       "additionalProperties": false
@@ -335,19 +341,6 @@
       "additionalProperties": false
     },
 
-    "LimitedHold": {
-      "type": "object",
-      "description": "Temporal availability window. FI30 LH10 = FI 30s with 10s hold.",
-      "properties": {
-        "type": { "const": "LimitedHold" },
-        "hold_duration": { "type": "number", "exclusiveMinimum": 0 },
-        "time_unit": { "$ref": "#/$defs/TimeUnit" },
-        "inner": { "$ref": "#/$defs/ScheduleExpr" }
-      },
-      "required": ["type", "hold_duration", "inner"],
-      "additionalProperties": false
-    },
-
     "SecondOrder": {
       "type": "object",
       "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple (atomic) schedule (v1.0, frozen — compound inner rejected as INVALID_SECOND_ORDER_UNIT). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
@@ -360,7 +353,9 @@
         "unit": {
           "description": "The inner schedule that defines the derived response unit. Each completion of this schedule counts as one unit for the overall schedule.",
           "$ref": "#/$defs/Atomic"
-        }
+        },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration for second-order schedule completion." },
+        "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
       "required": ["type", "overall", "unit"],
       "additionalProperties": false

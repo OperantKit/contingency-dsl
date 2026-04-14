@@ -8,14 +8,11 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "I",
-          "value": 30.0
-        }
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "limitedHold": 10.0
       }
     }
   },
@@ -28,14 +25,11 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 5.0,
-        "inner": {
-          "type": "Atomic",
-          "dist": "V",
-          "domain": "I",
-          "value": 60.0
-        }
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "limitedHold": 5.0
       }
     }
   },
@@ -48,13 +42,10 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 8.0,
-        "inner": {
-          "type": "Modifier",
-          "modifier": "DRL",
-          "value": 3.0
-        }
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 3.0,
+        "limitedHold": 8.0
       }
     }
   },
@@ -67,16 +58,13 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
         "time_unit": "s",
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "I",
-          "value": 30.0,
-          "time_unit": "s"
-        }
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -93,62 +81,34 @@
         "combinator": "Conc",
         "components": [
           {
-            "type": "LimitedHold",
-            "hold_duration": 5.0,
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0 }
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "limitedHold": 5.0
           },
           {
-            "type": "LimitedHold",
-            "hold_duration": 10.0,
-            "inner": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0 }
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "limitedHold": 10.0
           }
         ]
       }
     }
   },
   {
-    "id": "lh_on_chain",
-    "description": "LH applied to entire chain expression",
+    "id": "lh_on_chain_error",
+    "description": "Error: LH applied to entire Chain → LH_ON_COMPOUND",
     "input": "Chain(FR5, FI30) LH10",
-    "expected": {
-      "type": "Program",
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": {
-          "type": "Compound",
-          "combinator": "Chain",
-          "components": [
-            { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
-            { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
-          ]
-        }
-      }
-    }
+    "expected_error": "LH_ON_COMPOUND"
   },
   {
-    "id": "lh_parenthesised",
-    "description": "LH on parenthesised expression",
+    "id": "lh_on_conc_error",
+    "description": "Error: LH applied to entire Conc → LH_ON_COMPOUND",
     "input": "(Conc(VI30, VI60)) LH10",
-    "expected": {
-      "type": "Program",
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": {
-          "type": "Compound",
-          "combinator": "Conc",
-          "components": [
-            { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0 },
-            { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0 }
-          ]
-        }
-      }
-    }
+    "expected_error": "LH_ON_COMPOUND"
   },
   {
     "id": "lh_alias_param_decl",
@@ -171,41 +131,58 @@
         "domain": "I",
         "value": 30.0
       }
+    },
+    "resolved": {
+      "type": "Program",
+      "param_decls": [
+        {
+          "type": "ParamDecl",
+          "name": "LH",
+          "value": 10.0,
+          "time_unit": "s"
+        }
+      ],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
+      }
     }
   },
   {
     "id": "lh_alias_expression",
-    "description": "LimitedHold (full name alias) as expression-level modifier — same AST as LH",
+    "description": "LimitedHold (full name alias) as expression-level qualifier — same AST as LH",
     "input": "FI30 LimitedHold10",
     "expected": {
       "type": "Program",
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": {
-          "type": "Atomic",
-          "dist": "F",
-          "domain": "I",
-          "value": 30.0
-        }
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "limitedHold": 10.0
       }
     }
   },
   {
     "id": "lh_on_ext",
-    "description": "LH applied to EXT — syntactically valid per grammar (Issue #36 case 6)",
-    "_note": "Semantically vacuous: EXT never produces reinforcement, so a temporal availability window is meaningless. Future spec may classify as SemanticWarning.",
+    "description": "LH applied to EXT — syntactically valid (semantically vacuous)",
+    "_note": "EXT never produces reinforcement, so a temporal availability window is meaningless. Future spec may classify as SemanticWarning.",
     "input": "EXT LH10",
     "expected": {
       "type": "Program",
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": { "type": "Special", "kind": "EXT" }
+        "type": "Special",
+        "kind": "EXT",
+        "limitedHold": 10.0
       }
     }
   },
@@ -218,10 +195,10 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "time_unit": "s",
-        "inner": { "type": "Special", "kind": "CRF" }
+        "type": "Special",
+        "kind": "CRF",
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -234,13 +211,10 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 10.0,
-        "inner": {
-          "type": "SecondOrder",
-          "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
-          "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 }
-        }
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0 },
+        "limitedHold": 10.0
       }
     }
   }

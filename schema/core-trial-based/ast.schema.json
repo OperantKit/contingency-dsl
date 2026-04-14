@@ -47,7 +47,9 @@
           "enum": ["identity", "arbitrary"],
           "default": "arbitrary",
           "description": "Matching type. identity: physical match. arbitrary: class-based match (requires @stimulus_classes)."
-        }
+        },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window for comparison responding. MTS(...) LH10s → limitedHold=10." },
+        "limitedHoldUnit": { "$ref": "../../core/ast.schema.json#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
       "required": ["type", "trial_type", "comparisons", "consequence", "ITI", "ITI_unit"],
       "additionalProperties": false
@@ -59,14 +61,14 @@
       "properties": {
         "type": { "const": "TrialBased" },
         "trial_type": { "const": "GoNoGo" },
-        "response_window": {
+        "responseWindow": {
           "type": "number",
           "exclusiveMinimum": 0,
           "description": "Duration of response opportunity in canonical unit. Structural parameter: without it, miss and correct rejection cannot be determined."
         },
-        "response_window_unit": {
+        "responseWindowUnit": {
           "$ref": "../../core/ast.schema.json#/$defs/TimeUnit",
-          "description": "Time unit for response_window."
+          "description": "Time unit for responseWindow."
         },
         "consequence": {
           "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
@@ -76,7 +78,7 @@
           "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
           "description": "Core schedule executed on errors (miss and false alarm fallback). Default: EXT."
         },
-        "false_alarm": {
+        "falseAlarm": {
           "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
           "description": "Core schedule executed on false alarm (NoGo stimulus + response). Overrides incorrect for NoGo errors. Default: = incorrect. Nevin (1969) SDT-style asymmetric arrangement."
         },
@@ -88,9 +90,11 @@
         "ITI_unit": {
           "$ref": "../../core/ast.schema.json#/$defs/TimeUnit",
           "description": "Time unit for ITI."
-        }
+        },
+        "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window. Redundant for GoNoGo (responseWindow already constrains); triggers GONOGO_LH_REDUNDANT warning." },
+        "limitedHoldUnit": { "$ref": "../../core/ast.schema.json#/$defs/TimeUnit", "description": "Time unit for limitedHold." }
       },
-      "required": ["type", "trial_type", "response_window", "response_window_unit", "consequence", "ITI", "ITI_unit"],
+      "required": ["type", "trial_type", "responseWindow", "responseWindowUnit", "consequence", "ITI", "ITI_unit"],
       "additionalProperties": false
     }
   }

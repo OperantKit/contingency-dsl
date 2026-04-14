@@ -1,8 +1,8 @@
 [
   {
     "id": "gonogo_minimal",
-    "description": "Minimal GoNoGo — response_window, consequence, ITI only (defaults: incorrect=EXT, false_alarm=EXT)",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, ITI=10s)",
+    "description": "Minimal GoNoGo — responseWindow, consequence, ITI only (defaults: incorrect=EXT, falseAlarm=EXT)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -10,11 +10,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       }
@@ -23,7 +23,7 @@
   {
     "id": "gonogo_with_incorrect",
     "description": "GoNoGo with explicit incorrect consequence (FT 10-s timeout for both miss and false alarm)",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s, ITI=10s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, incorrect=FT10s, ITI=10s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -31,8 +31,8 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": {
           "type": "Atomic",
@@ -41,7 +41,7 @@
           "value": 10.0,
           "time_unit": "s"
         },
-        "false_alarm": {
+        "falseAlarm": {
           "type": "Atomic",
           "dist": "F",
           "domain": "T",
@@ -56,7 +56,7 @@
   {
     "id": "gonogo_sdt_style",
     "description": "SDT-style asymmetric arrangement (Nevin, 1969): false alarm → timeout, miss → EXT",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT, false_alarm=FT10s, ITI=15s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT, falseAlarm=FT10s, ITI=15s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -64,11 +64,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": {
+        "falseAlarm": {
           "type": "Atomic",
           "dist": "F",
           "domain": "T",
@@ -83,7 +83,7 @@
   {
     "id": "gonogo_fully_specified",
     "description": "Fully specified GoNoGo — all keyword arguments explicit",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT, false_alarm=FT10s, ITI=15s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT, falseAlarm=FT10s, ITI=15s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -91,11 +91,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": {
+        "falseAlarm": {
           "type": "Atomic",
           "dist": "F",
           "domain": "T",
@@ -108,9 +108,9 @@
     }
   },
   {
-    "id": "gonogo_response_window_ms",
+    "id": "gonogo_responseWindow_ms",
     "description": "GoNoGo with millisecond response window (brief stimulus preparation)",
-    "input": "GoNoGo(response_window=500ms, consequence=CRF, ITI=10s)",
+    "input": "GoNoGo(responseWindow=500ms, consequence=CRF, ITI=10s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -118,11 +118,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 500.0,
-        "response_window_unit": "ms",
+        "responseWindow": 500.0,
+        "responseWindowUnit": "ms",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       }
@@ -131,7 +131,7 @@
   {
     "id": "gonogo_iti_min",
     "description": "GoNoGo with minute-scale ITI",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, ITI=1min)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=1min)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -139,11 +139,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 1.0,
         "ITI_unit": "min"
       }
@@ -152,7 +152,7 @@
   {
     "id": "gonogo_consequence_vi",
     "description": "Intermittent reinforcement for hits (maintenance/probe phase)",
-    "input": "GoNoGo(response_window=5s, consequence=VI30s, ITI=10s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=VI30s, ITI=10s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -160,8 +160,8 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": {
           "type": "Atomic",
           "dist": "V",
@@ -170,7 +170,7 @@
           "time_unit": "s"
         },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       }
@@ -179,7 +179,7 @@
   {
     "id": "gonogo_let_binding",
     "description": "GoNoGo bound via let",
-    "input": "let trial = GoNoGo(response_window=5s, consequence=CRF, ITI=10s)\ntrial",
+    "input": "let trial = GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)\ntrial",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -190,11 +190,11 @@
           "value": {
             "type": "TrialBased",
             "trial_type": "GoNoGo",
-            "response_window": 5.0,
-            "response_window_unit": "s",
+            "responseWindow": 5.0,
+            "responseWindowUnit": "s",
             "consequence": { "type": "Special", "kind": "CRF" },
             "incorrect": { "type": "Special", "kind": "EXT" },
-            "false_alarm": { "type": "Special", "kind": "EXT" },
+            "falseAlarm": { "type": "Special", "kind": "EXT" },
             "ITI": 10.0,
             "ITI_unit": "s"
           }
@@ -209,7 +209,7 @@
   {
     "id": "gonogo_kwarg_order_independent",
     "description": "Keyword argument order does not affect AST",
-    "input": "GoNoGo(ITI=10s, consequence=CRF, response_window=5s, incorrect=EXT)",
+    "input": "GoNoGo(ITI=10s, consequence=CRF, responseWindow=5s, incorrect=EXT)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -217,11 +217,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       }
@@ -230,7 +230,7 @@
   {
     "id": "gonogo_with_annotations",
     "description": "GoNoGo with species and stimulus annotations",
-    "input": "@species(\"Rattus norvegicus\") @n(8)\nGoNoGo(response_window=5s, consequence=CRF, ITI=10s) @sd(\"tone\") @s_delta(\"light\")",
+    "input": "@species(\"Rattus norvegicus\") @n(8)\nGoNoGo(responseWindow=5s, consequence=CRF, ITI=10s) @sd(\"tone\") @s_delta(\"light\")",
     "expected": {
       "type": "Program",
       "program_annotations": [
@@ -242,11 +242,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       },
@@ -262,7 +262,7 @@
   {
     "id": "gonogo_in_mult",
     "description": "Multiple schedule: GoNoGo alternating with EXT",
-    "input": "Mult(GoNoGo(response_window=5s, consequence=CRF, ITI=10s), EXT)",
+    "input": "Mult(GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s), EXT)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -274,11 +274,11 @@
           {
             "type": "TrialBased",
             "trial_type": "GoNoGo",
-            "response_window": 5.0,
-            "response_window_unit": "s",
+            "responseWindow": 5.0,
+            "responseWindowUnit": "s",
             "consequence": { "type": "Special", "kind": "CRF" },
             "incorrect": { "type": "Special", "kind": "EXT" },
-            "false_alarm": { "type": "Special", "kind": "EXT" },
+            "falseAlarm": { "type": "Special", "kind": "EXT" },
             "ITI": 10.0,
             "ITI_unit": "s"
           },
@@ -290,7 +290,7 @@
   {
     "id": "gonogo_in_chain",
     "description": "Chained: FR5 then GoNoGo trial",
-    "input": "Chain(FR5, GoNoGo(response_window=5s, consequence=CRF, ITI=10s))",
+    "input": "Chain(FR5, GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s))",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -303,11 +303,11 @@
           {
             "type": "TrialBased",
             "trial_type": "GoNoGo",
-            "response_window": 5.0,
-            "response_window_unit": "s",
+            "responseWindow": 5.0,
+            "responseWindowUnit": "s",
             "consequence": { "type": "Special", "kind": "CRF" },
             "incorrect": { "type": "Special", "kind": "EXT" },
-            "false_alarm": { "type": "Special", "kind": "EXT" },
+            "falseAlarm": { "type": "Special", "kind": "EXT" },
             "ITI": 10.0,
             "ITI_unit": "s"
           }
@@ -318,7 +318,7 @@
   {
     "id": "gonogo_mult_training_probe",
     "description": "Multiple schedule: training GoNoGo alternating with probe GoNoGo via let bindings",
-    "input": "let training = GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT, false_alarm=FT10s, ITI=15s)\nlet probe = GoNoGo(response_window=5s, consequence=EXT, ITI=15s)\nMult(training, probe)",
+    "input": "let training = GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT, falseAlarm=FT10s, ITI=15s)\nlet probe = GoNoGo(responseWindow=5s, consequence=EXT, ITI=15s)\nMult(training, probe)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -329,11 +329,11 @@
           "value": {
             "type": "TrialBased",
             "trial_type": "GoNoGo",
-            "response_window": 5.0,
-            "response_window_unit": "s",
+            "responseWindow": 5.0,
+            "responseWindowUnit": "s",
             "consequence": { "type": "Special", "kind": "CRF" },
             "incorrect": { "type": "Special", "kind": "EXT" },
-            "false_alarm": {
+            "falseAlarm": {
               "type": "Atomic",
               "dist": "F",
               "domain": "T",
@@ -350,11 +350,11 @@
           "value": {
             "type": "TrialBased",
             "trial_type": "GoNoGo",
-            "response_window": 5.0,
-            "response_window_unit": "s",
+            "responseWindow": 5.0,
+            "responseWindowUnit": "s",
             "consequence": { "type": "Special", "kind": "EXT" },
             "incorrect": { "type": "Special", "kind": "EXT" },
-            "false_alarm": { "type": "Special", "kind": "EXT" },
+            "falseAlarm": { "type": "Special", "kind": "EXT" },
             "ITI": 15.0,
             "ITI_unit": "s"
           }
@@ -374,9 +374,9 @@
   { "_comment": "=== Boundary values ===" },
 
   {
-    "id": "gonogo_response_window_boundary_500ms",
-    "description": "Boundary: response_window=500ms triggers GONOGO_SHORT_RESPONSE_WINDOW (W1 threshold is < 500ms)",
-    "input": "GoNoGo(response_window=500ms, consequence=CRF, ITI=10s)",
+    "id": "gonogo_responseWindow_boundary_500ms",
+    "description": "Boundary: responseWindow=500ms triggers GONOGO_SHORT_RESPONSE_WINDOW (W1 threshold is < 500ms)",
+    "input": "GoNoGo(responseWindow=500ms, consequence=CRF, ITI=10s)",
     "expected_warnings": [],
     "expected": {
       "type": "Program",
@@ -385,11 +385,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 500.0,
-        "response_window_unit": "ms",
+        "responseWindow": 500.0,
+        "responseWindowUnit": "ms",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
         "ITI_unit": "s"
       }
@@ -398,7 +398,7 @@
   {
     "id": "gonogo_iti_1s_no_warning",
     "description": "Boundary: ITI=1s does NOT trigger GONOGO_SHORT_ITI (W4 threshold is < 1s)",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, ITI=1s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=1s)",
     "expected_warnings": [],
     "expected": {
       "type": "Program",
@@ -407,11 +407,11 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "GoNoGo",
-        "response_window": 5.0,
-        "response_window_unit": "s",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
-        "false_alarm": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
         "ITI": 1.0,
         "ITI_unit": "s"
       }
@@ -422,28 +422,49 @@
 
   {
     "id": "gonogo_with_limited_hold",
-    "description": "GoNoGo with LH — syntactically legal but triggers GONOGO_LH_REDUNDANT warning",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, ITI=10s) LH3s",
+    "description": "GoNoGo with LH (postfix) — syntactically legal but triggers GONOGO_LH_REDUNDANT warning",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s) LH3s",
     "expected_warnings": ["GONOGO_LH_REDUNDANT"],
     "expected": {
       "type": "Program",
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 3.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "TrialBased",
-          "trial_type": "GoNoGo",
-          "response_window": 5.0,
-          "response_window_unit": "s",
-          "consequence": { "type": "Special", "kind": "CRF" },
-          "incorrect": { "type": "Special", "kind": "EXT" },
-          "false_alarm": { "type": "Special", "kind": "EXT" },
-          "ITI": 10.0,
-          "ITI_unit": "s"
-        }
+        "type": "TrialBased",
+        "trial_type": "GoNoGo",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
+        "ITI": 10.0,
+        "ITI_unit": "s",
+        "limitedHold": 3.0,
+        "limitedHoldUnit": "s"
+      }
+    }
+  },
+  {
+    "id": "gonogo_with_limited_hold_kwarg",
+    "description": "GoNoGo with LH as keyword argument — same AST as postfix form",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s, LH=3s)",
+    "expected_warnings": ["GONOGO_LH_REDUNDANT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "GoNoGo",
+        "responseWindow": 5.0,
+        "responseWindowUnit": "s",
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "falseAlarm": { "type": "Special", "kind": "EXT" },
+        "ITI": 10.0,
+        "ITI_unit": "s",
+        "limitedHold": 3.0,
+        "limitedHoldUnit": "s"
       }
     }
   },
@@ -451,51 +472,51 @@
   { "_comment": "=== Error cases ===" },
 
   {
-    "id": "gonogo_error_response_window_zero",
-    "description": "Error: response_window=0s → GONOGO_NONPOSITIVE_RESPONSE_WINDOW",
-    "input": "GoNoGo(response_window=0s, consequence=CRF, ITI=10s)",
+    "id": "gonogo_error_responseWindow_zero",
+    "description": "Error: responseWindow=0s → GONOGO_NONPOSITIVE_RESPONSE_WINDOW",
+    "input": "GoNoGo(responseWindow=0s, consequence=CRF, ITI=10s)",
     "expected_error": "GONOGO_NONPOSITIVE_RESPONSE_WINDOW"
   },
   {
-    "id": "gonogo_error_response_window_no_unit",
-    "description": "Error: response_window=5 (no time unit) → GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED",
-    "input": "GoNoGo(response_window=5, consequence=CRF, ITI=10s)",
+    "id": "gonogo_error_responseWindow_no_unit",
+    "description": "Error: responseWindow=5 (no time unit) → GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED",
+    "input": "GoNoGo(responseWindow=5, consequence=CRF, ITI=10s)",
     "expected_error": "GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED"
   },
   {
-    "id": "gonogo_error_missing_response_window",
-    "description": "Error: response_window omitted → MISSING_GONOGO_PARAM",
+    "id": "gonogo_error_missing_responseWindow",
+    "description": "Error: responseWindow omitted → MISSING_GONOGO_PARAM",
     "input": "GoNoGo(consequence=CRF, ITI=10s)",
     "expected_error": "MISSING_GONOGO_PARAM"
   },
   {
     "id": "gonogo_error_missing_consequence",
     "description": "Error: consequence omitted → MISSING_GONOGO_PARAM",
-    "input": "GoNoGo(response_window=5s, ITI=10s)",
+    "input": "GoNoGo(responseWindow=5s, ITI=10s)",
     "expected_error": "MISSING_GONOGO_PARAM"
   },
   {
     "id": "gonogo_error_negative_iti",
     "description": "Error: ITI=-1s → GONOGO_NONPOSITIVE_ITI",
-    "input": "GoNoGo(response_window=5s, consequence=CRF, ITI=-1s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=CRF, ITI=-1s)",
     "expected_error": "GONOGO_NONPOSITIVE_ITI"
   },
   {
     "id": "gonogo_error_compound_consequence",
     "description": "Error: consequence is compound schedule → GONOGO_INVALID_CONSEQUENCE",
-    "input": "GoNoGo(response_window=5s, consequence=Conc(VI10s, VI20s), ITI=10s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=Conc(VI10s, VI20s), ITI=10s)",
     "expected_error": "GONOGO_INVALID_CONSEQUENCE"
   },
   {
     "id": "gonogo_error_recursive_consequence",
     "description": "Error: consequence is GoNoGo (recursive) → GONOGO_RECURSIVE_CONSEQUENCE",
-    "input": "GoNoGo(response_window=5s, consequence=GoNoGo(response_window=3s, consequence=CRF, ITI=5s), ITI=10s)",
+    "input": "GoNoGo(responseWindow=5s, consequence=GoNoGo(responseWindow=3s, consequence=CRF, ITI=5s), ITI=10s)",
     "expected_error": "GONOGO_RECURSIVE_CONSEQUENCE"
   },
   {
     "id": "gonogo_error_duplicate_kwarg",
-    "description": "Error: duplicate response_window → DUPLICATE_GONOGO_KW_ARG",
-    "input": "GoNoGo(response_window=5s, response_window=10s, consequence=CRF, ITI=10s)",
+    "description": "Error: duplicate responseWindow → DUPLICATE_GONOGO_KW_ARG",
+    "input": "GoNoGo(responseWindow=5s, responseWindow=10s, consequence=CRF, ITI=10s)",
     "expected_error": "DUPLICATE_GONOGO_KW_ARG"
   }
 ]

@@ -200,14 +200,11 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 30.0,
-        "time_unit": "s",
-        "inner": {
-          "type": "InterlockingSchedule",
-          "interlock_R0": 100,
-          "interlock_T": { "value": 5.0, "time_unit": "min" }
-        }
+        "type": "InterlockingSchedule",
+        "interlock_R0": 100,
+        "interlock_T": { "value": 5.0, "time_unit": "min" },
+        "limitedHold": 30.0,
+        "limitedHoldUnit": "s"
       }
     }
   },

@@ -55,11 +55,12 @@ trial_based_schedule ::= mts_schedule | gonogo_schedule
 
 mts_schedule  ::= "MTS" "(" mts_kw_arg ("," mts_kw_arg)* ")"
 
-mts_kw_arg    ::= "comparisons" "=" number
-                | "consequence" "=" schedule
-                | "incorrect"   "=" schedule
-                | "ITI"         "=" value
-                | "type"        "=" mts_type
+mts_kw_arg    ::= "comparisons"  "=" number
+                | "consequence"  "=" schedule
+                | "incorrect"    "=" schedule
+                | "ITI"          "=" value
+                | "type"         "=" mts_type
+                | ("LH" | "LimitedHold" | "limitedHold") "=" value
 
 mts_type      ::= "identity" | "arbitrary"
 
@@ -78,25 +79,25 @@ mts_type      ::= "identity" | "arbitrary"
 ; MTS's comparisons): it defines the trial's response opportunity.
 ;
 ; Syntax:
-;   GoNoGo(response_window=5s, consequence=CRF, ITI=10s)       -- minimal
-;   GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s,
+;   GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)       -- minimal
+;   GoNoGo(responseWindow=5s, consequence=CRF, incorrect=FT10s,
 ;          ITI=10s)                                              -- with incorrect
-;   GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
-;          false_alarm=FT10s, ITI=15s)                           -- SDT-style
+;   GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT,
+;          falseAlarm=FT10s, ITI=15s)                           -- SDT-style
 ;
 ; All arguments are keyword-only (no positional arguments).
 ;
 ; Keyword arguments:
-;   response_window (required): duration of response opportunity (time value)
+;   responseWindow (required): duration of response opportunity (time value)
 ;   consequence     (required): Core schedule for hit (Go + response)
 ;   incorrect       (optional): Core schedule for errors (default: EXT)
-;   false_alarm     (optional): Core schedule for NoGo errors (default: = incorrect)
+;   falseAlarm     (optional): Core schedule for NoGo errors (default: = incorrect)
 ;   ITI             (required): inter-trial interval duration (time value)
 ;
 ; LL(2) disambiguation:
 ;   Same strategy as MTS. After "GoNoGo" token, expect "(". Inside:
 ;   All arguments are keyword form: IDENT "=" value/schedule.
-;   "consequence", "incorrect", "false_alarm" are followed by a schedule
+;   "consequence", "incorrect", "falseAlarm" are followed by a schedule
 ;   expression, requiring the parser to enter schedule parsing mode.
 ;
 ; 2×2 Outcome Matrix:
@@ -107,7 +108,7 @@ mts_type      ::= "identity" | "arbitrary"
 ;
 ;   HIT               → execute consequence
 ;   MISS               → execute incorrect
-;   FALSE ALARM        → execute false_alarm (defaults to incorrect)
+;   FALSE ALARM        → execute falseAlarm (defaults to incorrect)
 ;   CORRECT REJECTION  → EXT (no programmed consequence; implicit)
 ;
 ; Skinner, B. F. (1938). The behavior of organisms: An experimental
@@ -126,11 +127,12 @@ mts_type      ::= "identity" | "arbitrary"
 
 gonogo_schedule ::= "GoNoGo" "(" gonogo_kw_arg ("," gonogo_kw_arg)* ")"
 
-gonogo_kw_arg   ::= "response_window" "=" value
-                  | "consequence"     "=" schedule
-                  | "incorrect"       "=" schedule
-                  | "false_alarm"     "=" schedule
-                  | "ITI"             "=" value
+gonogo_kw_arg   ::= "responseWindow"  "=" value
+                  | "consequence"      "=" schedule
+                  | "incorrect"        "=" schedule
+                  | "falseAlarm"       "=" schedule
+                  | "ITI"              "=" value
+                  | ("LH" | "LimitedHold" | "limitedHold") "=" value
 
 ; =====================================================================
 ; Reserved words (additive to grammar.ebnf `reserved`)
@@ -140,7 +142,7 @@ gonogo_kw_arg   ::= "response_window" "=" value
 ;                 | "MTS"
 ;                 | "GoNoGo"
 ;                 | "comparisons" | "consequence" | "incorrect"
-;                 | "response_window" | "false_alarm"
+;                 | "responseWindow" | "falseAlarm"
 ;                 | "identity" | "arbitrary"
 ;
 ; Note: "ITI" begins with uppercase, consistent with DSL conventions
@@ -152,7 +154,7 @@ gonogo_kw_arg   ::= "response_window" "=" value
 ; collide because mts_type is parsed only after the "MTS" "(" ...
 ; "type" "=" token sequence.
 ;
-; "response_window" and "false_alarm" are reserved globally — they
+; "responseWindow" and "falseAlarm" are reserved globally — they
 ; may appear in future trial-based constructs beyond GoNoGo.
 
 ; === MTS semantic constraints ===
@@ -210,19 +212,19 @@ gonogo_kw_arg   ::= "response_window" "=" value
 
 ; === GoNoGo semantic constraints ===
 ;
-; G1. response_window must be positive (> 0).
+; G1. responseWindow must be positive (> 0).
 ;     Zero or negative → SemanticError (GONOGO_NONPOSITIVE_RESPONSE_WINDOW).
 ;     Rationale: response window is the defining structural parameter.
 ;
-; G2. response_window must include a time unit (s/ms/min).
+; G2. responseWindow must include a time unit (s/ms/min).
 ;     Dimensionless → SemanticError (GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED).
-;     Rationale: response_window is a temporal duration.
+;     Rationale: responseWindow is a temporal duration.
 ;
 ; G3. consequence is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
 ;
 ; G4. ITI is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
 ;
-; G5. response_window is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
+; G5. responseWindow is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
 ;
 ; G6. ITI must be positive (> 0).
 ;     Zero or negative → SemanticError (GONOGO_NONPOSITIVE_ITI).
@@ -235,18 +237,18 @@ gonogo_kw_arg   ::= "response_window" "=" value
 ;     Compound → SemanticError (GONOGO_INVALID_CONSEQUENCE).
 ;     Rationale: trial consequence is a single atomic event.
 ;
-; G9. incorrect/false_alarm must NOT be a compound schedule.
+; G9. incorrect/falseAlarm must NOT be a compound schedule.
 ;     Same rationale as G8.
 ;
-; G10. consequence/incorrect/false_alarm must NOT be a trial_based_schedule.
+; G10. consequence/incorrect/falseAlarm must NOT be a trial_based_schedule.
 ;      Recursive nesting → SemanticError (GONOGO_RECURSIVE_CONSEQUENCE).
 ;
 ; G11. Duplicate keyword arguments → SemanticError (DUPLICATE_GONOGO_KW_ARG).
 ;
-; W1. response_window < 500ms → Linter WARNING (GONOGO_SHORT_RESPONSE_WINDOW).
+; W1. responseWindow < 500ms → Linter WARNING (GONOGO_SHORT_RESPONSE_WINDOW).
 ;     Rationale: very short windows may make discrimination impossible.
 ;
-; W2. response_window > 60s → Linter WARNING (GONOGO_LONG_RESPONSE_WINDOW).
+; W2. responseWindow > 60s → Linter WARNING (GONOGO_LONG_RESPONSE_WINDOW).
 ;     Rationale: very long windows blur the discrete-trial / free-operant boundary.
 ;
 ; W3. consequence=EXT → Linter WARNING (GONOGO_NO_REINFORCEMENT).
@@ -256,11 +258,11 @@ gonogo_kw_arg   ::= "response_window" "=" value
 ;     Same rationale as MTS W5.
 ;
 ; W5. LH applied to GoNoGo → Linter WARNING (GONOGO_LH_REDUNDANT).
-;     Rationale: response_window already constrains the response opportunity.
+;     Rationale: responseWindow already constrains the response opportunity.
 ;     LH on GoNoGo is semantically redundant.
 ;
-; W6. false_alarm specified without incorrect → Linter WARNING (GONOGO_FALSE_ALARM_WITHOUT_INCORRECT).
-;     Rationale: false_alarm overrides incorrect for NoGo errors, but miss
+; W6. falseAlarm specified without incorrect → Linter WARNING (GONOGO_FALSE_ALARM_WITHOUT_INCORRECT).
+;     Rationale: falseAlarm overrides incorrect for NoGo errors, but miss
 ;     consequence falls back to incorrect (default EXT). User should confirm intent.
 
 ; === Modifier incompatibility ===
@@ -306,16 +308,16 @@ gonogo_kw_arg   ::= "response_window" "=" value
 ; --- GoNoGo + LH ---
 ;
 ; Syntax:
-;   GoNoGo(response_window=5s, consequence=CRF, ITI=10s) LH3s
+;   GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s) LH3s
 ;
 ; Semantics:
-;   LH on GoNoGo is semantically REDUNDANT because response_window
+;   LH on GoNoGo is semantically REDUNDANT because responseWindow
 ;   already defines the response opportunity duration. LH would create
 ;   a second, inner time constraint within the response window.
 ;
-;   If LH < response_window: LH becomes the effective response window;
+;   If LH < responseWindow: LH becomes the effective response window;
 ;   the remaining time is "stimulus present but response opportunity
-;   closed" — effectively stimulus_duration ≠ response_window.
+;   closed" — effectively stimulus_duration ≠ responseWindow.
 ;
 ;   This is syntactically legal but triggers GoNoGo W5 warning.
 ;

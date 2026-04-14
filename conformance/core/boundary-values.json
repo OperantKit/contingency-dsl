@@ -251,16 +251,13 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "LimitedHold",
-        "hold_duration": 1.0,
-        "time_unit": "ms",
-        "inner": {
-          "type": "Atomic",
-          "dist": "V",
-          "domain": "I",
-          "value": 60.0,
-          "time_unit": "s"
-        }
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "limitedHold": 1.0,
+        "limitedHoldUnit": "ms"
       }
     }
   },

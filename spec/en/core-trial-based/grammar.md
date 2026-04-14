@@ -61,13 +61,13 @@ MTS procedure.
 MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s
 ```
 
-**GoNoGo + LH:** Semantically redundant — `response_window` already
+**GoNoGo + LH:** Semantically redundant — `responseWindow` already
 defines the response opportunity duration. LH on GoNoGo triggers a
-linter WARNING. If LH < response_window, LH becomes the effective
+linter WARNING. If LH < responseWindow, LH becomes the effective
 response window.
 
 ```
-GoNoGo(response_window=5s, consequence=CRF, ITI=10s) LH3s   -- WARNING
+GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s) LH3s   -- WARNING
 ```
 
 | Code | Condition | Severity |
@@ -232,21 +232,21 @@ https://doi.org/10.1901/jeab.1969.12-475
 ### Syntax
 
 ```
-GoNoGo(response_window=5s, consequence=CRF, ITI=10s)             -- minimal
-GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s,
+GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)             -- minimal
+GoNoGo(responseWindow=5s, consequence=CRF, incorrect=FT10s,
        ITI=10s)                                                    -- with incorrect
-GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
-       false_alarm=FT10s, ITI=15s)                                 -- SDT-style
+GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT,
+       falseAlarm=FT10s, ITI=15s)                                 -- SDT-style
 ```
 
 ### Parameters
 
 | Parameter | Position | Type | Required | Default | Description |
 |---|---|---|---|---|---|
-| `response_window` | keyword | time value | YES | — | Duration of response opportunity |
+| `responseWindow` | keyword | time value | YES | — | Duration of response opportunity |
 | `consequence` | keyword | schedule | YES | — | Core schedule for hit (Go + response) |
 | `incorrect` | keyword | schedule | NO | `EXT` | Core schedule for errors (miss + false alarm fallback) |
-| `false_alarm` | keyword | schedule | NO | = `incorrect` | Core schedule for NoGo errors (overrides `incorrect` for false alarms) |
+| `falseAlarm` | keyword | schedule | NO | = `incorrect` | Core schedule for NoGo errors (overrides `incorrect` for false alarms) |
 | `ITI` | keyword | time value | YES | — | Inter-trial interval |
 
 All parameters are keyword-only (no positional arguments).
@@ -255,13 +255,13 @@ All parameters are keyword-only (no positional arguments).
 
 ```
 1. Stimulus presentation   (SD or SΔ, single stimulus)
-2. Response window          (response_window duration)
+2. Response window          (responseWindow duration)
    ├─ response emitted     → EVALUATE with response=true
    └─ window expires       → EVALUATE with response=false
 3. Evaluate (2×2 outcome matrix)
    ├─ Go + response        → HIT               → execute consequence
    ├─ Go + no response     → MISS              → execute incorrect
-   ├─ NoGo + response      → FALSE ALARM       → execute false_alarm
+   ├─ NoGo + response      → FALSE ALARM       → execute falseAlarm
    └─ NoGo + no response   → CORRECT REJECTION → EXT (implicit)
 4. Inter-Trial Interval     (ITI duration, all stimuli off)
 5. → next trial
@@ -272,7 +272,7 @@ All parameters are keyword-only (no positional arguments).
 |  | Response | No Response |
 |---|---|---|
 | **Go (SD)** | HIT → `consequence` | MISS → `incorrect` |
-| **NoGo (SΔ)** | FALSE ALARM → `false_alarm` | CORRECT REJECTION → EXT |
+| **NoGo (SΔ)** | FALSE ALARM → `falseAlarm` | CORRECT REJECTION → EXT |
 
 Correct rejection always produces EXT (no programmed consequence).
 This reflects the standard Go/No-Go procedure where correctly
@@ -280,25 +280,25 @@ withholding a response has no explicit consequence (Dinsmoor, 1995a).
 
 ### Consequence Parameters
 
-`consequence`, `incorrect`, and `false_alarm` follow the same
+`consequence`, `incorrect`, and `falseAlarm` follow the same
 restrictions as MTS consequence parameters:
 
 | Appropriate | Description |
 |---|---|
 | `CRF` / `FR1` | Every hit reinforced (most common) |
 | `EXT` | No feedback (probe trials, correct rejection default) |
-| `FT10s` | Timeout (typically for `false_alarm` or `incorrect`) |
+| `FT10s` | Timeout (typically for `falseAlarm` or `incorrect`) |
 | `VR3` | Intermittent reinforcement (maintenance phase) |
 
 ### Signal Detection Theory Arrangement
 
-The `false_alarm` parameter enables the SDT-style asymmetric
+The `falseAlarm` parameter enables the SDT-style asymmetric
 consequence arrangement (Nevin, 1969; Davison & Tustin, 1978):
 
 ```
 -- Nevin (1969) style: false alarm → timeout, miss → extinction
-GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
-       false_alarm=FT10s, ITI=15s)
+GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT,
+       falseAlarm=FT10s, ITI=15s)
 ```
 
 The 2×2 outcome matrix maps directly to SDT measures:
@@ -323,27 +323,27 @@ trial-sequence parameters:
 @sd("tone", frequency=4000, duration=1s)
 @s_delta("light", intensity=50)
 @go_ratio(0.7)
-GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
-       false_alarm=FT10s, ITI=15s)
+GoNoGo(responseWindow=5s, consequence=CRF, incorrect=EXT,
+       falseAlarm=FT10s, ITI=15s)
 
 -- Errorless discrimination (Terrace, 1963)
 @fading(method="stimulus", steps=10)
-GoNoGo(response_window=5s, consequence=CRF, ITI=10s)
+GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)
 ```
 
 ### Compound Usage
 
 ```
 -- Multiple schedule: GoNoGo alternating with extinction
-Mult(GoNoGo(response_window=5s, consequence=CRF, ITI=10s), EXT)
+Mult(GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s), EXT)
 
 -- Chained: FR5 then discrimination trial
-Chain(FR5, GoNoGo(response_window=5s, consequence=CRF, ITI=10s))
+Chain(FR5, GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s))
 
 -- let binding: training vs probe
-let training = GoNoGo(response_window=5s, consequence=CRF,
-                       incorrect=EXT, false_alarm=FT10s, ITI=15s)
-let probe = GoNoGo(response_window=5s, consequence=EXT, ITI=15s)
+let training = GoNoGo(responseWindow=5s, consequence=CRF,
+                       incorrect=EXT, falseAlarm=FT10s, ITI=15s)
+let probe = GoNoGo(responseWindow=5s, consequence=EXT, ITI=15s)
 Mult(training, probe)
 ```
 
@@ -351,17 +351,17 @@ Mult(training, probe)
 
 | Code | Condition | Severity |
 |---|---|---|
-| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | response_window ≤ 0 | SemanticError |
-| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | response_window without time unit | SemanticError |
-| `MISSING_GONOGO_PARAM` | `response_window`, `consequence`, or `ITI` omitted | SemanticError |
+| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | responseWindow ≤ 0 | SemanticError |
+| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | responseWindow without time unit | SemanticError |
+| `MISSING_GONOGO_PARAM` | `responseWindow`, `consequence`, or `ITI` omitted | SemanticError |
 | `GONOGO_NONPOSITIVE_ITI` | ITI ≤ 0 | SemanticError |
 | `GONOGO_ITI_TIME_UNIT_REQUIRED` | ITI without time unit | SemanticError |
-| `GONOGO_INVALID_CONSEQUENCE` | consequence/incorrect/false_alarm is a compound schedule | SemanticError |
-| `GONOGO_RECURSIVE_CONSEQUENCE` | consequence/incorrect/false_alarm is a trial_based_schedule | SemanticError |
+| `GONOGO_INVALID_CONSEQUENCE` | consequence/incorrect/falseAlarm is a compound schedule | SemanticError |
+| `GONOGO_RECURSIVE_CONSEQUENCE` | consequence/incorrect/falseAlarm is a trial_based_schedule | SemanticError |
 | `DUPLICATE_GONOGO_KW_ARG` | duplicate keyword argument | SemanticError |
-| `GONOGO_SHORT_RESPONSE_WINDOW` | response_window < 500ms | WARNING |
-| `GONOGO_LONG_RESPONSE_WINDOW` | response_window > 60s | WARNING |
+| `GONOGO_SHORT_RESPONSE_WINDOW` | responseWindow < 500ms | WARNING |
+| `GONOGO_LONG_RESPONSE_WINDOW` | responseWindow > 60s | WARNING |
 | `GONOGO_NO_REINFORCEMENT` | consequence=EXT | WARNING |
 | `GONOGO_SHORT_ITI` | ITI < 1s | WARNING |
 | `GONOGO_LH_REDUNDANT` | LH applied to GoNoGo | WARNING |
-| `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | false_alarm specified, incorrect omitted | WARNING |
+| `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | falseAlarm specified, incorrect omitted | WARNING |
