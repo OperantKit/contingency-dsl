@@ -168,7 +168,7 @@ category to ensure the independence of measurement criteria.
 
 | Category | Recommended annotator | Target | Primary purpose |
 |---|---|---|---|
-| **Procedure** | `procedure-annotator` (stimulus + temporal sub-annotators) | Description of procedures | (1) Making implicit procedures explicit, (2) supporting equivalence judgments between two procedures, (3) supplementing conditions necessary for mutual conversion between DSL and experimental programs |
+| **Procedure** | `procedure-annotator` (stimulus + temporal + context sub-annotators) | Description of procedures | (1) Making implicit procedures explicit, (2) supporting equivalence judgments between two procedures, (3) supplementing conditions necessary for mutual conversion between DSL and experimental programs |
 | **Subjects** | `subjects-annotator` | Subjects (organisms) | Recording subject history, establishing operations, food-deprivation levels, species, and state. Documents factors that cause behavioral differences even when current contingencies are identical. |
 | **Apparatus** | `apparatus-annotator` | Apparatus and physical implementation | Chamber, operandum, hardware specifications, timing tolerances, physical-quantity constraints, and other information that grounds the Core DSL's abstractions in the physical world. |
 | **Measurement** | `measurement-annotator` | Measurement criteria | Steady-state criteria, baseline rates, phase-termination conditions, dependent measures, and other information that specifies *when and how* to read the effects of contingencies expressed in the Core. |

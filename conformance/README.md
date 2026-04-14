@@ -139,6 +139,7 @@ LH default propagation should validate against `expected` only.
 | `program-level.json` | 4 | Program-level annotations (subjects, apparatus, session) |
 | `procedure-stimulus.json` | 15 | @reinforcer, @punisher/@consequentStimulus aliases, @sd, @brief, @stimulus_classes, @training, @testing |
 | `procedure-temporal.json` | 8 | @clock, @warmup, @algorithm (Fleshler-Hoffman, arithmetic) |
+| `procedure-context.json` | — | @context (environmental context for renewal/ABA designs) |
 | `subjects.json` | 10 | @species, @strain, @deprivation, @history, @n |
 | `apparatus.json` | 10 | @chamber, @operandum (dual scope), @interface, @hardware/@hw alias |
 | `measurement.json` | 29 | @session_end, @baseline, @steady_state, @dependent_measure, @training_volume, @microstructure, @phase_end, @logging, @iri_window, @warmup_exclude |

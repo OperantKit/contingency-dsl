@@ -42,8 +42,11 @@
           "description": "Human-readable phase name as used in JEAB Procedure sections. Examples: 'Acquisition', 'Extinction', 'Renewal Test', 'Baseline', 'Treatment', 'Reversal'."
         },
         "schedule": {
-          "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr",
-          "description": "The reinforcement schedule active during this phase. Any valid contingency-dsl ScheduleExpr (Atomic, Compound, Special, Modifier, etc.)."
+          "oneOf": [
+            { "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr" },
+            { "type": "null" }
+          ],
+          "description": "The reinforcement schedule active during this phase. Any valid contingency-dsl ScheduleExpr (Atomic, Compound, Special, Modifier, etc.). null indicates a no_schedule phase — a phase with no operant contingency (e.g., Pavlovian revaluation, context exposure, habituation). Annotations may still describe stimulus presentations."
         },
         "phase_annotations": {
           "type": "array",

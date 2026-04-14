@@ -1098,20 +1098,25 @@ FIRST₁(">=" number) = { GTE }
 
 **Result:** LL(1). ∎
 
-### §11.5 Phase Content vs. Phase Reference
+### §11.5 Phase Content vs. Phase Reference vs. No-Schedule
 
-**Decision:** `phase_body_content → phase_content | phase_ref`
+**Decision:** `phase_body_content → phase_content | phase_ref | "no_schedule"`
 
 ```
-FIRST₁(phase_ref)     = { KW_USE }
-FIRST₁(phase_content) = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(annotated_schedule)
+FIRST₁(phase_ref)       = { KW_USE }
+FIRST₁(no_schedule)     = { KW_NO_SCHEDULE }
+FIRST₁(phase_content)   = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(annotated_schedule)
 ```
 
-Since `KW_USE` is a new reserved token not in any existing FIRST₁ set:
+Since `KW_USE` and `KW_NO_SCHEDULE` are reserved tokens not in any existing FIRST₁ set:
 
 ```
 { KW_USE } ∩ FIRST₁(phase_content) = ∅
+{ KW_NO_SCHEDULE } ∩ FIRST₁(phase_content) = ∅
+{ KW_USE } ∩ { KW_NO_SCHEDULE } = ∅
 ```
+
+All three alternatives have pairwise disjoint FIRST₁ sets.
 
 **Result:** LL(1). ∎
 

@@ -329,7 +329,7 @@ The Experiment Layer extends the DSL to describe multi-phase experimental design
 
 <phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
 <phase_name>    ::= <upper_ident>
-<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref>) <annotation>*
+<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref> | "no_schedule") <annotation>*
 
 <phase_meta>    ::= <session_spec> | <stability_spec>
 <session_spec>  ::= "sessions" ("=" | ">=") <number>
@@ -347,6 +347,7 @@ The Experiment Layer extends the DSL to describe multi-phase experimental design
 - `program_annotation`s before the first `phase`/`shaping` declaration establish experiment-level defaults. Phase-level annotations override (same resolution as program-level vs. schedule-level in Core).
 - `sessions = N` specifies a fixed session count. `sessions >= N` specifies a minimum before stability criteria apply.
 - `use <PhaseName>` copies the referenced phase's schedule expression. Forward references are not permitted.
+- `no_schedule` declares a phase with no operant contingency. Used for Pavlovian revaluation, context exposure, habituation, or other procedures where no response-consequence relation is programmed. Resolves to `Phase.schedule = null` in the AST. Annotations (e.g., `@punisher`, `@context`) may still be attached to describe stimulus presentations.
 
 ### 3.8.3 Shaping (Syntactic Sugar)
 

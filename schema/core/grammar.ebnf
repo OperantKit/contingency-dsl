@@ -50,6 +50,19 @@ binding       ::= "let" ident "=" schedule
 ; === Schedule expressions ===
 
 schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
+; LH is a temporal availability property of the schedule it follows.
+; AST: absorbed into the inner node's optional `limitedHold` / `limitedHoldUnit` properties.
+; No separate LimitedHold wrapper node is emitted.
+;
+; Semantic constraint (LH_ON_COMPOUND):
+;   LH applied to a Compound or Modifier (except DRModifier) → SemanticError.
+;   In the behavioral literature, LH is always written as a property of
+;   individual (leaf) schedules, not of compound arrangements.
+;   "Conc(VI 30-s LH 5-s, VI 60-s LH 10-s)" — not "Conc(VI 30-s, VI 60-s) LH 5-s".
+;   Use per-component LH or program-level `LH = Xs` default propagation instead.
+;
+; Permitted targets: Atomic, Special, DRModifier, SecondOrder, TrialBased.
+; DRModifier is permitted because DRL LH is an established paradigm (Kramer & Rilling, 1970).
 
 base_schedule ::= atomic_or_second
                 | compound
@@ -111,6 +124,7 @@ ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
 reserved      ::= "let" | "def"
                 | "phase" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
                 | "sessions" | "stable"                   -- phase metadata (v2.0)
+                | "no_schedule"                            -- experiment layer: Pavlovian/exposure phase (v2.0)
                 | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
@@ -383,10 +397,11 @@ string_literal     ::= '"' [^"]* '"'
 ; a reader can tell the JEAB category from the annotator name alone.
 ; Programs MAY categorize differently; this list is advisory.
 ;
-;   procedure-annotator   → Procedure   (composed of two sub-annotators)
+;   procedure-annotator   → Procedure   (composed of three sub-annotators)
 ;     ├── stimulus        : "reinforcer" (aliases: "punisher",
 ;     │                     "consequentStimulus") | "sd" | "brief"
-;     └── temporal        : "clock" | "warmup" | "algorithm"
+;     ├── temporal        : "clock" | "warmup" | "algorithm"
+;     └── context         : "context"    (v2.0: environmental context for renewal/ABA designs; Bouton, 2002)
 ;
 ;   subjects-annotator    → Subjects    : "species" | "strain" | "deprivation"
 ;                                        | "history" | "n"
@@ -443,7 +458,7 @@ phase_decl    ::= "phase" phase_name ":" phase_body
 
 phase_name    ::= upper_ident              -- Baseline, Treatment, DRA
 
-phase_body    ::= phase_meta* (phase_content | phase_ref) annotation*
+phase_body    ::= phase_meta* (phase_content | phase_ref | "no_schedule") annotation*
 
 phase_meta    ::= session_spec
                 | stability_spec
@@ -530,6 +545,12 @@ number_list   ::= number ("," number)*
 ;     SemanticError (SESSION_NONPOSITIVE).
 ; 72. sessions = N: N must be a positive integer (≥ 1). sessions = 0 →
 ;     SemanticError (SESSION_NONPOSITIVE).
+; 73. no_schedule: declares a phase with no operant contingency. Used for
+;     Pavlovian revaluation, context exposure, habituation, or other
+;     procedures where no response-consequence relation is programmed.
+;     Annotations (e.g., @reinforcer, @punisher, @context) may still be
+;     attached to describe stimulus presentations. A no_schedule phase
+;     resolves to a Phase node with schedule = null in the AST.
 
 ; === Semantic constraints (enforced post-parse) ===
 ;
@@ -775,10 +796,10 @@ number_list   ::= number ("," number)*
 ;     convention (Hodos, 1961; Richardson & Roberts, 1996) uses integer
 ;     progressions exclusively. This matches ast.schema.json type=integer,
 ;     minimum=1 on PRModifier.pr_start and PRModifier.pr_increment.
-; 62. LimitedHold: hold_duration must be strictly positive (> 0).
+; 62. limitedHold property must be strictly positive (> 0).
 ;     `FI30 LH0s`, `VI60s LH0ms` → SemanticError (LH_NONPOSITIVE_VALUE).
 ;     Program-level `LH = 0s` → same error.
 ;     Rationale: S LH 0 ≡ EXT (theory.md §2.2.4) — the hold window
 ;     closes before any response can occur, making reinforcement unavailable.
 ;     Use `EXT` for extinction semantics. This constraint matches
-;     ast.schema.json exclusiveMinimum=0 on LimitedHold.hold_duration.
+;     ast.schema.json exclusiveMinimum=0 on limitedHold property.

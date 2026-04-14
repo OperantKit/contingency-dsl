@@ -70,7 +70,7 @@ Subjects / Apparatus / Measurement).
 
 | JEAB Category | Annotator | Keywords |
 |---|---|---|
-| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout` |
+| Procedure | `procedure-annotator` (stimulus + temporal + context sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout`, `@context` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`), `@feeder` |
 | Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` |
@@ -173,7 +173,63 @@ VI 30-s
 
 ---
 
-### 3. subjects-annotator — Who Is the Subject?
+### 3. procedure-annotator/context — What Is the Environmental Context?
+
+Declares the **environmental context** in which a phase or schedule operates. Essential for renewal (ABA/ABC/AAB) designs and contextual control studies.
+
+| Keyword | Purpose | Example |
+|---------|---------|---------|
+| `@context` | Environmental context identifier | `@context("A")`, `@context("B", cues="black-white-stripes+peppermint")` |
+
+**Example: ABA renewal design (Broomer & Bouton, 2022)**
+
+```
+@species("rat") @strain("Wistar")
+@reinforcer("food", type="pellet")
+
+phase ResponseTraining:
+  sessions = 6
+  RI30s
+  @context("A")
+
+phase Punishment:
+  sessions = 4
+  Overlay(RI30s, VI90s)
+  @context("B")
+
+phase RenewalTest:
+  sessions = 1
+  EXT
+  @context("A")
+  @session_end(rule="time", time=10min)
+```
+
+**What this enables:**
+- Explicitly encode the context manipulation that is central to renewal paradigms
+- Compile to: *"Response training was conducted in Context A. Punishment was conducted in Context B. The renewal test was conducted in Context A."*
+
+**Example: no_schedule phase with context exposure**
+
+```
+phase MagazineTraining:
+  sessions = 1
+  no_schedule
+  @context("A")
+  @context("B")
+```
+
+A `no_schedule` phase has no operant contingency (e.g., response-independent food delivery, Pavlovian revaluation, habituation). The `@context` annotations describe where the procedure takes place.
+
+**What does NOT belong here:**
+- Physical specifications of the context (chamber dimensions, floor material) → apparatus-annotator
+- Stimulus features presented during the context → procedure-annotator/stimulus (`@sd`)
+
+**Reference:**
+- Bouton, M. E. (2002). Context, ambiguity, and unlearning: Sources of relapse after behavioral extinction. *Biological Psychiatry*, *52*(10), 976-986. https://doi.org/10.1016/S0006-3223(02)01546-9
+
+---
+
+### 4. subjects-annotator — Who Is the Subject?
 
 Declares **biological conditions and motivating operations (MOs)** of the experimental subject.
 
@@ -210,7 +266,7 @@ In behavior analysis terminology, food deprivation is an establishing operation 
 
 ---
 
-### 4. apparatus-annotator — What Equipment Is Used?
+### 5. apparatus-annotator — What Equipment Is Used?
 
 Declares the **physical equipment** used to run the experiment.
 

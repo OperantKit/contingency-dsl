@@ -70,7 +70,7 @@ Subjects / Apparatus / Measurement）と **1:1 で対応する 4 つの推奨ア
 
 | JEAB カテゴリ | Annotator | Keywords |
 |---|---|---|
-| Procedure | `procedure-annotator` (stimulus + temporal sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout` |
+| Procedure | `procedure-annotator` (stimulus + temporal + context sub) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@iti`, `@post_blackout`, `@context` |
 | Subjects | `subjects-annotator` | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | Apparatus | `apparatus-annotator` | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`), `@feeder` |
 | Measurement | `measurement-annotator` | `@session_end`, `@baseline`, `@steady_state` |
@@ -170,7 +170,63 @@ VI 30-s
 
 ---
 
-### 3. subjects-annotator — 被験体は誰か?
+### 3. procedure-annotator/context — 環境文脈は何か?
+
+フェーズまたはスケジュールが実施される**環境文脈**を宣言する。renewal（ABA/ABC/AAB）デザインおよび文脈的制御の研究に不可欠。
+
+| キーワード | 目的 | 例 |
+|-----------|------|-----|
+| `@context` | 環境文脈の識別子 | `@context("A")`, `@context("B", cues="黒白ストライプ+ペパーミント")` |
+
+**例: ABA renewal デザイン（Broomer & Bouton, 2022）**
+
+```
+@species("rat") @strain("Wistar")
+@reinforcer("food", type="pellet")
+
+phase ResponseTraining:
+  sessions = 6
+  RI30s
+  @context("A")
+
+phase Punishment:
+  sessions = 4
+  Overlay(RI30s, VI90s)
+  @context("B")
+
+phase RenewalTest:
+  sessions = 1
+  EXT
+  @context("A")
+  @session_end(rule="time", time=10min)
+```
+
+**これにより可能になること:**
+- renewal パラダイムの中核である文脈操作を明示的に記述できる
+- コンパイル結果: *「反応訓練は文脈 A で実施した。罰手続きは文脈 B で実施した。renewal テストは文脈 A で実施した。」*
+
+**例: no_schedule フェーズと文脈曝露**
+
+```
+phase MagazineTraining:
+  sessions = 1
+  no_schedule
+  @context("A")
+  @context("B")
+```
+
+`no_schedule` フェーズはオペラント随伴性を含まない（例: 反応非依存的な餌の提示、Pavlov 型再評価、馴化）。`@context` アノテーションは手続きが実施される場所を記述する。
+
+**ここに属さないもの:**
+- 文脈の物理的仕様（チャンバー寸法、床材）→ apparatus-annotator
+- 文脈中に呈示される刺激特徴 → procedure-annotator/stimulus（`@sd`）
+
+**引用:**
+- Bouton, M. E. (2002). Context, ambiguity, and unlearning: Sources of relapse after behavioral extinction. *Biological Psychiatry*, *52*(10), 976-986. https://doi.org/10.1016/S0006-3223(02)01546-9
+
+---
+
+### 4. subjects-annotator — 被験体は誰か?
 
 被験体の**生物学的条件と動機づけ操作（MO）**を宣言する。
 
@@ -207,7 +263,7 @@ FR 5
 
 ---
 
-### 4. apparatus-annotator — どの装置を使うか?
+### 5. apparatus-annotator — どの装置を使うか?
 
 実験を実行する**物理的装置**を宣言する。
 

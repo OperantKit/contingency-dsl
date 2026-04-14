@@ -49,6 +49,8 @@
 
 **Experiment 層**は contingency-dsl 内で三つの Core 層の上位に位置する。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準（Stability, FixedSessions 等）とともに順序付きフェーズに編成する。JEAB 論文に見られる一般的な実験デザインをカバーする。Core 層は「各随伴性が何であるか」を記述し、Experiment 層は「それらの随伴性がフェーズ間でどう配列されるか」を宣言的・非手続き的に記述する。任意のランタイム条件付き遷移（例: 反応率に基づくスケジュール切替）には、引き続き contingency-core が適切な層となる。
 
+フェーズは `no_schedule` を宣言することで、そのフェーズ中にオペラント随伴性が活性でないことを示すことができる。これは Pavlov 型再評価手続き、文脈曝露、馴化、および反応-結果関係がプログラムされないその他の実験区間をカバーする。そのようなフェーズは AST において `Phase.schedule = null` に解決される。アノテーション（例: `@punisher`、`@context`）は刺激呈示や環境条件を記述するためになお付加できる。
+
 Experiment 層は JEAB の慣習に従う: 被験体・装置のアノテーションはフェーズ間で共有され（override されない限り継承）、各 Phase は独自のスケジュールとフェーズ変更基準を指定する。完全なスキーマは `schema/experiment/phase-sequence.schema.json` を参照。
 
 三つの Core 層は二つの独立した軸で区別される:

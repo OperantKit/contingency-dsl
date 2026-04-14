@@ -47,6 +47,8 @@ We propose a six-layer architecture that separates concerns along the dimensions
 
 The **Experiment layer** sits above the three Core layers within contingency-dsl. It arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, etc.), covering the common experimental designs found in JEAB papers. The Core layers describe *what each contingency is*; the Experiment layer describes *how those contingencies are sequenced across phases* in a declarative, non-procedural manner. For arbitrary runtime-conditioned transitions (e.g., rate-based schedule switching), contingency-core remains the appropriate layer.
 
+A phase may declare `no_schedule` to indicate that no operant contingency is active during that phase. This covers Pavlovian revaluation procedures, context exposure, habituation, and other experimental intervals where no response-consequence relation is programmed. Such phases resolve to `Phase.schedule = null` in the AST; annotations (e.g., `@punisher`, `@context`) may still describe stimulus presentations or environmental conditions.
+
 The Experiment layer follows the JEAB convention: Subjects and Apparatus annotations are shared across phases (inherited unless overridden), while each Phase specifies its own schedule and phase-change criterion. See `schema/experiment/phase-sequence.schema.json` for the full schema.
 
 The three Core layers are distinguished along two independent axes:

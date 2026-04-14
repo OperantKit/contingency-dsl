@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/procedure-context.schema.json",
+  "title": "procedure-annotator/context",
+  "description": "JEAB Procedure category, context sub-annotator. Declares the environmental context in which a phase or schedule operates. Essential for renewal (ABA/ABC/AAB) designs and contextual control studies.",
+  "category": "Procedure",
+  "sub_annotator": "context",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "context": {
+      "description": "Environmental context identifier. Labels the physical or stimulus context (e.g., operant chamber configuration, olfactory/visual/tactile cues) in which the procedure is conducted. Used in renewal paradigms (Bouton, 2002; Bouton & Todd, 2014) and context-dependent learning studies.",
+      "scope": ["program", "schedule"],
+      "positional": { "type": "string", "required": true, "description": "Context label (e.g., \"A\", \"B\", \"C\")" },
+      "params": {
+        "cues": {
+          "type": "string",
+          "required": false,
+          "description": "Description of context-defining cues (e.g., 'black-white-stripes+peppermint', 'polka-dots+lemon')"
+        }
+      },
+      "reference": "Bouton, M. E. (2002). Context, ambiguity, and unlearning: Sources of relapse after behavioral extinction. Biological Psychiatry, 52(10), 976-986. https://doi.org/10.1016/S0006-3223(02)01546-9"
+    }
+  }
+}

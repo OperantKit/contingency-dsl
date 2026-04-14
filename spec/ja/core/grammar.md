@@ -332,7 +332,7 @@ Conc(baseline, probe)
 
 <phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
 <phase_name>    ::= <upper_ident>
-<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref>) <annotation>*
+<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref> | "no_schedule") <annotation>*
 
 <phase_meta>    ::= <session_spec> | <stability_spec>
 <session_spec>  ::= "sessions" ("=" | ">=") <number>
@@ -350,6 +350,7 @@ Conc(baseline, probe)
 - 最初の `phase`/`shaping` 宣言の前にある `program_annotation` は実験レベルのデフォルトを設定する。フェーズレベルのアノテーションが上書きする（Core のプログラムレベル vs スケジュールレベルと同じ解決規則）。
 - `sessions = N` は固定セッション数を指定する。`sessions >= N` は安定性基準適用前の最低数を指定する。
 - `use <PhaseName>` は参照先フェーズのスケジュール式をコピーする。前方参照は許可されない。
+- `no_schedule` はオペラント随伴性を含まないフェーズを宣言する。Pavlov 型再評価、文脈曝露、馴化など、反応-結果関係がプログラムされない手続きに使用する。AST では `Phase.schedule = null` に解決される。アノテーション（例: `@punisher`、`@context`）は刺激呈示を記述するためになお付加できる。
 
 #### 3.8.3 Shaping（構文糖衣）
 

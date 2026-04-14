@@ -90,7 +90,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 
 | Category | Recommended annotator | Example keywords |
 |---|---|---|
-| **Procedure** | procedure-annotator (stimulus + temporal sub-annotators) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm` |
+| **Procedure** | procedure-annotator (stimulus + temporal + context sub-annotators) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@context` |
 | **Subjects** | subjects-annotator | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | **Apparatus** | apparatus-annotator | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
 | **Measurement** | measurement-annotator (v1.x formal set) | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
@@ -293,7 +293,7 @@ All of these are permitted. The 1:1 correspondence in this section is a **recomm
 ### Change History
 
 - 2026-04-12: Initial version. The following reorganization was performed:
-  - `stimulus-annotator` + `temporal-annotator` → `procedure-annotator/` (stimulus + temporal sub-annotators)
+  - `stimulus-annotator` + `temporal-annotator` → `procedure-annotator/` (stimulus + temporal sub-annotators; context sub-annotator added later in v2.0)
   - `subject-annotator` → `subjects-annotator` (singular → plural)
   - `measurement-annotator` established (v1.x minimal set)
   - `social-annotator` / `clinical-annotator` → moved under `extensions/`
