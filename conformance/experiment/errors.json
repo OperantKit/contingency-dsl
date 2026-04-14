@@ -1,0 +1,90 @@
+[
+  {
+    "id": "error_duplicate_phase_name",
+    "description": "Duplicate phase names → DUPLICATE_PHASE_NAME",
+    "input": "phase Baseline:\n  sessions = 10\n  VI60s\n\nphase Baseline:\n  sessions = 5\n  EXT",
+    "errors": [
+      { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_undefined_phase_ref",
+    "description": "use referencing undeclared phase → UNDEFINED_PHASE_REF",
+    "input": "phase Baseline:\n  sessions = 10\n  VI60s\n\nphase Reversal:\n  sessions = 10\n  use Treatment",
+    "errors": [
+      { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_forward_phase_ref",
+    "description": "use with forward reference → UNDEFINED_PHASE_REF",
+    "input": "phase First:\n  sessions = 10\n  use Second\n\nphase Second:\n  sessions = 10\n  VI60s",
+    "errors": [
+      { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_shaping_steps_length_mismatch",
+    "description": "Shaping with mismatched steps lengths → SHAPING_STEPS_LENGTH_MISMATCH",
+    "input": "shaping Train:\n  steps x = [1, 2, 3]\n  steps y = [10, 20]\n  sessions = 5\n  FI {x}s",
+    "errors": [
+      { "code": "SHAPING_STEPS_LENGTH_MISMATCH", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_shaping_empty_steps",
+    "description": "Shaping with empty steps list → SHAPING_EMPTY_STEPS",
+    "input": "shaping Train:\n  steps v = []\n  sessions = 5\n  FI {v}s",
+    "errors": [
+      { "code": "SHAPING_EMPTY_STEPS", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_shaping_undefined_variable",
+    "description": "Shaping placeholder references undeclared variable → SHAPING_UNDEFINED_VARIABLE",
+    "input": "shaping Train:\n  steps v = [2, 4, 8]\n  sessions = 5\n  FI {w}s",
+    "errors": [
+      { "code": "SHAPING_UNDEFINED_VARIABLE", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_session_nonpositive_zero",
+    "description": "sessions = 0 → SESSION_NONPOSITIVE",
+    "input": "phase Test:\n  sessions = 0\n  EXT",
+    "errors": [
+      { "code": "SESSION_NONPOSITIVE", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_session_nonpositive_min_zero",
+    "description": "sessions >= 0 → SESSION_NONPOSITIVE",
+    "input": "phase Test:\n  sessions >= 0\n  stable(visual)\n  VI60s",
+    "errors": [
+      { "code": "SESSION_NONPOSITIVE", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_duplicate_session_spec",
+    "description": "Two session specs in one phase → DUPLICATE_SESSION_SPEC",
+    "input": "phase Test:\n  sessions = 10\n  sessions >= 5\n  VI60s",
+    "errors": [
+      { "code": "DUPLICATE_SESSION_SPEC", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_duplicate_stability_spec",
+    "description": "Two stability specs in one phase → DUPLICATE_STABILITY_SPEC",
+    "input": "phase Test:\n  sessions >= 10\n  stable(visual)\n  stable(cv, threshold=5%)\n  VI60s",
+    "errors": [
+      { "code": "DUPLICATE_STABILITY_SPEC", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_shaping_collides_with_phase",
+    "description": "Shaping-generated name collides with user-defined phase → DUPLICATE_PHASE_NAME",
+    "input": "phase Train_1:\n  sessions = 5\n  FR5\n\nshaping Train:\n  steps v = [10, 20]\n  sessions = 5\n  FR {v}",
+    "errors": [
+      { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
+    ]
+  }
+]

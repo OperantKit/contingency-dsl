@@ -128,17 +128,21 @@ LH default propagation should validate against `expected` only.
 
 | File | Cases | Scope |
 |------|-------|-------|
-| `phase-sequence.json` | — | PhaseSequence, Phase, annotation inheritance, criterion types |
-| `experiment.json` | — | Experiment/Paper wrapper, single-schedule and multi-phase body |
-| `errors.json` | — | Missing criterion on non-terminal phase, invalid criterion params |
+| `phase.json` | 5 | Phase declarations (ABA, stability criteria, `use` references, shared annotations) |
+| `shaping.json` | 4 | Shaping expansion (single/multi-variable, mixed with phases, parametric) |
+| `errors.json` | 11 | Experiment-layer semantic errors (constraints 63–72) |
 
 ### annotations/
 
 | File | Cases | Scope |
 |------|-------|-------|
-| `program-level.json` | 3 | Program-level annotations (subjects, apparatus, session) |
-| `measurement.json` | 5 | @session_end, @baseline, @steady_state |
-| `errors.json` | 7 | Annotation parameter validation errors |
+| `program-level.json` | 4 | Program-level annotations (subjects, apparatus, session) |
+| `procedure-stimulus.json` | 15 | @reinforcer, @punisher/@consequentStimulus aliases, @sd, @brief, @stimulus_classes, @training, @testing |
+| `procedure-temporal.json` | 8 | @clock, @warmup, @algorithm (Fleshler-Hoffman, arithmetic) |
+| `subjects.json` | 10 | @species, @strain, @deprivation, @history, @n |
+| `apparatus.json` | 10 | @chamber, @operandum (dual scope), @interface, @hardware/@hw alias |
+| `measurement.json` | 29 | @session_end, @baseline, @steady_state, @dependent_measure, @training_volume, @microstructure, @phase_end, @logging, @iri_window, @warmup_exclude |
+| `errors.json` | 52 | Annotation parameter validation errors (measurement + stimulus + temporal + subjects + apparatus) |
 
 ### representations/t-tau/
 

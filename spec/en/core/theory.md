@@ -123,7 +123,7 @@ PR(step : ℕ → ℕ) = FR(step(n)) where n increments after each reinforcement
 PR is a *schedule functor* — it maps a step function to a sequence of FR schedules. The DSL offers two syntactic forms:
 
 - **Shorthand:** `PR n` — arithmetic progression with step size *n* (Jarmolowicz & Lattal, 2010). `PR 5` expands to `PR(linear, start=5, increment=5)`, producing FR 5, FR 10, FR 15, ... This matches the notation proposed in *The Behavior Analyst* and is the natural form for educational and clinical contexts.
-- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, `PR(exponential)` — for full control over the step function. Bare `PR` without a number or parenthesized options is a parse error.
+- **Explicit:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, `PR(exponential)`, `PR(geometric, start=1, ratio=2)` — for full control over the step function. Bare `PR` without a number or parenthesized options is a parse error.
 
 Arithmetic and geometric progressions produce qualitatively different response-rate functions, and no consensus default step function exists (Killeen et al., 2009; Stafford & Branch, 1998). See [design-rationale.md §2](../../../docs/en/design-rationale.md#2-progressive-ratio-why-the-step-function-is-required) for the evidence review, including why breakpoint ≠ Pmax (Lambert et al., 2026).
 
@@ -964,8 +964,10 @@ A **second-order schedule** composes two atomic schedules into two hierarchical 
 ```
 SecondOrder = Overall(Unit)
 Overall     = AtomicSchedule          -- parametric only (no EXT, CRF)
-Unit        = AtomicSchedule          -- simple schedules only (v1.0)
+Unit        = AtomicSchedule          -- simple schedules only (v1.0, frozen)
 ```
+
+**Unit constraint (v1.0 frozen).** The unit position accepts only simple (atomic) schedules. Compound schedules such as `Chain(FR3, FI10)` or `Conc(FR5, FI30)` are rejected with `INVALID_SECOND_ORDER_UNIT`. This constraint is frozen for v1.x based on a survey of the historical literature: Kelleher (1966), Malagodi, DeWeese & Johnston (1973), and Jwaideh (1973) all employ simple-inside-simple arrangements exclusively. No published second-order schedule experiment uses a compound inner schedule. Future extension, if warranted by new experimental procedures, would be additive (design-philosophy §7.1) and eligible for a minor version bump.
 
 **Syntax example.** `FR5(FI30)` means: treat each completion of FI 30-s as one unit; reinforce after 5 such unit completions.
 
@@ -1432,3 +1434,107 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0020364
 - Stokes, P. D. (1995). Learned variability. *Animal Learning & Behavior*, *23*(2), 164-176. https://doi.org/10.3758/BF03199931
 - Wagner, A. R. (1981). SOP: A model of automatic memory processing in animal behavior. In N. E. Spear & R. R. Miller (Eds.), *Information processing in animals: Memory mechanisms* (pp. 5-47). Erlbaum.
+
+---
+
+## Part III: Experiment Layer — Multi-Phase Composition
+
+### 3.1 Motivation
+
+Parts I and II formalize the within-session contingency structure: atomic schedules, combinators, modifiers, and their algebraic and denotational properties. However, JEAB experimental procedures consist of ordered *phases* (conditions) with phase-change criteria — the across-session structure that Method sections describe as "Baseline → Treatment → Reversal" or "Conditions were presented in the following order..."
+
+No existing formal notation system unifies these two levels. Mechner (1959) and State Notation (Snapper, Kadden, & Inglis, 1982) formalize within-session trial structure. Cooper, Heron, & Heward (2020) use A-B-A-B notation for design structure. The Experiment Layer bridges this gap.
+
+### 3.2 Phase Sequence as a Non-Commutative Monoid
+
+**Definition 13 (Phase).** A Phase is a triple:
+
+```
+Phase = (label : String, meta : PhaseMeta, schedule : ScheduleExpr)
+```
+
+where `PhaseMeta` includes session specification and stability criteria.
+
+**Definition 14 (Phase Sequence).** A Phase Sequence is an ordered, non-empty list of Phases:
+
+```
+PhaseSequence = Phase⁺
+```
+
+**Algebraic properties of Phase Sequences:**
+
+*Property 1 (Associativity).* Concatenation of phase sequences is associative:
+
+```
+(P₁ ++ P₂) ++ P₃ = P₁ ++ (P₂ ++ P₃)
+```
+
+*Property 2 (Non-commutativity).* Phase order matters — behavioral history is irreversible:
+
+```
+[Baseline, Treatment] ≠ [Treatment, Baseline]
+```
+
+This is a fundamental constraint from the experimental analysis of behavior: the organism that has experienced Treatment before Baseline is in a different behavioral state than one that experienced Baseline first (Sidman, 1960, Ch. 4).
+
+*Property 3 (Identity element).* The empty sequence `[]` is the identity for concatenation. In practice, an experiment must have at least one phase (minItems=1 in the schema), so the identity is not operationally useful.
+
+**Conclusion:** Phase sequences form a *free monoid* over the set of phases, with concatenation as the operation. This is the simplest algebraic structure that respects the temporal irreversibility of behavioral experiments.
+
+### 3.3 Shaping as Syntactic Sugar
+
+**Definition 15 (Shaping Expansion).** A `shaping` declaration with steps variable `x = [v₁, ..., vₙ]`, phase metadata `M`, and schedule template `T(x)` expands to:
+
+```
+⟦shaping(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
+```
+
+This is analogous to `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3), operating at the experiment level rather than the schedule level.
+
+**Multi-variable expansion:** Given steps `x = [x₁,...,xₙ]` and `y = [y₁,...,yₙ]` (same length), the expansion zips pairwise:
+
+```
+⟦shaping(Name, x=[x₁,...,xₙ], y=[y₁,...,yₙ], M, T(x,y))⟧
+  = [Phase(Name_1, M, T(x₁,y₁)), ..., Phase(Name_n, M, T(xₙ,yₙ))]
+```
+
+**Constraint:** All steps lists must have identical length (`|x| = |y|`). This is enforced statically.
+
+**Non-Turing-completeness:** `steps` lists are finite literals — no loops, recursion, or arithmetic. The expansion is a pure macro substitution bounded by the list length.
+
+### 3.4 Denotational Semantics of Experiments
+
+**Definition 16 (Experiment Machine).** An Experiment Machine maps a Phase Sequence to a sequence of Schedule Machines:
+
+```
+⟦experiment⟧ : PhaseSequence → ScheduleMachine*
+⟦[P₁, P₂, ..., Pₙ]⟧ = (⟦P₁.schedule⟧, ⟦P₂.schedule⟧, ..., ⟦Pₙ.schedule⟧)
+```
+
+Each `⟦Pᵢ.schedule⟧` is the Mealy-machine schedule machine defined in §2.13. Phase transitions are governed by `PhaseMeta` (session count, stability criteria) which operate on the behavioral data stream — these are runtime concerns, not syntactic properties.
+
+**Compositionality:** The experiment-level semantics is trivially compositional because each phase's schedule semantics is independent. The experiment machine is a product of phase machines:
+
+```
+⟦experiment⟧ = ∏ᵢ ⟦phaseᵢ.schedule⟧
+```
+
+**Adequacy:** The experiment-level denotation is adequate with respect to the phase-level operational semantics: two experiments are equivalent if and only if their phase sequences contain pairwise-equivalent schedules.
+
+### 3.5 Annotation Inheritance
+
+Experiment-level annotations propagate to all phases, analogous to program-level LH propagation (§1.6.1):
+
+```
+R0  Experiment → shared_annotations, phases[1..n]
+    ∀i: phases[i].effective_annotations = merge(shared_annotations, phases[i].phase_annotations)
+```
+
+where `merge(shared, local)` = `local` for keys present in both, `shared` for keys present only in shared. This matches the program-level vs. schedule-level annotation resolution (grammar.ebnf constraint 15).
+
+### References (Part III)
+
+- Cooper, J. O., Heron, T. E., & Heward, W. L. (2020). *Applied behavior analysis* (3rd ed.). Pearson.
+- Mechner, F. (1959). A notation system for the description of behavioral procedures. *Journal of the Experimental Analysis of Behavior*, 2(2), 133-150. https://doi.org/10.1901/jeab.1959.2-133
+- Sidman, M. (1960). *Tactics of scientific research: Evaluating experimental data in psychology*. Basic Books.
+- Snapper, A. G., Kadden, R. M., & Inglis, G. B. (1982). State notation of behavioral procedures. *Behavior Research Methods & Instrumentation*, 14(4), 329-342. https://doi.org/10.3758/BF03203225

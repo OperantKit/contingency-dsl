@@ -121,7 +121,7 @@ PR(step : ℕ → ℕ) = FR(step(n))  ここで n は各強化後にインクリ
 PR は*スケジュール関手*であり、ステップ関数を FR スケジュールの系列にマッピングする。DSL は2つの構文形式を提供する:
 
 - **略記形式:** `PR n` — ステップサイズ *n* の算術プログレッション（Jarmolowicz & Lattal, 2010）。`PR 5` は `PR(linear, start=5, increment=5)` に展開され、FR 5, FR 10, FR 15, ... を生成する。*The Behavior Analyst* で提案された表記に一致し、教育・臨床文脈での自然な形式である。
-- **明示形式:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, `PR(exponential)` — ステップ関数の完全な制御用。数値も括弧もない bare `PR` は ParseError。
+- **明示形式:** `PR(hodos)`, `PR(linear, start=1, increment=5)`, `PR(exponential)`, `PR(geometric, start=1, ratio=2)` — ステップ関数の完全な制御用。数値も括弧もない bare `PR` は ParseError。
 
 算術と幾何プログレッションは質的に異なる反応率関数を産出し、文献にコンセンサスのあるデフォルトは存在しない（Killeen et al., 2009; Stafford & Branch, 1998）。証拠の詳細（breakpoint ≠ Pmax を含む）は [design-rationale.md §2](../../../docs/ja/design-rationale.md#2-累進比率pr-ステップ関数が必須である理由) を参照。
 
@@ -907,8 +907,10 @@ Overlay(VI 60-s, FR 1)
 ```
 SecondOrder = Overall(Unit)
 Overall     = AtomicSchedule          -- パラメトリックのみ（EXT, CRF 不可）
-Unit        = AtomicSchedule          -- 単純スケジュールのみ（v1.0）
+Unit        = AtomicSchedule          -- 単純スケジュールのみ（v1.0, 凍結）
 ```
+
+**Unit 制約（v1.0 凍結）.** unit 位置は単純（原子）スケジュールのみを受け付ける。`Chain(FR3, FI10)` や `Conc(FR5, FI30)` 等の複合スケジュールは `INVALID_SECOND_ORDER_UNIT` で拒否される。この制約は歴史的文献の調査に基づき v1.x で凍結される: Kelleher (1966)、Malagodi, DeWeese & Johnston (1973)、Jwaideh (1973) はいずれも simple-inside-simple の配置のみを使用しており、compound inner を用いた二次スケジュール実験の公刊例は存在しない。将来的に新たな実験手続きにより必要性が生じた場合、design-philosophy §7.1 の additive only 原則に従い minor version で拡張可能である。
 
 **構文例.** `FR5(FI30)` = FI 30-s の各完了を 1 単位とし、5 回の単位完了で強化。
 
@@ -1301,3 +1303,78 @@ S₁ ≡ S₂  ⟺  ⟦S₁⟧ ≈ ⟦S₂⟧
 - Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0020364
 - Stokes, P. D. (1995). Learned variability. *Animal Learning & Behavior*, *23*(2), 164-176. https://doi.org/10.3758/BF03199931
 - Wagner, A. R. (1981). SOP: A model of automatic memory processing in animal behavior. In N. E. Spear & R. R. Miller (Eds.), *Information processing in animals: Memory mechanisms* (pp. 5-47). Erlbaum.
+
+---
+
+## Part III: 実験層 — 多フェーズ合成
+
+### 3.1 動機
+
+Part I と Part II はセッション内の随伴性構造を形式化した: 原子スケジュール、結合子、修飾子、及びそれらの代数的・表示的性質。しかし JEAB の実験手続きは、相変化基準を伴う順序付けされたフェーズ（条件）の列から成る — Method セクションが「ベースライン → 処遇 → 反転」や「条件は以下の順序で提示された...」と記述するセッション間構造である。
+
+これら2つのレベルを統一する既存の形式的表記法は存在しない。Mechner (1959) と State Notation (Snapper, Kadden, & Inglis, 1982) はセッション内の試行構造を形式化する。Cooper, Heron, & Heward (2020) はデザイン構造に A-B-A-B 記法を用いる。実験層はこのギャップを橋渡しする。
+
+### 3.2 フェーズ列は非可換モノイド
+
+**定義 13（フェーズ）。** フェーズは三つ組:
+
+```
+Phase = (label : String, meta : PhaseMeta, schedule : ScheduleExpr)
+```
+
+ここで `PhaseMeta` はセッション仕様と安定性基準を含む。
+
+**定義 14（フェーズ列）。** フェーズ列はフェーズの順序付き非空リスト:
+
+```
+PhaseSequence = Phase⁺
+```
+
+**フェーズ列の代数的性質:**
+
+*性質 1（結合則）。* フェーズ列の連結は結合的: `(P₁ ++ P₂) ++ P₃ = P₁ ++ (P₂ ++ P₃)`
+
+*性質 2（非可換性）。* フェーズの順序は重要 — 行動の履歴は不可逆: `[Baseline, Treatment] ≠ [Treatment, Baseline]`。これは実験行動分析の基本的制約: Treatment を Baseline の前に経験した有機体は、Baseline を先に経験した有機体とは異なる行動状態にある (Sidman, 1960, Ch. 4)。
+
+*性質 3（恒等元）。* 空列 `[]` が連結の恒等元。ただし実験は少なくとも1フェーズを必要とする。
+
+**結論:** フェーズ列はフェーズの集合上の*自由モノイド*を形成し、連結が演算である。
+
+### 3.3 Shaping は構文糖衣
+
+**定義 15（Shaping 展開）。** steps 変数 `x = [v₁, ..., vₙ]`、フェーズメタデータ `M`、スケジュールテンプレート `T(x)` を持つ `shaping` 宣言は以下に展開される:
+
+```
+⟦shaping(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
+```
+
+これは `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3) のスケジュール層における類似物であり、実験層で動作する。
+
+**非チューリング完全性:** `steps` リストは有限リテラル — ループ・再帰・算術なし。展開はリスト長で有界な純粋マクロ置換。
+
+### 3.4 実験の表示的意味論
+
+**定義 16（実験マシン）。** 実験マシンはフェーズ列をスケジュールマシンの列に写像する:
+
+```
+⟦experiment⟧ : PhaseSequence → ScheduleMachine*
+⟦[P₁, P₂, ..., Pₙ]⟧ = (⟦P₁.schedule⟧, ⟦P₂.schedule⟧, ..., ⟦Pₙ.schedule⟧)
+```
+
+各 `⟦Pᵢ.schedule⟧` は §2.13 で定義された Mealy マシンスケジュールマシン。**合成性:** 実験レベルの意味論は各フェーズのスケジュール意味論が独立であるため自明に合成的。
+
+### 3.5 アノテーション継承
+
+実験レベルのアノテーションは全フェーズに伝播する（§1.6.1 のプログラムレベル LH 伝播と同構造）:
+
+```
+R0  Experiment → shared_annotations, phases[1..n]
+    ∀i: phases[i].effective_annotations = merge(shared_annotations, phases[i].phase_annotations)
+```
+
+### 参考文献（Part III）
+
+- Cooper, J. O., Heron, T. E., & Heward, W. L. (2020). *Applied behavior analysis* (3rd ed.). Pearson.
+- Mechner, F. (1959). A notation system for the description of behavioral procedures. *JEAB*, 2(2), 133-150. https://doi.org/10.1901/jeab.1959.2-133
+- Sidman, M. (1960). *Tactics of scientific research*. Basic Books.
+- Snapper, A. G., Kadden, R. M., & Inglis, G. B. (1982). State notation of behavioral procedures. *Behavior Research Methods*, 14(4), 329-342. https://doi.org/10.3758/BF03203225

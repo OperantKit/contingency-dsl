@@ -40,6 +40,77 @@
       },
       "required": ["type", "experiments"],
       "additionalProperties": false
+    },
+
+    "Shaping": {
+      "type": "object",
+      "description": "Syntactic sugar for across-session parameter progressions. Desugars to a sequence of Phase nodes (analogous to Repeat → Tand). Present only in pre-expansion AST; resolved AST contains the expanded Phase list. Reference: Sidman (1960), Tactics of scientific research.",
+      "properties": {
+        "type": { "const": "Shaping" },
+        "label": {
+          "type": "string",
+          "description": "Base name for generated phases. Expansion appends _1, _2, ..., _n."
+        },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/StepsDecl" },
+          "minItems": 1,
+          "description": "One or more parameter variables with value lists. All lists must have identical length."
+        },
+        "criterion": {
+          "$ref": "phase-sequence.schema.json#/$defs/Criterion",
+          "description": "Shared phase-change criterion applied to every generated phase."
+        },
+        "schedule_template": {
+          "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Schedule expression with {ident} placeholders referencing steps variables."
+        },
+        "phase_annotations": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "description": "Annotations shared across all generated phases. May contain {ident} placeholders."
+        },
+        "phase_param_decls": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" }
+        }
+      },
+      "required": ["type", "label", "steps", "schedule_template"],
+      "additionalProperties": false
+    },
+
+    "StepsDecl": {
+      "type": "object",
+      "description": "A named parameter variable with a list of literal values for shaping expansion.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z_][a-zA-Z0-9_]*$",
+          "description": "Variable name referenced by {name} placeholders in the schedule template."
+        },
+        "values": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 1,
+          "description": "Finite literal list of parameter values. No computation; preserves non-Turing-completeness."
+        }
+      },
+      "required": ["name", "values"],
+      "additionalProperties": false
+    },
+
+    "PhaseRef": {
+      "type": "object",
+      "description": "Reference to a previously declared phase's schedule. Resolved during expansion by copying the referenced phase's schedule expression. Forward references are not permitted.",
+      "properties": {
+        "type": { "const": "PhaseRef" },
+        "ref": {
+          "type": "string",
+          "description": "Name of the referenced phase. Must match a phase_label declared earlier in the same experiment."
+        }
+      },
+      "required": ["type", "ref"],
+      "additionalProperties": false
     }
   }
 }

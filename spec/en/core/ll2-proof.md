@@ -40,8 +40,8 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `DA_TEMP_KW` | CSUSInterval, ITI, ShockDuration, MaxShock | DA temporal keywords |
 | `MODE_KW` | mode | DA mode keyword |
 | `DA_MODE` | fixed, escape | DA mode values |
-| `PR_STEP` | hodos, exponential, linear | PR step function keywords |
-| `PR_PARAM_KW` | start, increment | PR parameter keywords |
+| `PR_STEP` | hodos, exponential, linear, geometric | PR step function keywords |
+| `PR_PARAM_KW` | start, increment, ratio | PR parameter keywords |
 | `LENGTH_KW` | length | Lag length keyword |
 | `INTERP_KW` | count, onset | interpolate keyword argument names |
 | `NUM` | [0-9]+ ("." [0-9]+)? | numeric literal |
@@ -1024,9 +1024,117 @@ Any future extension to the grammar (e.g., `def` keyword, new combinators, new m
 
 ---
 
+## §11 Experiment Layer Decision Points (v2.0)
+
+The Experiment Layer (grammar.ebnf, `file`, `experiment`, `phase_decl`, `shaping_decl`) introduces the following decision points. All are LL(1) — no new LL(2) points arise.
+
+### §11.1 File-Level Disambiguation
+
+**Decision:** `file → experiment | program`
+
+The parser must decide at the first non-annotation token whether the file is an experiment or a single-phase program.
+
+**FIRST₁ analysis:**
+
+```
+FIRST₁(experiment after annotations) = { KW_PHASE, KW_SHAPING }
+FIRST₁(program after annotations)    = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
+                                      = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
+                                          KW_LET, DIST, KW_EXT, KW_CRF, COMB,
+                                          KW_DRL, KW_DRH, KW_DRO, KW_PR, KW_REPEAT,
+                                          KW_SIDMAN, KW_DISCRIMAV, KW_LAG,
+                                          KW_INTERPOLATE, KW_INTERP,
+                                          IDENT, LPAREN, ... }
+```
+
+Since `KW_PHASE` and `KW_SHAPING` are new reserved tokens not in any existing FIRST₁ set:
+
+```
+{ KW_PHASE, KW_SHAPING } ∩ FIRST₁(program after annotations) = ∅
+```
+
+**Result:** LL(1). ∎
+
+**Note on annotations:** Both `experiment` and `program` may begin with `program_annotation` (token `@`). The parser consumes all leading `@` annotations, then checks the next token. If `KW_PHASE` or `KW_SHAPING`, it is an experiment; otherwise a program. The annotations are valid for either production.
+
+### §11.2 Phase vs. Shaping
+
+**Decision:** Within `experiment`, choose between `phase_decl` and `shaping_decl` at each position.
+
+```
+FIRST₁(phase_decl)   = { KW_PHASE }
+FIRST₁(shaping_decl) = { KW_SHAPING }
+
+{ KW_PHASE } ∩ { KW_SHAPING } = ∅
+```
+
+**Result:** LL(1). ∎
+
+### §11.3 Phase Metadata
+
+**Decision:** `phase_meta → session_spec | stability_spec`
+
+```
+FIRST₁(session_spec)   = { KW_SESSIONS }
+FIRST₁(stability_spec) = { KW_STABLE }
+
+{ KW_SESSIONS } ∩ { KW_STABLE } = ∅
+```
+
+**Result:** LL(1). ∎
+
+### §11.4 Session Spec Operator
+
+**Decision:** `session_spec → "sessions" "=" number | "sessions" ">=" number`
+
+After consuming `KW_SESSIONS`, the parser peeks at the next token:
+
+```
+FIRST₁("=" number)  = { EQUALS }
+FIRST₁(">=" number) = { GTE }
+
+{ EQUALS } ∩ { GTE } = ∅
+```
+
+**Result:** LL(1). ∎
+
+### §11.5 Phase Content vs. Phase Reference
+
+**Decision:** `phase_body_content → phase_content | phase_ref`
+
+```
+FIRST₁(phase_ref)     = { KW_USE }
+FIRST₁(phase_content) = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(annotated_schedule)
+```
+
+Since `KW_USE` is a new reserved token not in any existing FIRST₁ set:
+
+```
+{ KW_USE } ∩ FIRST₁(phase_content) = ∅
+```
+
+**Result:** LL(1). ∎
+
+### §11.6 Summary
+
+The Experiment Layer adds **5 new decision points**, all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
+
+**Updated theorem (extends §8):**
+
+The extended grammar *G'* = Core ∪ Core-Stateful ∪ Experiment satisfies:
+
+1. *G'* is LL(2): all Core and Core-Stateful properties preserved; Experiment Layer is LL(1).
+2. *G'* is not LL(1): the Core PosTail LL(2) point remains.
+3. *G'* is unambiguous (corollary of 1).
+4. The shaping expansion rule (E-SHAPING) operates at the semantic phase and does not affect parsing.
+5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
+
+---
+
 ## References
 
 - Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, Techniques, and Tools* (2nd ed.). Addison-Wesley. §4.4 (LL parsing), §4.8 (Error recovery).
 - Knuth, D. E. (1965). On the translation of languages from left to right. *Information and Control*, *8*(6), 607–639. https://doi.org/10.1016/S0019-9958(65)90426-2
 - Rosenkrantz, D. J., & Stearns, R. E. (1970). Properties of deterministic top-down grammars. *Information and Control*, *17*(3), 226–256. https://doi.org/10.1016/S0019-9958(70)90446-8
+- Sidman, M. (1960). *Tactics of scientific research: Evaluating experimental data in psychology*. Basic Books.
 

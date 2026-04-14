@@ -58,7 +58,7 @@ DSL の文法は4つの基準を満たす:
                   | "RD"  | "ReinforcementDelay"
                   | "BO"  | "Blackout"
                   | "PR" | "Repeat"
-                  | "hodos" | "exponential" | "linear"
+                  | "hodos" | "exponential" | "linear" | "geometric"
                   | "start" | "increment"
                   | "Sidman" | "SidmanAvoidance"
                   | "SSI" | "ShockShockInterval"
@@ -90,9 +90,10 @@ DSL の文法は4つの基準を満たす:
 <pr_mod>        ::= "PR" "(" <pr_opts> ")"
                   | "PR" <ws>? <number>
 <pr_opts>       ::= <pr_step> ("," <pr_param>)*
-<pr_step>       ::= "hodos" | "exponential" | "linear"
+<pr_step>       ::= "hodos" | "exponential" | "linear" | "geometric"
 <pr_param>      ::= "start" "=" <number>
                   | "increment" "=" <number>
+                  | "ratio" "=" <number>
 <repeat>        ::= "Repeat" "(" <number> "," <schedule> ")"
 <lag_mod>       ::= "Lag" <ws>? <number>
                   | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
@@ -309,6 +310,163 @@ Conc(baseline, probe)
 - パーサは設定可能な最大エラー数（推奨デフォルト: 10）で停止してもよい（MAY）。これはカスケードエラーのノイズを防止するためである。
 
 **根拠。** 単一エラーで停止する方式では、ユーザーはエラーを1つずつ修正することを強いられる。これは、1文字の誤りが後続の問題を覆い隠しうる DSL において許容されない。パニックモード回復は、句レベル回復やエラー生成規則回復の複雑さを避けつつ複数エラー報告を可能にする最も単純な戦略である（Aho et al., 2006, §4.8）。
+
+### 3.8 実験層 — 多フェーズ文法（v2.0）
+
+実験層は DSL を拡張し、多フェーズの実験デザイン — JEAB Method セクションが命名された条件の列と相変化基準として記述するセッション間構造 — を記述可能にする。この層は**追加的（additive）**である: `phase` または `shaping` 宣言を含まないファイルは単一フェーズの `program` として解析される（完全な後方互換性）。
+
+**設計根拠。** セッション内の随伴性記述（Mechner, 1959; State Notation, Snapper et al., 1982）とセッション間の実験デザイン構造（A-B-A-B 記法, Cooper et al., 2020）を統一する既存の形式的表記法は存在しない。JEAB 論文はこの2つのレベルを Method セクションの別々の散文で記述する。実験層はこのギャップを、既存のスケジュール文法をフェーズ順序構造内に埋め込むことで橋渡しする。
+
+#### 3.8.1 トップレベルの曖昧性解消
+
+```bnf
+<file>          ::= <experiment> | <program>
+```
+
+**LL(1) 判定:** 最初の非アノテーショントークンが `phase` または `shaping` であればファイルは `experiment`。それ以外は `program`。`phase` と `shaping` は `FIRST₁(Schedule)` に含まれない小文字予約語であるため、曖昧性は生じない。
+
+#### 3.8.2 実験とフェーズ
+
+```bnf
+<experiment>    ::= <program_annotation>* (<phase_decl> | <shaping_decl>)+
+
+<phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
+<phase_name>    ::= <upper_ident>
+<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref>) <annotation>*
+
+<phase_meta>    ::= <session_spec> | <stability_spec>
+<session_spec>  ::= "sessions" ("=" | ">=") <number>
+<stability_spec> ::= "stable" "(" <stability_method> ("," <stability_param>)* ")"
+<stability_method> ::= "visual" | "cv" | "relative-range" | "dual-criterion"
+                     | "performance" | <ident>
+<stability_param>  ::= <ident> "=" (<number> | <number> "%" | <string_literal> | <value>)
+
+<phase_content> ::= <param_decl>* <binding>* <annotated_schedule>
+<phase_ref>     ::= "use" <phase_name>
+<upper_ident>   ::= [A-Z] [a-zA-Z0-9_]*
+```
+
+**意味論:**
+- 最初の `phase`/`shaping` 宣言の前にある `program_annotation` は実験レベルのデフォルトを設定する。フェーズレベルのアノテーションが上書きする（Core のプログラムレベル vs スケジュールレベルと同じ解決規則）。
+- `sessions = N` は固定セッション数を指定する。`sessions >= N` は安定性基準適用前の最低数を指定する。
+- `use <PhaseName>` は参照先フェーズのスケジュール式をコピーする。前方参照は許可されない。
+
+#### 3.8.3 Shaping（構文糖衣）
+
+```bnf
+<shaping_decl>  ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>  ::= <shaping_steps>+ <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<shaping_steps> ::= "steps" <ident> "=" "[" <number_list> "]"
+<number_list>   ::= <number> ("," <number>)*
+```
+
+`shaping` はフェーズ宣言の列に脱糖される。`Repeat(n, S)` → `Tand(S, ..., S)` と同じ戦略。スケジュール式とアノテーション値は `steps` 変数を参照する `{ident}` プレースホルダーを含むことができる。
+
+**展開規則（E-SHAPING）:**
+
+```
+shaping Name:
+  steps x = [v₁, v₂, ..., vₙ]
+  <meta>
+  <schedule_template({x})>
+
+  ≡（以下に脱糖）
+
+phase Name_1: <meta>  <schedule_template(v₁)>
+phase Name_2: <meta>  <schedule_template(v₂)>
+...
+phase Name_n: <meta>  <schedule_template(vₙ)>
+```
+
+**複数変数展開（E-SHAPING-MULTI）:** 複数の `steps` 宣言がある場合、全リストの長さは同一でなければならない。変数はペアワイズで zip される: `(x₁, y₁), (x₂, y₂), ...`。
+
+#### 3.8.4 使用例
+
+**ABA 反転デザイン（Brown et al., 2020, JEAB）:**
+
+```
+@species("rat") @strain("Long-Evans") @n(5)
+@reinforcer("food", type="pellet", magnitude="45mg", duration=3s)
+
+phase Baseline:
+  sessions = 25
+  Conc(VI60s @operandum("target-lever"), EXT @operandum("inactive-lever"))
+
+phase DRA:
+  sessions = 14
+  Conc(VI60s @operandum("target-lever"), VI15s @operandum("nose-poke"), COD=3s)
+
+phase ExtinctionTest:
+  sessions = 5
+  Conc(EXT @operandum("target-lever"), EXT @operandum("nose-poke"))
+```
+
+**シェイピング漸進（Eckard & Kyonka, 2018, Behav Processes）:**
+
+```
+@species("mouse") @strain("C57BL/6J") @n(27)
+@reinforcer("sucrose", concentration="15%")
+
+shaping FI_Training:
+  steps v = [2, 4, 8, 12, 18]
+  sessions >= 3
+  stable(visual)
+  FI {v}s LH3s
+
+phase Peak_Baseline:
+  sessions = 25
+  FI18s LH3s
+
+phase DRL_Intervention:
+  sessions = 38
+  DRL18s
+
+phase Peak_Retest:
+  sessions = 25
+  use Peak_Baseline
+```
+
+**パラメトリック用量反応（Rickard et al., 2009, JEAB）:**
+
+```
+@species("rat") @strain("Wistar") @n(15)
+@session_end(rule="time", time=50min)
+
+shaping DoseResponse:
+  steps vol = [6, 12, 25, 50, 100, 200, 300]
+  sessions = 30
+  PR(exponential)
+  @reinforcer("sucrose", concentration="0.6M", volume="{vol}ul")
+```
+
+#### 3.8.5 実験層の意味制約
+
+| # | 制約 | エラーコード | レベル |
+|---|---|---|---|
+| 63 | フェーズ名の重複 | `DUPLICATE_PHASE_NAME` | SemanticError |
+| 64 | 未定義の `use` 参照 | `UNDEFINED_PHASE_REF` | SemanticError |
+| 65 | Shaping steps 長の不一致 | `SHAPING_STEPS_LENGTH_MISMATCH` | SemanticError |
+| 66 | 空の shaping steps リスト | `SHAPING_EMPTY_STEPS` | SemanticError |
+| 67 | 未定義の shaping プレースホルダー | `SHAPING_UNDEFINED_VARIABLE` | SemanticError |
+| 68 | 実験レベルアノテーションスコーピング | （Core スコーピングを継承） | — |
+| 69 | フェーズごとの session_spec 重複 | `DUPLICATE_SESSION_SPEC` | SemanticError |
+| 70 | フェーズごとの stability_spec 重複 | `DUPLICATE_STABILITY_SPEC` | SemanticError |
+| 71 | `sessions >= 0`（非正） | `SESSION_NONPOSITIVE` | SemanticError |
+| 72 | `sessions = 0`（非正） | `SESSION_NONPOSITIVE` | SemanticError |
+
+#### 3.8.6 LL(1) 検証
+
+実験層の全判定点は LL(1):
+
+| 判定点 | 先読み | トークン集合 |
+|---|---|---|
+| `file → experiment \| program` | 1 | `{phase, shaping}` vs その他全て |
+| `(phase_decl \| shaping_decl)+` | 1 | `phase` vs `shaping` |
+| `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs `stable` |
+| `session_spec → "=" \| ">="` | 1 | `=` vs `>=` |
+| `phase_content \| phase_ref` | 1 | `use` vs その他全て |
+
+新しい LL(2) 判定点は導入されない。[LL(2) 形式的証明 §11](ll2-proof.md) を参照。
 
 ---
 

@@ -109,6 +109,8 @@ number        ::= [0-9]+ ("." [0-9]+)?
 ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
 
 reserved      ::= "let" | "def"
+                | "phase" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
+                | "sessions" | "stable"                   -- phase metadata (v2.0)
                 | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
@@ -118,7 +120,7 @@ reserved      ::= "let" | "def"
                 | "FRCO" | "FixedRatioChangeover" -- v1.1: fixed-ratio changeover (Hunter & Davison, 1985)
                 | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix; Reynolds, 1961)
                 | "PR" | "Repeat"
-                | "hodos" | "exponential" | "linear"
+                | "hodos" | "exponential" | "linear" | "geometric"
                 | "start" | "increment"
                 | "Sidman" | "SidmanAvoidance" -- v1.x: Sidman free-operant avoidance (Sidman, 1953)
                 | "SSI" | "ShockShockInterval"
@@ -216,9 +218,10 @@ pr_mod        ::= "PR" "(" pr_opts ")"                   ; explicit: PR(hodos), 
                 | "PR" ws? number                        ; shorthand: PR 5 → linear, start=5, increment=5
                                                          ;   Jarmolowicz & Lattal (2010, The Behavior Analyst)
 pr_opts       ::= pr_step ("," pr_param)*
-pr_step       ::= "hodos" | "exponential" | "linear"
+pr_step       ::= "hodos" | "exponential" | "linear" | "geometric"
 pr_param      ::= "start" "=" number
                 | "increment" "=" number
+                | "ratio" "=" number
 
 repeat        ::= "Repeat" "(" number "," schedule ")"
 
@@ -408,13 +411,136 @@ string_literal     ::= '"' [^"]* '"'
 ; annotator module and do not affect equivalence judgment. See
 ; spec/ja/annotation-design.md §3.5 for the general principle.
 
+; === Experiment layer (v2.0 — multi-phase experiment description) ===
+;
+; A file is either a single-phase program (backward compatible) or a
+; multi-phase experiment. The parser disambiguates at LL(1): if the first
+; non-annotation token is "phase" or "shaping", the file is an experiment.
+;
+; Design rationale:
+;   JEAB Method sections describe experiments as sequences of named phases
+;   (Baseline → Treatment → Reversal), each with its own schedule, session
+;   count, and stability criterion. No existing formal notation unifies
+;   within-session contingency description with across-session design
+;   structure. The experiment layer fills this gap.
+;
+; Two output modes:
+;   1. Single file, multiple phases: experiment with phase dropdown at runtime
+;   2. Multiple files, one phase each: each file is a standard program
+;
+; Reference: Sidman, M. (1960). Tactics of scientific research. Basic Books.
+
+file          ::= experiment | program     -- backward compatible
+
+experiment    ::= program_annotation* (phase_decl | shaping_decl)+
+
+; --- Phase declaration ---
+;
+; A phase is a named program (schedule + metadata). Phase names start with
+; an uppercase letter to distinguish them from identifiers (lowercase).
+
+phase_decl    ::= "phase" phase_name ":" phase_body
+
+phase_name    ::= upper_ident              -- Baseline, Treatment, DRA
+
+phase_body    ::= phase_meta* (phase_content | phase_ref) annotation*
+
+phase_meta    ::= session_spec
+                | stability_spec
+
+session_spec  ::= "sessions" ("=" | ">=") number
+
+stability_spec ::= "stable" "(" stability_method ("," stability_param)* ")"
+
+stability_method ::= "visual"              -- experimenter judgment (opaque)
+                   | "cv"                  -- coefficient of variation
+                   | "relative-range"      -- Costa & Cancado (2012) Criterion 1
+                   | "dual-criterion"      -- split-half + visual
+                   | "performance"         -- performance threshold
+                   | ident                 -- named/custom criterion
+
+stability_param ::= ident "=" (number | number "%" | string_literal | value)
+
+phase_content ::= param_decl* binding* annotated_schedule
+                                           -- reuses existing program internals
+
+phase_ref     ::= "use" phase_name         -- reuse another phase's schedule
+
+upper_ident   ::= [A-Z] [a-zA-Z0-9_]*     -- must not match reserved
+
+; --- Shaping declaration (syntactic sugar) ---
+;
+; Shaping desugars to a sequence of phase declarations, analogous to
+; Repeat(n, S) → Tand(S, ..., S). The steps list is a finite literal
+; array (no loops, no computation), preserving non-Turing-completeness.
+;
+; Reference: Sidman, M. (1960). Tactics of scientific research. Basic Books.
+;            Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement.
+
+shaping_decl  ::= "shaping" phase_name ":" shaping_body
+
+shaping_body  ::= shaping_steps+ phase_meta* param_decl* binding* annotated_schedule
+
+shaping_steps ::= "steps" ident "=" "[" number_list "]"
+number_list   ::= number ("," number)*
+
+; Shaping placeholders: within a shaping_body, the schedule expression and
+; annotation values may contain "{ident}" placeholders that reference a
+; steps variable. Placeholders are resolved during shaping expansion.
+;
+; Expansion rule (E-SHAPING):
+;   shaping Name:
+;     steps x = [v1, v2, ..., vn]
+;     <meta>*
+;     <schedule_template(x)>
+;
+;     ≡  phase Name_1: <meta>* <schedule_template(v1)>
+;        phase Name_2: <meta>* <schedule_template(v2)>
+;        ...
+;        phase Name_n: <meta>* <schedule_template(vn)>
+;
+; Multi-variable expansion (E-SHAPING-MULTI):
+;   All steps lists must have identical length.
+;   Expansion zips variables pairwise: (x1,y1), (x2,y2), ...
+
+; --- Experiment-level semantic constraints ---
+;
+; 63. phase names: no shadowing. Duplicate phase_name → SemanticError
+;     (DUPLICATE_PHASE_NAME). Shaping-generated names (Name_1, Name_2, ...)
+;     also must not collide with user-defined phase names.
+; 64. use (phase_ref): must reference an already-declared phase (no forward
+;     references). Undeclared phase_name → SemanticError (UNDEFINED_PHASE_REF).
+; 65. shaping steps: all steps lists within a single shaping_decl must have
+;     the same length. Mismatched lengths → SemanticError
+;     (SHAPING_STEPS_LENGTH_MISMATCH).
+; 66. shaping steps: lists must contain at least one element. Empty list
+;     → SemanticError (SHAPING_EMPTY_STEPS).
+; 67. shaping placeholders: every {ident} in the schedule expression or
+;     annotation values must match a declared steps variable. Undefined
+;     placeholder → SemanticError (SHAPING_UNDEFINED_VARIABLE).
+; 68. experiment-level annotations (program_annotation before the first
+;     phase/shaping decl) establish defaults for all phases. Phase-level
+;     annotations override experiment-level defaults for that phase only.
+;     Same scoping semantics as program-level vs schedule-level annotations.
+; 69. session_spec: at most one session_spec per phase. Duplicate →
+;     SemanticError (DUPLICATE_SESSION_SPEC).
+; 70. stability_spec: at most one stability_spec per phase. Duplicate →
+;     SemanticError (DUPLICATE_STABILITY_SPEC).
+; 71. sessions >= N: N must be a positive integer (≥ 1). sessions >= 0 →
+;     SemanticError (SESSION_NONPOSITIVE).
+; 72. sessions = N: N must be a positive integer (≥ 1). sessions = 0 →
+;     SemanticError (SESSION_NONPOSITIVE).
+
 ; === Semantic constraints (enforced post-parse) ===
 ;
 ; 1. let bindings: no shadowing, no forward references, top-level only.
 ; 2. Repeat(n, S) expands to Tand(S, ..., S) [n copies].
 ; 3. Program-level LH default applies to all leaf base_schedules.
 ; 4. second-order overall: parametric atomics only (no EXT, CRF).
-; 5. second-order unit (v1.0): simple schedules only (no compounds).
+; 5. second-order unit (v1.0, frozen): simple schedules only (no compounds).
+;    Compound inner → INVALID_SECOND_ORDER_UNIT (SemanticError).
+;    Rationale: Kelleher (1966), Malagodi et al. (1973), Jwaideh (1973)
+;    all use simple-inside-simple; no published compound-inner exists.
 ; 6. def: reserved keyword, not implemented in v1.0.
 ; 7. Conc combinator: COD specification is optional (implicit default: COD=0s).
 ;    Conc without COD (neither expression-level keyword arg nor program-level

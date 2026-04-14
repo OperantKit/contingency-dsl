@@ -56,7 +56,7 @@ The DSL grammar satisfies four criteria:
                   | "RD"  | "ReinforcementDelay"
                   | "BO"  | "Blackout"
                   | "PR" | "Repeat"
-                  | "hodos" | "exponential" | "linear"
+                  | "hodos" | "exponential" | "linear" | "geometric"
                   | "start" | "increment"
                   | "Sidman" | "SidmanAvoidance"
                   | "SSI" | "ShockShockInterval"
@@ -88,9 +88,10 @@ The DSL grammar satisfies four criteria:
 <pr_mod>        ::= "PR" "(" <pr_opts> ")"
                   | "PR" <ws>? <number>
 <pr_opts>       ::= <pr_step> ("," <pr_param>)*
-<pr_step>       ::= "hodos" | "exponential" | "linear"
+<pr_step>       ::= "hodos" | "exponential" | "linear" | "geometric"
 <pr_param>      ::= "start" "=" <number>
                   | "increment" "=" <number>
+                  | "ratio" "=" <number>
 <repeat>        ::= "Repeat" "(" <number> "," <schedule> ")"
 <lag_mod>       ::= "Lag" <ws>? <number>
                   | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
@@ -306,3 +307,160 @@ Conforming parsers MUST follow this error recovery policy:
 - Parsers MAY stop after a configurable maximum number of errors (recommended default: 10) to prevent cascading error noise.
 
 **Rationale.** Single-error-then-stop forces users to fix one error at a time, which is unacceptable for a DSL where a single misplaced character can mask downstream issues. Panic-mode recovery is the simplest strategy that enables multi-error reporting while avoiding the complexity of phrase-level or error-production recovery (Aho et al., 2006, §4.8).
+
+## 3.8 Experiment Layer — Multi-Phase Grammar (v2.0)
+
+The Experiment Layer extends the DSL to describe multi-phase experimental designs — the across-session structure that JEAB Method sections encode as sequences of named conditions with phase-change criteria. This layer is **additive**: a file without `phase` or `shaping` declarations is parsed as a single-phase `program` (fully backward compatible).
+
+**Design rationale.** No existing formal notation unifies within-session contingency description (Mechner, 1959; State Notation, Snapper et al., 1982) with across-session experimental design structure (A-B-A-B notation, Cooper et al., 2020). JEAB papers describe these two levels in separate prose subsections of the Method. The Experiment Layer bridges this gap by embedding the existing schedule grammar within a phase-sequencing structure.
+
+### 3.8.1 Top-Level Disambiguation
+
+```bnf
+<file>          ::= <experiment> | <program>
+```
+
+**LL(1) decision:** If the first non-annotation token is `phase` or `shaping`, the file is an `experiment`. Otherwise it is a `program`. Since `phase` and `shaping` are lowercase reserved words not in `FIRST₁(Schedule)`, no ambiguity arises.
+
+### 3.8.2 Experiment and Phase
+
+```bnf
+<experiment>    ::= <program_annotation>* (<phase_decl> | <shaping_decl>)+
+
+<phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
+<phase_name>    ::= <upper_ident>
+<phase_body>    ::= <phase_meta>* (<phase_content> | <phase_ref>) <annotation>*
+
+<phase_meta>    ::= <session_spec> | <stability_spec>
+<session_spec>  ::= "sessions" ("=" | ">=") <number>
+<stability_spec> ::= "stable" "(" <stability_method> ("," <stability_param>)* ")"
+<stability_method> ::= "visual" | "cv" | "relative-range" | "dual-criterion"
+                     | "performance" | <ident>
+<stability_param>  ::= <ident> "=" (<number> | <number> "%" | <string_literal> | <value>)
+
+<phase_content> ::= <param_decl>* <binding>* <annotated_schedule>
+<phase_ref>     ::= "use" <phase_name>
+<upper_ident>   ::= [A-Z] [a-zA-Z0-9_]*
+```
+
+**Semantics:**
+- `program_annotation`s before the first `phase`/`shaping` declaration establish experiment-level defaults. Phase-level annotations override (same resolution as program-level vs. schedule-level in Core).
+- `sessions = N` specifies a fixed session count. `sessions >= N` specifies a minimum before stability criteria apply.
+- `use <PhaseName>` copies the referenced phase's schedule expression. Forward references are not permitted.
+
+### 3.8.3 Shaping (Syntactic Sugar)
+
+```bnf
+<shaping_decl>  ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>  ::= <shaping_steps>+ <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<shaping_steps> ::= "steps" <ident> "=" "[" <number_list> "]"
+<number_list>   ::= <number> ("," <number>)*
+```
+
+`shaping` desugars to a sequence of `phase` declarations, analogous to `Repeat(n, S)` → `Tand(S, ..., S)`. The schedule expression and annotation values may contain `{ident}` placeholders that reference `steps` variables.
+
+**Expansion rule (E-SHAPING):**
+
+```
+shaping Name:
+  steps x = [v₁, v₂, ..., vₙ]
+  <meta>
+  <schedule_template({x})>
+
+  ≡  (desugars to)
+
+phase Name_1: <meta>  <schedule_template(v₁)>
+phase Name_2: <meta>  <schedule_template(v₂)>
+...
+phase Name_n: <meta>  <schedule_template(vₙ)>
+```
+
+**Multi-variable expansion (E-SHAPING-MULTI):** If multiple `steps` declarations are present, all lists must have identical length. Variables are zipped pairwise: `(x₁, y₁), (x₂, y₂), ...`.
+
+### 3.8.4 Usage Examples
+
+**ABA Reversal (Brown et al., 2020, JEAB):**
+
+```
+@species("rat") @strain("Long-Evans") @n(5)
+@reinforcer("food", type="pellet", magnitude="45mg", duration=3s)
+
+phase Baseline:
+  sessions = 25
+  Conc(VI60s @operandum("target-lever"), EXT @operandum("inactive-lever"))
+
+phase DRA:
+  sessions = 14
+  Conc(VI60s @operandum("target-lever"), VI15s @operandum("nose-poke"), COD=3s)
+
+phase ExtinctionTest:
+  sessions = 5
+  Conc(EXT @operandum("target-lever"), EXT @operandum("nose-poke"))
+```
+
+**Shaping Progression (Eckard & Kyonka, 2018, Behav Processes):**
+
+```
+@species("mouse") @strain("C57BL/6J") @n(27)
+@reinforcer("sucrose", concentration="15%")
+
+shaping FI_Training:
+  steps v = [2, 4, 8, 12, 18]
+  sessions >= 3
+  stable(visual)
+  FI {v}s LH3s
+
+phase Peak_Baseline:
+  sessions = 25
+  FI18s LH3s
+
+phase DRL_Intervention:
+  sessions = 38
+  DRL18s
+
+phase Peak_Retest:
+  sessions = 25
+  use Peak_Baseline
+```
+
+**Parametric Dose-Response (Rickard et al., 2009, JEAB):**
+
+```
+@species("rat") @strain("Wistar") @n(15)
+@session_end(rule="time", time=50min)
+
+shaping DoseResponse:
+  steps vol = [6, 12, 25, 50, 100, 200, 300]
+  sessions = 30
+  PR(exponential)
+  @reinforcer("sucrose", concentration="0.6M", volume="{vol}ul")
+```
+
+### 3.8.5 Experiment-Level Semantic Constraints
+
+| # | Constraint | Error Code | Level |
+|---|---|---|---|
+| 63 | Duplicate phase names | `DUPLICATE_PHASE_NAME` | SemanticError |
+| 64 | Undefined `use` reference | `UNDEFINED_PHASE_REF` | SemanticError |
+| 65 | Shaping steps length mismatch | `SHAPING_STEPS_LENGTH_MISMATCH` | SemanticError |
+| 66 | Empty shaping steps list | `SHAPING_EMPTY_STEPS` | SemanticError |
+| 67 | Undefined shaping placeholder | `SHAPING_UNDEFINED_VARIABLE` | SemanticError |
+| 68 | Experiment-level annotation scoping | (inherits Core scoping) | — |
+| 69 | Duplicate session_spec per phase | `DUPLICATE_SESSION_SPEC` | SemanticError |
+| 70 | Duplicate stability_spec per phase | `DUPLICATE_STABILITY_SPEC` | SemanticError |
+| 71 | `sessions >= 0` (nonpositive) | `SESSION_NONPOSITIVE` | SemanticError |
+| 72 | `sessions = 0` (nonpositive) | `SESSION_NONPOSITIVE` | SemanticError |
+
+### 3.8.6 LL(1) Verification
+
+All Experiment Layer decision points are LL(1):
+
+| Decision Point | Lookahead | Token Sets |
+|---|---|---|
+| `file → experiment \| program` | 1 | `{phase, shaping}` vs. all others |
+| `(phase_decl \| shaping_decl)+` | 1 | `phase` vs. `shaping` |
+| `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs. `stable` |
+| `session_spec → "=" \| ">="` | 1 | `=` vs. `>=` |
+| `phase_content \| phase_ref` | 1 | `use` vs. all others |
+
+No new LL(2) decision points are introduced. See [LL(2) Formal Proof §11](ll2-proof.md) for the verification.

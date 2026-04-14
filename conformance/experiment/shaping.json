@@ -1,0 +1,137 @@
+[
+  {
+    "id": "shaping_single_variable",
+    "description": "Shaping with single variable expands to 5 phases",
+    "input": "shaping FI_Training:\n  steps v = [2, 4, 8, 12, 18]\n  sessions >= 3\n  stable(visual)\n  FI {v}s LH3s",
+    "expected_note": "Shaping desugars to 5 phase declarations: FI_Training_1 through FI_Training_5",
+    "expected": {
+      "type": "PhaseSequence",
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "FI_Training_1",
+          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
+          "schedule": {
+            "type": "LimitedHold",
+            "hold_duration": 3.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 2.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "FI_Training_2",
+          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
+          "schedule": {
+            "type": "LimitedHold",
+            "hold_duration": 3.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 4.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "FI_Training_3",
+          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
+          "schedule": {
+            "type": "LimitedHold",
+            "hold_duration": 3.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 8.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "FI_Training_4",
+          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
+          "schedule": {
+            "type": "LimitedHold",
+            "hold_duration": 3.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 12.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "FI_Training_5",
+          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
+          "schedule": {
+            "type": "LimitedHold",
+            "hold_duration": 3.0,
+            "time_unit": "s",
+            "inner": { "type": "Atomic", "dist": "F", "domain": "I", "value": 18.0, "time_unit": "s" }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "shaping_fixed_sessions",
+    "description": "Shaping with fixed session count (parametric dose-response)",
+    "input": "shaping DoseResponse:\n  steps vol = [6, 12, 25, 50, 100, 200, 300]\n  sessions = 30\n  PR(exponential)",
+    "expected_note": "Expands to 7 phases: DoseResponse_1 through DoseResponse_7, each with PR(exponential) and sessions=30",
+    "expected": {
+      "type": "PhaseSequence",
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "DoseResponse_1",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_2",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_3",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_4",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_5",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_6",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        },
+        {
+          "type": "Phase",
+          "label": "DoseResponse_7",
+          "criterion": { "type": "FixedSessions", "count": 30 },
+          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+        }
+      ]
+    }
+  },
+  {
+    "id": "shaping_multi_variable",
+    "description": "Shaping with two variables zipped pairwise",
+    "input": "shaping AvoidanceTrain:\n  steps rsi = [60, 80, 100, 120]\n  steps intensity = [0.2, 0.3, 0.4, 0.5]\n  sessions >= 5\n  stable(visual)\n  Sidman(SSI=5s, RSI={rsi}s)",
+    "expected_note": "Expands to 4 phases with RSI values 60, 80, 100, 120 and intensity values 0.2, 0.3, 0.4, 0.5",
+    "expected_phase_count": 4,
+    "expected_labels": ["AvoidanceTrain_1", "AvoidanceTrain_2", "AvoidanceTrain_3", "AvoidanceTrain_4"]
+  },
+  {
+    "id": "shaping_mixed_with_phases",
+    "description": "Shaping declaration mixed with regular phase declarations",
+    "input": "phase Pretraining:\n  sessions = 5\n  CRF\n\nshaping FI_Training:\n  steps v = [2, 8, 18]\n  sessions >= 3\n  FI {v}s\n\nphase Terminal:\n  sessions = 25\n  FI18s",
+    "expected_note": "Pretraining (1 phase) + FI_Training (3 expanded phases) + Terminal (1 phase) = 5 phases total",
+    "expected_phase_count": 5,
+    "expected_labels": ["Pretraining", "FI_Training_1", "FI_Training_2", "FI_Training_3", "Terminal"]
+  }
+]

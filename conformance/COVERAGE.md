@@ -17,9 +17,10 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Core** | 16 | 420 | ✅ Primary coverage |
 | **Core-Stateful** | 4 | 92 | ✅ Full coverage |
 | **Core-Trial-Based** | 2 | 62 | ✅ Full coverage |
+| **Experiment** | 3 | 20 | ✅ Full coverage |
 | **Annotations** | 3 | 69 | ✅ Full coverage |
 | **Representations (T-τ)** | 4 | 33 | ✅ Full coverage |
-| **Total** | **30** | **676** | |
+| **Total** | **33** | **696** | |
 
 ---
 
@@ -47,7 +48,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | 16 | `time_unit` | `core/atomic.json`, `core/warnings.json` | `atomic_vi60s` (s), `atomic_vi_ms` (ms), `atomic_fi_min` (min), `atomic_fi_hyphen_sec` (sec→s normalization) | ✅ s, sec, ms, min |
 | 17 | `number` | `core/atomic.json`, `core/boundary-values.json` | integer: `atomic_fr5`; float: `atomic_fr_float`; large: `boundary_fr_large` | ✅ |
 | 18 | `ident` | `core/binding.json` | `let_simple`, `let_underscore_name` | ✅ |
-| 19 | `reserved` | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_param_increment` | ✅ 6 cases |
+| 19 | `reserved` | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
 | 20 | `compound` | `core/compound.json` | 34 cases | ✅ |
 | 21 | `combinator` | `core/compound.json` | Conc: `conc_vi_vi`; Alt: `alt_fr_fi`; Conj: `conj_fr_fi`; Chain: `chain_fr_fi`; Tand: `tand_vr_drl`; Mult: `mult_fr_ext`; Mix: `mix_fr_fr`; Overlay: `overlay_basic` | ✅ All 8 |
 | 22 | `interpolate` | `core/interpolated.json` | `interpolate_basic` .. `interpolate_with_let_binding` | ✅ 7 cases |
@@ -61,10 +62,10 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | 30 | `kw_name` | `core/compound.json`, `core/compound-kw-aliases.json` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | ✅ All 6 |
 | 31 | `modifier` | `core/modifier.json` | 23 cases | ✅ |
 | 32 | `dr_mod` | `core/modifier.json` | `drl_5s`, `drh_2s`, `dro_10s`, `drl_space` | ✅ DRL, DRH, DRO |
-| 33 | `pr_mod` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_shorthand_5`, `pr_shorthand_1`, `pr_shorthand_no_space` | ✅ Both forms |
-| 34 | `pr_opts` | `core/modifier.json` | `pr_hodos` (no params), `pr_linear` (with params) | ✅ |
-| 35 | `pr_step` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential` | ✅ All 3 |
-| 36 | `pr_param` | `core/modifier.json` | start + increment in `pr_linear` | ✅ |
+| 33 | `pr_mod` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric`, `pr_geometric_defaults`, `pr_shorthand_5`, `pr_shorthand_1`, `pr_shorthand_no_space` | ✅ Both forms |
+| 34 | `pr_opts` | `core/modifier.json` | `pr_hodos` (no params), `pr_linear` (with params), `pr_geometric` (with params) | ✅ |
+| 35 | `pr_step` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric` | ✅ All 4 |
+| 36 | `pr_param` | `core/modifier.json` | start + increment in `pr_linear`; start + ratio in `pr_geometric` | ✅ |
 | 37 | `repeat` | `core/modifier.json`, `core/algebra.json` | `repeat_3_fr10`, `repeat_nested`, `repeat_1_identity`, `repeat_identity`, `repeat_additive_decomposition` | ✅ |
 | 38 | `lag_mod` | `core/modifier.json` | `lag_simple_shorthand`, `lag_simple_no_space`, `lag_zero_equiv_crf`, `lag_parenthesized_n_only`, `lag_parenthesized_with_length`, `lag_page_neuringer_exp3`, `lag_in_mult_schedule`, `lag_let_binding` | ✅ 8 cases |
 | 39 | `lag_kw_arg` | `core/modifier.json`, `core/errors.json` | `lag_parenthesized_with_length`, `lag_page_neuringer_exp3` | ✅ |
@@ -85,6 +86,27 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | 54 | `string_literal` | `annotations/measurement.json`, `annotations/program-level.json` | `measurement_full_preamble`, `program_annotations_full_preamble` | ✅ |
 
 **Summary:** 54 productions; 52 with dedicated coverage, 1 implicit (`ws`), 1 transitive (`base_schedule`).
+
+### §1.1b Experiment Layer Grammar (`schema/core/grammar.ebnf`, v2.0 additions)
+
+| # | Production | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| E1 | `file` | `experiment/phase.json` | `phase_simple_aba` (experiment path) + all core tests (program path) | ✅ Both branches |
+| E2 | `experiment` | `experiment/phase.json` | `phase_simple_aba`, `phase_shared_annotations` | ✅ |
+| E3 | `phase_decl` | `experiment/phase.json` | `phase_simple_aba` (3 phases), `phase_with_stability`, `phase_with_cv_stability`, `phase_use_reference` | ✅ 5 cases |
+| E4 | `phase_name` | `experiment/phase.json` | Baseline, Treatment, Reversal, Training, Rich, Lean | ✅ 6 names |
+| E5 | `phase_body` | `experiment/phase.json` | with schedule, with `use` reference | ✅ Both |
+| E6 | `phase_meta` | `experiment/phase.json` | session_spec: `phase_simple_aba`; stability_spec: `phase_with_stability` | ✅ Both |
+| E7 | `session_spec` | `experiment/phase.json`, `experiment/errors.json` | `=`: `phase_simple_aba`; `>=`: `phase_with_stability` | ✅ Both operators |
+| E8 | `stability_spec` | `experiment/phase.json` | visual: `phase_with_stability`; cv: `phase_with_cv_stability` | ✅ 2 methods |
+| E9 | `stability_method` | `experiment/phase.json` | `visual`, `cv` | ✅ 2 of 6 |
+| E10 | `stability_param` | `experiment/phase.json` | window=5, threshold=5% | ✅ |
+| E11 | `phase_ref` | `experiment/phase.json`, `experiment/errors.json` | `phase_use_reference`, `error_undefined_phase_ref`, `error_forward_phase_ref` | ✅ 3 cases |
+| E12 | `shaping_decl` | `experiment/shaping.json` | `shaping_single_variable`, `shaping_fixed_sessions`, `shaping_multi_variable`, `shaping_mixed_with_phases` | ✅ 4 cases |
+| E13 | `shaping_steps` | `experiment/shaping.json`, `experiment/errors.json` | single: `shaping_single_variable`; multi: `shaping_multi_variable`; empty: `error_shaping_empty_steps` | ✅ |
+| E14 | `number_list` | `experiment/shaping.json` | 5 elements: `shaping_single_variable`; 7: `shaping_fixed_sessions`; 4: `shaping_multi_variable` | ✅ |
+
+**Summary:** 14 productions; all with dedicated coverage.
 
 ### §1.2 Core-Stateful Grammar (`schema/core-stateful/grammar.ebnf`)
 
@@ -125,7 +147,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | Let-binding expansion | grammar.ebnf §5 | `core/binding.json` | `let_simple` .. `let_in_second_order_both` (9 cases) | ✅ |
 | Repeat desugaring | theory.md §2.2.3 | `core/algebra.json` | `repeat_identity`, `repeat_additive_decomposition` | ✅ |
 | Value range constraints | grammar.ebnf §46–§62 | `core/boundary-values.json` | 54 cases (all atomic/DR/PR/LH/Repeat/FRCO/SecondOrder boundary values) | ✅ |
-| SecondOrder semantics | theory.md §2.11.1 | `core/second_order.json` | 5 basic parsing cases | ⚠️ Basic only |
+| SecondOrder semantics | theory.md §2.11.1 | `core/second_order.json`, `core/errors.json` | 5 basic parsing + 4 compound-unit rejection cases | ✅ |
 | Annotation measurement parsing | annotations spec | `annotations/measurement.json` | 29 cases (all 10 keywords v1.0–v1.2) | ✅ |
 | Annotation measurement errors | annotations spec | `annotations/errors.json` | 36 cases (incl. 2 cross-annotation) | ✅ |
 | Cross-annotation composition | design-philosophy.md §4 | `annotations/program-level.json` | `program_annotations_all_four_jeab_categories` | ✅ |
@@ -155,7 +177,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `EXPECTED_COMMA_OR_RPAREN` | ParseError | `core/errors.json` | `error_missing_comma` | ✅ |
 | `EXPECTED_LPAREN_OR_NUMBER` | ParseError | `core/errors.json` | `error_pr_bare` | ✅ |
 | `KEYWORD_BEFORE_POSITIONAL` | ParseError | `core/errors.json` | `error_keyword_before_positional` | ✅ |
-| `RESERVED_WORD` | ParseError | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_param_increment` | ✅ 6 cases |
+| `RESERVED_WORD` | ParseError | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
 | `INVALID_SECOND_ORDER_OVERALL` | ParseError | `core/errors.json` | `error_second_order_ext_overall`, `error_crf_second_order_overall` | ✅ 2 cases |
 
 ### §3.2 Core Semantic Errors — Binding / Variable
@@ -172,10 +194,11 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 |---|---|---|---|---|
 | `ATOMIC_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_atomic_nonpositive_ratio`, `error_atomic_nonpositive_interval`, `boundary_fr_zero` .. `boundary_rt_zero` (10), `boundary_fr_zero_compact`, `boundary_second_order_fr0`, `multi_error_semantic_nonpositive_values`, `multi_error_semantic_mixed_codes`, `multi_error_semantic_nonpositive_and_duplicate_kw` | ✅ 17 cases |
 | `DR_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_dr_nonpositive`, `boundary_drl_zero`, `boundary_drh_zero`, `boundary_dro_zero`, `multi_error_semantic_mixed_codes` | ✅ 5 cases |
-| `PR_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_pr_nonpositive_shorthand`, `error_pr_nonpositive_start`, `error_pr_nonpositive_increment`, `boundary_pr_shorthand_zero`, `boundary_pr_linear_zero_start`, `boundary_pr_linear_zero_increment` | ✅ 6 cases |
+| `PR_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_pr_nonpositive_shorthand`, `error_pr_nonpositive_start`, `error_pr_nonpositive_increment`, `boundary_pr_shorthand_zero`, `boundary_pr_linear_zero_start`, `boundary_pr_linear_zero_increment`, `boundary_pr_geometric_zero_start` | ✅ 7 cases |
 | `PR_NON_INTEGER_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_pr_non_integer_start`, `error_pr_non_integer_increment`, `error_pr_non_integer_shorthand`, `boundary_pr_fractional_shorthand`, `boundary_pr_fractional_start`, `boundary_pr_fractional_increment` | ✅ 6 cases |
 | `LH_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_lh_nonpositive_expression`, `error_lh_nonpositive_expression_ms`, `error_lh_nonpositive_program_level`, `boundary_lh_zero` | ✅ 4 cases |
 | `FRCO_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_frco_nonpositive`, `boundary_conc_frco_zero` | ✅ 2 cases |
+| `PR_GEOMETRIC_RATIO_NOT_PROGRESSIVE` | SemanticError | `core/boundary-values.json` | `boundary_pr_geometric_ratio_one`, `boundary_pr_geometric_ratio_below_one` | ✅ 2 cases |
 | `REPEAT_ZERO_COUNT` | SemanticError | `core/errors.json` | `error_repeat_zero` | ✅ |
 | `REPEAT_NON_INTEGER_COUNT` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_repeat_non_integer`, `boundary_repeat_fractional`, `boundary_repeat_fractional_large` | ✅ 3 cases |
 
@@ -193,6 +216,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `INTERPOLATE_ONSET_TIME_UNIT_REQUIRED` | SemanticError | `core/errors.json` | `error_interpolate_onset_no_time_unit` | ✅ |
 | `INTERPOLATE_NONPOSITIVE_ONSET` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_onset_nonpositive`, `error_interpolate_onset_negative` | ✅ 2 cases |
 | `DUPLICATE_INTERPOLATE_KW_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_duplicate_count`, `error_interpolate_duplicate_onset` | ✅ 2 cases |
+| `INVALID_SECOND_ORDER_UNIT` | SemanticError | `core/errors.json` | `error_second_order_chain_unit`, `error_second_order_tand_unit`, `error_second_order_conc_unit`, `error_second_order_mult_unit` | ✅ 4 cases |
 
 ### §3.5 Core Semantic Errors — Directional COD
 
