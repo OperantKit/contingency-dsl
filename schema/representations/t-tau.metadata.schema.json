@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/representations/t-tau.metadata.schema.json",
+  "title": "T-tau Representation Metadata (Layer 1)",
+  "description": "Representation-local metadata for T-tau conversions (DESIGN.md §5). Core (exact) conversions produce no metadata. Approximate conversions produce IRTAssumption metadata. This metadata is NOT part of the annotation set and is discarded on backward conversion (requirement M2).",
+  "version": "1.0",
+  "status": "Draft",
+
+  "exact_conversion": {
+    "description": "Core T-tau conversion (to_ttau / from_ttau) produces no representation metadata.",
+    "metadata": {}
+  },
+
+  "approximate_conversion": {
+    "description": "Approximate conversion (Ratio → T-tau) produces IRTAssumption metadata on the TTauApprox result type.",
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "assumption": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "IRTAssumption",
+              "description": "Discriminator for the assumption type."
+            },
+            "irt": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Assumed mean inter-response time in seconds."
+            }
+          },
+          "required": ["type", "irt"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["assumption"],
+      "additionalProperties": false
+    }
+  },
+
+  "lifecycle": {
+    "forward": "Metadata is generated during approximate conversion and attached to TTauApprox result type.",
+    "backward": "Metadata is discarded during reverse conversion (requirement M2). The restored schedule carries only Layer 0 (source annotations).",
+    "roundtrip": "After forward + backward, metadata does not survive. Only source annotations are preserved."
+  }
+}
