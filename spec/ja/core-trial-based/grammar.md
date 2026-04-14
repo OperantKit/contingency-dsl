@@ -177,3 +177,142 @@ Mult(ab_training, ba_test)
 | `MTS_IDENTITY_WITH_CLASSES` | type=identity で `@stimulus_classes` あり | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | type=arbitrary で `@stimulus_classes` なし | WARNING |
 | `MTS_SHORT_ITI` | ITI < 1s | WARNING |
+
+---
+
+## §2. Go/No-Go 弁別 — `GoNoGo`
+
+Skinner, B. F. (1938). *The behavior of organisms: An experimental
+analysis*. Appleton-Century-Crofts.
+
+Terrace, H. S. (1963). Discrimination learning with and without
+"errors." *JEAB*, *6*(1), 1–27.
+https://doi.org/10.1901/jeab.1963.6-1
+
+Dinsmoor, J. A. (1995a). Stimulus control: Part I. *The Behavior
+Analyst*, *18*(1), 51–68.
+
+Nevin, J. A. (1969). Signal detection theory and operant behavior.
+*JEAB*, *12*(3), 475–480.
+https://doi.org/10.1901/jeab.1969.12-475
+
+### 構文
+
+```
+GoNoGo(response_window=5s, consequence=CRF, ITI=10s)             -- 最小形
+GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s,
+       ITI=10s)                                                    -- incorrect 指定
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)                                 -- SDT 型
+```
+
+### パラメータ
+
+| パラメータ | 位置 | 型 | 必須 | デフォルト | 説明 |
+|---|---|---|---|---|---|
+| `response_window` | keyword | 時間値 | ✅ | — | 応答機会の持続時間 |
+| `consequence` | keyword | schedule | ✅ | — | hit（Go + 応答）の結果事象 |
+| `incorrect` | keyword | schedule | — | `EXT` | 誤答（miss + false alarm フォールバック）の結果事象 |
+| `false_alarm` | keyword | schedule | — | = `incorrect` | NoGo 誤答専用の結果事象（`incorrect` を上書き） |
+| `ITI` | keyword | 時間値 | ✅ | — | 試行間間隔 |
+
+全パラメータが keyword（positional 引数なし）。
+
+### 試行構造（意味論）
+
+```
+1. 刺激提示         （SD or SΔ、単一刺激）
+2. 応答窓           （response_window の持続時間）
+   ├─ 応答あり     → 応答=true で EVALUATE へ
+   └─ 窓の終了     → 応答=false で EVALUATE へ
+3. 評価（2×2 結果行列）
+   ├─ Go + 応答     → HIT（正答）         → consequence を実行
+   ├─ Go + 無応答   → MISS（オミッション） → incorrect を実行
+   ├─ NoGo + 応答   → FALSE ALARM         → false_alarm を実行
+   └─ NoGo + 無応答 → CORRECT REJECTION   → EXT（暗黙的、プログラムされた結果なし）
+4. 試行間間隔       （ITI、全刺激消去）
+5. → 次の試行
+```
+
+### 2×2 結果行列
+
+|  | 応答あり | 応答なし |
+|---|---|---|
+| **Go (SD)** | HIT → `consequence` | MISS → `incorrect` |
+| **NoGo (SΔ)** | FALSE ALARM → `false_alarm` | CORRECT REJECTION → EXT |
+
+Correct rejection は常に EXT（プログラムされた結果なし）。標準的な Go/No-Go
+手続きでは、正しい反応抑制に対して明示的な結果事象を伴わない（Dinsmoor, 1995a）。
+
+### 結果事象パラメータ
+
+`consequence`、`incorrect`、`false_alarm` は MTS の結果事象パラメータと
+同じ制約に従う:
+
+| 適切な値 | 説明 |
+|---|---|
+| `CRF` / `FR1` | 毎 hit 強化（最も一般的） |
+| `EXT` | フィードバックなし（プローブ試行、correct rejection の既定） |
+| `FT10s` | タイムアウト（通常 `false_alarm` / `incorrect` 用） |
+| `VR3` | 間欠強化（維持フェーズ） |
+
+### 信号検出理論的配置
+
+`false_alarm` パラメータにより SDT 型の非対称結果配置が可能
+（Nevin, 1969; Davison & Tustin, 1978）:
+
+```
+-- Nevin (1969) 型: false alarm → タイムアウト、miss → 消去
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)
+```
+
+### アノテーション
+
+```
+-- 刺激仕様
+@sd("tone", frequency=4000, duration=1s)
+@s_delta("light", intensity=50)
+@go_ratio(0.7)
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)
+
+-- errorless discrimination（Terrace, 1963）
+@fading(method="stimulus", steps=10)
+GoNoGo(response_window=5s, consequence=CRF, ITI=10s)
+```
+
+### 複合構文との組み合わせ
+
+```
+-- 多元スケジュール: GoNoGo と消去を交替
+Mult(GoNoGo(response_window=5s, consequence=CRF, ITI=10s), EXT)
+
+-- 連鎖: FR5 完了後に弁別試行
+Chain(FR5, GoNoGo(response_window=5s, consequence=CRF, ITI=10s))
+
+-- let binding: 訓練 vs プローブ
+let training = GoNoGo(response_window=5s, consequence=CRF,
+                       incorrect=EXT, false_alarm=FT10s, ITI=15s)
+let probe = GoNoGo(response_window=5s, consequence=EXT, ITI=15s)
+Mult(training, probe)
+```
+
+### 意味論的制約
+
+| コード | 条件 | 深刻度 |
+|---|---|---|
+| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | response_window ≤ 0 | SemanticError |
+| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | response_window に時間単位なし | SemanticError |
+| `MISSING_GONOGO_PARAM` | `response_window`、`consequence`、`ITI` のいずれか未指定 | SemanticError |
+| `GONOGO_NONPOSITIVE_ITI` | ITI ≤ 0 | SemanticError |
+| `GONOGO_ITI_TIME_UNIT_REQUIRED` | ITI に時間単位なし | SemanticError |
+| `GONOGO_INVALID_CONSEQUENCE` | consequence/incorrect/false_alarm が compound schedule | SemanticError |
+| `GONOGO_RECURSIVE_CONSEQUENCE` | consequence/incorrect/false_alarm が trial_based_schedule | SemanticError |
+| `DUPLICATE_GONOGO_KW_ARG` | keyword 引数の重複 | SemanticError |
+| `GONOGO_SHORT_RESPONSE_WINDOW` | response_window < 500ms | WARNING |
+| `GONOGO_LONG_RESPONSE_WINDOW` | response_window > 60s | WARNING |
+| `GONOGO_NO_REINFORCEMENT` | consequence=EXT | WARNING |
+| `GONOGO_SHORT_ITI` | ITI < 1s | WARNING |
+| `GONOGO_LH_REDUNDANT` | LH が GoNoGo に適用 | WARNING |
+| `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | false_alarm 指定あり、incorrect 省略 | WARNING |

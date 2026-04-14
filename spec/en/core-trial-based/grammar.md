@@ -50,20 +50,30 @@ semantically inappropriate combinations are handled by Linter WARNINGs.
 ### Limited Hold Compatibility
 
 Unlike free-operant modifiers, **LH (Limited Hold) is compatible with
-trial-based schedules**. LH constrains the response window within the
-COMPARISON state of the trial:
+trial-based schedules**. The semantics differ by trial type:
+
+**MTS + LH:** LH constrains the response window within the COMPARISON
+state. If the subject does not select a comparison within the LH
+duration, the trial terminates and `incorrect` executes. Standard
+MTS procedure.
 
 ```
 MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s
 ```
 
-If the subject does not emit a comparison selection within the LH
-duration, the trial terminates and the `incorrect` schedule executes
-(omission = incorrect). This is standard MTS procedure.
+**GoNoGo + LH:** Semantically redundant — `response_window` already
+defines the response opportunity duration. LH on GoNoGo triggers a
+linter WARNING. If LH < response_window, LH becomes the effective
+response window.
+
+```
+GoNoGo(response_window=5s, consequence=CRF, ITI=10s) LH3s   -- WARNING
+```
 
 | Code | Condition | Severity |
 |---|---|---|
-| `MTS_LONG_LH` | LH > 5min | WARNING |
+| `MTS_LONG_LH` | LH > 5min on MTS | WARNING |
+| `GONOGO_LH_REDUNDANT` | LH applied to GoNoGo | WARNING |
 
 ---
 
@@ -200,3 +210,158 @@ Mult(ab_training, ba_test)
 | `MTS_IDENTITY_WITH_CLASSES` | type=identity with `@stimulus_classes` | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | type=arbitrary without `@stimulus_classes` | WARNING |
 | `MTS_SHORT_ITI` | ITI < 1s | WARNING |
+
+---
+
+## §2. Go/No-Go Discrimination — `GoNoGo`
+
+Skinner, B. F. (1938). *The behavior of organisms: An experimental
+analysis*. Appleton-Century-Crofts.
+
+Terrace, H. S. (1963). Discrimination learning with and without
+"errors." *JEAB*, *6*(1), 1–27.
+https://doi.org/10.1901/jeab.1963.6-1
+
+Dinsmoor, J. A. (1995a). Stimulus control: Part I. *The Behavior
+Analyst*, *18*(1), 51–68.
+
+Nevin, J. A. (1969). Signal detection theory and operant behavior.
+*JEAB*, *12*(3), 475–480.
+https://doi.org/10.1901/jeab.1969.12-475
+
+### Syntax
+
+```
+GoNoGo(response_window=5s, consequence=CRF, ITI=10s)             -- minimal
+GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s,
+       ITI=10s)                                                    -- with incorrect
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)                                 -- SDT-style
+```
+
+### Parameters
+
+| Parameter | Position | Type | Required | Default | Description |
+|---|---|---|---|---|---|
+| `response_window` | keyword | time value | YES | — | Duration of response opportunity |
+| `consequence` | keyword | schedule | YES | — | Core schedule for hit (Go + response) |
+| `incorrect` | keyword | schedule | NO | `EXT` | Core schedule for errors (miss + false alarm fallback) |
+| `false_alarm` | keyword | schedule | NO | = `incorrect` | Core schedule for NoGo errors (overrides `incorrect` for false alarms) |
+| `ITI` | keyword | time value | YES | — | Inter-trial interval |
+
+All parameters are keyword-only (no positional arguments).
+
+### Trial Structure (Semantics)
+
+```
+1. Stimulus presentation   (SD or SΔ, single stimulus)
+2. Response window          (response_window duration)
+   ├─ response emitted     → EVALUATE with response=true
+   └─ window expires       → EVALUATE with response=false
+3. Evaluate (2×2 outcome matrix)
+   ├─ Go + response        → HIT               → execute consequence
+   ├─ Go + no response     → MISS              → execute incorrect
+   ├─ NoGo + response      → FALSE ALARM       → execute false_alarm
+   └─ NoGo + no response   → CORRECT REJECTION → EXT (implicit)
+4. Inter-Trial Interval     (ITI duration, all stimuli off)
+5. → next trial
+```
+
+### 2×2 Outcome Matrix
+
+|  | Response | No Response |
+|---|---|---|
+| **Go (SD)** | HIT → `consequence` | MISS → `incorrect` |
+| **NoGo (SΔ)** | FALSE ALARM → `false_alarm` | CORRECT REJECTION → EXT |
+
+Correct rejection always produces EXT (no programmed consequence).
+This reflects the standard Go/No-Go procedure where correctly
+withholding a response has no explicit consequence (Dinsmoor, 1995a).
+
+### Consequence Parameters
+
+`consequence`, `incorrect`, and `false_alarm` follow the same
+restrictions as MTS consequence parameters:
+
+| Appropriate | Description |
+|---|---|
+| `CRF` / `FR1` | Every hit reinforced (most common) |
+| `EXT` | No feedback (probe trials, correct rejection default) |
+| `FT10s` | Timeout (typically for `false_alarm` or `incorrect`) |
+| `VR3` | Intermittent reinforcement (maintenance phase) |
+
+### Signal Detection Theory Arrangement
+
+The `false_alarm` parameter enables the SDT-style asymmetric
+consequence arrangement (Nevin, 1969; Davison & Tustin, 1978):
+
+```
+-- Nevin (1969) style: false alarm → timeout, miss → extinction
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)
+```
+
+The 2×2 outcome matrix maps directly to SDT measures:
+
+| SDT Measure | Definition |
+|---|---|
+| Hit rate | P(response \| Go stimulus) |
+| False alarm rate | P(response \| NoGo stimulus) |
+| Sensitivity (log d) | Discriminability between Go and NoGo |
+| Bias (log b) | Overall tendency to respond or withhold |
+
+These are derived behavioral measures computed at the analysis layer,
+not DSL parameters.
+
+### Annotations
+
+Go/No-Go uses annotations for stimulus specification and
+trial-sequence parameters:
+
+```
+-- Stimulus specification
+@sd("tone", frequency=4000, duration=1s)
+@s_delta("light", intensity=50)
+@go_ratio(0.7)
+GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+       false_alarm=FT10s, ITI=15s)
+
+-- Errorless discrimination (Terrace, 1963)
+@fading(method="stimulus", steps=10)
+GoNoGo(response_window=5s, consequence=CRF, ITI=10s)
+```
+
+### Compound Usage
+
+```
+-- Multiple schedule: GoNoGo alternating with extinction
+Mult(GoNoGo(response_window=5s, consequence=CRF, ITI=10s), EXT)
+
+-- Chained: FR5 then discrimination trial
+Chain(FR5, GoNoGo(response_window=5s, consequence=CRF, ITI=10s))
+
+-- let binding: training vs probe
+let training = GoNoGo(response_window=5s, consequence=CRF,
+                       incorrect=EXT, false_alarm=FT10s, ITI=15s)
+let probe = GoNoGo(response_window=5s, consequence=EXT, ITI=15s)
+Mult(training, probe)
+```
+
+### Semantic Constraints
+
+| Code | Condition | Severity |
+|---|---|---|
+| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | response_window ≤ 0 | SemanticError |
+| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | response_window without time unit | SemanticError |
+| `MISSING_GONOGO_PARAM` | `response_window`, `consequence`, or `ITI` omitted | SemanticError |
+| `GONOGO_NONPOSITIVE_ITI` | ITI ≤ 0 | SemanticError |
+| `GONOGO_ITI_TIME_UNIT_REQUIRED` | ITI without time unit | SemanticError |
+| `GONOGO_INVALID_CONSEQUENCE` | consequence/incorrect/false_alarm is a compound schedule | SemanticError |
+| `GONOGO_RECURSIVE_CONSEQUENCE` | consequence/incorrect/false_alarm is a trial_based_schedule | SemanticError |
+| `DUPLICATE_GONOGO_KW_ARG` | duplicate keyword argument | SemanticError |
+| `GONOGO_SHORT_RESPONSE_WINDOW` | response_window < 500ms | WARNING |
+| `GONOGO_LONG_RESPONSE_WINDOW` | response_window > 60s | WARNING |
+| `GONOGO_NO_REINFORCEMENT` | consequence=EXT | WARNING |
+| `GONOGO_SHORT_ITI` | ITI < 1s | WARNING |
+| `GONOGO_LH_REDUNDANT` | LH applied to GoNoGo | WARNING |
+| `GONOGO_FALSE_ALARM_WITHOUT_INCORRECT` | false_alarm specified, incorrect omitted | WARNING |
