@@ -41,7 +41,7 @@ Domain ::= Ratio | Interval | Time
 - **Interval**: The parameter specifies a time duration. Reinforcement is contingent upon the first response *after* the interval has elapsed. Both response-dependent and time-dependent (conjunctive).
 - **Time**: The parameter specifies a time duration. Reinforcement is delivered when time elapses regardless of behavior. Response-independent (non-contingent).
 
-The behavioral significance: Ratio schedules generate high, steady response rates with characteristic post-reinforcement pauses (Ferster & Skinner, 1957, Ch. 3-4). Interval schedules produce scalloped or break-and-run patterns insensitive to rate above a minimal threshold (Ferster & Skinner, 1957, Ch. 5-6). Time schedules maintain behavior through adventitious reinforcement (Skinner, 1948) or, under proper parameterization, approximate operant schedules (Schoenfeld & Cole, 1972).
+The behavioral significance: Ratio schedules generate high, steady response rates with characteristic post-reinforcement pauses (Ferster & Skinner, 1957, Ch. 3-4). Interval schedules produce scalloped or break-and-run patterns insensitive to rate above a minimal threshold (Ferster & Skinner, 1957, Ch. 5-6). Time schedules maintain behavior through adventitious reinforcement (Skinner, 1948) or, under proper parameterization, approximate operant schedules (Schoenfeld & Cole, 1972). FT produces positively accelerated responding (scalloping) despite response-independence (Zeiler, 1968; Herrnstein & Morse, 1957); VT produces steady or erratic rates distinct from FT (Zeiler, 1968). Response-reinforcer independence (FT/VT) produces slower response decrement than conventional extinction (Lattal, 1972).
 
 **Definition 3 (Atomic Schedule).** An atomic schedule is the product type:
 
@@ -134,8 +134,12 @@ The 2D type system maps directly to canonical sources:
 | Source | Coverage |
 |--------|----------|
 | Ferster & Skinner (1957) | FR, VR, FI, VI (Chapters 3-6); CRF, EXT as boundary conditions |
-| Catania (2013) | Extends with Time (response-independent) dimension |
+| Catania (2013) | Codifies the 3×3 taxonomy with Time as a formal third domain; standardizes FT, VT, RT abbreviations |
+| Zeiler (1968) | First published use of "FT" and "VT" abbreviations; demonstrates FT scalloping and VT steady/erratic patterns in pigeons |
+| Herrnstein & Morse (1957) | Earliest experimental demonstration of FT-like procedure (response-independent food at fixed intervals); positive acceleration |
+| Lattal (1972) | Response-reinforcer independence (FT/VT) vs. conventional extinction; FT/VT produces slower response decrement |
 | Farmer (1963) | Formalizes Random schedules (RR, RI, RT) — constant-probability-per-unit assumption |
+| Lachter, Cole, & Schoenfeld (1971) | Non-contingent reinforcement at irregular intervals (VT/RT-like); closest empirical demonstration for RT |
 | Fleshler & Hoffman (1962) | Variable schedule value generation algorithm |
 | Schoenfeld & Cole (1972) | T-tau system as an alternative coordinate system (see [representations.md](representations.md)) |
 
@@ -204,8 +208,11 @@ This effectively requires **two sequential responses** within specified time win
 **Position in the schedule taxonomy.** LH sits alongside DRL, DRH, and DRO as a **temporal eligibility modifier** — a constraint on *when* the response-reinforcer contingency holds. It is placed in the base grammar (not an annotation) because, like DRL, it directly determines the reinforcement function that quantitative models (matching law, behavioral momentum) depend on.
 
 **References:**
-- Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts. (Ch. 5)
-- Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813
+- Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts. (Ch. 5, pp. 153–176: FI with limited hold — procedural introduction and cumulative record demonstrations)
+- Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing. (Glossary, "limited hold" — operational definition: restriction on the time during which a reinforcer is available after the schedule requirement has been met; confirms "availability" framing)
+- Lattal, K. A. (1991). Scheduling positive reinforcers. In I. H. Iversen & K. A. Lattal (Eds.), *Experimental analysis of behavior, Part 1* (Techniques in the Behavioral and Neural Sciences, Vol. 6, pp. 87–134). Elsevier. (Most procedurally explicit treatment: LH timer starts on criterion satisfaction; reinforcement forfeited and schedule proceeds to next cycle on window expiry)
+- Zeiler, M. D. (1977). Schedules of reinforcement: The controlling variables. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 201–232). Prentice-Hall. (LH is functionally meaningful only when a temporal gap between criterion satisfaction and the next response is possible)
+- Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813 (DRL + LH usage)
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
 
 #### 1.6.1 LH Default Propagation — Attribute Grammar
@@ -373,6 +380,7 @@ The `RD` param_decl instructs the runtime to impose a uniform delay between any 
 **Position in the grammar.** `RD` is a `param_decl` keyword (alongside `LH`, `COD`, `FRCO`, `BO`), not a schedule expression modifier. This reflects the literature: Lattal (2010) reviews delay as a *procedural parameter* that applies to the session arrangement, while per-schedule delays are tandem schedule structures that belong in the schedule expression itself.
 
 **References:**
+- Lattal, K. A. (1972). Response-reinforcer independence and conventional extinction after fixed-interval and variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *18*(1), 123–131. https://doi.org/10.1901/jeab.1972.18-123
 - Lattal, K. A. (2010). Delayed reinforcement of operant behavior. *Journal of the Experimental Analysis of Behavior*, *93*(1), 129–139. https://doi.org/10.1901/jeab.2010.93-129
 - Sizemore, O. J., & Lattal, K. A. (1978). Unsignalled delay of reinforcement in variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *30*(2), 169–175. https://doi.org/10.1901/jeab.1978.30-169
 - Richards, R. W. (1981). A comparison of signaled and unsignaled delay of reinforcement. *Journal of the Experimental Analysis of Behavior*, *35*(2), 145–152. https://doi.org/10.1901/jeab.1981.35-145
@@ -1413,6 +1421,7 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Findley, J. D. (1958). Preference and switching under concurrent scheduling. *Journal of the Experimental Analysis of Behavior*, 1(2), 123-144. https://doi.org/10.1901/jeab.1958.1-123
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267-272. https://doi.org/10.1901/jeab.1961.4-267
+- Herrnstein, R. J., & Morse, W. H. (1957). Some effects of response-independent positive reinforcement on maintained operant behavior. *Journal of Comparative and Physiological Psychology*, *50*(5), 461–467. https://doi.org/10.1037/h0048673
 - Herrnstein, R. J., & Loveland, D. H. (1975). Maximizing and matching on concurrent ratio schedules. *Journal of the Experimental Analysis of Behavior*, 24(1), 107-116. https://doi.org/10.1901/jeab.1975.24-107
 - Herrnstein, R. J., & Vaughan, W. (1980). Melioration and behavioral allocation. In J. E. R. Staddon (Ed.), *Limits to action: The allocation of individual behavior* (pp. 143-176). Academic Press.
 - Baum, W. M., Aparicio, C. F., & Alonso-Alvarez, B. (2022). Rate matching, probability matching, and optimization in concurrent ratio schedules. *Journal of the Experimental Analysis of Behavior*, 118(1). https://doi.org/10.1002/jeab.771
@@ -1420,6 +1429,7 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813
 - Mizutani, Y. (2018). OperantKit: A Swift framework for reinforcement schedule simulation [Computer software]. GitHub. https://github.com/YutoMizutani/OperantKit
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
+- Lachter, G. D., Cole, B. K., & Schoenfeld, W. N. (1971). Some temporal parameters of non-contingent reinforcement. *Journal of the Experimental Analysis of Behavior*, *16*(2), 207–217. https://doi.org/10.1901/jeab.1971.16-207
 - Schoenfeld, W. N., & Cole, B. K. (1972). *Stimulus schedules: The t-τ systems*. Harper & Row.
 - Reynolds, G. S. (1961). Behavioral contrast. *Journal of the Experimental Analysis of Behavior*, 4(1), 57-71. https://doi.org/10.1901/jeab.1961.4-57
 - Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
@@ -1429,6 +1439,7 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, 9(4), 672-705. https://doi.org/10.3758/BF03196324
 - Miller, N., & Neuringer, A. (2000). Reinforcing variability in adolescents with autism. *Journal of Applied Behavior Analysis*, 33(2), 151-165. https://doi.org/10.1901/jaba.2000.33-151
 - Lee, R., McComas, J. J., & Jawor, J. (2002). The effects of differential and lag reinforcement schedules on varied verbal responding by individuals with autism. *Journal of Applied Behavior Analysis*, 35(4), 391-402. https://doi.org/10.1901/jaba.2002.35-391
+- Zeiler, M. D. (1968). Fixed and variable schedules of response-independent reinforcement. *Journal of the Experimental Analysis of Behavior*, *11*(4), 405–414. https://doi.org/10.1901/jeab.1968.11-405
 - Skinner, B. F. (1948). 'Superstition' in the pigeon. *Journal of Experimental Psychology*, 38(2), 168-172. https://doi.org/10.1037/h0055873
 - Denney, J., & Neuringer, A. (1998). Behavioral variability is controlled by discriminative stimuli. *Animal Learning & Behavior*, *26*(2), 154-162. https://doi.org/10.3758/BF03199208
 - Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0020364
