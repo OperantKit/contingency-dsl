@@ -435,7 +435,7 @@ class AnnotationModule(Protocol):
     """Contract for a DSL annotation module that adds an orthogonal dimension."""
 
     name: ClassVar[str]       # e.g. "procedure-annotator" or "subjects-annotator"
-    version: ClassVar[str]    # semver
+    version: ClassVar[str]    # semver — see versioning.md §3 for capability semantics
 
     @property
     def annotation_keywords(self) -> FrozenSet[str]:

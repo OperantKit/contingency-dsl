@@ -449,6 +449,7 @@ This document is the superordinate document that states the "why" of
 design and sits above the following spec documents:
 
 - [evaluation-criteria.md](evaluation-criteria.md) — Six axes for evaluating design decisions (derived from this document)
+- [design-rationale.md](design-rationale.md) — Alternatives considered and why the current design was chosen
 - [grammar.ebnf](../../grammar.ebnf) — Core grammar
 - [ast-schema.json](../../ast-schema.json) — Abstract syntax tree schema
 - [annotation-design.md](annotation-design.md) — Annotation boundary principles and the AnnotationModule Protocol

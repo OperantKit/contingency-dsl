@@ -508,9 +508,44 @@ Regardless of which is adopted, following the principle of design-philosophy §4
 
 As defined in grammar.ebnf §4.7, validation of annotation_name is the **program's** responsibility. The DSL grammar defines only syntactic form (`@name(args)`). Programs that adopt the recommended schema validate recommended keywords; programs with their own registry validate their own keywords.
 
-### Upper Bound on Inter-Annotator Dependencies
+### Inter-Annotator Dependency Policy
 
-Annotators can require other annotators (e.g., extensions/social-annotator → procedure-annotator/stimulus). Whether an upper bound should be placed on the depth of the dependency chain will be decided once the number of concrete recommended annotators grows.
+Annotators can require other annotators (e.g., extensions/social-annotator → procedure-annotator/stimulus). The dependency graph is managed in two phases.
+
+#### Phase 1 — Cycle Detection (current)
+
+`ExtensionRegistry.build()` performs topological sort on the dependency graph derived from each extension's `requires` field. If a cycle is detected, registration fails with a `CyclicDependencyError`.
+
+No upper bound is placed on dependency depth. An acyclic DAG of arbitrary depth is permitted. The rationale: depth limits are inherently arbitrary, and the actual risks — cycles and ownership conflicts — are better addressed directly.
+
+#### Phase 2 — Capability-Based Dependencies (when recommended annotators ≥ 10)
+
+When the number of recommended annotators reaches 10 or more, name-based `requires` (which couples extensions to specific implementation names) should be augmented with a capability-based dependency model:
+
+```python
+class ExtensionModule(Protocol):
+    # Phase 1 (existing) — retained for backward compatibility
+    requires: frozenset[str]
+
+    # Phase 2 — capability-based
+    provides: ClassVar[frozenset[str]]               # e.g. {"subject.species", "subject.age"}
+    requires_capabilities: ClassVar[frozenset[str]]   # e.g. {"temporal.session_end"}
+```
+
+**Design principles:**
+
+1. **Capability namespace**: Two-level `<domain>.<concept>` (e.g. `subject.species`, `temporal.session_end`, `stimulus.reinforcer`). Three or more levels are prohibited; finer granularity uses a new concept name instead (e.g. `subject.strain`, not `subject.rodent.strain`).
+
+2. **Registry validation rule**: For every loaded extension `ext`, `ext.requires_capabilities ⊆ ∪{ other.provides | other ∈ loaded_extensions }`. The registry does not care *which* extension provides a capability, only that it is satisfied.
+
+3. **Backward compatibility**: Extensions that do not declare `provides` implicitly provide their `annotation_keywords` as capabilities. This allows Phase 1 extensions to participate in a Phase 2 registry without modification.
+
+4. **Value-level conditions**: Conditions such as "only valid when species is rat/mouse" belong in the extension's `validate()` method, not in the dependency graph. The dependency graph expresses *structural* requirements only.
+
+**Trigger conditions for Phase 2 adoption:**
+- The number of recommended annotators reaches 10+, or
+- A name change in one extension causes cascading breakage in dependents, or
+- Two extensions claim overlapping keyword ownership that cannot be resolved by disjointness alone.
 
 ---
 
