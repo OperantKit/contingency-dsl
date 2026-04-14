@@ -186,7 +186,7 @@ When `τ < T` (duty_cycle < 1.0), the T-tau schedule has a "dead zone" of
 ```
 TTau(T, τ) where τ < T
   + domain=INTERVAL + dist=FIXED
-  → FI(T) LH(τ)
+  → FI T LH τ
 ```
 
 This mapping extends the conversion to sub-unity duty cycles by leveraging
@@ -195,7 +195,7 @@ the existing LH (Limited Hold) construct in the 3×3 lattice type system.
 **Note:** Schoenfeld & Cole's original formulation places the τ window at
 the **beginning** of the cycle (t ∈ [0, τ)), while LH in the Ferster-Skinner
 tradition places the hold window **after** the interval elapses. This temporal
-positioning difference means the mapping `TTau(T, τ<T) → Schedule LH(τ)` is
+positioning difference means the mapping `TTau(T, τ<T) → Schedule LH τ` is
 a **structural approximation**, not a strict equivalence. The conformance tests
 document this distinction.
 

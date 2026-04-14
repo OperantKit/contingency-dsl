@@ -109,7 +109,7 @@
   },
   {
     "id": "from_ttau_sub_unity_fi_lh",
-    "description": "TTau(T=60, τ=30) + Interval + Fixed → FI(60) LH(30)",
+    "description": "TTau(T=60, τ=30) + Interval + Fixed → FI 60 LH 30",
     "input": {
       "T": 60.0,
       "tau": 30.0
@@ -131,7 +131,7 @@
   },
   {
     "id": "from_ttau_sub_unity_vt_lh",
-    "description": "TTau(T=90, τ=45) + Time + Variable → VT(90) LH(45)",
+    "description": "TTau(T=90, τ=45) + Time + Variable → VT 90 LH 45",
     "input": {
       "T": 90.0,
       "tau": 45.0

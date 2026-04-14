@@ -778,7 +778,7 @@ number_list   ::= number ("," number)*
 ; 62. LimitedHold: hold_duration must be strictly positive (> 0).
 ;     `FI30 LH0s`, `VI60s LH0ms` → SemanticError (LH_NONPOSITIVE_VALUE).
 ;     Program-level `LH = 0s` → same error.
-;     Rationale: LH(0, S) ≡ EXT (theory.md §2.2.4) — the hold window
+;     Rationale: S LH 0 ≡ EXT (theory.md §2.2.4) — the hold window
 ;     closes before any response can occur, making reinforcement unavailable.
 ;     Use `EXT` for extinction semantics. This constraint matches
 ;     ast.schema.json exclusiveMinimum=0 on LimitedHold.hold_duration.

@@ -38,7 +38,7 @@ Reverse conversion requires explicit disambiguation: `domain` (Interval vs. Time
 
 ### 1.3 Sub-unity Duty Cycle (τ < T)
 
-When `duty_cycle < 1.0`, the schedule has a temporal window shorter than the cycle — structurally analogous to a Limited Hold ([theory.md §1.6](theory.md)). The reverse mapping produces `Schedule LH(τ)`. Note that Schoenfeld & Cole place τ at the cycle start, while LH in the Ferster-Skinner tradition opens after criterion satisfaction; this positional difference means the mapping is a structural approximation.
+When `duty_cycle < 1.0`, the schedule has a temporal window shorter than the cycle — structurally analogous to a Limited Hold ([theory.md §1.6](theory.md)). The reverse mapping produces `Schedule LH τ`. Note that Schoenfeld & Cole place τ at the cycle start, while LH in the Ferster-Skinner tradition opens after criterion satisfaction; this positional difference means the mapping is a structural approximation.
 
 ### 1.4 Relationship to LH
 

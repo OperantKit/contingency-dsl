@@ -32,7 +32,7 @@ duty_cycle := τ / T  ∈ (0, 1]
 
 **逆変換** には明示的な曖昧性解消が必要: `domain`（Interval vs. Time）と `distribution`（Fixed, Variable, Random）を呼び出し側が提供しなければならない。T-tau はこれらの次元をエンコードしないためである。
 
-**duty_cycle < 1.0 の場合（τ < T）.** サイクルより短い時間窓を持つ場合、Limited Hold（§1.6）に構造的に対応する。逆写像は `Schedule LH(τ)` を生成する。ただし、Schoenfeld & Cole は τ をサイクル開始時に配置するのに対し、Ferster-Skinner 伝統の LH は基準充足後に窓を開くため、この位置的差異により厳密な等価ではなく構造的近似である。
+**duty_cycle < 1.0 の場合（τ < T）.** サイクルより短い時間窓を持つ場合、Limited Hold（§1.6）に構造的に対応する。逆写像は `Schedule LH τ` を生成する。ただし、Schoenfeld & Cole は τ をサイクル開始時に配置するのに対し、Ferster-Skinner 伝統の LH は基準充足後に窓を開くため、この位置的差異により厳密な等価ではなく構造的近似である。
 
 **LH との関係.** §1.6 で述べた通り、T-tau と LH は本質的に異なる: T-tau はクロック駆動の周期的サイクル、LH はイベントトリガー型。`duty_cycle = 1.0` の T-tau には LH の対応物はない。
 
