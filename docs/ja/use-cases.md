@@ -39,6 +39,11 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *JEAB*, *4*, 267-272. https://doi.org/10.1901/jeab.1961.4-267
 - Baum, W. M. (1974). On two types of deviation from the matching law. *JEAB*, *22*, 231-242. https://doi.org/10.1901/jeab.1974.22-231
 
+**注意: 並立比率スケジュールにおける COD の効果.** COD がマッチング感受性に与える効果はスケジュール型に依存する。並立 VI VI では COD の増加がマッチングを改善する傾向がある（アンダーマッチングの減少; Shull & Pliskoff, 1967）。一方、並立比率スケジュール（VR/FR）では COD の増加が感受性を*低下*させる（Bellow & Lattal, 2023）。DSL はいかなる `Conc` 式にも COD を許可する — これは手続き記述としては正しい — が、並立 VI での慣習的な直観が並立比率配置には通用しないことに留意されたい。
+
+- Shull, R. L., & Pliskoff, S. S. (1967). Changeover delay and concurrent schedules: Some effects on relative performance measures. *JEAB*, *10*(6), 517–527. https://doi.org/10.1901/jeab.1967.10-517
+- Bellow, D. T., & Lattal, K. A. (2023). Choice dynamics in concurrent ratio schedules of reinforcement. *JEAB*, *119*(2), 337–355. https://doi.org/10.1002/jeab.828
+
 ---
 
 ## 3. 連鎖スケジュールによる条件性強化研究

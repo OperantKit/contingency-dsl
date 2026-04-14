@@ -35,6 +35,11 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *JEAB*, *4*, 267-272. https://doi.org/10.1901/jeab.1961.4-267
 - Baum, W. M. (1974). On two types of deviation from the matching law. *JEAB*, *22*, 231-242. https://doi.org/10.1901/jeab.1974.22-231
 
+**Note: COD on concurrent ratio schedules.** The effect of COD on matching sensitivity is schedule-type dependent. On conc VI VI, increasing COD tends to improve matching (reduce undermatching; Shull & Pliskoff, 1967). On concurrent ratio schedules (VR/FR), increasing COD *decreases* sensitivity (Bellow & Lattal, 2023). The DSL permits COD on any `Conc` expression — this is procedurally correct — but users should be aware that typical conc VI heuristics do not transfer to conc ratio arrangements.
+
+- Shull, R. L., & Pliskoff, S. S. (1967). Changeover delay and concurrent schedules: Some effects on relative performance measures. *JEAB*, *10*(6), 517–527. https://doi.org/10.1901/jeab.1967.10-517
+- Bellow, D. T., & Lattal, K. A. (2023). Choice dynamics in concurrent ratio schedules of reinforcement. *JEAB*, *119*(2), 337–355. https://doi.org/10.1002/jeab.828
+
 ---
 
 ## 3. Chained Schedule for Conditioned Reinforcement Research
