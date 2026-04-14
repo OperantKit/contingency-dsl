@@ -295,7 +295,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | セッションレベル時間パラメータ |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（2026-04-12 に `subject-annotator` から改名、JEAB 複数形見出しに整合） |
 | `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管 |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state` | セッション終了規則、ベースライン条件、安定性基準 (v1.x minimal set; 2026-04-12 に DIVERGENCE C 解決のため新設) |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | セッション終了規則、ベースライン条件、安定性基準 (v1.0); 従属変数宣言、訓練量追跡、反応微細構造分析 (v1.1); Phase 終了条件、イベントログ、IRI 分析、ウォームアップ除外 (v1.2)。2026-04-12 新設; v1.2 完了 2026-04-14。 |
 
 **Extensions**（JEAB 4 カテゴリ外、`annotations/extensions/` 配下）:
 
@@ -343,9 +343,13 @@ contingency-dsl（基底 CFG）
         │     + @chamber, @operandum, @interface, @hardware 注釈
         │     + 物理チャンバー・反応装置・HW インターフェースの同定
         │
-        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設）
-        │     + @session_end, @baseline, @steady_state 注釈 (v1.x minimal set)
-        │     + セッション終了、ベースライン、安定性基準
+        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設, v1.2 完了 2026-04-14）
+        │     + v1.0: @session_end, @baseline, @steady_state
+        │     + v1.1: @dependent_measure, @training_volume, @microstructure
+        │     + v1.2: @phase_end, @logging, @iri_window, @warmup_exclude
+        │     + セッション終了、ベースライン、安定性基準、従属変数宣言、
+        │     + 訓練量追跡、反応微細構造分析、Phase 終了条件、
+        │     + イベントログ、IRI 分析、ウォームアップ除外
         │
         └── extensions/ （JEAB 4 カテゴリ外）
               │
@@ -471,6 +475,8 @@ class AnnotationRegistry:
 
 -- measurement-annotator が追加:
 <annotation_name>    ::= "session_end" | "baseline" | "steady_state"
+                        | "dependent_measure" | "training_volume" | "microstructure"
+                        | "phase_end" | "logging" | "iri_window" | "warmup_exclude"
 
 -- extensions/social-annotator が追加:
 <annotation_name>    ::= "subject" | "interlocking"
