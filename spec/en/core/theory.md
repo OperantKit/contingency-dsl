@@ -145,10 +145,10 @@ The 2D type system maps directly to canonical sources:
 
 ### 1.6 Limited Hold — Temporal Availability Constraint
 
-**Definition.** A Limited Hold (LH) is a temporal constraint on reinforcement *availability* that is imposed on any inner schedule `S`. Once `S`'s criterion is first satisfied, a hold window of duration `d` seconds opens. If a response occurs within that window, reinforcement is delivered. If no response occurs before the window closes, the reinforcement opportunity is cancelled and `S` resets.
+**Definition.** A Limited Hold (LH) is a temporal constraint on reinforcement *availability* that qualifies a schedule `S`. Once `S`'s criterion is first satisfied, a hold window of duration `d` seconds opens. If a response occurs within that window, reinforcement is delivered. If no response occurs before the window closes, the reinforcement opportunity is cancelled and `S` resets.
 
 ```
-LH(d, S)
+S LH d
 ```
 
 **State machine:**
@@ -163,36 +163,36 @@ HOLD_OPEN
 ```
 
 **Algebraic properties:**
-- `LH(∞, S) ≡ S` — infinite hold is the identity (no constraint). See §2.2.4.
-- `LH(0, S) ≡ EXT` — zero hold makes reinforcement unavailable. See §2.2.4.
+- `S LH ∞ ≡ S` — infinite hold is the identity (no constraint). See §2.2.4.
+- `S LH 0 ≡ EXT` — zero hold makes reinforcement unavailable. See §2.2.4.
 - LH is **not reducible to Conj**: `Conj(S, TimeWindow(d))` checks simultaneous satisfaction against the same observation (stateless). LH is state-dependent — it gates access based on a satisfaction event timestamp recorded across ticks.
 - LH is **not a special case of T-tau**: T-tau duty cycles are fixed, clock-driven, and response-independent in their cycling. LH's window is triggered by `S`'s satisfaction event, not by a recurring timer. See [representations.md](representations.md) for the formal relationship.
-- LH is a **congruent unary schedule transformer**: `LH : (ℝ⁺, Schedule) → Schedule`.
+- Algebraically, LH is a **congruent schedule qualifier**: `(− LH d) : Schedule → Schedule` for each `d ∈ ℝ⁺`.
 
-**Formal verification of LH's algebraic status.** LH(d, −) is a mapping from schedules to schedules. Its algebraic properties with respect to the semantic equivalence relation (§2.2.1) are:
+**Formal verification of LH's algebraic status.** The LH qualifier defines a mapping from schedules to schedules: `S ↦ S LH d`. Its algebraic properties with respect to the semantic equivalence relation (§2.2.1) are:
 
 *Property 1 (Congruence — HOLDS).* LH preserves semantic equivalence:
 
 ```
-S₁ ≡ S₂  ⟹  LH(d, S₁) ≡ LH(d, S₂)
+S₁ ≡ S₂  ⟹  S₁ LH d ≡ S₂ LH d
 ```
 
-*Proof.* If S₁ ≡ S₂, they produce identical reinforcement outcomes for all observation traces (Definition 4, §2.2.1). For a schedule without an outer LH wrapper, the satisfaction event coincides with the reinforcement event. Therefore S₁ and S₂ satisfy at the same trace positions for any trace. Since LH's state machine transitions are determined entirely by the inner schedule's satisfaction events and the response stream, LH(d, S₁) and LH(d, S₂) undergo identical state transitions for any trace, producing identical outcomes. ∎
+*Proof.* If S₁ ≡ S₂, they produce identical reinforcement outcomes for all observation traces (Definition 4, §2.2.1). For a schedule without an outer LH qualifier, the satisfaction event coincides with the reinforcement event. Therefore S₁ and S₂ satisfy at the same trace positions for any trace. Since LH's state machine transitions are determined entirely by the schedule's satisfaction events and the response stream, `S₁ LH d` and `S₂ LH d` undergo identical state transitions for any trace, producing identical outcomes. ∎
 
 *Property 2 (Non-commutativity of nesting — composition law FAILS).* In general:
 
 ```
-LH(d₂, LH(d₁, S)) ≢ LH(d₁, LH(d₂, S))
+(S LH d₁) LH d₂ ≢ (S LH d₂) LH d₁
 ```
 
-*Counterexample.* Consider `LH(10, LH(5, FI 30-s))` vs. `LH(5, LH(10, FI 30-s))`.
+*Counterexample.* Consider `(FI 30-s LH 5) LH 10` vs. `(FI 30-s LH 10) LH 5`.
 
-In `LH(10, LH(5, FI 30-s))`: FI 30 is satisfied at t₀. A first response must occur within 5 s of t₀ (inner LH). A second response must then occur within 10 s of the first response (outer LH). In `LH(5, LH(10, FI 30-s))`: FI 30 is satisfied at t₀. A first response must occur within 10 s of t₀ (inner LH). A second response must then occur within 5 s of the first response (outer LH). These impose different temporal constraints, so a trace exists that reinforces under one but not the other. ∎
+In `(FI 30-s LH 5) LH 10`: FI 30 is satisfied at t₀. A first response must occur within 5 s of t₀ (inner LH). A second response must then occur within 10 s of the first response (outer LH). In `(FI 30-s LH 10) LH 5`: FI 30 is satisfied at t₀. A first response must occur within 10 s of t₀ (inner LH). A second response must then occur within 5 s of the first response (outer LH). These impose different temporal constraints, so a trace exists that reinforces under one but not the other. ∎
 
-*Consequence.* The original characterization of LH as an "endofunctor on the schedule algebra" is imprecise. LH(d, −) satisfies the congruence property (which corresponds to the identity-preservation functor law in the preorder category induced by ≡), but does NOT satisfy the composition-preservation functor law in any natural category structure on schedules. The correct characterization is: **LH(d, −) is a congruent unary schedule transformer** — it maps schedules to schedules and preserves semantic equivalence, but nested LH application is order-dependent.
+*Consequence.* The original characterization of LH as an "endofunctor on the schedule algebra" is imprecise. The LH qualifier satisfies the congruence property (which corresponds to the identity-preservation functor law in the preorder category induced by ≡), but does NOT satisfy the composition-preservation functor law in any natural category structure on schedules. The correct characterization is: **LH is a congruent schedule qualifier** — it maps schedules to schedules and preserves semantic equivalence, but nested LH application is order-dependent.
 
-**Semantics of nested LH.** `LH(d₂, LH(d₁, S))` is interpreted as follows:
-1. The inner schedule `S` runs until its criterion is satisfied (at time `t₀`).
+**Semantics of nested LH.** `(S LH d₁) LH d₂` is interpreted as follows:
+1. The schedule `S` runs until its criterion is satisfied (at time `t₀`).
 2. The inner LH opens a window of `d₁` seconds. A response must occur at some `t₁ ∈ [t₀, t₀ + d₁)` for the inner LH to be satisfied.
 3. The outer LH then opens a window of `d₂` seconds from `t₁`. A second response must occur at some `t₂ ∈ [t₁, t₁ + d₂)` for reinforcement to be delivered.
 
@@ -203,9 +203,24 @@ This effectively requires **two sequential responses** within specified time win
 - Time schedules (FT, VT): converts response-independent delivery into a response-dependent window.
 - DRL + LH: documented in Kramer & Rilling (1970) — response must occur after IRT ≥ t and before t + d.
 - DRO + LH: used clinically — the hold window opens after the omission interval elapses.
-- Ratio schedules (FR, VR, RR): semantically vacuous — the satisfying response *is* the response within the window; ratio schedules are satisfied on the response itself. The v1.0 parser emits a warning for `FR(n) LH(d)`.
+- Ratio schedules (FR, VR, RR): semantically vacuous — the satisfying response *is* the response within the window; ratio schedules are satisfied on the response itself. The v1.0 parser emits a warning for `FR n LH d`.
 
-**Position in the schedule taxonomy.** LH sits alongside DRL, DRH, and DRO as a **temporal eligibility modifier** — a constraint on *when* the response-reinforcer contingency holds. It is placed in the base grammar (not an annotation) because, like DRL, it directly determines the reinforcement function that quantitative models (matching law, behavioral momentum) depend on.
+**Design note: qualifier, not modifier.** LH is classified as a **temporal availability qualifier** — an optional parameter *of* the schedule — not a modifier that wraps the schedule from outside. In the behavioral literature, LH is always written as an attribute of a schedule ("FI 30-s LH 10-s", "VI 1-min with limited hold"), never as a function applied to a schedule. The schedule is the grammatical and conceptual subject; LH constrains an aspect of it.
+
+This distinction has concrete consequences:
+
+| Aspect | Qualifier (adopted) |
+|---|---|
+| Notation | `FI 30 LH 10` — schedule is the subject |
+| Python API | `FI(30, limitedHold=10)` or `FI(30, LH=10)` |
+| Grammar | `<schedule> ::= <base_schedule> ("LH" <value>)?` — postfix clause |
+| Conceptual | LH is a schedule parameter, not a schedule transformer |
+
+All notation in this specification uses the qualifier form `S LH d`. No separate denotational notation is needed — the qualifier syntax is directly used in algebraic reasoning.
+
+The grammar reflects this: `<schedule> ::= <base_schedule> ("LH" <value>)?` places LH as a postfix clause, not as a node in `<modifier>` (where DRL, DRH, DRO reside). DRL/DRH/DRO are modifiers because they wrap an inner schedule and impose a differential reinforcement criterion; LH qualifies when reinforcement *availability* expires after the schedule's own criterion is met.
+
+**Position in the schedule taxonomy.** LH is a **temporal availability qualifier** — a constraint on *when* the reinforcement opportunity remains available after the schedule criterion is met. It is placed in the base grammar (not an annotation) because, like DRL, it directly determines the reinforcement function that quantitative models (matching law, behavioral momentum) depend on.
 
 **References:**
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts. (Ch. 5, pp. 153–176: FI with limited hold — procedural introduction and cumulative record demonstrations)
@@ -229,7 +244,7 @@ The program-level `LH` parameter declaration (`LH = d`) specifies a default limi
 
 - `lh_default`: extracted from `Program.param_decls`. Value is `⊥` if no `LH` declaration is present.
 - `inherited_lh`: the LH default flowing top-down from the Program root through the AST.
-- `effective_lh`: the LH that actually wraps a leaf node. If `≠ ⊥`, the semantic analyzer performs the transformation `leaf ↦ LH(effective_lh, leaf)`.
+- `effective_lh`: the LH that actually qualifies a leaf node. If `≠ ⊥`, the semantic analyzer performs the transformation `leaf ↦ leaf LH effective_lh`.
 
 **Phase ordering.** LH propagation is a **semantic analysis** pass that operates on the **post-expansion** AST — after let-binding substitution and `Repeat` desugaring, but before warnings/linting. The pipeline:
 
@@ -257,15 +272,15 @@ R3  Overlay → Overlay(baseline, punisher)
     baseline.inherited_lh  = Overlay.inherited_lh
     punisher.inherited_lh  = ⊥
 
-R4  LimitedHold → LH(d, inner)
+R4  LimitedHold → inner LH d
     inner.inherited_lh = ⊥
 
 R5  Leaf: node ∈ {Atomic, Special, Modifier, SecondOrder}
     node.effective_lh = node.inherited_lh
-    action: if effective_lh ≠ ⊥ then node ↦ LH(effective_lh, node)
+    action: if effective_lh ≠ ⊥ then node ↦ node LH effective_lh
 
 R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
-    inherited_lh is discarded (no wrapping, no propagation)
+    inherited_lh is discarded (no qualification, no propagation)
 ```
 
 **Summary by node type.**
@@ -305,7 +320,7 @@ Input:    LH = 10s
           Conc(FR 5, VI 60s LH 20s)
 Resolved: Conc(FR 5 LH 10s, VI 60s LH 20s)
 ```
-Trace: R1 → R2 (×2). `FR 5`: R5 (wrap, + `VACUOUS_LH_RATIO` warning). `LH(20s, VI 60s)`: R4 (blocks propagation); explicit LH 20s retained.
+Trace: R1 → R2 (×2). `FR 5`: R5 (qualify, + `VACUOUS_LH_RATIO` warning). `VI 60s LH 20s`: R4 (blocks propagation); explicit LH 20s retained.
 
 *Example 3 — SecondOrder unit isolation.*
 ```
@@ -531,8 +546,8 @@ Repeat(m + n, S) ≡ Tand(Repeat(m, S), Repeat(n, S))
 
 From the LH definition (§1.6):
 
-- `LH(∞, S) ≡ S` — infinite hold imposes no temporal constraint.
-- `LH(0, S) ≡ EXT` — zero hold makes reinforcement unavailable (the hold window closes before any response can occur).
+- `S LH ∞ ≡ S` — infinite hold imposes no temporal constraint.
+- `S LH 0 ≡ EXT` — zero hold makes reinforcement unavailable (the hold window closes before any response can occur).
 
 #### 2.2.5 Sound Rewrite Rules (Summary)
 
@@ -550,8 +565,8 @@ The following table collects all sound rewrite rules derived from Theorems 1–8
 | R8 | `Alt(S, CRF) → CRF` | → | 2 | Thm 4 |
 | R9 | `Alt(CRF, S) → CRF` | → | 2 | Thm 1 + Thm 4 |
 | R10 | `Repeat(1, S) → S` | → | 3 | Thm 6 |
-| R11 | `LH(∞, S) → S` | → | 3 | §1.6 |
-| R12 | `LH(0, S) → EXT` | → | 3 | §1.6 |
+| R11 | `S LH ∞ → S` | → | 3 | §1.6 |
+| R12 | `S LH 0 → EXT` | → | 3 | §1.6 |
 | R13 | `Conc(A, Conc(B, C)) ↔ Conc(A, B, C)` | ↔ | 4 | Thm 2 |
 | R14 | `Alt(A, Alt(B, C)) ↔ Alt(A, B, C)` | ↔ | 4 | Thm 2 |
 | R15 | `Conj(A, Conj(B, C)) ↔ Conj(A, B, C)` | ↔ | 4 | Thm 2 |
@@ -1083,7 +1098,7 @@ Under these constraints, binding expansion always terminates and produces a Phas
 
 **Repeat desugaring** is also guaranteed to terminate: `Repeat(n, S)` with `n ≥ 1` (enforced by the value constraint in ast-schema.json) expands to `Tand(S, …, S)` with `n` copies.
 
-**Phase 2 → Phase 3 (LH propagation).** The attribute grammar (§1.6.1) is a single top-down pass over the AST. Each rule (R1–R6) maps a well-typed Phase 2 node to a well-typed Phase 3 node. The only structural transformation is R5 (leaf wrapping): `node ↦ LH(d, node)`, which is always type-correct because `LimitedHold.inner : ScheduleExpr` accepts any schedule expression.
+**Phase 2 → Phase 3 (LH propagation).** The attribute grammar (§1.6.1) is a single top-down pass over the AST. Each rule (R1–R6) maps a well-typed Phase 2 node to a well-typed Phase 3 node. The only structural transformation is R5 (leaf qualification): `node ↦ node LH d`, which is always type-correct because `LimitedHold.inner : ScheduleExpr` accepts any schedule expression.
 
 #### 2.12.3 Progress and Preservation
 
@@ -1294,7 +1309,7 @@ This captures the formal fact that Tand and Chain are procedurally identical fro
 **LimitedHold.** Let `⟦S⟧ = (Σ_S, σ_S, δ_S)`.
 
 ```
-⟦LH(d, S)⟧ = (Σ_S × LHPhase, (σ_S, Waiting), δ)  where
+⟦S LH d⟧ = (Σ_S × LHPhase, (σ_S, Waiting), δ)  where
     LHPhase  ::=  Waiting | HoldOpen(t_sat)
 
     δ((s, Waiting), e) =
