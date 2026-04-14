@@ -15,22 +15,56 @@ Explicit override (future syntax, not in v1.0 BNF):
 ```
 VI60s:arith       -- arithmetic progression
 VI60s:exp         -- exponential (constant-probability)
+VI60s:fh(N=20)   -- Fleshler-Hoffman with explicit N
 ```
 
-### Fleshler-Hoffman series length (`n`)
+### Fleshler-Hoffman default parameters
 
-| Written | Default `n` | Notes |
-|---------|-------------|-------|
-| `@algorithm("fleshler-hoffman")` | `null` (runtime-dependent) | Educational use; runtime chooses N |
-| `@algorithm("fleshler-hoffman", n=12)` | 12 | Explicit; recommended for publication |
+| Parameter | Default | Notes |
+|-----------|---------|-------|
+| `N` (series length) | **12** | Number of intervals in the FH progression. Fleshler & Hoffman (1962) discussed N=12 and N=20 |
+| `seed` | **auto** (runtime-generated) | RNG seed for non-replacement sampling. `auto` = runtime generates a unique seed per schedule instance |
 
-When `n` is omitted (or explicitly `null`), the DSL does not prescribe a series
-length — the runtime implementation selects an appropriate value. This is
-permitted for educational contexts where exact replication is not the goal.
+When no distribution family is specified (e.g., bare `VI60s`), the DSL assumes
+Fleshler-Hoffman with `N=12` and `seed=auto`.
 
-For published research, `n` should always be specified explicitly. Fleshler &
-Hoffman (1962) discussed N=12 and N=20; the choice of N affects the shape of
-the resulting interval distribution and therefore experimental reproducibility.
+**`seed` is not a DSL-level concern.** No published JEAB/JABA paper has ever
+reported the RNG seed used for FH value generation. The purpose of Variable
+schedules is to guarantee unpredictable, unbiased reinforcement timing; the
+FH algorithm achieves this mathematically regardless of seed. In typical
+experimental practice (e.g., renewal procedures with ~20 sessions per phase),
+fixing a seed across all sessions would produce a repeating fixed pattern,
+undermining the very purpose of the Variable schedule. Requiring seed-level
+replication as a condition for procedural reproducibility has no basis in
+EAB methodology — steady-state behavior under a given schedule is the
+replication target, not the specific interval sequence (Sidman, 1960).
+
+The `seed` parameter exists in the runtime layer for computational
+determinism in unit tests and simulations, not as a procedural parameter.
+The DSL does not emit any linter warning for omitted `seed`.
+
+**Overriding N.** The choice of N affects the shape of the interval
+distribution. N=12 closely approximates the theoretical constant-probability
+(exponential) distribution while remaining practical for laboratory use.
+Larger N values (e.g., N=20) provide finer granularity but require longer
+series before recycling.
+
+| Written | `N` | Notes |
+|---------|-----|-------|
+| `VI60s` | 12 | Default; sufficient for all standard use |
+| `@algorithm("fleshler-hoffman", n=20)` | 20 | Explicit N override |
+
+**Future inline syntax (reserved, not in v1.0 BNF):**
+
+```
+VI60s:fh          -- explicit FH, default parameters (N=12, seed=auto)
+VI60s:fh(N=20)    -- FH with N=20
+```
+
+The `:fh(...)` suffix is reserved for future versions. v1.0 parsers that
+encounter this syntax MUST reject it with a clear error message indicating
+the syntax is reserved. The `@algorithm(...)` annotation remains the v1.0
+mechanism for specifying FH parameters.
 
 Reference: Fleshler, M., & Hoffman, H. S. (1962). A progression for generating
 variable-interval schedules. *JEAB*, 5(4), 529-530.
