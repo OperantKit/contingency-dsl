@@ -66,7 +66,7 @@ analysis catches current misuse.
 
 ---
 
-## §2. The Trial State Machine
+## §2. The MTS Trial State Machine
 
 ### 2.1 Trial States
 
@@ -207,6 +207,160 @@ question. The DSL must not presuppose the answer.
 
 ---
 
+## §3A. The GoNoGo Trial State Machine
+
+### 3A.1 Trial States
+
+A GoNoGo trial is a finite-state machine with 4 states:
+
+```
+         ┌──────────────────────────────────────┐
+         │                                      │
+         ▼                                      │
+    ┌──────────┐                                │
+    │ STIMULUS │  ← SD or SΔ presented          │
+    └──────────┘    response_window starts       │
+         │                                      │
+    ┌────┴────┐                                 │
+    │         │                                 │
+ response  window_expires                       │
+    │         │                                 │
+    ▼         ▼                                 │
+┌──────────────┐                                │
+│   EVALUATE   │                                │
+└──────────────┘                                │
+    │      │                                    │
+ correct  incorrect                             │
+    │      │                                    │
+    ▼      ▼                                    │
+┌──────────────┐                                │
+│ CONSEQUENCE  │                                │
+└──────────────┘                                │
+         │                                      │
+         ▼                                      │
+    ┌─────────┐                                 │
+    │   ITI   │─────────────────────────────────┘
+    └─────────┘
+```
+
+**Definition 5 (GoNoGo Trial State Machine).** A GoNoGo trial is a
+quadruple `T = (Q, q₀, δ, F)` where:
+
+- `Q = {STIMULUS, EVALUATE, CONSEQUENCE, ITI}` — finite set of states
+- `q₀ = STIMULUS` — initial state
+- `δ: Q × Event → Q` — transition function (deterministic)
+- `F = {ITI}` — final state (trial complete, triggers next trial)
+
+The transition function:
+
+```
+δ(STIMULUS, response)            = EVALUATE
+δ(STIMULUS, window_expires)      = EVALUATE
+δ(EVALUATE, outcome_determined)  = CONSEQUENCE
+δ(CONSEQUENCE, schedule_complete) = ITI
+δ(ITI, iti_elapsed)              = STIMULUS   (next trial)
+```
+
+**Comparison with MTS:** MTS has 5 states (SAMPLE → COMPARISON →
+EVALUATE → CONSEQUENCE → ITI). GoNoGo has 4 states — there is no
+sample/comparison distinction because only a single stimulus is
+presented per trial. The STIMULUS state subsumes both presentation
+and response opportunity.
+
+### 3A.2 Trial Parameters
+
+A GoNoGo trial is parameterized by:
+
+```
+GoNoGo_params = {
+  response_window: ℝ⁺ × TimeUnit  -- duration of response opportunity
+  consequence:     ScheduleExpr    -- hit consequence
+  incorrect:       ScheduleExpr    -- error consequence (default: EXT)
+  false_alarm:     ScheduleExpr    -- NoGo error consequence (default: = incorrect)
+  iti:             ℝ⁺ × TimeUnit   -- inter-trial interval
+}
+```
+
+### 3A.3 The 2×2 Outcome Matrix
+
+GoNoGo produces a 2×2 outcome matrix, unlike MTS's binary
+correct/incorrect:
+
+```
+                    Response        No Response
+                ┌───────────────┬──────────────────┐
+  Go  (SD)      │ HIT           │ MISS (omission)  │
+                ├───────────────┼──────────────────┤
+  NoGo (SΔ)    │ FALSE ALARM   │ CORRECT REJECTION│
+                └───────────────┴──────────────────┘
+```
+
+**Definition 6 (GoNoGo Outcome).** Given stimulus type `t ∈ {Go, NoGo}`
+and response occurrence `r ∈ {true, false}`, the outcome function is:
+
+```
+outcome(t, r) =
+  (Go,   true)  → HIT               → execute consequence
+  (Go,   false) → MISS              → execute incorrect
+  (NoGo, true)  → FALSE_ALARM       → execute false_alarm
+  (NoGo, false) → CORRECT_REJECTION → EXT (no programmed consequence)
+```
+
+### 3A.4 Consequence Asymmetry
+
+The standard Go/No-Go procedure has an inherent consequence
+asymmetry: hits are reinforced, but correct rejections receive no
+programmed consequence. This contrasts with MTS, where all correct
+responses receive the same `consequence` schedule.
+
+This asymmetry is **procedural, not a design limitation**. The
+correct rejection is defined by the *absence* of a response during
+the SΔ — there is no response to reinforce. Reinforcing correct
+rejections would require a different contingency (e.g., DRO within
+trials), which is a distinct procedure reserved for future extension.
+
+The `false_alarm` parameter allows the common variant where false
+alarms receive a different consequence from misses — typically a
+timeout (Nevin, 1969). This models the signal detection theory
+arrangement where response bias is manipulated by differential
+consequences for the two error types.
+
+### 3A.5 Relationship to Free-Operant Discrimination
+
+Go/No-Go and `Mult(schedule, EXT)` implement the same successive
+discrimination using different response opportunity structures:
+
+| | Go/No-Go | Mult(VI, EXT) |
+|---|---|---|
+| **Response opportunity** | Discrete trial (1 per trial) | Free-operant (continuous) |
+| **Dependent variable** | Accuracy (hit rate, FA rate) | Response rate |
+| **Behavioral contrast** | Not applicable (no baseline rate) | Reynolds (1961) |
+| **SDT analysis** | Natural (2×2 matrix) | Requires rate-to-probability transform |
+| **DSL representation** | `GoNoGo(...)` | `Mult(VI30s, EXT)` |
+
+The DSL explicitly separates these: `GoNoGo(...)` for discrete-trial
+successive discrimination, `Mult(schedule, EXT)` for free-operant
+successive discrimination. This follows the response opportunity
+axis established in §1.
+
+### 3A.6 The response_window Parameter
+
+The `response_window` parameter is the **structural parameter** of
+GoNoGo, analogous to `comparisons` in MTS:
+
+| | MTS | GoNoGo |
+|---|---|---|
+| **Structural parameter** | `comparisons` (integer ≥ 2) | `response_window` (ℝ⁺ × TimeUnit) |
+| **What it defines** | Number of selection alternatives | Duration of response opportunity |
+| **Without it** | No selection task | No miss/CR determination |
+| **Domain** | Dimensionless count | Temporal duration |
+
+Without `response_window`, a Go/No-Go trial has no defined endpoint
+for the STIMULUS state — there is no principled way to distinguish
+"has not yet responded" from "miss" or "correct rejection."
+
+---
+
 ## §4. Modifier Incompatibility Proof
 
 ### 4.1 Statement
@@ -282,12 +436,18 @@ with trial-based schedules, while modifiers are not.
 
 ### 5.1 Core Schedules as Consequence Parameters
 
-MTS `consequence` and `incorrect` parameters accept Core
-`ScheduleExpr` values. This creates an embedding:
+Trial-based `consequence`, `incorrect`, and `false_alarm` parameters
+accept Core `ScheduleExpr` values. This creates an embedding:
 
 ```
-TrialBased.consequence : ScheduleExpr    (Core)
-TrialBased.incorrect   : ScheduleExpr    (Core)
+MTS:
+  TrialBased.consequence : ScheduleExpr    (Core)
+  TrialBased.incorrect   : ScheduleExpr    (Core)
+
+GoNoGo:
+  TrialBased.consequence : ScheduleExpr    (Core)  — hit
+  TrialBased.incorrect   : ScheduleExpr    (Core)  — miss + FA fallback
+  TrialBased.false_alarm : ScheduleExpr    (Core)  — FA override
 ```
 
 The consequence schedule executes within the CONSEQUENCE state of the
@@ -369,15 +529,27 @@ established in [core/theory.md §2.6](../core/theory.md):
   operant: Studies of matching-to-sample and related problems. In
   D. I. Mostofsky (Ed.), *Stimulus generalization* (pp. 284–330).
   Stanford University Press.
+- Davison, M. C., & Tustin, R. D. (1978). The relation between the
+  generalized matching law and signal-detection theory. *Journal of the
+  Experimental Analysis of Behavior*, *29*(2), 331–336.
+  https://doi.org/10.1901/jeab.1978.29-331
+- Dinsmoor, J. A. (1995a). Stimulus control: Part I. *The Behavior
+  Analyst*, *18*(1), 51–68.
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*.
   Appleton-Century-Crofts.
 - Hayes, S. C., Barnes-Holmes, D., & Roche, B. (2001). *Relational
   frame theory: A post-Skinnerian account of human language and
   cognition*. Kluwer Academic/Plenum.
+- Nevin, J. A. (1969). Signal detection theory and operant behavior.
+  *Journal of the Experimental Analysis of Behavior*, *12*(3), 475–480.
+  https://doi.org/10.1901/jeab.1969.12-475
 - Oden, D. L., Thompson, R. K. R., & Premack, D. (1988). Spontaneous
   transfer of matching by infant chimpanzees (*Pan troglodytes*).
   *Journal of Experimental Psychology: Animal Behavior Processes*,
   *14*(2), 140–145. https://doi.org/10.1037/0097-7403.14.2.140
+- Reynolds, G. S. (1961). Behavioral contrast. *Journal of the
+  Experimental Analysis of Behavior*, *4*(1), 57–71.
+  https://doi.org/10.1901/jeab.1961.4-57
 - Sidman, M. (1971). Reading and auditory-visual equivalences. *Journal
   of Speech and Hearing Research*, *14*(1), 5–13.
   https://doi.org/10.1044/jshr.1401.05
@@ -388,6 +560,9 @@ established in [core/theory.md §2.6](../core/theory.md):
   *37*(1), 5–22. https://doi.org/10.1901/jeab.1982.37-5
 - Skinner, B. F. (1938). *The behavior of organisms: An experimental
   analysis*. Appleton-Century-Crofts.
+- Terrace, H. S. (1963). Discrimination learning with and without
+  "errors." *Journal of the Experimental Analysis of Behavior*, *6*(1),
+  1–27. https://doi.org/10.1901/jeab.1963.6-1
 - Zentall, T. R., Hogan, D. E., & Edwards, C. A. (1981). Oddity
   learning in the pigeon: Effect of negative instances, correction, and
   number of incorrect alternatives. *Animal Learning & Behavior*,
