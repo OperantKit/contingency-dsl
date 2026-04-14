@@ -11,7 +11,7 @@
 ; Integration point (additive to Core grammar):
 ;   base_schedule ::= ... | trial_based_schedule
 
-trial_based_schedule ::= mts_schedule
+trial_based_schedule ::= mts_schedule | gonogo_schedule
 
 ; =====================================================================
 ; §1. Matching-to-Sample (MTS) — Cumming & Berryman (1965); Sidman (1971)
@@ -63,11 +63,84 @@ mts_kw_arg    ::= "comparisons" "=" number
 
 mts_type      ::= "identity" | "arbitrary"
 
-; === Reserved words (additive to grammar.ebnf `reserved`) ===
+; =====================================================================
+; §2. Go/No-Go Discrimination — Skinner (1938); Terrace (1963);
+;     Dinsmoor (1995a); Nevin (1969)
+; =====================================================================
+;
+; A successive discrimination procedure in which a single stimulus
+; (SD or S-delta) is presented per trial, and the subject either
+; emits a response (go) or withholds (no-go) within a response window.
+;
+; Unlike MTS (simultaneous discrimination with N comparisons), Go/No-Go
+; is a successive discrimination with a single stimulus per trial.
+; The response window is the structural parameter (analogous to
+; MTS's comparisons): it defines the trial's response opportunity.
+;
+; Syntax:
+;   GoNoGo(response_window=5s, consequence=CRF, ITI=10s)       -- minimal
+;   GoNoGo(response_window=5s, consequence=CRF, incorrect=FT10s,
+;          ITI=10s)                                              -- with incorrect
+;   GoNoGo(response_window=5s, consequence=CRF, incorrect=EXT,
+;          false_alarm=FT10s, ITI=15s)                           -- SDT-style
+;
+; All arguments are keyword-only (no positional arguments).
+;
+; Keyword arguments:
+;   response_window (required): duration of response opportunity (time value)
+;   consequence     (required): Core schedule for hit (Go + response)
+;   incorrect       (optional): Core schedule for errors (default: EXT)
+;   false_alarm     (optional): Core schedule for NoGo errors (default: = incorrect)
+;   ITI             (required): inter-trial interval duration (time value)
+;
+; LL(2) disambiguation:
+;   Same strategy as MTS. After "GoNoGo" token, expect "(". Inside:
+;   All arguments are keyword form: IDENT "=" value/schedule.
+;   "consequence", "incorrect", "false_alarm" are followed by a schedule
+;   expression, requiring the parser to enter schedule parsing mode.
+;
+; 2×2 Outcome Matrix:
+;   |           | Response      | No Response        |
+;   |-----------|---------------|--------------------|
+;   | Go  (SD)  | HIT           | MISS (omission)    |
+;   | NoGo (SΔ) | FALSE ALARM   | CORRECT REJECTION  |
+;
+;   HIT               → execute consequence
+;   MISS               → execute incorrect
+;   FALSE ALARM        → execute false_alarm (defaults to incorrect)
+;   CORRECT REJECTION  → EXT (no programmed consequence; implicit)
+;
+; Skinner, B. F. (1938). The behavior of organisms: An experimental
+;   analysis. Appleton-Century-Crofts.
+;
+; Terrace, H. S. (1963). Discrimination learning with and without
+;   "errors." Journal of the Experimental Analysis of Behavior, 6(1),
+;   1-27. https://doi.org/10.1901/jeab.1963.6-1
+;
+; Dinsmoor, J. A. (1995a). Stimulus control: Part I. The Behavior
+;   Analyst, 18(1), 51-68.
+;
+; Nevin, J. A. (1969). Signal detection theory and operant behavior.
+;   Journal of the Experimental Analysis of Behavior, 12(3), 475-480.
+;   https://doi.org/10.1901/jeab.1969.12-475
+
+gonogo_schedule ::= "GoNoGo" "(" gonogo_kw_arg ("," gonogo_kw_arg)* ")"
+
+gonogo_kw_arg   ::= "response_window" "=" value
+                  | "consequence"     "=" schedule
+                  | "incorrect"       "=" schedule
+                  | "false_alarm"     "=" schedule
+                  | "ITI"             "=" value
+
+; =====================================================================
+; Reserved words (additive to grammar.ebnf `reserved`)
+; =====================================================================
 
 ; reserved      ::= ... (existing)
 ;                 | "MTS"
+;                 | "GoNoGo"
 ;                 | "comparisons" | "consequence" | "incorrect"
+;                 | "response_window" | "false_alarm"
 ;                 | "identity" | "arbitrary"
 ;
 ; Note: "ITI" begins with uppercase, consistent with DSL conventions
@@ -78,8 +151,11 @@ mts_type      ::= "identity" | "arbitrary"
 ; disambiguates. A let-binding named "type" at top level does NOT
 ; collide because mts_type is parsed only after the "MTS" "(" ...
 ; "type" "=" token sequence.
+;
+; "response_window" and "false_alarm" are reserved globally — they
+; may appear in future trial-based constructs beyond GoNoGo.
 
-; === Semantic constraints ===
+; === MTS semantic constraints ===
 ;
 ; M1. comparisons must be an integer >= 2.
 ;     Less than 2, non-integer → SemanticError (MTS_INVALID_COMPARISONS).
@@ -132,6 +208,61 @@ mts_type      ::= "identity" | "arbitrary"
 ; W5. ITI < 1s → Linter WARNING (MTS_SHORT_ITI).
 ;     Rationale: very short ITI may impair trial discrimination.
 
+; === GoNoGo semantic constraints ===
+;
+; G1. response_window must be positive (> 0).
+;     Zero or negative → SemanticError (GONOGO_NONPOSITIVE_RESPONSE_WINDOW).
+;     Rationale: response window is the defining structural parameter.
+;
+; G2. response_window must include a time unit (s/ms/min).
+;     Dimensionless → SemanticError (GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED).
+;     Rationale: response_window is a temporal duration.
+;
+; G3. consequence is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
+;
+; G4. ITI is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
+;
+; G5. response_window is required. Omission → SemanticError (MISSING_GONOGO_PARAM).
+;
+; G6. ITI must be positive (> 0).
+;     Zero or negative → SemanticError (GONOGO_NONPOSITIVE_ITI).
+;     Rationale: ITI=0 eliminates trial boundary.
+;
+; G7. ITI must include a time unit (s/ms/min).
+;     Dimensionless → SemanticError (GONOGO_ITI_TIME_UNIT_REQUIRED).
+;
+; G8. consequence must NOT be a compound schedule (Conc, Chain, etc.).
+;     Compound → SemanticError (GONOGO_INVALID_CONSEQUENCE).
+;     Rationale: trial consequence is a single atomic event.
+;
+; G9. incorrect/false_alarm must NOT be a compound schedule.
+;     Same rationale as G8.
+;
+; G10. consequence/incorrect/false_alarm must NOT be a trial_based_schedule.
+;      Recursive nesting → SemanticError (GONOGO_RECURSIVE_CONSEQUENCE).
+;
+; G11. Duplicate keyword arguments → SemanticError (DUPLICATE_GONOGO_KW_ARG).
+;
+; W1. response_window < 500ms → Linter WARNING (GONOGO_SHORT_RESPONSE_WINDOW).
+;     Rationale: very short windows may make discrimination impossible.
+;
+; W2. response_window > 60s → Linter WARNING (GONOGO_LONG_RESPONSE_WINDOW).
+;     Rationale: very long windows blur the discrete-trial / free-operant boundary.
+;
+; W3. consequence=EXT → Linter WARNING (GONOGO_NO_REINFORCEMENT).
+;     Rationale: all-probe session? Usually mixed with reinforced trials.
+;
+; W4. ITI < 1s → Linter WARNING (GONOGO_SHORT_ITI).
+;     Same rationale as MTS W5.
+;
+; W5. LH applied to GoNoGo → Linter WARNING (GONOGO_LH_REDUNDANT).
+;     Rationale: response_window already constrains the response opportunity.
+;     LH on GoNoGo is semantically redundant.
+;
+; W6. false_alarm specified without incorrect → Linter WARNING (GONOGO_FALSE_ALARM_WITHOUT_INCORRECT).
+;     Rationale: false_alarm overrides incorrect for NoGo errors, but miss
+;     consequence falls back to incorrect (default EXT). User should confirm intent.
+
 ; === Modifier incompatibility ===
 ;
 ; Trial-based schedules are incompatible with free-operant modifiers.
@@ -145,7 +276,9 @@ mts_type      ::= "identity" | "arbitrary"
 ;
 ; LH IS compatible with trial-based schedules. Unlike DRL/DRH/DRO/Pctl/Lag,
 ; LH does not assume a free-operant response stream. Instead, it constrains
-; the response window within the COMPARISON state of the trial.
+; the response window within a trial state.
+;
+; --- MTS + LH ---
 ;
 ; Syntax:
 ;   MTS(comparisons=3, consequence=CRF, ITI=5s) LH10s
@@ -166,9 +299,25 @@ mts_type      ::= "identity" | "arbitrary"
 ;   Both are time-limited response opportunities — the same concept
 ;   applied to different response opportunity structures.
 ;
-; W6. LH on MTS with LH < ITI is legal but: no linter warning.
-; W7. LH on MTS with LH > 5min → Linter WARNING (MTS_LONG_LH).
-;     Rationale: very long LH effectively removes the time constraint.
+; MTS W6. LH on MTS with LH < ITI is legal but: no linter warning.
+; MTS W7. LH on MTS with LH > 5min → Linter WARNING (MTS_LONG_LH).
+;         Rationale: very long LH effectively removes the time constraint.
+;
+; --- GoNoGo + LH ---
+;
+; Syntax:
+;   GoNoGo(response_window=5s, consequence=CRF, ITI=10s) LH3s
+;
+; Semantics:
+;   LH on GoNoGo is semantically REDUNDANT because response_window
+;   already defines the response opportunity duration. LH would create
+;   a second, inner time constraint within the response window.
+;
+;   If LH < response_window: LH becomes the effective response window;
+;   the remaining time is "stimulus present but response opportunity
+;   closed" — effectively stimulus_duration ≠ response_window.
+;
+;   This is syntactically legal but triggers GoNoGo W5 warning.
 ;
 ; Note: program-level LH default (param_decl) also applies to
 ; trial_based_schedule leaf nodes, with the same semantics.

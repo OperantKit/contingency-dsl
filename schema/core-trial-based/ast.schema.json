@@ -7,14 +7,19 @@
   "$defs": {
     "TrialBased": {
       "type": "object",
-      "description": "A discrete-trial schedule. Response opportunities are structured as trials (stimulus presentation → selection → consequence → ITI), unlike free-operant Core/Core-Stateful schedules.",
+      "description": "A discrete-trial schedule. Response opportunities are structured as trials (stimulus presentation → response → consequence → ITI), unlike free-operant Core/Core-Stateful schedules.",
+      "oneOf": [
+        { "$ref": "#/$defs/MTS" },
+        { "$ref": "#/$defs/GoNoGo" }
+      ]
+    },
+
+    "MTS": {
+      "type": "object",
+      "description": "Matching-to-Sample: a conditional (simultaneous) discrimination procedure. A sample stimulus controls selection from multiple comparison stimuli (Cumming & Berryman, 1965; Sidman, 1971).",
       "properties": {
         "type": { "const": "TrialBased" },
-        "trial_type": {
-          "type": "string",
-          "enum": ["MTS"],
-          "description": "Trial-based procedure type. v1.x: MTS only."
-        },
+        "trial_type": { "const": "MTS" },
         "comparisons": {
           "type": "integer",
           "minimum": 2,
@@ -45,6 +50,47 @@
         }
       },
       "required": ["type", "trial_type", "comparisons", "consequence", "ITI", "ITI_unit"],
+      "additionalProperties": false
+    },
+
+    "GoNoGo": {
+      "type": "object",
+      "description": "Go/No-Go Discrimination: a successive discrimination procedure. A single stimulus (SD or S-delta) is presented per trial; the subject responds (go) or withholds (no-go) within a response window (Skinner, 1938; Terrace, 1963; Dinsmoor, 1995a).",
+      "properties": {
+        "type": { "const": "TrialBased" },
+        "trial_type": { "const": "GoNoGo" },
+        "response_window": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Duration of response opportunity in canonical unit. Structural parameter: without it, miss and correct rejection cannot be determined."
+        },
+        "response_window_unit": {
+          "$ref": "../../core/ast.schema.json#/$defs/TimeUnit",
+          "description": "Time unit for response_window."
+        },
+        "consequence": {
+          "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Core schedule executed on hit (Go stimulus + response)."
+        },
+        "incorrect": {
+          "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Core schedule executed on errors (miss and false alarm fallback). Default: EXT."
+        },
+        "false_alarm": {
+          "$ref": "../../core/ast.schema.json#/$defs/ScheduleExpr",
+          "description": "Core schedule executed on false alarm (NoGo stimulus + response). Overrides incorrect for NoGo errors. Default: = incorrect. Nevin (1969) SDT-style asymmetric arrangement."
+        },
+        "ITI": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Inter-trial interval value in canonical unit."
+        },
+        "ITI_unit": {
+          "$ref": "../../core/ast.schema.json#/$defs/TimeUnit",
+          "description": "Time unit for ITI."
+        }
+      },
+      "required": ["type", "trial_type", "response_window", "response_window_unit", "consequence", "ITI", "ITI_unit"],
       "additionalProperties": false
     }
   }
