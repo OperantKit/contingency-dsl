@@ -50,6 +50,7 @@ binding       ::= "let" ident "=" schedule
 ; === Schedule expressions ===
 
 schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
+                                 (("TO" | "Timeout") "(" timeout_args ")")?
 ; LH is a temporal availability property of the schedule it follows.
 ; AST: absorbed into the inner node's optional `limitedHold` / `limitedHoldUnit` properties.
 ; No separate LimitedHold wrapper node is emitted.
@@ -63,6 +64,23 @@ schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
 ;
 ; Permitted targets: Atomic, Special, DRModifier, SecondOrder, TrialBased.
 ; DRModifier is permitted because DRL LH is an established paradigm (Kramer & Rilling, 1970).
+;
+; TO (Timeout) is a response-contingent removal of reinforcement availability
+; (negative punishment; Leitenberg, 1965). Postfix position follows LH.
+; AST: absorbed into the inner node's optional `timeout` property (object).
+; No separate Timeout wrapper node is emitted.
+;
+; Semantic constraint (TO_ON_COMPOUND):
+;   TO applied to a Compound → SemanticError. Apply per-component instead.
+;   "Conc(VI 30-s TO(...), VI 60-s)" — not "Conc(VI 30-s, VI 60-s) TO(...)".
+; Semantic constraint (TO_ON_AVERSIVE):
+;   TO on AversiveSchedule → SemanticError. Timeout from avoidance is incoherent.
+; Semantic constraint (TO_ON_EXT):
+;   TO applied to EXT → Linter WARNING (not an error). EXT never produces
+;   reinforcement, so removing reinforcement availability has no effect.
+;
+; Permitted targets: Atomic, Special, DRModifier, SecondOrder.
+; Combined with LH: `FI 30-s LH 10-s TO(duration=30-s, reset_on_response=true)` is valid.
 
 base_schedule ::= atomic_or_second
                 | compound
@@ -144,6 +162,9 @@ reserved      ::= "let" | "def"
                 | "CSUSInterval" | "ITI" | "mode"
                 | "ShockDuration" | "MaxShock"
                 | "fixed" | "escape"          -- da_mode values
+                | "TO" | "Timeout"             -- v2.0: timeout (Leitenberg, 1965)
+                | "duration" | "reset_on_response" | "contingent_response"  -- TO keyword args
+                | "true" | "false"             -- boolean literals (TO reset_on_response)
                 | "Overlay"                   -- v1.x: punishment overlay combinator
                 | "Interpolate" | "Interp"   -- v1.x: interpolated schedule (Ferster & Skinner, 1957)
                 | "count" | "onset"          -- interpolate keyword argument names
@@ -257,6 +278,34 @@ lag_mod       ::= "Lag" ws? number                              -- shorthand: La
                 | "Lag" "(" number ("," lag_kw_arg)* ")"        -- parenthesized: Lag(5, length=8)
 
 lag_kw_arg    ::= "length" "=" number
+
+; === Timeout (v2.0) ===
+;
+; Timeout: response-contingent removal of reinforcement availability
+; (negative punishment; Leitenberg, 1965). Postfix on schedule expressions.
+;
+; Two required parameters (no defaults — same design philosophy as MISSING_COD):
+;   - duration: how long the timeout period lasts
+;   - reset_on_response: whether responses during TO restart the timer
+;     (resetting TO ≈ DRO with opposite consequence polarity; see defaults.md)
+; One conditionally required parameter:
+;   - contingent_response: which response class triggers TO (multi-operandum only)
+;
+; Reference:
+;   Leitenberg, H. (1965). Is time-out from positive reinforcement an aversive
+;     event? *Psychological Bulletin*, 64(6), 428-441.
+;     https://doi.org/10.1037/h0022657
+;   Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some determinants
+;     of the reinforcing and punishing effects of timeout. *JABA*, 10(3), 415-424.
+;     https://doi.org/10.1901/jaba.1977.10-415
+
+timeout_args  ::= timeout_kwarg ("," timeout_kwarg)*
+timeout_kwarg ::= "duration" "=" value
+                | "reset_on_response" "=" boolean
+                | "contingent_response" "=" label_ref
+
+boolean       ::= "true" | "false"
+label_ref     ::= ident | number          -- operandum index (1-based) or let-bound name
 
 ; === Aversive schedules (v1.x) ===
 ;
@@ -803,3 +852,58 @@ number_list   ::= number ("," number)*
 ;     closes before any response can occur, making reinforcement unavailable.
 ;     Use `EXT` for extinction semantics. This constraint matches
 ;     ast.schema.json exclusiveMinimum=0 on limitedHold property.
+; 74. Second-order schedule: @brief annotation is recommended.
+;     SecondOrder without @brief (neither schedule-level nor program-level)
+;     → Linter WARNING (MISSING_BRIEF). Not a SemanticError.
+;     @brief(none) (explicit opt-out) is legal and suppresses the warning.
+;     @brief("light"), @brief("tone", duration=0.5), etc. also suppress it.
+;     Rationale: Brief stimulus (conditioned reinforcer) is a defining
+;     independent variable of second-order schedules (Kelleher, 1966).
+;     Without brief stimulus, a ratio-overall second-order schedule is
+;     procedurally equivalent to a tandem (theory.md §2.11.1). This
+;     equivalence may be the user's intent, but the DSL requires explicit
+;     acknowledgment via @brief(none) to prevent silent Tand-equivalent
+;     arrangements from accumulating in codebases. Same design philosophy
+;     as MISSING_COD for Conc (constraint §7).
+;     References:
+;       Kelleher, R. T. (1966). Conditioned reinforcement in second-order
+;         schedules. JEAB, 9(5), 475-485.
+;       Goldberg, S. R., Kelleher, R. T., & Morse, W. H. (1975).
+;         Second-order schedules of drug injection. Federation Proceedings,
+;         34(9), 1771-1776.
+;
+; --- Timeout (TO) constraints (v2.0) ---
+;
+; 75. TO: duration keyword arg is REQUIRED.
+;     Missing duration → SemanticError (MISSING_TO_DURATION).
+; 76. TO: reset_on_response keyword arg is REQUIRED (no default value).
+;     Missing reset_on_response → SemanticError (MISSING_TO_RESET_RULE).
+;     Rationale: Resetting and non-resetting TO produce qualitatively different
+;     behavioral effects. Forcing explicit specification prevents ambiguity.
+;     Same design philosophy as MISSING_COD (constraint §7).
+; 77. TO: duration value must be strictly positive (> 0) with time unit.
+;     duration=0s → SemanticError (TO_NONPOSITIVE_DURATION).
+;     duration without time unit → SemanticError (TO_TIME_UNIT_REQUIRED).
+;     Rationale: A zero-duration timeout is operationally vacuous.
+; 78. TO: duration > mean IRI of the base schedule → Linter WARNING
+;     (TO_DURATION_EXCEEDS_IRI). Not a SemanticError.
+;     Rationale: If TO outlasts the typical inter-reinforcement interval,
+;     the procedure may collapse to near-EXT conditions (Leitenberg, 1965).
+; 79. TO applied to EXT → Linter WARNING (TO_ON_EXT). Not a SemanticError.
+;     Rationale: EXT never produces reinforcement, so removing reinforcement
+;     availability has no operational effect. Likely user error.
+; 80. TO applied to Compound → SemanticError (TO_ON_COMPOUND).
+;     TO must be applied per-component, not to entire compound arrangements.
+;     Rationale: Same as LH_ON_COMPOUND (constraint §6); the target of the
+;     timeout must be unambiguous.
+; 81. TO applied to AversiveSchedule → SemanticError (TO_ON_AVERSIVE).
+;     Timeout from avoidance is semantically incoherent: the aversive schedule
+;     operates on shock/US delivery, not on reinforcement availability.
+; 82. TO: duplicate keyword args → SemanticError (DUPLICATE_TO_PARAM).
+;     E.g., `TO(duration=30s, duration=60s)` → error.
+; 83. TO: contingent_response is REQUIRED when the base schedule is a component
+;     of a multi-operandum arrangement (e.g., inside Conc).
+;     Missing contingent_response in multi-operandum context → SemanticError
+;     (MISSING_TO_CONTINGENT_RESPONSE).
+;     Rationale: In multi-operandum environments, the response class that
+;     triggers timeout must be unambiguous.

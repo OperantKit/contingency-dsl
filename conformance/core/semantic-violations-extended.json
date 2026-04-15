@@ -331,5 +331,116 @@
       "type": "SemanticError",
       "code": "MISSING_DA_PARAM"
     }
+  },
+
+  { "_comment": "=== Timeout (TO) semantic violations (v2.0, constraints §75–§83) ===" },
+
+  {
+    "id": "error_to_on_conc",
+    "description": "TO on Conc compound → TO_ON_COMPOUND (constraint §80)",
+    "input": "(Conc(VI30s, VI60s)) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_COMPOUND"
+    }
+  },
+  {
+    "id": "error_to_on_mult",
+    "description": "TO on Mult compound → TO_ON_COMPOUND",
+    "input": "(Mult(FR5, EXT)) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_COMPOUND"
+    }
+  },
+  {
+    "id": "error_to_on_tand",
+    "description": "TO on Tand compound → TO_ON_COMPOUND",
+    "input": "(Tand(FR5, FI30s)) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_COMPOUND"
+    }
+  },
+  {
+    "id": "error_to_on_chain",
+    "description": "TO on Chain compound → TO_ON_COMPOUND",
+    "input": "(Chain(FR5, FI30s)) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_COMPOUND"
+    }
+  },
+  {
+    "id": "error_to_on_sidman",
+    "description": "TO on Sidman avoidance → TO_ON_AVERSIVE (constraint §81)",
+    "input": "Sidman(SSI=20s, RSI=5s) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_AVERSIVE"
+    }
+  },
+  {
+    "id": "error_to_on_discrimav",
+    "description": "TO on discriminated avoidance → TO_ON_AVERSIVE",
+    "input": "DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_AVERSIVE"
+    }
+  },
+  {
+    "id": "error_to_missing_duration",
+    "description": "TO without duration → MISSING_TO_DURATION (constraint §75)",
+    "input": "VI60s TO(reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_TO_DURATION"
+    }
+  },
+  {
+    "id": "error_to_missing_reset",
+    "description": "TO without reset_on_response → MISSING_TO_RESET_RULE (constraint §76)",
+    "input": "VI60s TO(duration=30s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "MISSING_TO_RESET_RULE"
+    }
+  },
+  {
+    "id": "error_to_zero_duration",
+    "description": "TO with zero duration → TO_NONPOSITIVE_DURATION (constraint §77)",
+    "input": "VI60s TO(duration=0s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_NONPOSITIVE_DURATION"
+    }
+  },
+  {
+    "id": "error_to_no_time_unit",
+    "description": "TO duration without time unit → TO_TIME_UNIT_REQUIRED (constraint §77)",
+    "input": "VI60s TO(duration=30, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_TIME_UNIT_REQUIRED"
+    }
+  },
+  {
+    "id": "error_to_duplicate_duration",
+    "description": "Duplicate duration keyword → DUPLICATE_TO_PARAM (constraint §82)",
+    "input": "VI60s TO(duration=30s, duration=60s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_TO_PARAM"
+    }
+  },
+  {
+    "id": "error_to_duplicate_reset",
+    "description": "Duplicate reset_on_response keyword → DUPLICATE_TO_PARAM",
+    "input": "VI60s TO(duration=30s, reset_on_response=true, reset_on_response=false)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_TO_PARAM"
+    }
   }
 ]

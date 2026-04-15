@@ -28,6 +28,7 @@ The DSL grammar satisfies four criteria:
 <binding>       ::= "let" <ident> "=" <schedule>
 
 <schedule>      ::= <base_schedule> ("LH" <ws>? <value>)?
+                                   (("TO" | "Timeout") "(" <timeout_args> ")")?
 <base_schedule> ::= <atomic>
                   | <compound>
                   | <modifier>
@@ -66,6 +67,9 @@ The DSL grammar satisfies four criteria:
                   | "CSUSInterval" | "ITI" | "mode"
                   | "ShockDuration" | "MaxShock"
                   | "fixed" | "escape"
+                  | "TO" | "Timeout"
+                  | "duration" | "reset_on_response" | "contingent_response"
+                  | "true" | "false"
                   | "Overlay"
                   | "Interpolate" | "Interp"
                   | "count" | "onset"
@@ -96,6 +100,13 @@ The DSL grammar satisfies four criteria:
 <lag_mod>       ::= "Lag" <ws>? <number>
                   | "Lag" "(" <number> ("," <lag_kw_arg>)* ")"
 <lag_kw_arg>    ::= "length" "=" <number>
+
+<timeout_args>  ::= <timeout_kwarg> ("," <timeout_kwarg>)*
+<timeout_kwarg> ::= "duration" "=" <value>
+                  | "reset_on_response" "=" <boolean>
+                  | "contingent_response" "=" <label_ref>
+<boolean>       ::= "true" | "false"
+<label_ref>     ::= <ident> | <number>
 
 <interpolate>   ::= ("Interpolate" | "Interp") "(" <schedule> "," <schedule>
                     ("," <interp_kw_arg>)+ ")"

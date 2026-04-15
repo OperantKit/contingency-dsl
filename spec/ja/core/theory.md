@@ -642,7 +642,46 @@ Mult(FR 5, EXT)                       -- ブラックアウトなし（即時遷
 
 **将来（v1.2）:** 非対称 BO（遷移方向ごとに異なる値。例: Rich→Lean vs. Lean→Rich）。非対称 COD（Issue #25）と同期して設計。
 
-**タイムアウト（TO）との関係。** BO は応答非随伴的、TO は応答随伴的。TO は負の罰（応答に随伴する正の強化からの除去）として機能し、v2.0 で modifier として導入予定。操作的区別と COD/TO/DRO の構造的関係については Issue #28 を参照。
+**タイムアウト（TO）との関係。** BO は応答非随伴的、TO は応答随伴的。TO は負の罰（応答に随伴する正の強化利用可能性の除去）として機能する。詳細は §2.5.1 を参照。
+
+### 2.5.1 タイムアウト（TO）
+
+タイムアウトとは、正の強化が利用不可能になる応答随伴的な期間である（Leitenberg, 1965）。TO は負の罰として機能する：有機体の応答が強化利用不可能期間を産出する。
+
+**操作的定義。** 標的応答が生起すると、ベーススケジュールの強化利用可能性が指定期間だけ中断される。`reset_on_response=true` の場合、TO 期間中の応答がタイマーを再スタートさせる（リセッティング TO）。`reset_on_response=false` の場合、タイマーは応答とは無関係に進行する（ノンリセッティング TO）。
+
+**構文。** TO は LH と同じ postfix パターンのスケジュール式修飾子である:
+
+```
+VI 60-s TO(duration=30-s, reset_on_response=true)
+
+-- LH との組み合わせ
+FI 30-s LH 10-s TO(duration=20-s, reset_on_response=false)
+
+-- 並立スケジュールの成分別付加
+Conc(
+  VI 30-s TO(duration=15-s, reset_on_response=true),
+  VI 60-s,
+  COD=2-s
+)
+```
+
+**構造的関係。**
+
+| | TO | DRO | BO |
+|---|---|---|---|
+| **随伴性** | 応答随伴的 | 応答随伴的 | 応答非随伴的 |
+| **機能** | 負の罰（SR+ 除去） | 正の強化（省略に対する SR+ 提示） | 手続き的（成分遷移） |
+| **タイマーリセット** | 設定可能（`reset_on_response`） | 常にリセット（定義上） | N/A |
+| **DSL 位置** | スケジュールの postfix | modifier（単独または Tand 内） | Mult/Mix のキーワード引数 |
+
+リセッティング TO（`reset_on_response=true`）と DRO は同一の随伴性構造を共有する：「持続時間 *d* の間に標的応答が生起しなければ〔結果〕」。差異は結果の極性にある：TO は強化利用可能性を回復し（罰の終了）、DRO は強化子を提示する（正の強化）。
+
+**参考文献。**
+
+- Dunn, R. (1990). Timeout from concurrent schedules. *Journal of the Experimental Analysis of Behavior*, 53(1), 163–174. https://doi.org/10.1901/jeab.1990.53-163
+- Leitenberg, H. (1965). Is time-out from positive reinforcement an aversive event? *Psychological Bulletin*, 64(6), 428–441. https://doi.org/10.1037/h0022657
+- Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some determinants of the reinforcing and punishing effects of timeout. *Journal of Applied Behavior Analysis*, 10(3), 415–424. https://doi.org/10.1901/jaba.1977.10-415
 
 ### 2.6 選択行動と手続き–帰結の境界
 
@@ -988,6 +1027,17 @@ State: (unit_state, overall_state, unit_completion_count)
 | 比率 (FR, VR, RR) | `unit_completion_count == Overall.value` | Yes → `Repeat(n, Unit)` |
 | 時間間隔 (FI, VI, RI) | `最終強化からの経過時間 ≥ Overall.value` かつ unit 完了が生じた | No |
 | 時間 (FT, VT, RT) | `最終強化からの経過時間 ≥ Overall.value`（反応非依存） | No |
+
+**Brief stimulus の要求（制約 §74）.** `@brief` アノテーションを持たない `SecondOrder` 式（スケジュールレベルにもプログラムレベルにもない場合）は、リンター警告（`MISSING_BRIEF`）を発する。SemanticError ではない。プログラムは有効かつ解析可能である。
+
+Brief stimulus（条件性強化子）は二次スケジュールの定義的独立変数である（Kelleher, 1966）。その有無は配置の行動的機能を根本的に変える。Brief stimulus があれば、二次スケジュールは条件性強化を通じて行動の延長系列を維持する。なければ、比率 overall の二次スケジュールは tandem に還元される（上記 §2.11.1）。薬物自己投与研究では brief stimulus はほぼ普遍的に使用される（Goldberg, Kelleher, & Morse, 1975）。
+
+警告を消去するには、以下のいずれかを記述する:
+
+- `@brief("stimulus_id")` — brief stimulus の同一性を指定（オプションで `duration` パラメータ付き）
+- `@brief(none)` — brief stimulus の不在を明示的に宣言
+
+`@brief(none)` は、ユーザーが条件性強化子を意図的に除外したことを示す。意味論的には素の省略と同一（unit 完了間に brief stimulus なし）だが、意図がソースに文書化される。これは `Conc` における `MISSING_COD`（grammar.ebnf 制約 §7）と同一の設計哲学に従う: 手続き的に本質的な情報であるが省略を許容し、明示的な指定を推奨する。
 
 **参考文献:**
 - Goldberg, S. R., Kelleher, R. T., & Morse, W. H. (1975). Second-order schedules of drug injection. *Federation Proceedings*, *34*(9), 1771–1776.

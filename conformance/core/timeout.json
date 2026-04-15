@@ -1,0 +1,317 @@
+[
+  {
+    "id": "to_vi_resetting",
+    "description": "VI 60s with resetting timeout (Leitenberg, 1965)",
+    "input": "VI 60s TO(duration=30s, reset_on_response=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 30.0,
+          "durationUnit": "s",
+          "resetOnResponse": true
+        }
+      }
+    }
+  },
+  {
+    "id": "to_vi_nonresetting",
+    "description": "VI 60s with non-resetting timeout",
+    "input": "VI 60s TO(duration=30s, reset_on_response=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 30.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    }
+  },
+  {
+    "id": "to_fi_with_lh",
+    "description": "FI 30s with LH and TO combined",
+    "input": "FI 30s LH 10s TO(duration=20s, reset_on_response=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s",
+        "limitedHold": 10.0,
+        "limitedHoldUnit": "s",
+        "timeout": {
+          "duration": 20.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    }
+  },
+  {
+    "id": "to_conc_per_component",
+    "description": "Concurrent with per-component TO (Dunn, 1990)",
+    "input": "Conc(VI 30s TO(duration=15s, reset_on_response=true), VI 60s, COD=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s",
+            "timeout": {
+              "duration": 15.0,
+              "durationUnit": "s",
+              "resetOnResponse": true
+            }
+          },
+          {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "to_fr_resetting",
+    "description": "FR 10 with resetting timeout",
+    "input": "FR 10 TO(duration=5s, reset_on_response=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 10.0,
+        "timeout": {
+          "duration": 5.0,
+          "durationUnit": "s",
+          "resetOnResponse": true
+        }
+      }
+    }
+  },
+  {
+    "id": "to_crf",
+    "description": "CRF with timeout",
+    "input": "CRF TO(duration=10s, reset_on_response=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Special",
+        "kind": "CRF",
+        "timeout": {
+          "duration": 10.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    }
+  },
+  {
+    "id": "to_drl",
+    "description": "DRL with timeout",
+    "input": "DRL 5s TO(duration=20s, reset_on_response=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Modifier",
+        "modifier": "DRL",
+        "value": 5.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 20.0,
+          "durationUnit": "s",
+          "resetOnResponse": true
+        }
+      }
+    }
+  },
+  {
+    "id": "to_second_order",
+    "description": "Second-order schedule with timeout",
+    "input": "FR 5(FI 30s) TO(duration=60s, reset_on_response=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" },
+        "timeout": {
+          "duration": 60.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    }
+  },
+  {
+    "id": "to_verbose_alias",
+    "description": "Timeout (verbose alias) accepted",
+    "input": "VI 60s Timeout(duration=30s, reset_on_response=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 30.0,
+          "durationUnit": "s",
+          "resetOnResponse": true
+        }
+      }
+    }
+  },
+  {
+    "id": "to_kwarg_order_independent",
+    "description": "TO keyword argument order does not matter",
+    "input": "VI 60s TO(reset_on_response=false, duration=30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 30.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    }
+  },
+  {
+    "id": "to_ms_unit",
+    "description": "TO duration with milliseconds",
+    "input": "VI 60s TO(duration=500ms, reset_on_response=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "timeout": {
+          "duration": 500.0,
+          "durationUnit": "ms",
+          "resetOnResponse": true
+        }
+      }
+    }
+  },
+  {
+    "id": "to_missing_duration_error",
+    "description": "Error: TO without duration → MISSING_TO_DURATION",
+    "input": "VI 60s TO(reset_on_response=true)",
+    "expected_error": "MISSING_TO_DURATION"
+  },
+  {
+    "id": "to_missing_reset_rule_error",
+    "description": "Error: TO without reset_on_response → MISSING_TO_RESET_RULE",
+    "input": "VI 60s TO(duration=30s)",
+    "expected_error": "MISSING_TO_RESET_RULE"
+  },
+  {
+    "id": "to_on_ext_warning",
+    "description": "Warning: TO on EXT — semantically vacuous",
+    "input": "EXT TO(duration=30s, reset_on_response=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Special",
+        "kind": "EXT",
+        "timeout": {
+          "duration": 30.0,
+          "durationUnit": "s",
+          "resetOnResponse": false
+        }
+      }
+    },
+    "expected_warnings": ["TO_ON_EXT"]
+  },
+  {
+    "id": "to_on_compound_error",
+    "description": "Error: TO applied to entire Conc → TO_ON_COMPOUND",
+    "input": "(Conc(VI 30s, VI 60s)) TO(duration=30s, reset_on_response=true)",
+    "expected_error": "TO_ON_COMPOUND"
+  },
+  {
+    "id": "to_on_chain_error",
+    "description": "Error: TO applied to entire Chain → TO_ON_COMPOUND",
+    "input": "(Chain(FR 5, FI 30s)) TO(duration=30s, reset_on_response=true)",
+    "expected_error": "TO_ON_COMPOUND"
+  },
+  {
+    "id": "to_duplicate_kwarg_error",
+    "description": "Error: duplicate TO keyword arg → DUPLICATE_TO_PARAM",
+    "input": "VI 60s TO(duration=30s, duration=60s, reset_on_response=true)",
+    "expected_error": "DUPLICATE_TO_PARAM"
+  },
+  {
+    "id": "to_nonpositive_duration_error",
+    "description": "Error: TO duration=0 → TO_NONPOSITIVE_DURATION",
+    "input": "VI 60s TO(duration=0s, reset_on_response=true)",
+    "expected_error": "TO_NONPOSITIVE_DURATION"
+  },
+  {
+    "id": "to_missing_time_unit_error",
+    "description": "Error: TO duration without time unit → TO_TIME_UNIT_REQUIRED",
+    "input": "VI 60s TO(duration=30, reset_on_response=true)",
+    "expected_error": "TO_TIME_UNIT_REQUIRED"
+  }
+]

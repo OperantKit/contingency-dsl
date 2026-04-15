@@ -276,6 +276,43 @@ References:
 
 ## Second-order schedules
 
+### Brief stimulus
+
+| Written | Default | Notes |
+|---------|---------|-------|
+| `FR5(FI30s)` | No brief stimulus (Tand-equivalent) | Linter WARNING `MISSING_BRIEF` |
+| `FR5(FI30s) @brief("light")` | Brief = light | No warning |
+| `FR5(FI30s) @brief("light", duration=0.5)` | Brief = light, 0.5 s | No warning |
+| `FR5(FI30s) @brief(none)` | No brief stimulus (explicit opt-out) | No warning |
+
+**Omission triggers `MISSING_BRIEF` WARNING.** Brief stimulus (conditioned
+reinforcer) is a defining independent variable of second-order schedules
+(Kelleher, 1966). Without brief stimulus, a ratio-overall second-order
+schedule is procedurally equivalent to a tandem arrangement (§2.11.1 in
+theory.md). The DSL does not block this — the arrangement may be
+intentional — but requires the user to acknowledge the omission explicitly
+via `@brief(none)`.
+
+**`@brief(none)` is the explicit opt-out.** Writing `@brief(none)` signals
+that the user has considered and deliberately excluded the brief stimulus.
+This suppresses the `MISSING_BRIEF` warning. The semantics are identical
+to bare omission (no conditioned reinforcer between unit completions),
+but the intent is documented in the source.
+
+This follows the same design philosophy as `MISSING_COD` for `Conc`
+(constraint §7): procedurally essential information that is permitted to
+omit for conceptual or pedagogical use, but flagged to encourage
+explicitness.
+
+References:
+- Kelleher, R. T. (1966). Conditioned reinforcement in second-order
+  schedules. *JEAB*, 9(5), 475-485.
+  https://doi.org/10.1901/jeab.1966.9-475
+- Goldberg, S. R., Kelleher, R. T., & Morse, W. H. (1975). Second-order
+  schedules of drug injection. *Federation Proceedings*, 34(9), 1771-1776.
+
+### Unit completion count
+
 In a second-order schedule `OVERALL(UNIT)`, the overall schedule's `value`
 is always a **unit completion count**, not an individual response count.
 
@@ -490,19 +527,86 @@ References:
   discrimination learning. *JEAB*, 9(2), 155-161.
   https://doi.org/10.1901/jeab.1966.9-155
 
-## Timeout (TO) — design memo (v2.0 planned)
+## Timeout (TO) — v2.0
 
-TO is deferred to v2.0. When implemented, the following constraints apply
-(Issue #28):
+Timeout is a response-contingent removal of reinforcement availability
+(negative punishment; Leitenberg, 1965). TO is a postfix qualifier on
+schedule expressions, structurally parallel to LH (Limited Hold).
 
-- `reset_on_response` is **mandatory** (no default value).
-  `TO(30s)` without reset specification → `SemanticError: MISSING_RESET_RULE`.
-  This follows the same design philosophy as `MISSING_COD` for Conc.
-- Resetting TO is functionally equivalent to DRO (same contingency structure,
-  opposite consequence polarity).
+### Syntax
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `duration` | time value | YES | TO duration |
-| `reset_on_response` | boolean | YES (no default) | Whether responses during TO restart the timer |
-| `contingent_response` | response class ref | YES (multi-operandum) | Which response class triggers TO |
+```
+VI 60-s TO(duration=30-s, reset_on_response=true)
+```
+
+TO follows the base schedule (and optional LH) as a parenthesized keyword
+argument list. No `+` operator — same postfix pattern as LH.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `duration` | time value | YES | — | TO period duration. Must be > 0 with time unit. |
+| `reset_on_response` | boolean | YES | — (no default) | Whether responses during TO restart the timer. |
+| `contingent_response` | label ref | conditional | — | Which response class triggers TO. Required in multi-operandum contexts. |
+
+### No-default design (reset_on_response)
+
+`reset_on_response` has **no default value**. Omission →
+`SemanticError: MISSING_TO_RESET_RULE`. This follows the same design
+philosophy as `MISSING_COD` for Conc (grammar.ebnf constraint §7):
+procedurally essential information that the DSL refuses to guess.
+
+Rationale: Resetting and non-resetting TO produce qualitatively different
+behavioral effects:
+
+- **Resetting TO** (`reset_on_response=true`): Each response during TO
+  restarts the timer. Functionally equivalent to DRO (same contingency
+  structure, opposite consequence polarity — TO removes reinforcement
+  availability, DRO delivers it).
+- **Non-resetting TO** (`reset_on_response=false`): Responses during TO
+  have no effect on the timer. The timeout period elapses regardless.
+
+### AST representation
+
+TO is absorbed into the inner schedule node as an optional `timeout`
+property (a `TimeoutParams` object), not emitted as a separate wrapper.
+This is structurally parallel to `limitedHold`/`limitedHoldUnit` for LH.
+
+```json
+{
+  "type": "Atomic",
+  "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s",
+  "timeout": {
+    "duration": 30.0,
+    "durationUnit": "s",
+    "resetOnResponse": true
+  }
+}
+```
+
+### Permitted targets
+
+| Target | Allowed | Error/Warning |
+|--------|---------|---------------|
+| Atomic | YES | — |
+| Special (CRF) | YES | — |
+| Special (EXT) | YES | WARNING: TO_ON_EXT |
+| DRModifier | YES | — |
+| SecondOrder | YES | — |
+| Compound | NO | SemanticError: TO_ON_COMPOUND |
+| AversiveSchedule | NO | SemanticError: TO_ON_AVERSIVE |
+
+### Semantic constraints
+
+See grammar.ebnf constraints §75–§83.
+
+### References
+
+- Leitenberg, H. (1965). Is time-out from positive reinforcement an
+  aversive event? *Psychological Bulletin*, 64(6), 428-441.
+  https://doi.org/10.1037/h0022657
+- Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some
+  determinants of the reinforcing and punishing effects of timeout.
+  *JABA*, 10(3), 415-424.
+  https://doi.org/10.1901/jaba.1977.10-415

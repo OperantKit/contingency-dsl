@@ -675,7 +675,48 @@ Mult(FR 5, EXT)                       -- no blackout (immediate transition)
 
 **Future (v1.2):** Asymmetric BO (different values per transition direction, e.g., Rich→Lean vs. Lean→Rich). To be designed in conjunction with asymmetric COD (Issue #25).
 
-**Relationship to Timeout (TO).** BO is response-independent; TO is response-contingent. TO functions as negative punishment (removal of positive reinforcement contingent on a response) and is deferred to v2.0 as a modifier. See Issue #28 for the full operational distinction and COD/TO/DRO structural relationship.
+**Relationship to Timeout (TO).** BO is response-independent; TO is response-contingent. TO functions as negative punishment (removal of positive reinforcement contingent on a response). See §2.5.1 for the full TO specification and the operational distinction from BO and DRO.
+
+### 2.5.1 Timeout (TO)
+
+Timeout is a response-contingent period during which positive reinforcement is not available (Leitenberg, 1965). TO functions as negative punishment: the organism's response produces a period of reinforcement unavailability.
+
+**Operational definition.** When the target response occurs, the base schedule's reinforcement availability is suspended for the specified duration. If `reset_on_response=true`, any response during TO restarts the timer (resetting TO). If `reset_on_response=false`, the timer runs independently of responding (non-resetting TO).
+
+**Syntax.** TO is a postfix qualifier on schedule expressions, following the same positional pattern as LH:
+
+```
+VI 60-s TO(duration=30-s, reset_on_response=true)
+
+-- Combined with LH
+FI 30-s LH 10-s TO(duration=20-s, reset_on_response=false)
+
+-- Per-component in concurrent schedule
+Conc(
+  VI 30-s TO(duration=15-s, reset_on_response=true),
+  VI 60-s,
+  COD=2-s
+)
+```
+
+**Structural relationships.**
+
+| | TO | DRO | BO |
+|---|---|---|---|
+| **Contingency** | Response-contingent | Response-contingent | Response-independent |
+| **Function** | Negative punishment (removes SR+) | Positive reinforcement (delivers SR+ for omission) | Procedural (component transition) |
+| **Timer reset** | Configurable (`reset_on_response`) | Always resetting (by definition) | N/A |
+| **DSL position** | Postfix on schedule | Modifier (standalone or in Tand) | Keyword arg on Mult/Mix |
+
+Resetting TO (`reset_on_response=true`) and DRO share identical contingency structures: "if no target response occurs for duration *d*, then [consequence]." The difference is the consequence polarity: TO restores reinforcement availability (end of punishment), DRO delivers reinforcement (positive reinforcement). This structural equivalence is noted in defaults.md.
+
+**Environmental determinants.** Solnick, Rincover, & Peterson (1977) demonstrated that TO's effectiveness as punishment depends on the time-in environment quality. When time-in provides rich reinforcement, TO functions as an aversive event; when time-in is impoverished, TO may function as reinforcement (escape from aversive stimulation). The DSL captures the procedural structure of TO but does not model environmental quality — this is deferred to the annotation layer (e.g., `@timeout_condition("dark_chamber")`).
+
+**References.**
+
+- Dunn, R. (1990). Timeout from concurrent schedules. *Journal of the Experimental Analysis of Behavior*, 53(1), 163–174. https://doi.org/10.1901/jeab.1990.53-163
+- Leitenberg, H. (1965). Is time-out from positive reinforcement an aversive event? *Psychological Bulletin*, 64(6), 428–441. https://doi.org/10.1037/h0022657
+- Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some determinants of the reinforcing and punishing effects of timeout. *Journal of Applied Behavior Analysis*, 10(3), 415–424. https://doi.org/10.1901/jaba.1977.10-415
 
 ### 2.6 Choice Behavior and the Procedure–Effect Boundary
 
@@ -1049,6 +1090,17 @@ On response event (obs):
 | Ratio (FR, VR, RR) | `unit_completion_count == Overall.value` | Yes → `Repeat(n, Unit)` |
 | Interval (FI, VI, RI) | `elapsed_since_last_reinforcement ≥ Overall.value` AND a unit completion occurs | No |
 | Time (FT, VT, RT) | `elapsed_since_last_reinforcement ≥ Overall.value` (response-independent) | No |
+
+**Brief stimulus requirement (constraint §74).** A `SecondOrder` expression without a `@brief` annotation — at either the schedule level or the program level — triggers a linter WARNING (`MISSING_BRIEF`). This is not a SemanticError; the program remains valid and parseable.
+
+The brief stimulus (conditioned reinforcer) is a defining independent variable of second-order schedules (Kelleher, 1966). Its presence or absence fundamentally alters the behavioral function of the arrangement: with brief stimuli, the second-order schedule maintains extended sequences of behavior through conditioned reinforcement; without them, a ratio-overall second-order schedule reduces to a tandem (§2.11.1 above). In drug self-administration research, brief stimuli are nearly universally employed (Goldberg, Kelleher, & Morse, 1975).
+
+To suppress the warning, the user must provide one of:
+
+- `@brief("stimulus_id")` — specifying the brief stimulus identity (with optional `duration` parameter)
+- `@brief(none)` — explicitly opting out of brief stimulus presentation
+
+The `@brief(none)` form signals that the user has considered and deliberately excluded the conditioned reinforcer. Its semantics are identical to bare omission (no brief stimulus between unit completions), but the intent is documented in the source. This follows the same design philosophy as `MISSING_COD` for `Conc` (grammar.ebnf constraint §7): procedurally essential information that is permitted to omit, but flagged to encourage explicit specification.
 
 **References.**
 
