@@ -259,6 +259,34 @@
     "_note": "Brief stimulus in second-order schedule (Kelleher, 1966). 0.5s light presented after each FI30 completion."
   },
   {
+    "id": "stimulus_brief_none_opt_out",
+    "description": "@brief(none) explicitly opts out of brief stimulus — no MISSING_BRIEF warning",
+    "input": "FR5(FI30s)\n  @brief(none)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "R",
+          "value": 5.0
+        },
+        "unit": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "I",
+          "value": 30.0,
+          "time_unit": "s"
+        }
+      }
+    },
+    "_note": "Explicit opt-out: user acknowledges no conditioned reinforcer between unit completions (Tand-equivalent). Constraint §74."
+  },
+  {
     "id": "stimulus_stimulus_classes_shorthand",
     "description": "@stimulus_classes with shorthand integer positional (auto-generate class labels)",
     "input": "@stimulus_classes(3)\n\nMTS(samples=3, comparisons=3)",

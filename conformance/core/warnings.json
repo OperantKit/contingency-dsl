@@ -526,5 +526,105 @@
         }
       }
     }
+  },
+
+  {
+    "_comment": "=== MISSING_BRIEF (constraint §74): SecondOrder without @brief ==="
+  },
+  {
+    "id": "warn_second_order_missing_brief",
+    "description": "FR5(FI30s) without @brief — procedurally essential but not required. Warning per constraint §74 (Kelleher, 1966).",
+    "input": "FR5(FI30s)",
+    "warnings": ["MISSING_BRIEF"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "warn_second_order_interval_overall_missing_brief",
+    "description": "FI120s(FR10) without @brief — interval-overall second-order also triggers MISSING_BRIEF",
+    "input": "FI120s(FR10)",
+    "warnings": ["MISSING_BRIEF"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "I", "value": 120.0, "time_unit": "s" },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "R", "value": 10.0 }
+      }
+    }
+  },
+  {
+    "id": "no_warn_second_order_with_brief",
+    "description": "FR5(FI30s) @brief(\"light\") — explicit brief suppresses MISSING_BRIEF",
+    "input": "FR5(FI30s)\n  @brief(\"light\")",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "no_warn_second_order_with_brief_none",
+    "description": "FR5(FI30s) @brief(none) — explicit opt-out suppresses MISSING_BRIEF (constraint §74)",
+    "input": "FR5(FI30s)\n  @brief(none)",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "no_warn_second_order_with_brief_duration",
+    "description": "FR5(FI30s) @brief(\"light\", duration=0.5) — brief with duration, no warning",
+    "input": "FR5(FI30s)\n  @brief(\"light\", duration=0.5)",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "no_warn_second_order_with_program_level_brief",
+    "description": "Program-level @brief(\"light\") suppresses MISSING_BRIEF on SecondOrder (scoping resolution)",
+    "input": "@brief(\"light\")\nFR5(FI30s)",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "SecondOrder",
+        "overall": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 },
+        "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
+      }
+    }
   }
 ]

@@ -51,15 +51,19 @@
       "reference": null
     },
     "brief": {
-      "description": "Second-order schedule brief stimulus.",
-      "scope": ["schedule"],
-      "positional": { "type": "string", "required": true },
+      "description": "Second-order schedule brief stimulus. @brief(none) explicitly opts out (no conditioned reinforcer). Omitting @brief on SecondOrder triggers MISSING_BRIEF warning (constraint §74).",
+      "scope": ["program", "schedule"],
+      "positional": {
+        "type": ["string", "none"],
+        "required": true,
+        "description": "Stimulus identity (string) or 'none' for explicit opt-out"
+      },
       "params": {
         "duration": {
           "type": "number",
           "minimum": 0,
           "required": false,
-          "description": "Brief stimulus duration in seconds"
+          "description": "Brief stimulus duration in seconds. Not valid when positional is 'none'."
         }
       },
       "reference": null
