@@ -223,6 +223,32 @@ References:
   dynamics on concurrent VI VI schedules. *Animal Learning & Behavior*,
   13(3), 293-299. https://doi.org/10.3758/BF03197983
 
+### Behavioral effects (for procedure selection)
+
+COD and FRCO are not interchangeable. Published concurrent VI VI data
+(reviewed by Davison & McCarthy, 1988) show:
+
+- COD typically produces **undermatching** (GML sensitivity a < 1);
+  matching improves as COD increases from 0 to ~5 s, then plateaus
+  (Shull & Pliskoff, 1967).
+- FRCO typically produces **overmatching** (a > 1); larger FR values
+  produce more extreme overmatching (Pliskoff & Fetterman, 1981).
+- In within-subject comparisons, the two procedures shift response
+  allocation in **opposite directions** while leaving time allocation
+  comparable (Hunter & Davison, 1985).
+- On concurrent **ratio** schedules (not VI), the COD→undermatching
+  relation reverses (Bellow & Lattal, 2023).
+
+This DSL treats both parameters as procedural primitives and does not
+predict behavioral outcomes; parameter selection is the user's
+responsibility. The above is provided as a literature pointer only.
+
+- Davison, M., & McCarthy, D. (1988). *The matching law: A research
+  review*. Lawrence Erlbaum Associates.
+- Bellow, D. T., & Lattal, K. A. (2023). Choice dynamics in concurrent
+  ratio schedules of reinforcement. *JEAB*, 119(2), 337-355.
+  https://doi.org/10.1002/jeab.828
+
 ## Blackout (BO) — Multiple/Mixed schedules
 
 **v1.1:** BO is **optional** for `Mult` and `Mix`. Omitting BO means no blackout

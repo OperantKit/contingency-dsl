@@ -657,6 +657,8 @@ Semantic rules for directional COD:
 
 **Future (v1.2):** Resetting COD (timer restarts on re-switch during active COD).
 
+**Note on behavioral consequences.** The behavioral consequences of COD vs FRCO are asymmetric — see Hunter & Davison (1985) and Pliskoff & Fetterman (1981) for the empirical dissociation of their effects on generalized matching law sensitivity. COD typically produces undermatching (a < 1), while FRCO typically produces overmatching (a > 1) in concurrent VI VI preparations. This DSL encodes both as procedural parameters and delegates outcome prediction to downstream analyzers.
+
 ### 2.5 Blackout (BO)
 
 The Blackout (BO) specifies a response-independent dark period inserted between component transitions in **Multiple** and **Mixed** schedules. Unlike COD (which is response-contingent and Conc-specific), BO is not contingent on any response and serves as a methodological control for inter-component behavioral independence.
