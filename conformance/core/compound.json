@@ -223,7 +223,7 @@
   },
   {
     "id": "conc_with_frco",
-    "description": "Concurrent with fixed-ratio changeover requirement (Hunter & Davison, 1985)",
+    "description": "Fixed-ratio changeover requirement (Hunter & Davison, 1985). 5 responses on the switched-to key are required before the switch is complete. Expected to produce overmatching relative to COD-only conditions (Pliskoff & Fetterman, 1981).",
     "input": "Conc(VI30s, VI60s, FRCO=5)",
     "expected": {
       "type": "Program",
@@ -244,7 +244,7 @@
   },
   {
     "id": "conc_cod_and_frco",
-    "description": "Concurrent with both COD and FRCO",
+    "description": "Concurrent with both time-based (COD) and response-based (FRCO) changeover requirements. COD=2s imposes a temporal delay; FRCO=1 requires 1 response on the new key. The combination allows independent manipulation of time and response costs (Hunter & Davison, 1985).",
     "input": "Conc(VI30s, VI60s, COD=2s, FRCO=1)",
     "expected": {
       "type": "Program",
@@ -697,7 +697,7 @@
   },
   {
     "id": "conc_directional_cod_with_frco",
-    "description": "Directional COD combined with symmetric FRCO",
+    "description": "Directional COD combined with symmetric FRCO. Asymmetric time costs (2s vs 5s by direction) plus a uniform 3-response requirement. Allows factorial manipulation of time-based and response-based changeover parameters (Pliskoff, 1971; Hunter & Davison, 1985).",
     "input": "Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=5s, FRCO=3)",
     "expected": {
       "type": "Program",
