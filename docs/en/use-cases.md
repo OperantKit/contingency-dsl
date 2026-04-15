@@ -42,6 +42,24 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 
 ---
 
+## 2b. Concurrent Schedule with Fixed-Ratio Changeover
+
+**Scenario:** Measuring preference between two VI schedules using a response-based changeover requirement instead of a time-based delay.
+
+```
+Conc(VI 30-s, VI 60-s, FRCO=2)
+```
+
+**What this does:** Two response keys are simultaneously available. To switch from one key to the other, the subject must emit 2 responses on the target key before reinforcement becomes available.
+
+**When to use FRCO instead of COD:** FRCO imposes a *response-based* cost on switching, whereas COD imposes a *time-based* cost. In published within-subject comparisons (Hunter & Davison, 1985), FRCO tends to produce overmatching (response allocation more biased toward the richer alternative) while COD tends to produce undermatching (response allocation less biased). Use FRCO when studying the effects of response-based changeover costs or when replicating FRCO-based experiments.
+
+**Reference:**
+- Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer function: White-noise analysis of session-to-session response-ratio dynamics on concurrent VI VI schedules. *Animal Learning & Behavior*, *13*(3), 293–299. https://doi.org/10.3758/BF03197983
+- Pliskoff, S. S., & Fetterman, J. G. (1981). Undermatching and overmatching: The fixed-ratio changeover requirement. *JEAB*, *36*(1), 21–27. https://doi.org/10.1901/jeab.1981.36-21
+
+---
+
 ## 3. Chained Schedule for Conditioned Reinforcement Research
 
 **Scenario:** Testing whether stimulus change (transition between discriminative stimuli marking schedule component shifts) at component transitions functions as a conditioned reinforcer.
