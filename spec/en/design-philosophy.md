@@ -18,7 +18,7 @@ To achieve this goal, **the stability of the Core grammar is treated as the
 highest priority, and the design pursues an architecture that does not
 require breaking changes** (see §2 and §8 for details).
 
-## 2. An Empirically Stable Foundation — The Core / Schedule Extension / Annotation Three-Layer Architecture
+## 2. An Empirically Stable Foundation — Six-Layer Architecture by Scientific Category
 
 Throughout the history of the experimental analysis of behavior, despite
 minor differences in theoretical interpretation or stimulus construal,
@@ -28,29 +28,45 @@ The DSL design reflects this empirically observed stability.
 
 However, this stability is **the current state based on empirical
 observation**, not an absolute guarantee. In principle, the discipline
-itself could collapse in the future; in that event, even the Core would
-require exceptional modification. This DSL fixes the "currently most stable
-layer" as Core; it does not claim "eternally immutable truth."
+itself could collapse in the future; in that event, even the foundations
+would require exceptional modification. This DSL fixes the "currently most
+stable layer" as the foundations; it does not claim "eternally immutable
+truth."
 
-Accordingly, the DSL adopts the following **five-layer architecture**:
+The DSL is organized by **scientific category** rather than by abstract
+technical axis. The principal users are researchers in the experimental
+analysis of behavior (EAB) and their students; the primary coverage target
+is the procedures reported in JEAB. Operant procedures therefore occupy
+the central volume; respondent procedures are represented at the minimum
+necessary level, with further depth delegated to an extension package
+(`contingency-respondent-dsl`).
+
+Accordingly, the DSL adopts the following **six-layer architecture**:
 
 | Layer | Content | Tolerance for change |
 |---|---|---|
-| **Core (empirically stable)** | Three-term contingency, reinforcement schedules, compound schedules, modifiers. Criteria are literal values determined at parse time. CFG + non-TC. | Breaking changes are avoided in principle (see §8 for exceptions) |
-| **Core-Stateful (established, stateful criteria)** | Schedules whose criteria are computed from runtime state (response history, trial outcomes, elapsed time as continuous function). Established in the discipline (§2.1 admission criteria). Parameters are declarative. | §8.1 additive procedure + §2.1 admission gate |
-| **Experiment (declarative phase structure)** | Multi-phase experimental designs. Arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, PerformanceCriterion, etc.). Follows JEAB conventions: shared annotations inherited across phases, per-phase overrides. See `schema/experiment/`. | Additive (new Criterion types may be added). Core schema is not modified. |
-| **Schedule Extension (extended schedule grammar)** | Non-standardized or user-defined schedule constituents. New schedule primitives added at program scope | Each program extends by loading extension modules into its own registry |
-| **Annotation (metadata)** | Extended theories, detailed procedures, interpretation-dependent supplementary information | Freely added or removed in step with theoretical development and decline. Program-scoped |
+| **Foundations (paradigm-neutral formal base)** | CFG/LL(2) formal grammar, contingency-type theory (contingent vs. non-contingent; two-term vs. three-term), time scales, stimulus typing (SD, SΔ, CS, US, Sr+, Sr−), valence axis (appetitive/aversive), context. Criteria are literal values determined at parse time. CFG + non-TC. | Breaking changes are avoided in principle (see §8 for exceptions) |
+| **Operant (three-term contingency: SD-R-SR)** | Reinforcement schedules by traditional class (ratio / interval / time / differential / compound / progressive), stateful operant schedules (Percentile, Adjusting, Interlocking), trial-based operant schedules (MTS, Go/NoGo). Parameters are declarative (literal or runtime-computed). | §8.1 additive procedure + §2.1 admission gate for stateful/trial-based extensions |
+| **Respondent (two-term contingency: CS-US)** | Minimal Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`, `Extinction`, `CSOnly`, `USOnly`, `Contingency(p_us_given_cs, p_us_given_no_cs)`, `TrulyRandom`, `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`, `Differential(cs+, cs−)`. Includes a Tier-A-level extension point (§5) for third-party additions. Depth beyond this minimum is delegated to `contingency-respondent-dsl`. | Additive only; new primitives must satisfy §2.1 admission criteria |
+| **Composed (operant × respondent)** | Procedures where an operant baseline and respondent pairing are combined: conditioned suppression (CER), Pavlovian-to-Instrumental Transfer (PIT), autoshaping, omission (negative automaintenance), two-process theory. Additional composed procedures are admitted when they cannot be expressed by operant + respondent grammar alone. | Additive; existing composed procedures are not semantically modified |
+| **Experiment (declarative phase structure)** | Multi-phase experimental designs. Arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, PerformanceCriterion, etc.). Follows JEAB conventions: shared annotations inherited across phases, per-phase overrides. See `schema/experiment/`. Phase and Context are first-class constructs. | Additive (new Criterion types may be added). Other layers' schemas are not modified. |
+| **Annotation (metadata, program-scoped)** | Extended theories, detailed procedures, interpretation-dependent supplementary information. Standard categories follow JEAB Method sections (Subjects / Apparatus / Procedure / Measurement). Extensions (e.g., `respondent-annotator` providing `@cs`, `@us`, `@iti`, `@cs_interval`; `learning-models-annotator` providing `@model(RW/PH/TD)`) live under `annotations/extensions/`. | Freely added or removed in step with theoretical development and decline. Program-scoped |
 
-Both Core and Core-Stateful are **common to all programs** (shared
-vocabulary). The structural distinction: Core schedules have criteria that
-are literal values (`FR 5`: criterion = 5 responses), while Core-Stateful
-schedules have criteria computed from runtime state (`Pctl(IRT, 50)`:
-criterion = median of recent IRT distribution). See §2.1 for details.
+**Foundations**, **Operant**, **Respondent**, **Composed**, and **Experiment** are
+**common to all programs** (shared vocabulary). The structural distinctions
+within the Operant layer are preserved: operant schedules with literal
+criteria (`FR 5`: criterion = 5 responses), operant schedules with criteria
+computed from runtime state (`Pctl(IRT, 50)`: criterion = median of recent
+IRT distribution), and operant trial-based schedules. See §2.1 for details.
 
-Schedule Extension and Annotation are **program-scoped**: each program
-can define, adopt, or reject its own registry. See §4 (Annotation) and §5
-(Schedule Extension) for details.
+**Annotation** (including its extensions, such as `respondent-annotator`) is
+**program-scoped**: each program can define, adopt, or reject its own
+registry. Beyond the Annotation layer, **third-party extensions to the
+Respondent grammar** are also supported via the respondent extension point
+(§5); the primary example in this project is the companion package
+`contingency-respondent-dsl`, which provides Tier-B primitives such as
+higher-order conditioning, blocking, overshadowing, latent inhibition,
+renewal, reinstatement, and so on.
 
 ### 2.1 Core-Stateful Layer
 
