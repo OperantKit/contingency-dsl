@@ -98,8 +98,8 @@ MTS(comparisons=3, consequence=CRF, ITI=5s)                       -- minimal
 MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=5s)        -- with incorrect
 MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
                                                                    -- fully specified
-MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)              -- DMTS (v1.1)
-MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true)       -- correction (v1.1)
+MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)              -- DMTS (R-7)
+MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true)       -- correction (R-7)
 MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + bounded correction
 ```
 
@@ -112,8 +112,8 @@ MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + bo
 | `incorrect` | keyword | schedule | NO | `EXT` | Core schedule for incorrect response |
 | `ITI` | keyword | time value | YES | — | Inter-trial interval |
 | `type` | keyword | enum | NO | `"arbitrary"` | Matching type: `"identity"` or `"arbitrary"` |
-| `delay` | keyword | time value ≥ 0 | NO | `0s` | **[v1.1, R-7]** Retention interval between sample offset and comparison onset. `delay=0s` is equivalent to simultaneous MTS; `delay>0` yields DMTS (Blough, 1959). |
-| `correction` | keyword | boolean / positive integer / `"repeat_until_correct"` | NO | `false` | **[v1.1, R-7]** Correction procedure (Harrison, 1970). `true` / `"repeat_until_correct"` repeats the same trial until correct; a positive integer N bounds retries to N. |
+| `delay` | keyword | time value ≥ 0 | NO | `0s` | **[R-7]** Retention interval between sample offset and comparison onset. `delay=0s` is equivalent to simultaneous MTS; `delay>0` yields DMTS (Blough, 1959). |
+| `correction` | keyword | boolean / positive integer / `"repeat_until_correct"` | NO | `false` | **[R-7]** Correction procedure (Harrison, 1970). `true` / `"repeat_until_correct"` repeats the same trial until correct; a positive integer N bounds retries to N. |
 
 All parameters are keyword-only (no positional arguments).
 
@@ -143,13 +143,13 @@ syntactically, but are restricted by semantic constraints:
 
 ```
 1. Sample presentation
-2. [if delay > 0: sample offset → delay seconds → comparison onset] (v1.1: DMTS)
+2. [if delay > 0: sample offset → delay seconds → comparison onset] (R-7: DMTS)
 3. Comparison presentation  (comparisons stimuli, position randomized)
 4. Response                 (subject selects one comparison)
 5. Consequence
    ├─ correct match  → execute consequence schedule
    └─ incorrect      → execute incorrect schedule
-6. [if correction active: repeat trial per correction_spec] (v1.1)
+6. [if correction active: repeat trial per correction_spec] (R-7)
 7. Inter-Trial Interval     (ITI duration, all stimuli off)
 8. → next trial
 ```
@@ -161,7 +161,7 @@ type=identity:   correct ⟺ response_stimulus == sample_stimulus
 type=arbitrary:  correct ⟺ class(response_stimulus) == class(sample_stimulus)
 ```
 
-#### DMTS (Delay) — v1.1, R-7
+#### DMTS (Delay) — R-7
 
 When `delay > 0`, a retention interval is inserted after sample offset
 (Delayed Matching-to-Sample; Blough, 1959). During the retention interval
@@ -172,7 +172,7 @@ the sample is removed, and comparison stimuli have not yet been presented
 The published parametric range is typically 0–60 s (Grant, 1975; White, 1985).
 `delay > 60s` triggers WARNING `MTS_LONG_DELAY`.
 
-#### Correction Procedure — v1.1, R-7
+#### Correction Procedure — R-7
 
 Declaratively controls the handling of incorrect trials
 (Harrison, 1970; Saunders & Green, 1999):
@@ -190,7 +190,7 @@ differential reinforcement. Combining `delay > 0` with
 `correction=true` / `"repeat_until_correct"` conflates retention and
 acquisition procedures, and thus triggers WARNING `DMTS_WITH_CORRECTION`.
 
-#### AST Representation (Normalization) — v1.1, R-7
+#### AST Representation (Normalization) — R-7
 
 `delay` and `correction` are materialized in the AST per the following rules:
 
@@ -212,7 +212,7 @@ consumers (simulators, linters, visualizers) MUST treat them as identical.
 #### Backward Compatibility Theorem (R-7)
 
 For every v1.0 program `P` that contains neither `delay` nor `correction`,
-`parse_v1.1(P) = parse_v1.0(P)` holds as an AST isomorphism.
+the post-R-7 parser produces the same AST as the pre-R-7 parser for `P`.
 Proof sketch: the `mts_kw_arg` extension is additive; v1.0 alternatives match
 `P`'s token stream verbatim; new productions are unreachable from `P`.
 
@@ -245,6 +245,29 @@ MTS(comparisons=3, consequence=EXT, ITI=5s)
 
 Training and testing use the **same MTS primitive** with different
 consequence schedules and annotations.
+
+#### Additional Annotations — R-7 Phase 2
+
+For session structure and probe-mixing policy, use the two keywords
+from `measurement-annotator`:
+
+- **`@session(trials=N)`** / **`@session(blocks=K, block_size=M)`** —
+  Trial-based session structure. Directly expresses the "72 trials per session"
+  pattern in JEAB Method sections. See
+  [`annotations/measurement-annotator/README.md`](../../../annotations/measurement-annotator/README.md) §`@session`.
+- **`@probe_policy(baseline_reinforced, probe_ratio, interspersed, order)`** —
+  Strongly-defined probe/baseline trial-mixing policy for equivalence testing
+  (Fields et al., 1997). See same README §`@probe_policy`.
+
+Example (Arntzen 2012 + Fields 1997 recommended configuration):
+
+```
+@session(blocks=6, block_size=12)
+@probe_policy(baseline_reinforced=true, probe_ratio=0.5)
+@stimulus_classes(A=["A1","A2","A3"], B=["B1","B2","B3"])
+@testing(relations=["BA"])
+MTS(comparisons=3, consequence=CRF, ITI=5s)
+```
 
 ### Compound Usage
 
@@ -279,6 +302,7 @@ Mult(ab_training, ba_test)
 | `MTS_CORRECTION_LIMIT_NONPOSITIVE` | correction=N with N ≤ 0 | SemanticError |
 | `MTS_INVALID_CORRECTION` | correction not a boolean / positive integer / `"repeat_until_correct"` | SemanticError |
 | `MTS_MANY_COMPARISONS` | comparisons > 9 | WARNING |
+| `MTS_TWO_COMPARISONS_WEAK` | comparisons = 2 (reject-control alone can yield 100% correct, leaving select-control undetected; Sidman 1987; Carrigan & Sidman 1992) | WARNING |
 | `MTS_NO_REINFORCEMENT` | consequence=EXT | WARNING |
 | `MTS_IDENTITY_WITH_CLASSES` | type=identity with `@stimulus_classes` | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | type=arbitrary without `@stimulus_classes` | WARNING |

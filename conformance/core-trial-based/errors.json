@@ -170,6 +170,80 @@
   { "_comment": "=== Linter warnings (W1–W5 from grammar.ebnf) ===" },
 
   {
+    "id": "mts_warn_two_comparisons_weak",
+    "description": "W1b: comparisons=2 is insufficient for stimulus-control diagnosis — reject-control alone can produce 100% correct, obscuring select-control (Sidman, 1987; Carrigan & Sidman, 1992; Johnson & Sidman, 1993)",
+    "input": "MTS(comparisons=2, consequence=CRF, ITI=5s)",
+    "warning": "MTS_TWO_COMPARISONS_WEAK",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_two_comparisons_weak_in_equivalence",
+    "description": "W1b: comparisons=2 with @training annotation (equivalence testing context) — warning is especially critical here because reject-vs-select control distinction is the central interpretive issue",
+    "input": "@training(relations=[\"AB\"], criterion=90, consecutive_blocks=2)\nMTS(comparisons=2, consequence=CRF, ITI=5s)",
+    "warning": "MTS_TWO_COMPARISONS_WEAK",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "training",
+          "params": {
+            "relations": ["AB"],
+            "criterion": 90,
+            "consecutive_blocks": 2
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 2,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
+  },
+  {
+    "id": "mts_warn_three_comparisons_no_warning",
+    "description": "W1b boundary: comparisons=3 does NOT trigger MTS_TWO_COMPARISONS_WEAK (threshold is exactly 2)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "No `warning` field — this case asserts that comparisons=3 is WARN-free."
+  },
+  {
     "id": "mts_warn_many_comparisons",
     "description": "W1: comparisons > 9 — research typically uses 2–6; chance level drops below 11%",
     "input": "MTS(comparisons=12, consequence=CRF, ITI=5s)",

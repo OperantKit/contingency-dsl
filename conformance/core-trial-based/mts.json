@@ -47,8 +47,8 @@
   },
   {
     "id": "mts_fully_specified",
-    "description": "Fully specified MTS — all keyword arguments explicit (Sidman & Tailby, 1982 style)",
-    "input": "MTS(comparisons=2, consequence=CRF, incorrect=EXT, ITI=10s, type=identity)",
+    "description": "Fully specified MTS — all keyword arguments explicit (Sidman & Tailby, 1982 style). comparisons=3 avoids the MTS_TWO_COMPARISONS_WEAK warning (see errors.json mts_warn_two_comparisons_weak)",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=10s, type=identity)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -56,7 +56,7 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "MTS",
-        "comparisons": 2,
+        "comparisons": 3,
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
         "ITI": 10.0,
@@ -87,8 +87,8 @@
   },
   {
     "id": "mts_iti_ms",
-    "description": "MTS with millisecond ITI",
-    "input": "MTS(comparisons=2, consequence=CRF, ITI=500ms)",
+    "description": "MTS with millisecond ITI (comparisons=3 avoids MTS_TWO_COMPARISONS_WEAK warning)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=500ms)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -96,7 +96,7 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "MTS",
-        "comparisons": 2,
+        "comparisons": 3,
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
         "ITI": 500.0,
@@ -125,26 +125,7 @@
       }
     }
   },
-  {
-    "id": "mts_comparisons_2",
-    "description": "Minimum comparisons (2) — binary forced-choice",
-    "input": "MTS(comparisons=2, consequence=CRF, ITI=5s)",
-    "expected": {
-      "type": "Program",
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "TrialBased",
-        "trial_type": "MTS",
-        "comparisons": 2,
-        "consequence": { "type": "Special", "kind": "CRF" },
-        "incorrect": { "type": "Special", "kind": "EXT" },
-        "ITI": 5.0,
-        "ITI_unit": "s",
-        "mts_type": "arbitrary"
-      }
-    }
-  },
+  { "_comment": "Legacy mts_comparisons_2 case has been migrated to errors.json (mts_warn_two_comparisons_weak) following R-1: comparisons=2 now triggers MTS_TWO_COMPARISONS_WEAK (Sidman, 1987). The minimum-legal value is still 2 (M1), but positive-case tests of minimum use comparisons=3." },
   {
     "id": "mts_comparisons_6",
     "description": "Six comparisons — common in stimulus equivalence research (Fields et al., 1984)",
@@ -248,8 +229,8 @@
   },
   {
     "id": "mts_kwarg_order_independent",
-    "description": "Keyword argument order does not affect AST",
-    "input": "MTS(ITI=5s, type=identity, comparisons=2, consequence=CRF, incorrect=EXT)",
+    "description": "Keyword argument order does not affect AST (comparisons=3 avoids MTS_TWO_COMPARISONS_WEAK warning)",
+    "input": "MTS(ITI=5s, type=identity, comparisons=3, consequence=CRF, incorrect=EXT)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -257,7 +238,7 @@
       "schedule": {
         "type": "TrialBased",
         "trial_type": "MTS",
-        "comparisons": 2,
+        "comparisons": 3,
         "consequence": { "type": "Special", "kind": "CRF" },
         "incorrect": { "type": "Special", "kind": "EXT" },
         "ITI": 5.0,

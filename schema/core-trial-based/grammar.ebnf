@@ -25,8 +25,8 @@ trial_based_schedule ::= mts_schedule | gonogo_schedule
 ;   MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=5s) -- with incorrect
 ;   MTS(comparisons=2, consequence=CRF, incorrect=FT5s,
 ;       ITI=10s, type=identity)                                 -- fully specified
-;   MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)       -- DMTS (v1.1, R-7)
-;   MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true) -- correction (v1.1, R-7)
+;   MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)       -- DMTS (R-7)
+;   MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true) -- correction (R-7)
 ;
 ; All arguments are keyword-only (no positional arguments).
 ;
@@ -38,13 +38,13 @@ trial_based_schedule ::= mts_schedule | gonogo_schedule
 ;   type        (optional): "identity" | "arbitrary" (default: "arbitrary")
 ;   delay       (optional): retention interval between sample and comparison
 ;                           (time value, default: 0s ≡ simultaneous MTS).
-;                           delay > 0 yields DMTS (Blough, 1959). [v1.1, R-7]
+;                           delay > 0 yields DMTS (Blough, 1959). [R-7]
 ;   correction  (optional): boolean | integer | "repeat_until_correct"
 ;                           (default: disabled ≡ advance to next trial on error).
 ;                           true / "repeat_until_correct" ≡ unbounded correction
 ;                           (repeat same trial until correct; Harrison, 1970).
 ;                           integer N ≥ 1 ≡ bounded correction (up to N retries,
-;                           then advance). [v1.1, R-7]
+;                           then advance). [R-7]
 ;
 ; LL(2) disambiguation:
 ;   After "MTS" token, expect "(". Inside parentheses:
@@ -71,29 +71,37 @@ mts_kw_arg    ::= "comparisons"  "=" number
                 | "incorrect"    "=" schedule
                 | "ITI"          "=" value
                 | "type"         "=" mts_type
-                | "delay"        "=" value                 ; [v1.1, R-7] DMTS retention interval
-                | "correction"   "=" correction_spec       ; [v1.1, R-7] correction procedure
+                | "delay"        "=" value                 ; [R-7] DMTS retention interval
+                | "correction"   "=" correction_spec       ; [R-7] correction procedure
                 | ("LH" | "LimitedHold" | "limitedHold") "=" value
 
 mts_type      ::= "identity" | "arbitrary"
 
-; [v1.1, R-7]
+; [R-7]
 ; correction_spec admits three disjoint value domains. The first-sets are
 ; pairwise disjoint at the lexical layer, so correction_spec is LL(1):
 ;   boolean      — FIRST = { "true", "false" } (reserved keywords)
-;   integer      — FIRST = [0-9]+ without fractional part
+;   number       — FIRST = [0-9] (digits); integer constraint enforced by M15
+;                  at semantic layer (see below).
 ;   string       — FIRST = '"' (double quote); only the literal
 ;                  "repeat_until_correct" is admitted (checked by M15).
-; Rationale: boolean / integer / string classes are pairwise disjoint in
+; Rationale: boolean / number / string classes are pairwise disjoint in
 ; the lexer; no LL(2) lookahead needed.
 ;
-; AST representation (normative, v1.1):
+; Integer-only constraint:
+;   The shared `number` production covers both integers and fractionals
+;   ([0-9]+ ("." [0-9]+)?). For `correction` specifically, fractional
+;   numbers are rejected at the semantic layer by M15 (MTS_INVALID_CORRECTION).
+;   This is analogous to how `comparisons=3s` is rejected by M2 despite
+;   `3s` being a syntactically valid `value`.
+;
+; AST representation (normative):
 ;   correction is materialized as a tagged record with shape
 ;     { "mode": "disabled" | "unlimited" | "bounded", "limit"?: integer }
 ;   per the canonical form rules below.
-correction_spec ::= boolean | integer | '"repeat_until_correct"'
+correction_spec ::= boolean | number | '"repeat_until_correct"'
 
-; === [v1.1, R-7] AST normalization rules for delay / correction ===
+; === [R-7] AST normalization rules for delay / correction ===
 ;
 ; A canonical AST form is defined so that semantically-equivalent
 ; surface programs produce identical AST. Implementations MUST follow
@@ -120,8 +128,9 @@ correction_spec ::= boolean | integer | '"repeat_until_correct"'
 ;     Same round-trip/equivalence rationale as N1.
 ;
 ; Backward compatibility theorem (R-7):
-;   For every v1.0 program P that does not contain the new keywords
-;   `delay` or `correction`, parse_v1.1(P) = parse_v1.0(P) as AST.
+;   For every pre-R-7 program P that does not contain the new keywords
+;   `delay` or `correction`, the post-R-7 parser produces the same AST
+;   as the pre-R-7 parser.
 ;   Proof sketch: the mts_kw_arg production is additive; unmodified
 ;   alternatives match P verbatim; new productions are unreachable
 ;   from P's token stream.
@@ -226,7 +235,7 @@ gonogo_kw_arg   ::= "responseWindow"  "=" value
 ; "responseWindow" and "falseAlarm" are reserved globally — they
 ; may appear in future trial-based constructs beyond GoNoGo.
 ;
-; [v1.1, R-7] "delay" and "correction" are NOT reserved globally —
+; [R-7] "delay" and "correction" are NOT reserved globally —
 ; same treatment as "type". They are recognized as MTS keyword-arg
 ; names only inside MTS(...) parentheses. A top-level let-binding
 ; named "delay" or "correction" does NOT collide. The string literal
@@ -272,6 +281,25 @@ gonogo_kw_arg   ::= "responseWindow"  "=" value
 ; W1. comparisons > 9 → Linter WARNING (MTS_MANY_COMPARISONS).
 ;     Rationale: research typically uses 2–6. Chance level drops below 11%.
 ;
+; W1b. comparisons = 2 → Linter WARNING (MTS_TWO_COMPARISONS_WEAK).
+;      Rationale: with only two comparison stimuli, reject-control alone
+;      can produce 100% correct responses, leaving select-control
+;      undetectable. For equivalence tests this renders the interpretation
+;      qualitatively ambiguous (Sidman, 1987; Carrigan & Sidman, 1992;
+;      Johnson & Sidman, 1993). `comparisons >= 3` is recommended when the
+;      goal is to diagnose the stimulus-control topography underlying
+;      correct performance (especially equivalence-class tests).
+;      References:
+;        Sidman, M. (1987). Two choices are not enough. Behavior Analysis,
+;          22(1), 11–18.
+;        Carrigan, P. F., & Sidman, M. (1992). Conditional discrimination
+;          and equivalence relations: A theoretical analysis of control by
+;          negative stimuli. JEAB, 58(1), 183–204.
+;          https://doi.org/10.1901/jeab.1992.58-183
+;        Johnson, C., & Sidman, M. (1993). Conditional discrimination and
+;          equivalence relations: Control by negative stimuli. JEAB, 59(2),
+;          333–347. https://doi.org/10.1901/jeab.1993.59-333
+;
 ; W2. consequence=EXT → Linter WARNING (MTS_NO_REINFORCEMENT).
 ;     Rationale: all-probe block? Usually mixed with reinforced trials.
 ;
@@ -286,7 +314,7 @@ gonogo_kw_arg   ::= "responseWindow"  "=" value
 ; W5. ITI < 1s → Linter WARNING (MTS_SHORT_ITI).
 ;     Rationale: very short ITI may impair trial discrimination.
 ;
-; --- [v1.1, R-7] DMTS delay + correction constraints ---
+; --- [R-7] DMTS delay + correction constraints ---
 ;
 ; M12. delay < 0 → SemanticError (MTS_INVALID_DELAY).
 ;      Rationale: negative retention interval is incoherent.
@@ -324,7 +352,7 @@ gonogo_kw_arg   ::= "responseWindow"  "=" value
 ;     and may be procedurally indistinguishable from session-level
 ;     retention tests. This threshold is advisory, not definitive.
 ;
-; === [v1.1, R-7] References for new constructs ===
+; === [R-7] References for new constructs ===
 ;
 ; Blough, D. S. (1959). Delayed matching in the pigeon. Journal of the
 ;   Experimental Analysis of Behavior, 2(2), 151–160.
