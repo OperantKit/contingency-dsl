@@ -523,7 +523,7 @@ shaping Name:
 - Galbicka, G. (1994). Shaping in the 21st century: Moving percentile schedules into applied settings. *Journal of Applied Behavior Analysis*, 27(4), 739-760. https://doi.org/10.1901/jaba.1994.27-739
 - Platt, J. R. (1973). Percentile reinforcement: Paradigms for experimental analysis of response shaping. In G. H. Bower (Ed.), *The psychology of learning and motivation* (Vol. 7, pp. 271-296). Academic Press.
 
-**設計根拠:** [AST completeness vs execution orthogonality](../../../.local/context/ast-completeness-vs-execution-orthogonality.md) （method=artful は宣言であり実行可能仕様ではない。JEAB Method セクションにおける "shaped by successive approximation" 記述を事実として保存したまま DSL 化するための primitive）。
+**設計根拠（AST completeness vs execution orthogonality）:** method=artful は宣言であり実行可能仕様ではない。JEAB Method セクションにおける "shaped by successive approximation" 記述を事実として保存したまま DSL 化するための primitive。
 
 #### 3.8.5 使用例
 

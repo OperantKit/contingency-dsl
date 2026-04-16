@@ -590,6 +590,6 @@ This document is a peer of:
 ## Provenance
 
 This specification formalizes the de facto schema format that emerged
-from the 5 annotator schema files created during 2026-04-12. The
-format was adopted as Option (b) — JSON Schema extension — from the
-alternatives enumerated in `.local/annotations/meta/schema-design.md`.
+from the 5 annotator schema files created during 2026-04-12. Among
+the considered alternatives, Option (b) — JSON Schema extension — was
+adopted.

@@ -468,5 +468,4 @@ grammar.ebnf は annotation の構文形を定義する。本仕様は
 
 本仕様は 2026-04-12 に作成された 5 つの annotator スキーマファイルから
 事実上生まれた de facto スキーマフォーマットを形式化したものである。
-`.local/annotations/meta/schema-design.md` に列挙された代替案のうち、
-Option (b) — JSON Schema 拡張 — として採択された。
+検討された代替案のうち Option (b) — JSON Schema 拡張 — として採択された。
