@@ -379,7 +379,7 @@ Trace: R1 (`lh_default = ⊥`). No propagation occurs.
 | Resetting, unsignaled | `Tand(VI 60-s, DRO 5-s)` | After VI satisfaction, wait 5 s; responses restart the timer | Lattal (2010) |
 | Signaled | `Chain(VI 60-s, FT 5-s)` | After VI, discriminative stimulus changes; food after 5 s | Richards (1981) |
 | Differential (concurrent) | `Conc(Tand(VI 60-s, FT 1-s), Tand(VI 60-s, FT 8-s), COD=2-s)` | Each alternative has its own delay | Chung & Herrnstein (1967) |
-| Adjusting (choice) | `Adj(delay, start=10-s, step=1-s)` | Delay adjusts per trial (Core-Stateful) | Mazur (1987) |
+| Adjusting (choice) | `Adj(delay, start=10-s, step=1-s)` | Delay adjusts per trial (Operant.Stateful) | Mazur (1987) |
 
 No new expression-level primitive is needed: `Tand(S, FT d)` is the established formalization of per-schedule reinforcement delay, and the DSL already supports it.
 
@@ -1844,7 +1844,7 @@ Part III's experiment layer declaratively covers "ordered phase sequences with p
 
 ### N-4. Real-time adaptive schedules
 
-Automatic update of parameters mid-session based on subject behavior (external override of Adjusting schedule parameter values, external sensor-driven titration, etc.) is outside the DSL layer. Core-Stateful `Adj` supports declarative parameter updates, but external feedback-loop control is the runtime's responsibility.
+Automatic update of parameters mid-session based on subject behavior (external override of Adjusting schedule parameter values, external sensor-driven titration, etc.) is outside the DSL layer. Operant.Stateful `Adj` supports declarative parameter updates, but external feedback-loop control is the runtime's responsibility.
 
 ### N-5. Cross-subject reinforcement references (yoked control)
 
