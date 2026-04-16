@@ -1815,3 +1815,39 @@ where `merge(shared, local)` = `local` for keys present in both, `shared` for ke
 - Mechner, F. (1959). A notation system for the description of behavioral procedures. *Journal of the Experimental Analysis of Behavior*, 2(2), 133-150. https://doi.org/10.1901/jeab.1959.2-133
 - Sidman, M. (1960). *Tactics of scientific research: Evaluating experimental data in psychology*. Basic Books.
 - Snapper, A. G., Kadden, R. M., & Inglis, G. B. (1982). State notation of behavioral procedures. *Behavior Research Methods & Instrumentation*, 14(4), 329-342. https://doi.org/10.3758/BF03203225
+
+---
+
+## Non-goals / Out of Scope
+
+The DSL covers declarative static semantics of within-session contingencies (Parts I–II) and declarative composition of phase sequences (Part III). The following domains are outside the DSL's design scope; the experiment-core runtime or higher-layer lab management systems bear their responsibility. This section makes explicit the boundary between *cannot be expressed* and *intentionally not expressed*, to prevent user misexpectations.
+
+### N-1. Token economy
+
+Token economies involve state accumulation (addition, subtraction, and exchange of token counts) as a dynamic procedure. The DSL declares the static contingency structure of a single session, so cross-session state management is structurally out of scope — it is the responsibility of experiment-core or a dedicated runtime. The DSL expression of Response Cost is blocking-dependent on this scope decision.
+
+### N-2. Mult / Mix component transition timing
+
+`Mult(FR5, EXT)` and `Mix(VI30, EXT)` declare the component schedule structure, but inter-component switching timing (random, fixed-duration, performance-contingent) is dynamic control that belongs to the contingency-core runtime. The DSL only declares each component's contingency structure.
+
+### N-3. Inter-session schedule progression
+
+Inter-session schedule progressions such as CRF→FR2→FR5→VI30 (e.g., FCT thinning protocols) are matters of protocol design. Each session's schedule can be declared individually in the DSL, but automating the progression rule exceeds the DSL's declarative static semantics.
+
+Part III's experiment layer declaratively covers "ordered phase sequences with phase-change criteria"; session-level thinning progression is handled by the experiment-core adaptive control logic.
+
+### N-4. Real-time adaptive schedules
+
+Automatic update of parameters mid-session based on subject behavior (external override of Adjusting schedule parameter values, external sensor-driven titration, etc.) is outside the DSL layer. Core-Stateful `Adj` supports declarative parameter updates, but external feedback-loop control is the runtime's responsibility.
+
+### N-5. Cross-subject reinforcement references (yoked control)
+
+In yoked designs (Church, 1964), reinforcement of subject A triggers reinforcement for subject B. The Core's single-program scope cannot express cross-subject references; this is reserved as a `yoked-extension` candidate in the future Schedule Extension space.
+
+### N-6. Research ethics and clinical metadata
+
+Informed consent, IRB approval, and subject-protection safety constraints are the responsibility of experiment management systems (runtime / lab management software), not the DSL. ABA social validity assessments, FBA function classifications (attention, escape, automatic, etc.), and BACB clinical labels (DRA/DRI/NCR, etc.) are similarly outside the DSL's annotation purposes and are reserved as 3rd-party extension points such as `clinical-metadata`.
+
+### References (Non-goals)
+
+- Church, R. M. (1964). Systematic effect of random error in the yoked control design. *Psychological Bulletin*, 62(2), 122–131. https://doi.org/10.1037/h0042733

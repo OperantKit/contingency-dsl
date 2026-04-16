@@ -1648,3 +1648,39 @@ R0  Experiment → shared_annotations, phases[1..n]
 - Mechner, F. (1959). A notation system for the description of behavioral procedures. *JEAB*, 2(2), 133-150. https://doi.org/10.1901/jeab.1959.2-133
 - Sidman, M. (1960). *Tactics of scientific research*. Basic Books.
 - Snapper, A. G., Kadden, R. M., & Inglis, G. B. (1982). State notation of behavioral procedures. *Behavior Research Methods*, 14(4), 329-342. https://doi.org/10.3758/BF03203225
+
+---
+
+## Non-goals / Out of Scope
+
+DSL は宣言的静的意味論（§Part I 〜 §Part II）とフェーズ列の宣言的合成（§Part III）を担う。以下の領域は DSL の設計範囲外であり、experiment-core ランタイムまたは上位の実験管理層が責務を負う。本節はユーザーの誤った期待を防ぐため、「表現できない」のか「意図的に表現しない」のかの境界を明示する。
+
+### N-1. トークンエコノミー
+
+トークンエコノミーは状態蓄積（token count の加算・減算・引き換え）を伴う動的手続きである。DSL は単一セッションの静的随伴性構造の宣言を担うため、セッション横断の状態管理は構造的にスコープ外。experiment-core または専用 runtime の責務とする。Response Cost の DSL 表現判断はこのスコープ決定にブロッキング依存する。
+
+### N-2. Mult / Mix 成分間の遷移タイミング制御
+
+`Mult(FR5, EXT)` および `Mix(VI30, EXT)` は成分のスケジュール構造を宣言するが、成分間の切り替えタイミング（random, fixed-duration, performance-contingent）は動的制御であり、contingency-core ランタイムの責務。DSL は各成分の随伴性構造を宣言するのみ。
+
+### N-3. セッション間スケジュール進行
+
+CRF→FR2→FR5→VI30 のようなセッション間のスケジュール進行（FCT thinning 等の介入プロトコル）はプロトコル設計の責務である。各セッションのスケジュールは DSL で個別に宣言可能だが、進行規則の自動化は DSL の宣言的静的意味論を超える。
+
+Part III の実験層が宣言的に扱うのは「順序付けされたフェーズの列と相変化基準」であり、セッション単位の thinning 進行は experiment-core の適応制御ロジックで扱う。
+
+### N-4. リアルタイム適応スケジュール
+
+被験体の反応に基づいてセッション中にパラメータを自動更新するロジック（Adjusting schedule のパラメータ値を外部システムが上書きする、外部センサーから titration する等）は DSL 層外。Core-Stateful の `Adj` は宣言的パラメータ更新をサポートするが、外部フィードバックループの制御は runtime の責務とする。
+
+### N-5. 多被験体間の強化参照（yoked control）
+
+Yoked 設計 (Church, 1964) では被験体 A の強化をトリガーに被験体 B にも強化が提供される。単一プログラムスコープの Core では被験体間参照を表現できず、`yoked-extension` として将来の Schedule Extension 候補に予約する。
+
+### N-6. 研究倫理・臨床メタデータ
+
+インフォームドコンセント・IRB 承認・被験体保護の安全制約は DSL 層ではなく実験管理システム（runtime / lab management software）の責務である。ABA の social validity 評価、FBA 機能分類（注目獲得・逃避・自動強化等）、BACB 臨床ラベル（DRA/DRI/NCR 等）も同様に DSL の annotation 目的外であり、`clinical-metadata` 等の 3rd-party 拡張点として位置付ける。
+
+### 参考文献（Non-goals）
+
+- Church, R. M. (1964). Systematic effect of random error in the yoked control design. *Psychological Bulletin*, 62(2), 122–131. https://doi.org/10.1037/h0042733
