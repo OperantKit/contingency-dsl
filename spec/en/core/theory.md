@@ -999,6 +999,8 @@ stream.
 ```
 Overlay(VI 60-s, FR 1)                     -- every response punished
 Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)  -- concurrent baseline
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1, target=changeover)
+                                           -- punishment on changeover only
 ```
 
 The first component is the reinforcement baseline; the second is the
@@ -1007,7 +1009,20 @@ punishment schedule.
 **Semantic constraints.**
 
 - Exactly 2 positional components. More than 2 → `OVERLAY_REQUIRES_TWO`.
-- No keyword args in v1.x → `INVALID_KEYWORD_ARG`.
+- Only the `target` keyword arg is permitted. Any other keyword arg →
+  `INVALID_KEYWORD_ARG`.
+
+**Response-class targeting (`target` kw_arg).**
+
+- `target=all` (default): the punisher schedule applies to every response
+  in the baseline. Omitting `target` is identical to `target=all`.
+- `target=changeover`: the punisher schedule applies only to changeover
+  responses (transitions between concurrent components). Requires the
+  baseline to be a `Conc` combinator; non-Conc baseline →
+  `TARGET_REQUIRES_CONC`. Models Todorov (1971), where punishment was
+  added to the switching response in a concurrent VI VI arrangement.
+- `target` is valid on `Overlay` only → `INVALID_OVERLAY_TARGET` otherwise.
+  Duplicate `target` → `DUPLICATE_KEYWORD_ARG`.
 
 **Stimulus annotation.** Use `@punisher` for the aversive stimulus and
 `@reinforcer` for the baseline:
@@ -1018,9 +1033,79 @@ Overlay(VI 60-s, FR 1)
   @punisher("shock", intensity="0.5mA")
 ```
 
-**v1.x scope.** Punishment targets all responses. Response-class-specific
-punishment (e.g., changeover-only punishment; Todorov, 1971) is planned for
-v1.y.
+### 2.10.1 Response-Class-Specific Punishment (`PUNISH` directive)
+
+`PUNISH` is a `Conc` keyword argument that attaches a punishment schedule
+to a specific response class *within* a concurrent arrangement. Unlike
+`Overlay + target=changeover` (which applies a single punisher to a single
+response class), `PUNISH` supports **heterogeneous** punishers across
+multiple response classes within one `Conc` expression, including
+asymmetric directional punishment (Todorov, 1971) and component-specific
+punishment (de Villiers, 1980).
+
+**Syntax.**
+
+```
+-- Asymmetric directional punishment (Todorov, 1971, Exp. 1–2)
+Conc(VI 30-s, VI 60-s, COD=2-s,
+     PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+
+-- Changeover shorthand (all changeover directions)
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+
+-- Component-targeted punishment (de Villiers, 1980)
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)
+
+-- Let-bound identifiers
+let rich = VI 30-s
+let lean = VI 60-s
+Conc(rich, lean, COD=2-s, PUNISH(rich->lean)=FR 1)
+```
+
+The value of `PUNISH` is a **schedule expression** (atomic, compound,
+modifier, or special), not a value expression. This is the structural
+distinction from `scalar_kw_arg` (COD, FRCO, BO) and `directional_kw_arg`
+(COD), which take a numeric value.
+
+**Target modes.**
+
+1. `PUNISH(changeover)`: punisher applied to all changeover transitions.
+   Mutually exclusive with directional entries.
+2. `PUNISH(x->y)`: punisher applied to transitions from component *x* to
+   component *y*. Multiple directional entries may coexist (enumerate
+   asymmetric directions explicitly rather than combining with `changeover`).
+3. `PUNISH(n)`: punisher applied to all responses on component *n*,
+   regardless of source. Independent of directional entries; may coexist.
+
+**Semantic constraints (summary).**
+
+- Conc-only → `INVALID_PUNISH_COMBINATOR` on other combinators.
+- `dir_ref` resolution: 1-indexed integer or let-bound identifier
+  (shares resolution rules with directional COD).
+- Self-reference `PUNISH(1->1)` → `PUNISH_SELF_REFERENCE`.
+- Duplicate target → `DUPLICATE_PUNISH_DIRECTIVE`.
+- `PUNISH(changeover)` + `PUNISH(x->y)` → `PUNISH_TARGET_CONFLICT`.
+- Out-of-range component index → `DIRECTIONAL_INDEX_OUT_OF_RANGE`
+  (shared with COD).
+- Nested PUNISH inside a PUNISH schedule → `NESTED_PUNISH_DIRECTIVE`.
+
+**When to use PUNISH vs. Overlay + target.**
+
+| Scenario | Use |
+|---|---|
+| Single punisher on all responses | `Overlay(baseline, punisher)` |
+| Single punisher on all changeovers | `Overlay(Conc(...), punisher, target=changeover)` |
+| Asymmetric punishers per direction | `PUNISH(1->2)=..., PUNISH(2->1)=...` |
+| Component-specific punishment | `PUNISH(n)=...` |
+| Mixed direction + component | `PUNISH(1->2)=..., PUNISH(2)=...` |
+
+**References.**
+
+- de Villiers (1980) — subtractive model of punishment on concurrent VI VI.
+- Farley (1980) — empirical test of punishment models in concurrent
+  schedules.
+- Critchfield, Paletz, MacAleese, & Newland (2003) — direct vs. competitive
+  suppression in human punishment choice.
 
 ### 2.11 Second-Order Schedules
 
@@ -1485,6 +1570,9 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
 - Bloomfield, T. M. (1966). Two types of behavioral contrast in discrimination learning. *JEAB*, 9(2), 155-161. https://doi.org/10.1901/jeab.1966.9-155
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
+- Critchfield, T. S., Paletz, E. M., MacAleese, K. R., & Newland, M. C. (2003). Punishment in human choice: Direct or competitive suppression? *Journal of the Experimental Analysis of Behavior*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
+- de Villiers, P. A. (1980). Toward a quantitative theory of punishment. *Journal of the Experimental Analysis of Behavior*, 33(1), 15-25. https://doi.org/10.1901/jeab.1980.33-15
+- Farley, J. (1980). Reinforcement and punishment effects in concurrent schedules: A test of two models. *Journal of the Experimental Analysis of Behavior*, 33(3), 311-326. https://doi.org/10.1901/jeab.1980.33-311
 - Farmer, J. (1963). Properties of behavior under random interval reinforcement schedules. *Journal of the Experimental Analysis of Behavior*, 6(4), 607-616. https://doi.org/10.1901/jeab.1963.6-607
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
 - Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649

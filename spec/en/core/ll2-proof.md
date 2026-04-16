@@ -32,6 +32,11 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `LH_KW` | LH, LimitedHold | limited hold keyword |
 | `LET_KW` | let | binding keyword |
 | `KW_NAME` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | compound keyword argument names |
+| `TARGET_KW` | target | Overlay target keyword (v1.y) |
+| `KW_CHANGEOVER` | changeover | target/punish_target value (v1.y) |
+| `KW_ALL` | all | target value (v1.y) |
+| `PUNISH_KW` | PUNISH | punish_directive keyword (v1.y) |
+| `ARROW` | -> | directional arrow (used in directional_kw_arg and punish_target) |
 | `PARAM_NAME` | LH, LimitedHold, COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | program-level parameter names |
 | `SIDMAN_KW` | Sidman, SidmanAvoidance | Sidman avoidance keyword |
 | `DA_KW` | DiscriminatedAvoidance, DiscrimAv | discriminated avoidance keyword |
@@ -1133,6 +1138,78 @@ The extended grammar *G'* = Core ∪ Core-Stateful ∪ Experiment satisfies:
 3. *G'* is unambiguous (corollary of 1).
 4. The shaping expansion rule (E-SHAPING) operates at the semantic phase and does not affect parsing.
 5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
+
+---
+
+## §12 Response-Class Punishment Decision Points (v1.y)
+
+Two new keyword-argument forms for compound schedules are introduced:
+
+1. `overlay_kw_arg` for `Overlay`: `"target" "=" target_value`
+2. `punish_directive` for `Conc`: `"PUNISH" "(" punish_target ")" "=" schedule`
+
+Both introduce new terminals (`TARGET_KW`, `PUNISH_KW`) disjoint from the existing `KW_NAME` class (COD, FRCO, BO). All new decision points are LL(1) — no new LL(2) points arise. The single LL(2) decision point (§6, `PosTail`) is preserved.
+
+### §12.1 Extended KwTail (§3.3)
+
+The compound-schedule keyword tail is extended to admit four alternatives:
+
+```
+KwTail → COMMA ScalarKwArg   KwTail
+       | COMMA DirectionalKwArg KwTail
+       | COMMA OverlayKwArg   KwTail
+       | COMMA PunishDirective KwTail
+       | ε
+
+ScalarKwArg      → KW_NAME EQ Value
+DirectionalKwArg → KW_NAME LPAREN DirRef ARROW DirRef RPAREN EQ Value
+OverlayKwArg     → TARGET_KW EQ TargetValue
+PunishDirective  → PUNISH_KW LPAREN PunishTarget RPAREN EQ Schedule
+TargetValue      → KW_CHANGEOVER | KW_ALL
+PunishTarget     → KW_CHANGEOVER | DirRef ARROW DirRef | DirRef
+```
+
+### §12.2 FIRST₁ of new alternatives
+
+```
+FIRST₁(ScalarKwArg ∪ DirectionalKwArg) = { KW_NAME }
+FIRST₁(OverlayKwArg)                   = { TARGET_KW }
+FIRST₁(PunishDirective)                = { PUNISH_KW }
+```
+
+Pairwise disjoint (KW_NAME ∉ {TARGET_KW, PUNISH_KW}); each new keyword is a distinct reserved terminal.
+
+### §12.3 Decision at KwTail continuation
+
+After COMMA, the parser selects:
+
+| Lookahead₁ | Production |
+|---|---|
+| `KW_NAME` | ScalarKwArg or DirectionalKwArg (see §12.4) |
+| `TARGET_KW` | OverlayKwArg |
+| `PUNISH_KW` | PunishDirective |
+| `RPAREN` | ε (exit KwTail) |
+
+All cells are LL(1)-distinct. No ambiguity.
+
+### §12.4 Scalar vs. Directional: LL(2) within KW_NAME
+
+After `KW_NAME`, the next token discriminates:
+
+| Lookahead₂ | Form |
+|---|---|
+| `EQ` | ScalarKwArg |
+| `LPAREN` | DirectionalKwArg |
+
+This is an existing LL(2) decision (present since v1.1). The new additions do not change it.
+
+### §12.5 PosTail Preservation
+
+The core LL(2) decision in §6 (`PosTail` — COMMA before Schedule vs. KwTail) relies on `FIRST₂((COMMA, _)) = { (COMMA, IDENT), (COMMA, KW_NAME), ... }`. The new terminals (`TARGET_KW`, `PUNISH_KW`) extend the KwTail FIRST₂ set as `(COMMA, TARGET_KW)` and `(COMMA, PUNISH_KW)`, each of which is uniquely associated with KwTail (no overlap with Schedule's FIRST₁). Therefore `PosTail`'s LL(2) analysis remains sound.
+
+### §12.6 Conclusion
+
+The v1.y `overlay_kw_arg` and `punish_directive` extensions preserve LL(2) classification. All new internal decisions are LL(1); the only pre-existing LL(2) point (§6) is unaffected. The grammar remains parseable by a recursive-descent LL(2) parser with a single-token lookahead for all decisions except `PosTail`.
 
 ---
 

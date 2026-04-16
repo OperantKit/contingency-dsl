@@ -943,6 +943,8 @@ Chain(FR 10, DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
 ```
 Overlay(VI 60-s, FR 1)                     -- 全反応に罰
 Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)  -- 並立ベースライン
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1, target=changeover)
+                                           -- 切替反応のみに罰
 ```
 
 第 1 成分がベースライン（強化）、第 2 成分が罰スケジュール。
@@ -950,7 +952,18 @@ Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)  -- 並立ベースライン
 **意味的制約:**
 
 - 正確に 2 成分。3 以上 → `OVERLAY_REQUIRES_TWO`。
-- v1.x ではキーワード引数なし → `INVALID_KEYWORD_ARG`。
+- `target` 以外のキーワード引数は不可 → `INVALID_KEYWORD_ARG`。
+
+**反応クラス targeting（`target` kw_arg）:**
+
+- `target=all`（既定値）: 罰スケジュールはベースライン内のすべての反応に
+  随伴する。`target` を省略した場合も `target=all` と同等。
+- `target=changeover`: 罰スケジュールは切替反応（並立成分間の遷移）のみに
+  随伴する。ベースラインが `Conc` コンビネータであることを要求する；
+  非 Conc ベースライン → `TARGET_REQUIRES_CONC`。並立 VI VI 配置における
+  切替反応への罰（Todorov, 1971）を符号化する。
+- `target` は `Overlay` のみで有効 → 他のコンビネータでは
+  `INVALID_OVERLAY_TARGET`。重複 → `DUPLICATE_KEYWORD_ARG`。
 
 **刺激 annotation:** `@punisher` で嫌悪刺激、`@reinforcer` でベースラインを記述:
 
@@ -960,8 +973,74 @@ Overlay(VI 60-s, FR 1)
   @punisher("shock", intensity="0.5mA")
 ```
 
-**v1.x のスコープ:** 罰は全反応を対象とする。反応クラス特異的な罰
-（例: 切替反応のみに罰; Todorov, 1971）は v1.y で対応予定。
+### 2.10.1 反応クラス特異的罰（`PUNISH` directive）
+
+`PUNISH` は `Conc` のキーワード引数であり、並立配置内の特定の反応クラスに
+罰スケジュールを付与する。`Overlay + target=changeover`（単一反応クラスに
+単一罰子）と異なり、`PUNISH` は単一の `Conc` 式内で**異種の罰子**を複数の
+反応クラスに付与できる。方向非対称罰（Todorov, 1971）と成分特異的罰
+（de Villiers, 1980）の両方を表現可能。
+
+**構文:**
+
+```
+-- 方向非対称罰（Todorov, 1971, 実験 1-2）
+Conc(VI 30-s, VI 60-s, COD=2-s,
+     PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+
+-- 切替反応の短縮形（全 changeover 方向）
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+
+-- 成分特異的罰（de Villiers, 1980）
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)
+
+-- let-bound 識別子
+let rich = VI 30-s
+let lean = VI 60-s
+Conc(rich, lean, COD=2-s, PUNISH(rich->lean)=FR 1)
+```
+
+`PUNISH` の値は**スケジュール式**（atomic, compound, modifier, special）で
+あり、`value` 式ではない。これは `scalar_kw_arg`（COD, FRCO, BO）および
+`directional_kw_arg`（COD）との構造的な違いである。
+
+**ターゲットモード:**
+
+1. `PUNISH(changeover)`: 罰子が全 changeover 遷移に適用される。方向指定エントリ
+   とは相互排他。
+2. `PUNISH(x->y)`: 罰子が成分 *x* から成分 *y* への遷移に適用される。複数の
+   方向指定エントリを共存可能。非対称方向は `changeover` と組み合わせるのではなく
+   個別に列挙する。
+3. `PUNISH(n)`: 罰子が遷移元に関わらず成分 *n* へのすべての反応に適用される。
+   方向指定エントリから独立；共存可能。
+
+**意味的制約（要約）:**
+
+- Conc のみ有効 → 他のコンビネータでは `INVALID_PUNISH_COMBINATOR`。
+- `dir_ref` の解決: 1-indexed 整数または let-bound 識別子（directional COD と
+  同じ解決ルール）。
+- 自己参照 `PUNISH(1->1)` → `PUNISH_SELF_REFERENCE`。
+- 重複ターゲット → `DUPLICATE_PUNISH_DIRECTIVE`。
+- `PUNISH(changeover)` + `PUNISH(x->y)` → `PUNISH_TARGET_CONFLICT`。
+- 成分インデックス範囲外 → `DIRECTIONAL_INDEX_OUT_OF_RANGE`（COD と共通）。
+- PUNISH スケジュール内の入れ子 PUNISH → `NESTED_PUNISH_DIRECTIVE`。
+
+**PUNISH vs Overlay + target の使い分け:**
+
+| シナリオ | 使用法 |
+|---|---|
+| 全反応に単一の罰子 | `Overlay(baseline, punisher)` |
+| 全切替反応に単一の罰子 | `Overlay(Conc(...), punisher, target=changeover)` |
+| 方向非対称罰 | `PUNISH(1->2)=..., PUNISH(2->1)=...` |
+| 成分特異的罰 | `PUNISH(n)=...` |
+| 方向指定 + 成分指定の混在 | `PUNISH(1->2)=..., PUNISH(2)=...` |
+
+**参考文献:**
+
+- de Villiers (1980) — 並立 VI VI 罰の減算モデル。
+- Farley (1980) — 並立スケジュールでの罰モデルの実証的検証。
+- Critchfield, Paletz, MacAleese, & Newland (2003) — ヒトの罰選択における
+  直接抑制 vs 競合抑制。
 
 ### 2.11 二次スケジュール（Second-Order Schedules）
 
@@ -1353,6 +1432,9 @@ S₁ ≡ S₂  ⟺  ⟦S₁⟧ ≈ ⟦S₂⟧
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
 - Bloomfield, T. M. (1966). Two types of behavioral contrast in discrimination learning. *JEAB*, 9(2), 155-161. https://doi.org/10.1901/jeab.1966.9-155
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
+- Critchfield, T. S., Paletz, E. M., MacAleese, K. R., & Newland, M. C. (2003). Punishment in human choice: Direct or competitive suppression? *Journal of the Experimental Analysis of Behavior*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
+- de Villiers, P. A. (1980). Toward a quantitative theory of punishment. *Journal of the Experimental Analysis of Behavior*, 33(1), 15-25. https://doi.org/10.1901/jeab.1980.33-15
+- Farley, J. (1980). Reinforcement and punishment effects in concurrent schedules: A test of two models. *Journal of the Experimental Analysis of Behavior*, 33(3), 311-326. https://doi.org/10.1901/jeab.1980.33-311
 - Farmer, J. (1963). Properties of behavior under random interval reinforcement schedules. *Journal of the Experimental Analysis of Behavior*, 6(4), 607-616. https://doi.org/10.1901/jeab.1963.6-607
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
 - Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649

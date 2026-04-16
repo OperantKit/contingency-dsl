@@ -73,6 +73,8 @@ DSL の文法は4つの基準を満たす:
                   | "duration" | "reset_on_response" | "contingent_response"
                   | "true" | "false"
                   | "Overlay"
+                  | "target" | "changeover" | "all"     -- Overlay target kw_arg
+                  | "PUNISH"                            -- Conc 反応クラス特異的罰
                   | "Interpolate" | "Interp"
                   | "count" | "onset"
 
@@ -84,10 +86,25 @@ DSL の文法は4つの基準を満たす:
                   | "Overlay"
 <arg_list>      ::= <positional_args> ("," <keyword_arg>)*
 <positional_args> ::= <schedule> ("," <schedule>)+
-<keyword_arg>   ::= <kw_name> "=" <value>
+<keyword_arg>   ::= <scalar_kw_arg> | <directional_kw_arg>
+                  | <overlay_kw_arg> | <punish_directive>
+<scalar_kw_arg> ::= <kw_name> "=" <value>
+<directional_kw_arg> ::= <kw_name> "(" <dir_ref> "->" <dir_ref> ")" "=" <value>
+<dir_ref>       ::= <number> | <ident>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
                    | "BO"  | "Blackout"
+
+<!-- Overlay の反応クラス targeting（§2.10） -->
+<overlay_kw_arg> ::= "target" "=" <target_value>
+<target_value>  ::= "changeover" | "all"
+
+<!-- Conc 反応クラス特異的罰（§2.10.1） -->
+<punish_directive> ::= "PUNISH" "(" <punish_target> ")" "=" <schedule>
+<punish_target>    ::= "changeover"
+                     | <dir_ref> "->" <dir_ref>
+                     | <dir_ref>
+
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -294,6 +311,15 @@ Interp(FI 15-min, FR 50, count=10, onset=3-min)         -- onset 遅延付き; I
 -- 罰の重畳（§2.10）
 Overlay(VI 60-s, FR 1)                              -- VI 60 ベースラインに全反応罰
 Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)        -- 並立ベースラインに罰の重畳
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1,
+        target=changeover)                          -- changeover のみに罰（Todorov, 1971）
+
+-- 反応クラス特異的罰（Conc kw_arg；§2.10.1）
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+                                                    -- 方向非対称罰
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+                                                    -- 全 changeover 方向への罰（短縮形）
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)     -- 成分特異的罰（de Villiers, 1980）
 
 -- let 束縛（マクロ展開）
 let baseline = VI 60-s

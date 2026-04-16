@@ -32,6 +32,11 @@
 | `LH_KW` | LH, LimitedHold | 限定保持キーワード |
 | `LET_KW` | let | 束縛キーワード |
 | `KW_NAME` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | 複合スケジュールのキーワード引数名 |
+| `TARGET_KW` | target | Overlay target キーワード（v1.y） |
+| `KW_CHANGEOVER` | changeover | target/punish_target 値（v1.y） |
+| `KW_ALL` | all | target 値（v1.y） |
+| `PUNISH_KW` | PUNISH | punish_directive キーワード（v1.y） |
+| `ARROW` | -> | 方向指定矢印（directional_kw_arg と punish_target で使用） |
 | `PARAM_NAME` | LH, LimitedHold, COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | プログラムレベルのパラメータ名 |
 | `SIDMAN_KW` | Sidman, SidmanAvoidance | Sidman 回避キーワード |
 | `DA_KW` | DiscriminatedAvoidance, DiscrimAv | 弁別回避キーワード |
@@ -1005,6 +1010,88 @@ Core-Stateful レイヤは**保守的な文法拡張**である: 既存の決定
 2. **新しいスケジュール構成が位置引数/キーワード引数の混合意味論を持つ COMMA ベースの反復を導入してはならない**（同じ LL(2) 戦略を採用する場合を除く）。
 3. **アノテーション拡張** が `FIRST₁(Schedule)` 内のトークンで始まる新しい `AnnotationVal` 形式を追加すると §9 の衝突が拡大する。`SCHED_TYPE` や `COMB` をアノテーション値として追加することを避けるべきである。
 4. **Core-Stateful 拡張**（新しいステートフルスケジュール）は §10 で確立されたパターンに従うべきである: 固定の位置引数数（またはキーワードのみ）の関数呼び出し構文、素な先頭キーワード、COMMA/RPAREN 反復。このパターンにより LL(1) の内部決定が保証される。
+
+---
+
+## §12 反応クラス特異的罰の決定点（v1.y）
+
+複合スケジュールに対する新しい 2 種類のキーワード引数形式を導入する:
+
+1. `Overlay` 用 `overlay_kw_arg`: `"target" "=" target_value`
+2. `Conc` 用 `punish_directive`: `"PUNISH" "(" punish_target ")" "=" schedule`
+
+いずれも既存の `KW_NAME` クラス（COD, FRCO, BO）とは独立した新しい終端記号
+（`TARGET_KW`, `PUNISH_KW`）を導入する。新たな決定点はすべて LL(1) であり、
+LL(2) 決定点は増加しない。§6 の単一の LL(2) 決定点（`PosTail`）は保存される。
+
+### §12.1 KwTail の拡張（§3.3）
+
+複合スケジュールのキーワード引数末尾部は 4 つの選択肢に拡張される:
+
+```
+KwTail → COMMA ScalarKwArg   KwTail
+       | COMMA DirectionalKwArg KwTail
+       | COMMA OverlayKwArg   KwTail
+       | COMMA PunishDirective KwTail
+       | ε
+
+ScalarKwArg      → KW_NAME EQ Value
+DirectionalKwArg → KW_NAME LPAREN DirRef ARROW DirRef RPAREN EQ Value
+OverlayKwArg     → TARGET_KW EQ TargetValue
+PunishDirective  → PUNISH_KW LPAREN PunishTarget RPAREN EQ Schedule
+TargetValue      → KW_CHANGEOVER | KW_ALL
+PunishTarget     → KW_CHANGEOVER | DirRef ARROW DirRef | DirRef
+```
+
+### §12.2 新選択肢の FIRST₁
+
+```
+FIRST₁(ScalarKwArg ∪ DirectionalKwArg) = { KW_NAME }
+FIRST₁(OverlayKwArg)                   = { TARGET_KW }
+FIRST₁(PunishDirective)                = { PUNISH_KW }
+```
+
+これらは対毎に互いに素（KW_NAME ∉ {TARGET_KW, PUNISH_KW}）。各新規キーワードは
+別個の予約語。
+
+### §12.3 KwTail 継続点の決定
+
+COMMA の後、パーサは以下から選択する:
+
+| 先読み₁ | 生成規則 |
+|---|---|
+| `KW_NAME` | ScalarKwArg または DirectionalKwArg（§12.4 参照） |
+| `TARGET_KW` | OverlayKwArg |
+| `PUNISH_KW` | PunishDirective |
+| `RPAREN` | ε（KwTail を抜ける） |
+
+すべての分岐は LL(1) で一意に決定される。曖昧性なし。
+
+### §12.4 KW_NAME 内でのスカラー vs 方向指定: LL(2)
+
+`KW_NAME` の直後のトークンで分岐:
+
+| 先読み₂ | 形式 |
+|---|---|
+| `EQ` | ScalarKwArg |
+| `LPAREN` | DirectionalKwArg |
+
+これは v1.1 以来存在する既存の LL(2) 決定点。新追加により変化しない。
+
+### §12.5 PosTail の保存
+
+§6 の中核的 LL(2) 決定点（`PosTail` — Schedule vs KwTail 直前の COMMA）は
+`FIRST₂((COMMA, _))` に依存する。新終端 `TARGET_KW`, `PUNISH_KW` は KwTail 側の
+FIRST₂ を `(COMMA, TARGET_KW)`, `(COMMA, PUNISH_KW)` として拡張する。いずれも
+KwTail と一意に対応（Schedule の FIRST₁ と重ならない）。したがって `PosTail` の
+LL(2) 分析は健全性を保つ。
+
+### §12.6 結論
+
+v1.y の `overlay_kw_arg` および `punish_directive` 拡張は LL(2) 分類を保存する。
+新内部決定点はすべて LL(1) であり、既存の LL(2) 決定点（§6）は影響を受けない。
+文法は、`PosTail` のみ 2 トークン先読みを要求し他はすべて 1 トークン先読みで
+動作する再帰下降 LL(2) パーサで解析可能のままである。
 
 ---
 

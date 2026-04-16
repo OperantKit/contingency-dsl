@@ -71,6 +71,8 @@ The DSL grammar satisfies four criteria:
                   | "duration" | "reset_on_response" | "contingent_response"
                   | "true" | "false"
                   | "Overlay"
+                  | "target" | "changeover" | "all"     -- Overlay target kw_arg
+                  | "PUNISH"                            -- Conc response-class-specific punishment
                   | "Interpolate" | "Interp"
                   | "count" | "onset"
 
@@ -82,10 +84,24 @@ The DSL grammar satisfies four criteria:
                   | "Overlay"
 <arg_list>      ::= <positional_args> ("," <keyword_arg>)*
 <positional_args> ::= <schedule> ("," <schedule>)+
-<keyword_arg>   ::= <kw_name> "=" <value>
+<keyword_arg>   ::= <scalar_kw_arg> | <directional_kw_arg>
+                  | <overlay_kw_arg> | <punish_directive>
+<scalar_kw_arg> ::= <kw_name> "=" <value>
+<directional_kw_arg> ::= <kw_name> "(" <dir_ref> "->" <dir_ref> ")" "=" <value>
+<dir_ref>       ::= <number> | <ident>
 <kw_name>       ::= "COD" | "ChangeoverDelay"
                    | "FRCO" | "FixedRatioChangeover"
                    | "BO"  | "Blackout"
+
+<!-- Overlay response-class targeting (§2.10) -->
+<overlay_kw_arg> ::= "target" "=" <target_value>
+<target_value>  ::= "changeover" | "all"
+
+<!-- Response-class-specific punishment for Conc (§2.10.1) -->
+<punish_directive> ::= "PUNISH" "(" <punish_target> ")" "=" <schedule>
+<punish_target>    ::= "changeover"
+                     | <dir_ref> "->" <dir_ref>
+                     | <dir_ref>
 
 <modifier>      ::= <dr_mod> | <pr_mod> | <repeat> | <lag_mod>
 <dr_mod>        ::= ("DRL" | "DRH" | "DRO") <ws>? <value>
@@ -291,6 +307,15 @@ Interp(FI 15-min, FR 50, count=10, onset=3-min)         -- with onset delay; Int
 -- Punishment overlay (§2.10)
 Overlay(VI 60-s, FR 1)                              -- every response punished on VI 60 baseline
 Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)        -- punishment on concurrent baseline
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1,
+        target=changeover)                          -- punishment on changeover only (Todorov, 1971)
+
+-- Response-class-specific punishment directive (Conc kw_arg; §2.10.1)
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+                                                    -- asymmetric directional punishment
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+                                                    -- shorthand for all changeover directions
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)     -- component-targeted punishment (de Villiers, 1980)
 
 -- let bindings (macro expansion)
 let baseline = VI 60-s
