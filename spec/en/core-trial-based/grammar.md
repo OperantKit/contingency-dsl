@@ -190,6 +190,39 @@ differential reinforcement. Combining `delay > 0` with
 `correction=true` / `"repeat_until_correct"` conflates retention and
 acquisition procedures, and thus triggers WARNING `DMTS_WITH_CORRECTION`.
 
+#### AST Representation (Normalization) — v1.1, R-7
+
+`delay` and `correction` are materialized in the AST per the following rules:
+
+| Surface syntax | AST |
+|---|---|
+| `delay` omitted | no `delay` / `delay_unit` fields (v1.0 shape) |
+| `delay=0s` | `delay: 0.0, delay_unit: "s"` (intent marker) |
+| `delay=Xu` (X>0) | `delay: X, delay_unit: "u"` |
+| `correction` omitted | no `correction` field (v1.0 shape) |
+| `correction=false` | `correction: { mode: "disabled" }` |
+| `correction=true` | `correction: { mode: "unlimited" }` |
+| `correction="repeat_until_correct"` | `correction: { mode: "unlimited" }` (identical AST to `true`; desugared) |
+| `correction=N` (N≥1) | `correction: { mode: "bounded", limit: N }` |
+
+**Omitted and explicit forms are distinguishable at the AST level** (for round-trip
+preservation), **but are behaviorally equivalent at runtime**. Downstream
+consumers (simulators, linters, visualizers) MUST treat them as identical.
+
+#### Backward Compatibility Theorem (R-7)
+
+For every v1.0 program `P` that contains neither `delay` nor `correction`,
+`parse_v1.1(P) = parse_v1.0(P)` holds as an AST isomorphism.
+Proof sketch: the `mts_kw_arg` extension is additive; v1.0 alternatives match
+`P`'s token stream verbatim; new productions are unreachable from `P`.
+
+#### Warning Emission Order (R-7)
+
+When multiple warnings apply to the same MTS expression, all are emitted
+in definition order (W1 → W2 → W3 → W4 → W5 → W7 → W8 → W9). No suppression
+or precedence rule applies. Linters MAY group warnings in their reports but
+MUST NOT drop any of them.
+
 ### Stimulus Equivalence and Annotations
 
 MTS is the procedural foundation for stimulus equivalence research
