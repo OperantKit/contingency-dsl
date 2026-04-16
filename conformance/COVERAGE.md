@@ -17,10 +17,10 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Core** | 16 | 420 | ✅ Primary coverage |
 | **Core-Stateful** | 4 | 92 | ✅ Full coverage |
 | **Core-Trial-Based** | 3 | 84 | ✅ Full coverage |
-| **Experiment** | 3 | 20 | ✅ Full coverage |
+| **Experiment** | 4 | 35 | ✅ Full coverage |
 | **Annotations** | 3 | 69 | ✅ Full coverage |
 | **Representations (T-τ)** | 4 | 33 | ✅ Full coverage |
-| **Total** | **34** | **718** | |
+| **Total** | **35** | **733** | |
 
 ---
 
@@ -106,9 +106,11 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | E9 | `stability_method` | `experiment/phase.json` | `visual`, `cv` | ✅ 2 of 6 |
 | E10 | `stability_param` | `experiment/phase.json` | window=5, threshold=5% | ✅ |
 | E11 | `phase_ref` | `experiment/phase.json`, `experiment/errors.json` | `phase_use_reference`, `error_undefined_phase_ref`, `error_forward_phase_ref` | ✅ 3 cases |
-| E12 | `shaping_decl` | `experiment/shaping.json` | `shaping_single_variable`, `shaping_fixed_sessions`, `shaping_multi_variable`, `shaping_mixed_with_phases` | ✅ 4 cases |
-| E13 | `shaping_steps` | `experiment/shaping.json`, `experiment/errors.json` | single: `shaping_single_variable`; multi: `shaping_multi_variable`; empty: `error_shaping_empty_steps` | ✅ |
-| E14 | `number_list` | `experiment/shaping.json` | 5 elements: `shaping_single_variable`; 7: `shaping_fixed_sessions`; 4: `shaping_multi_variable` | ✅ |
+| E12 | `progressive_decl` | `experiment/progressive-training.json` | `progressive_single_variable`, `progressive_fixed_sessions`, `progressive_multi_variable`, `progressive_mixed_with_phases` | ✅ 4 cases |
+| E13 | `progressive_steps` | `experiment/progressive-training.json`, `experiment/errors.json` | single: `progressive_single_variable`; multi: `progressive_multi_variable`; empty: `error_progressive_empty_steps` | ✅ |
+| E14 | `number_list` | `experiment/progressive-training.json` | 5 elements: `progressive_single_variable`; 7: `progressive_fixed_sessions`; 4: `progressive_multi_variable` | ✅ |
+| E15 | `shaping_decl` (Skinner) | `experiment/shaping.json` | `shaping_artful_minimal`, `shaping_artful_with_approximations`, `shaping_artful_with_custom_criterion`, `shaping_percentile_force`, `shaping_staged`, `shaping_mixed_with_other_phases` | ✅ 6 cases |
+| E16 | `shaping_meta` | `experiment/shaping.json` | target: `shaping_artful_minimal`; method+approximations: `shaping_artful_with_approximations`; dimension+percentile_*: `shaping_percentile_force`; stages: `shaping_staged` | ✅ |
 
 **Summary:** 14 productions; all with dedicated coverage.
 
@@ -154,7 +156,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | Repeat desugaring | theory.md §2.2.3 | `core/algebra.json` | `repeat_identity`, `repeat_additive_decomposition` | ✅ |
 | Value range constraints | grammar.ebnf §46–§62 | `core/boundary-values.json` | 54 cases (all atomic/DR/PR/LH/Repeat/FRCO/SecondOrder boundary values) | ✅ |
 | SecondOrder semantics | theory.md §2.11.1 | `core/second_order.json`, `core/errors.json` | 5 basic parsing + 4 compound-unit rejection cases | ✅ |
-| Annotation measurement parsing | annotations spec | `annotations/measurement.json` | 29 cases (all 10 keywords v1.0–v1.2) | ✅ |
+| Annotation measurement parsing | annotations spec | `annotations/measurement.json` | 29 cases (all 10 keywords) | ✅ |
 | Annotation measurement errors | annotations spec | `annotations/errors.json` | 36 cases (incl. 2 cross-annotation) | ✅ |
 | Cross-annotation composition | design-philosophy.md §4 | `annotations/program-level.json` | `program_annotations_all_four_jeab_categories` | ✅ |
 | T-τ representation conversion | representations/t-tau.md | `representations/t-tau/` | 33 cases total (to: 11, from: 9, roundtrip: 6, errors: 7) | ✅ |

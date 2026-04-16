@@ -129,8 +129,9 @@ LH default propagation should validate against `expected` only.
 | File | Cases | Scope |
 |------|-------|-------|
 | `phase.json` | 5 | Phase declarations (ABA, stability criteria, `use` references, shared annotations) |
-| `shaping.json` | 4 | Shaping expansion (single/multi-variable, mixed with phases, parametric) |
-| `errors.json` | 11 | Experiment-layer semantic errors (constraints 63–72) |
+| `progressive-training.json` | 15 | ProgressiveTraining expansion (single/multi-variable, mixed with phases, parametric, interleave, advance conditions) |
+| `shaping.json` | 15 | Skinner Shaping (artful / percentile / staged methods; error cases) |
+| `errors.json` | 22 | Experiment-layer semantic errors (constraints 63–82, including R-4 progressive_advance errors) |
 
 ### annotations/
 

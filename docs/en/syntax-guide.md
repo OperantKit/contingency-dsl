@@ -301,7 +301,7 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=
 
 ## Level 6: Experiment Layer (Multi-Phase)
 
-For across-session designs (A-B-A reversal, dose-response, parametric studies), the DSL provides `phase` and `shaping` declarations.
+For across-session designs (A-B-A reversal, dose-response, parametric studies), the DSL provides `phase`, `progressive`, and `shaping` declarations. The `progressive` keyword expresses Sidman-sense parameter progression (across sessions); the `shaping` keyword expresses Skinner-sense within-session response shaping.
 
 ### Phase Declarations
 
@@ -318,12 +318,12 @@ phase Reversal:
   use Baseline      -- reuse Baseline's schedule expression
 ```
 
-### Shaping (Parametric Progression)
+### Progressive Training (Parametric Progression)
 
-`shaping` desugars to a numbered sequence of `phase` declarations. Useful for FI-progression training, dose-response, reinforcer-magnitude studies:
+`progressive` desugars to a numbered sequence of `phase` declarations. Useful for FI-progression training, dose-response, reinforcer-magnitude studies (Sidman, 1960; Zeiler, 1977):
 
 ```
-shaping FI_Training:
+progressive FI_Training:
   steps v = [2, 4, 8, 12, 18]
   sessions >= 3
   stable(visual)
@@ -332,18 +332,50 @@ shaping FI_Training:
 
 Expands to `FI_Training_1, …, FI_Training_5` with the `{v}` placeholder substituted from the steps list.
 
-### Interleave (Recovery / Intervening Baselines)
+### Shaping (Skinner Response Shaping)
 
-Add an `interleave R` clause to insert a clone of pre-declared phase `R` between every pair of generated phases. Default semantics is **intercalate** (a clone is also appended after the last generated phase). Use `no_trailing` to switch to intersperse.
+`shaping` declares within-session response shaping via successive approximations (Skinner, 1953; Catania, 2013). Depending on `method`, it desugars differently:
 
 ```
-phase Recovery:                       -- declared BEFORE the shaping (no forward refs)
+-- method=artful (default): human-executed successive approximation
+shaping KeyPeckShaping:
+  target = "KeyPeck"
+  method = artful
+  approximations = ["orient", "approach", "contact", "peck"]
+  -- desugars to CRF + @procedure("shape", ...) + ExperimenterJudgment criterion
+
+-- method=percentile: automated shaping per Platt (1973) / Galbicka (1994)
+shaping LeverForceShaping:
+  target = "LeverPress"
+  method = percentile
+  dimension = force
+  percentile_rank = 50
+  stable(visual)
+  -- desugars to Phase with Pctl(force, 50, window=20) schedule
+
+-- method=staged: pre-enumerated stages
+shaping LeverPressShaping:
+  target = "LeverPress"
+  method = staged
+  stages = [CRF, DRH 2-s, DRH 1-s]
+  sessions >= 3
+  -- desugars to a progressive_decl with each stage as a phase
+```
+
+The `target` field is required (enforces Galbicka's "clearly define the terminal response" rule).
+
+### Interleave (Recovery / Intervening Baselines)
+
+Add an `interleave R` clause to insert a clone of pre-declared phase `R` between every pair of generated phases of a `progressive_decl`. Default semantics is **intercalate** (a clone is also appended after the last generated phase). Use `no_trailing` to switch to intersperse.
+
+```
+phase Recovery:                       -- declared BEFORE the progressive_decl (no forward refs)
   sessions >= 3
   stable(visual)
   FI 600-s(FR 30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery                 -- intercalate (default)
   sessions >= 5
@@ -357,7 +389,7 @@ The `phase Recovery` declaration becomes a **template**: it does not appear stan
 Multiple `interleave` lines compose a gap block in declaration order:
 
 ```
-shaping DR:
+progressive DR:
   steps v = [2, 4, 8]
   interleave Recovery
   interleave Probe        -- gap = [Recovery_clone, Probe_clone]
@@ -379,7 +411,8 @@ shaping DR:
 | `let x = S` | Binding | `let a = VI 60-s` | Named schedule |
 | `Repeat(n, S)` | Sugar | `Repeat(3, FR 10)` | = `Tand(FR 10, FR 10, FR 10)` |
 | `phase Name: ... S` | Experiment | `phase Baseline: sessions = 25 VI 60-s` | Named phase with criterion |
-| `shaping Name: steps x = [...] S({x})` | Experiment | `shaping FI: steps v=[2,4,8] FI {v}-s` | Parametric phase progression |
+| `progressive Name: steps x = [...] S({x})` | Experiment | `progressive FI: steps v=[2,4,8] FI {v}-s` | Parametric phase progression |
+| `shaping Name: target="X" method=artful` | Experiment | `shaping KeyPeck: target="KeyPeck" approximations=["orient","peck"]` | Skinner response shaping (desugars to CRF + @procedure + ExperimenterJudgment) |
 | `interleave R [no_trailing]` | Experiment | `interleave Recovery` | Insert R-clones between (intercalate default) |
 
 ---

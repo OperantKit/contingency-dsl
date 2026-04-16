@@ -1033,7 +1033,7 @@ Any future extension to the grammar (e.g., `def` keyword, new combinators, new m
 
 ## §11 Experiment Layer Decision Points (v2.0)
 
-The Experiment Layer (grammar.ebnf, `file`, `experiment`, `phase_decl`, `shaping_decl`) introduces the following decision points. All are LL(1) — no new LL(2) points arise.
+The Experiment Layer (grammar.ebnf, `file`, `experiment`, `phase_decl`, `progressive_decl`) introduces the following decision points. All are LL(1) — no new LL(2) points arise.
 
 ### §11.1 File-Level Disambiguation
 
@@ -1044,7 +1044,7 @@ The parser must decide at the first non-annotation token whether the file is an 
 **FIRST₁ analysis:**
 
 ```
-FIRST₁(experiment after annotations) = { KW_PHASE, KW_SHAPING }
+FIRST₁(experiment after annotations) = { KW_PHASE, KW_PROGRESSIVE }
 FIRST₁(program after annotations)    = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
                                       = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
                                           KW_LET, DIST, KW_EXT, KW_CRF, COMB,
@@ -1054,25 +1054,25 @@ FIRST₁(program after annotations)    = FIRST₁(param_decl) ∪ FIRST₁(bindi
                                           IDENT, LPAREN, ... }
 ```
 
-Since `KW_PHASE` and `KW_SHAPING` are new reserved tokens not in any existing FIRST₁ set:
+Since `KW_PHASE` and `KW_PROGRESSIVE` are new reserved tokens not in any existing FIRST₁ set:
 
 ```
-{ KW_PHASE, KW_SHAPING } ∩ FIRST₁(program after annotations) = ∅
+{ KW_PHASE, KW_PROGRESSIVE } ∩ FIRST₁(program after annotations) = ∅
 ```
 
 **Result:** LL(1). ∎
 
-**Note on annotations:** Both `experiment` and `program` may begin with `program_annotation` (token `@`). The parser consumes all leading `@` annotations, then checks the next token. If `KW_PHASE` or `KW_SHAPING`, it is an experiment; otherwise a program. The annotations are valid for either production.
+**Note on annotations:** Both `experiment` and `program` may begin with `program_annotation` (token `@`). The parser consumes all leading `@` annotations, then checks the next token. If `KW_PHASE` or `KW_PROGRESSIVE`, it is an experiment; otherwise a program. The annotations are valid for either production.
 
 ### §11.2 Phase vs. Shaping
 
-**Decision:** Within `experiment`, choose between `phase_decl` and `shaping_decl` at each position.
+**Decision:** Within `experiment`, choose between `phase_decl` and `progressive_decl` at each position.
 
 ```
 FIRST₁(phase_decl)   = { KW_PHASE }
-FIRST₁(shaping_decl) = { KW_SHAPING }
+FIRST₁(progressive_decl) = { KW_PROGRESSIVE }
 
-{ KW_PHASE } ∩ { KW_SHAPING } = ∅
+{ KW_PHASE } ∩ { KW_PROGRESSIVE } = ∅
 ```
 
 **Result:** LL(1). ∎
@@ -1129,10 +1129,10 @@ All three alternatives have pairwise disjoint FIRST₁ sets.
 
 ### §11.6 Shaping Body Continuation (with interleave_decl, v2.x)
 
-The `shaping_body` production introduces a sequence of optional `interleave_decl` items between `shaping_steps+` and `phase_meta*`:
+The `progressive_body` production introduces a sequence of optional `interleave_decl` items between `progressive_steps+` and `phase_meta*`:
 
 ```
-shaping_body  →  shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+progressive_body  →  progressive_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
 ```
 
 **Decision A — Whether to consume another `interleave_decl`:**
@@ -1242,7 +1242,7 @@ After `KW_NAME`, the next token discriminates:
 | `EQ` | ScalarKwArg |
 | `LPAREN` | DirectionalKwArg |
 
-This is an existing LL(2) decision (present since v1.1). The new additions do not change it.
+This is an existing LL(2) decision. The new additions do not change it.
 
 ### §12.5 PosTail Preservation
 
@@ -1251,6 +1251,115 @@ The core LL(2) decision in §6 (`PosTail` — COMMA before Schedule vs. KwTail) 
 ### §12.6 Conclusion
 
 The v1.y `overlay_kw_arg` and `punish_directive` extensions preserve LL(2) classification. All new internal decisions are LL(1); the only pre-existing LL(2) point (§6) is unaffected. The grammar remains parseable by a recursive-descent LL(2) parser with a single-token lookahead for all decisions except `PosTail`.
+
+---
+
+## §13 Core-TrialBased MTS Extension Decision Points (R-7)
+
+The Core-TrialBased layer's `mts_schedule` production is extended with two new
+keyword arguments (`delay`, `correction`) and one new production rule
+(`correction_spec`). This section shows that these additions preserve LL(2).
+
+### §13.1 Extended mts_kw_arg
+
+```
+mts_kw_arg → "comparisons"  EQ NUMBER
+           | "consequence"  EQ Schedule
+           | "incorrect"    EQ Schedule
+           | "ITI"          EQ Value
+           | "type"         EQ MtsType
+           | "delay"        EQ Value             ; [R-7]
+           | "correction"   EQ CorrectionSpec    ; [R-7]
+           | LH_KW          EQ Value
+```
+
+Two alternatives are added to the five existing ones. Each new alternative
+is headed by a context-sensitive keyword that is reserved only inside
+`MTS(` ... `)` (see §13.2).
+
+### §13.2 Context-Sensitive Reservation
+
+`delay` and `correction` are NOT listed as top-level reserved words. They
+are recognized as keywords only when appearing in the `IDENT EQ` left-hand
+position inside `MTS(` ... `)`. This matches the existing treatment of
+`type`, and does not conflict with top-level `let delay = ...` or
+`let correction = ...` bindings.
+
+### §13.3 mts_kw_arg Alternative Selection
+
+After `MTS(` or after `,`, the parser inspects the next IDENT and selects
+according to the following table:
+
+| IDENT value | alternative |
+|---|---|
+| `"comparisons"` | comparisons arg |
+| `"consequence"` | consequence arg |
+| `"incorrect"` | incorrect arg |
+| `"ITI"` | ITI arg |
+| `"type"` | type arg |
+| `"delay"` | delay arg (**NEW**) |
+| `"correction"` | correction arg (**NEW**) |
+| `LH_KW` (`LH` / `LimitedHold` / `limitedHold`) | LH arg |
+
+A single-token lookahead suffices. **LL(1)**.
+
+### §13.4 correction_spec Internal Decision
+
+```
+correction_spec → boolean | number | '"repeat_until_correct"'
+```
+
+Three-way branch on the lexical class of the first token:
+
+| FIRST₁ | alternative |
+|---|---|
+| `KW_TRUE` / `KW_FALSE` | boolean |
+| `NUMBER` (= [0-9]+ ("." [0-9]+)?) | number |
+| `STRING` (= `"..."`) | string (M15 restricts to the literal `"repeat_until_correct"`) |
+
+The lexer classifications boolean / number / string are pairwise disjoint.
+**LL(1)**.
+
+The integer-only constraint (rejection of fractional numbers) is delegated
+to the semantic layer as M15 (`MTS_INVALID_CORRECTION`) — analogous to how
+`comparisons=3s` is syntactically a valid `value` yet rejected by M2.
+
+### §13.5 Impact on PosTail
+
+The core LL(2) decision in §6 (`PosTail` — Schedule vs. KwTail after COMMA)
+lives inside the `arg_list` of compound schedules (Conc, Mult, Chain, …).
+`mts_schedule` carries its own parenthesized structure `MTS(...)`, whose
+interior performs only `mts_kw_arg` selection (no `PosTail` decision is
+triggered). Therefore the §6 LL(2) analysis is unaffected.
+
+### §13.6 FIRST / FOLLOW Updates
+
+- **FIRST₁(mts_kw_arg)** is extended with `"delay"` and `"correction"`
+  (disjoint IDENT values from all existing alternatives).
+- **FIRST₁(correction_spec)** = `{ KW_TRUE, KW_FALSE, NUMBER, STRING }`.
+  Pairwise disjoint.
+- **FOLLOW** sets are unchanged (existing `mts_kw_arg` FOLLOW with
+  `COMMA` and `RPAREN` is preserved).
+
+### §13.7 Conclusion
+
+The R-7 additions of `delay` / `correction` and the new
+`correction_spec` production preserve LL(2) classification. All new
+internal decisions (§13.3, §13.4) are LL(1). The existing LL(2) decision
+point (§6 `PosTail`) lives in an `arg_list` structure independent of
+`mts_schedule` and is unaffected.
+
+**Updated theorem (extending §8 · §11.7):**
+
+The extended grammar *G''* = Core ∪ Core-Stateful ∪ Experiment ∪ Overlay
+∪ Core-TrialBased satisfies:
+
+1. *G''* is LL(2): all preceding properties are preserved; Core-TrialBased
+   is LL(1).
+2. *G''* is not LL(1): the Core `PosTail` LL(2) point remains.
+3. *G''* is unambiguous (corollary of 1).
+4. The integer-only constraint on `correction_spec` is delegated to the
+   semantic layer (M15).
 
 ---
 

@@ -406,9 +406,9 @@ Pctl(IRT, 50, window=20) @reinforcer("food pellets")
 -- 多元スケジュール: shaping 期 vs 消去統制
 Mult(Pctl(IRT, 50), EXT, BO=5-s)
 
--- 名前付き束縛で可読性向上
-let shaping = Pctl(IRT, 50, window=20)
-Mult(shaping, EXT)
+-- 名前付き束縛で可読性向上（注: `shaping` は予約語になったため別名を使う）
+let pctl_sched = Pctl(IRT, 50, window=20)
+Mult(pctl_sched, EXT)
 ```
 
 **核心的洞察:** 単一の `Pctl(IRT, 50)` だけで shaping が成立する — 適応的閾値が分布の連続的シフトを保証する。段階的な rank 変更（50→40→30）は shaping 速度の制御であり、contingency-core のフェーズ遷移で記述する。
@@ -433,7 +433,7 @@ phase Recovery:
   FI 600-s(FR 30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery
   sessions >= 5
@@ -443,11 +443,11 @@ shaping DoseResponse:
 ```
 
 **この実験の動作:**
-- `phase Recovery` は shaping より **前** に宣言する（前方参照禁止 — 制約 74）
+- `phase Recovery` は progressive_decl より **前** に宣言する（前方参照禁止 — 制約 74）
 - `interleave` で参照されているため、`Recovery` は **template**（制約 76）となり、timeline には standalone で現れない
 - `interleave Recovery` は既定の **intercalate** 意味論: 各用量条件の後（最後を含む）に Recovery の clone が挿入される
 - 展開結果は 12 phase（6 用量 + 6 recovery）— 論文 Method「*each dose was followed by a return to baseline*」と完全一致
-- clone された recovery は Recovery の `@reinforcer("cocaine", dose="0.1mg/kg")` annotation を verbatim で持つ（アノテーション局所性、theory.md 定義 16 性質 4）。shaping 側の `{dose}` placeholder は clone に流入しない
+- clone された recovery は Recovery の `@reinforcer("cocaine", dose="0.1mg/kg")` annotation を verbatim で持つ（アノテーション局所性、theory.md 定義 16 性質 4）。progressive_decl 側の `{dose}` placeholder は clone に流入しない
 
 **展開された phase 列:**
 
@@ -514,7 +514,7 @@ Mult(choice_component, chain_component)
 | `Lag` | オペラント変動性、ASD ステレオタイプ低減、創造性研究 | 反応の variability を直接強化できない |
 | `Pctl` | 自動 shaping、適応的分化強化、臨床的 shaping | 手動 shaping のみ。定量的基準なし |
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
-| `phase` / `shaping` | 多フェーズ実験デザイン（A-B-A 反転、パラメトリック研究） | セッション間構造を宣言的に表現できない |
+| `phase` / `progressive` / `shaping` | 多フェーズ実験デザイン（A-B-A 反転、パラメトリック研究、Skinner 反応形成） | セッション間構造を宣言的に表現できない |
 | `interleave` | 用量反応・強化子量・介在 baseline デザイン（論文 Method と 1:1） | 大半の本体が同一の 2N 個 phase を手書き |
 
 ---

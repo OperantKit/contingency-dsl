@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "contingency-dsl-phase-sequence",
   "title": "contingency-dsl Phase Sequence",
-  "description": "Multi-phase experimental design (resolved form). Additive to Core — does not modify existing Core definitions. Phase Sequences represent ordered phase transitions common in JEAB experimental procedures (e.g., acquisition-extinction-test in renewal paradigms). In pre-expansion AST, Shaping nodes and PhaseRef nodes may appear; in resolved AST, Shaping is expanded to Phase list and PhaseRef is resolved to ScheduleExpr. See experiment.schema.json for pre-expansion types.",
+  "description": "Multi-phase experimental design (resolved form). Additive to Core — does not modify existing Core definitions. Phase Sequences represent ordered phase transitions common in JEAB experimental procedures (e.g., acquisition-extinction-test in renewal paradigms). In pre-expansion AST, Shaping / ProgressiveTraining / PhaseRef nodes may appear; in resolved AST, Shaping is desugared per its method (artful→CRF+@procedure Phase; percentile→Pctl Phase; staged→ProgressiveTraining→Phase list), ProgressiveTraining is expanded to a Phase list, and PhaseRef is resolved to ScheduleExpr. See experiment.schema.json for pre-expansion types.",
 
   "$defs": {
 

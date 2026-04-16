@@ -160,18 +160,22 @@ number        ::= [0-9]+ ("." [0-9]+)?
 ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
 
 reserved      ::= "let" | "def"
-                | "phase" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
+                | "phase" | "progressive" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
+                | "target" | "approximations" | "method"   -- shaping_decl metadata (v2.x)
+                | "dimension" | "stages"                   -- shaping_decl metadata (v2.x)
+                | "percentile_rank" | "percentile_window" | "percentile_dir"  -- shaping_decl metadata (v2.x)
+                | "artful" | "percentile" | "staged"       -- shaping method enum (context-sensitive, v2.x)
                 | "sessions" | "stable"                   -- phase metadata (v2.0)
                 | "no_schedule"                            -- experiment layer: Pavlovian/exposure phase (v2.0)
-                | "interleave" | "no_trailing"             -- experiment layer: shaping interleave (v2.x)
+                | "interleave" | "no_trailing"             -- experiment layer: progressive interleave (v2.x)
                 | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
                 | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
                 | "RD"  | "ReinforcementDelay"   -- v1.x: reinforcement delay (Lattal, 2010)
-                | "COD" | "ChangeoverDelay"    -- v1.1: changeover delay (Herrnstein, 1961)
-                | "FRCO" | "FixedRatioChangeover" -- v1.1: fixed-ratio changeover (Hunter & Davison, 1985)
-                | "BO"  | "Blackout"           -- v1.1: blackout (Mult/Mix; Reynolds, 1961)
+                | "COD" | "ChangeoverDelay"    -- changeover delay (Herrnstein, 1961)
+                | "FRCO" | "FixedRatioChangeover" -- fixed-ratio changeover (Hunter & Davison, 1985)
+                | "BO"  | "Blackout"           -- blackout (Mult/Mix; Reynolds, 1961)
                 | "PR" | "Repeat"
                 | "hodos" | "exponential" | "linear" | "geometric"
                 | "start" | "increment"
@@ -219,7 +223,7 @@ reserved      ::= "let" | "def"
 ;   - Conc: COD (scalar or directional), FRCO (scalar only), PUNISH (punish_directive).
 ;     Mult/Mix: BO (scalar).
 ;     Overlay: `target` only (overlay_kw_arg). Others: keyword args → SemanticError.
-;   - Directional form: valid for COD on Conc only in v1.1. Other kw_names with
+;   - Directional form: valid for COD on Conc only. Other kw_names with
 ;     directional form → SemanticError (INVALID_DIRECTIONAL_KW).
 ;   - Overlay: exactly 2 positional components (baseline + punisher). Semantic
 ;     constraint enforces this. `target=changeover` narrows punishment to
@@ -525,22 +529,26 @@ string_literal     ::= '"' [^"]* '"'
 ;   - annotation_array:  [v1, v2, ...]          array literal
 ;   - annotation_object: {k1=v1, k2=v2, ...}    object literal (uses "=" not ":")
 ;   Both productions are recursive via annotation_val, allowing arbitrary
-;   nesting depth.
+;   nesting (e.g., components=[{role="probe", durations=["3s","4s"]}]).
 ;
-; LL(1) disambiguation (additive): at the start of an annotation_val,
-; the token unambiguously determines the production:
+;   LL(1) decision: the first token distinguishes each alternative:
 ;     string_literal    → '"'
-;     time_value/number → digit / '-'
+;     number/time_value → [0-9]   (existing LL(2) for time_value)
 ;     annotation_array  → '['
 ;     annotation_object → '{'
-; The four alternatives have disjoint FIRST sets; no new lookahead is
-; required beyond the existing LL(2) for time_value vs number.
+;   All tokens disjoint; parsing remains LL(1) deterministic.
 ;
-; AST representation:
+;   Object uses "=" (not ":") to match the existing annotation_kv syntax,
+;   avoiding two separator conventions within annotations.
+;
+;   AST representation:
 ;     annotation_array  → ordered list of annotation_val values
 ;     annotation_object → map from ident to annotation_val
-; See ast.schema.json AnnotationValue definition for the canonical
-; recursive shape.
+;
+;   Backward compat: the legacy type identifier "array_of_string" in schema
+;   format is retained as an alias for "array<string>". Schemas using
+;   "array_of_string" (e.g., procedure-stimulus.schema.json relations field)
+;   remain valid without modification.
 
 ; annotation_name is defined per annotator. The following are the DSL
 ; project's RECOMMENDED annotators; a program's registry MAY replace,
@@ -566,7 +574,7 @@ string_literal     ::= '"' [^"]* '"'
 ;   measurement-annotator → Measurement : "session_end" | "baseline" | "steady_state"
 ;                                      | "dependent_measure" | "training_volume" | "microstructure"
 ;                                      | "phase_end" | "logging" | "iri_window" | "warmup_exclude"
-;                                        (v1.2: complete measurement vocabulary)
+;                                        (complete measurement vocabulary)
 ;
 ; Extensions (do not map to the four JEAB categories):
 ;   extensions/social-annotator    : "subject" | "ibc"            (multi-subject; "ibc" = Interlocking Behavioral Contingencies, Glenn 2004)
@@ -585,7 +593,7 @@ string_literal     ::= '"' [^"]* '"'
 ;
 ; A file is either a single-phase program (backward compatible) or a
 ; multi-phase experiment. The parser disambiguates at LL(1): if the first
-; non-annotation token is "phase" or "shaping", the file is an experiment.
+; non-annotation token is "phase", "progressive", or "shaping", the file is an experiment.
 ;
 ; Design rationale:
 ;   JEAB Method sections describe experiments as sequences of named phases
@@ -602,7 +610,7 @@ string_literal     ::= '"' [^"]* '"'
 
 file          ::= experiment | program     -- backward compatible
 
-experiment    ::= program_annotation* (phase_decl | shaping_decl)+
+experiment    ::= program_annotation* (phase_decl | progressive_decl | shaping_decl)+
 
 ; --- Phase declaration ---
 ;
@@ -638,21 +646,94 @@ phase_ref     ::= "use" phase_name         -- reuse another phase's schedule
 
 upper_ident   ::= [A-Z] [a-zA-Z0-9_]*     -- must not match reserved
 
-; --- Shaping declaration (syntactic sugar) ---
+; --- Progressive Training declaration (syntactic sugar) ---
 ;
-; Shaping desugars to a sequence of phase declarations, analogous to
+; Progressive training desugars to a sequence of phase declarations, analogous to
 ; Repeat(n, S) → Tand(S, ..., S). The steps list is a finite literal
 ; array (no loops, no computation), preserving non-Turing-completeness.
 ;
 ; Reference: Sidman, M. (1960). Tactics of scientific research. Basic Books.
 ;            Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement.
 
-shaping_decl  ::= "shaping" phase_name ":" shaping_body
+progressive_decl  ::= "progressive" phase_name ":" progressive_body
 
-shaping_body  ::= shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+progressive_body  ::= progressive_steps+ progressive_advance? interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+              ; [R-4] progressive_advance injects behavior-dependent step
+              ; transition conditions between adjacent generated phases.
+              ; At most one progressive_advance per progressive_decl (§69).
 
-shaping_steps ::= "steps" ident "=" "[" number_list "]"
+progressive_steps ::= "steps" ident "=" "[" number_list "]"
 number_list   ::= number ("," number)*
+
+; [R-4] Progressive advance condition
+;
+; `advance when <condition>` declares a behavior-dependent predicate that
+; governs step-to-step transitions within the progressive expansion. The
+; condition is evaluated at runtime (not during parse or semantic check);
+; the DSL remains non-Turing-complete because:
+;   1. The predicate vocabulary is closed (criterion_call with registered
+;      metric names, flat all(...) / any(...), manual).
+;   2. No recursion, iteration, or computation is introduced.
+;   3. Runtime evaluation is the responsibility of the execution engine.
+;
+; Design provenance: .local/planning_v1/I-13a_SHAPING_ADVANCE_INDUCTION.md
+; (EBNF, adversarial review reflection, non-TC verification).
+;
+; Reference: Eckard, M. L., & Kyonka, E. G. E. (2018). Behavioural Processes;
+;            Fernando, A. B. P., Urcelay, G. P., Mar, A. C., et al. (2014).
+;            Journal of Neuroscience; Rey, C. N., Thrailkill, E. A., Goldberg, K.,
+;            & Bouton, M. E. (2019). JEAB.
+
+progressive_advance ::= "advance" "when" advance_condition
+
+advance_condition ::= "manual"                    ; experimenter-gated (no predicate)
+                    | criterion_call              ; single predicate
+                    | advance_atom                ; flat all/any compound
+
+; advance_atom is deliberately flat (no recursion): all(...) and any(...)
+; take only criterion_call arguments, not other all/any. This constrains
+; the logic to CNF/DNF-depth-1 (§R2 of I-13a review).
+advance_atom      ::= ("all" | "any") "(" criterion_call ("," criterion_call)* ")"
+
+; criterion_call(metric=..., <comparison_op>=..., window=..., [consecutive=...])
+;
+; All params are keyword-only. `metric` must resolve to a runtime-registered
+; metric name (§70: UNDEFINED_CRITERION_METRIC). The standard registry
+; includes: "rate", "irt", "latency", "reinforcers", "avoidance_rate".
+; Runtime may register additional metrics; unregistered names raise the
+; semantic error at load time.
+criterion_call    ::= "criterion" "(" criterion_kw_arg ("," criterion_kw_arg)* ")"
+
+criterion_kw_arg  ::= "metric"      "=" string_literal
+                    | "threshold"   "=" threshold_spec
+                    | "window"      "=" number window_unit
+                    | "consecutive" "=" number
+
+; threshold_spec carries the comparison operator as part of the value.
+; e.g., threshold=>=10, threshold=<=0.5, threshold==100
+threshold_spec    ::= comparison_op number
+
+comparison_op     ::= ">=" | "<=" | ">" | "<" | "="
+
+window_unit       ::= "sessions" | "blocks" | "trials"
+
+; --- Phase meta placeholder extension (R-4) ---
+;
+; session_spec is extended to accept a progressive-steps placeholder in the
+; number position. This lets session counts vary per step (e.g.,
+; `sessions = {s}` where `s = [2, 3, 5, 10, 13]`). Placeholder resolution
+; occurs during progressive expansion (same as {x} in schedule templates).
+;
+; Backward compatibility: the literal-number form `sessions = 5` continues
+; to parse unchanged. The extension adds only a new alternative.
+
+session_spec_ext  ::= "sessions" ("=" | ">=") (number | placeholder)
+placeholder       ::= "{" ident "}"
+
+; Note: In contexts outside progressive_body, session_spec remains as originally
+; declared (literal number only). The placeholder form is accepted only when
+; the enclosing production is progressive_body or phase_decl generated from a
+; progressive expansion (§75).
 
 interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
                                 ; Inserts a clone of the named phase between every
@@ -668,12 +749,12 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
                                 ; to the entire block (the last occurrence wins for
                                 ; readability).
 
-; Shaping placeholders: within a shaping_body, the schedule expression and
+; Progressive placeholders: within a progressive_body, the schedule expression and
 ; annotation values may contain "{ident}" placeholders that reference a
-; steps variable. Placeholders are resolved during shaping expansion.
+; steps variable. Placeholders are resolved during progressive expansion.
 ;
-; Expansion rule (E-SHAPING):
-;   shaping Name:
+; Expansion rule (E-PROGRESSIVE):
+;   progressive Name:
 ;     steps x = [v1, v2, ..., vn]
 ;     <meta>*
 ;     <schedule_template(x)>
@@ -683,12 +764,12 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ;        ...
 ;        phase Name_n: <meta>* <schedule_template(vn)>
 ;
-; Multi-variable expansion (E-SHAPING-MULTI):
+; Multi-variable expansion (E-PROGRESSIVE-MULTI):
 ;   All steps lists must have identical length.
 ;   Expansion zips variables pairwise: (x1,y1), (x2,y2), ...
 ;
-; Interleave expansion (E-SHAPING-INTERLEAVE), default = intercalate:
-;   shaping Name:
+; Interleave expansion (E-PROGRESSIVE-INTERLEAVE), default = intercalate:
+;   progressive Name:
 ;     steps x = [v1, ..., vn]
 ;     interleave R           ; trailing=true (intercalate)
 ;     <meta>*
@@ -706,7 +787,7 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ;   Each clone's label is "<R>_after_<Name>_<i>" (e.g., Recovery_after_DoseResponse_3).
 ;   Clones are deep copies of the template phase: the template's schedule,
 ;   criterion, phase_annotations, and phase_param_decls are copied verbatim.
-;   The shaping's own annotations and {ident} placeholders are NOT propagated
+;   The progressive's own annotations and {ident} placeholders are NOT propagated
 ;   into clones (annotation locality, theory.md §3.3 Definition 16, Property 4).
 ;
 ; Multiple interleave_decl entries form a gap block in declaration order:
@@ -718,20 +799,20 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ; --- Experiment-level semantic constraints ---
 ;
 ; 63. phase names: no shadowing. Duplicate phase_name → SemanticError
-;     (DUPLICATE_PHASE_NAME). Shaping-generated names (Name_1, Name_2, ...)
+;     (DUPLICATE_PHASE_NAME). Progressive-generated names (Name_1, Name_2, ...)
 ;     also must not collide with user-defined phase names.
 ; 64. use (phase_ref): must reference an already-declared phase (no forward
 ;     references). Undeclared phase_name → SemanticError (UNDEFINED_PHASE_REF).
-; 65. shaping steps: all steps lists within a single shaping_decl must have
+; 65. progressive steps: all steps lists within a single progressive_decl must have
 ;     the same length. Mismatched lengths → SemanticError
-;     (SHAPING_STEPS_LENGTH_MISMATCH).
-; 66. shaping steps: lists must contain at least one element. Empty list
-;     → SemanticError (SHAPING_EMPTY_STEPS).
-; 67. shaping placeholders: every {ident} in the schedule expression or
+;     (PROGRESSIVE_STEPS_LENGTH_MISMATCH).
+; 66. progressive steps: lists must contain at least one element. Empty list
+;     → SemanticError (PROGRESSIVE_EMPTY_STEPS).
+; 67. progressive placeholders: every {ident} in the schedule expression or
 ;     annotation values must match a declared steps variable. Undefined
-;     placeholder → SemanticError (SHAPING_UNDEFINED_VARIABLE).
+;     placeholder → SemanticError (PROGRESSIVE_UNDEFINED_VARIABLE).
 ; 68. experiment-level annotations (program_annotation before the first
-;     phase/shaping decl) establish defaults for all phases. Phase-level
+;     phase/progressive/shaping decl) establish defaults for all phases. Phase-level
 ;     annotations override experiment-level defaults for that phase only.
 ;     Same scoping semantics as program-level vs schedule-level annotations.
 ; 69. session_spec: at most one session_spec per phase. Duplicate →
@@ -748,28 +829,231 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ;     Annotations (e.g., @reinforcer, @punisher, @context) may still be
 ;     attached to describe stimulus presentations. A no_schedule phase
 ;     resolves to a Phase node with schedule = null in the AST.
-; 74. interleave (E-SHAPING-INTERLEAVE): interleave_decl.ref must reference
+; 74. interleave (E-PROGRESSIVE-INTERLEAVE): interleave_decl.ref must reference
 ;     an already-declared phase (no forward references). Undeclared/forward
 ;     reference → SemanticError (UNDEFINED_PHASE_REF; same code as constraint
 ;     64 because the lookup mechanism is identical to `use`).
-; 75. interleave self-reference: a shaping_decl may not interleave a phase
-;     declared by itself or by any later shaping_decl in the file. Detected
-;     statically by collecting all shaping_decl labels and checking that no
-;     interleave_decl.ref equals any later-or-same shaping_decl label.
-;     Violation → SemanticError (SHAPING_SELF_INTERLEAVE).
+; 75. interleave self-reference: a progressive_decl may not interleave a phase
+;     declared by itself or by any later progressive_decl in the file. Detected
+;     statically by collecting all progressive_decl labels and checking that no
+;     interleave_decl.ref equals any later-or-same progressive_decl label.
+;     Violation → SemanticError (PROGRESSIVE_SELF_INTERLEAVE).
 ; 76. template consumption: a phase referenced by ANY interleave_decl is
 ;     "template-only" — it does NOT appear in the resolved PhaseSequence at
 ;     its declaration position. Each interleave insertion site receives a
 ;     deep copy of the template's contents (schedule, criterion,
 ;     phase_annotations, phase_param_decls) with an auto-generated label
-;     of the form "<ref>_after_<shaping-label>_<i>" (1-based). A template
+;     of the form "<ref>_after_<progressive-label>_<i>" (1-based). A template
 ;     phase MAY also be referenced by `use` from other phases — both `use`
 ;     and `interleave` are pure name-based copies and do not interact.
 ; 63b. interleave clone labels participate in the standard Constraint 63
 ;      uniqueness check after expansion. A user-declared phase whose name
 ;      matches a generated clone label (e.g., user `phase Recovery_after_DoseResponse_3`
-;      colliding with a shaping that produces the same label) → SemanticError
+;      colliding with a progressive_decl that produces the same label) → SemanticError
 ;      (DUPLICATE_PHASE_NAME, reused).
+;
+; --- [R-4] Progressive advance constraints (§77–§82) ---
+;
+; 77. progressive_advance uniqueness: at most one `advance when` per progressive_decl.
+;     Duplicate → SemanticError (DUPLICATE_PROGRESSIVE_ADVANCE).
+;
+; 78. criterion metric registry: the `metric=` value in every criterion_call
+;     must match a runtime-registered metric name. The DSL standard registry
+;     includes "rate", "irt", "latency", "reinforcers", "avoidance_rate".
+;     Implementations MAY register additional names. Unknown metric →
+;     SemanticError (UNDEFINED_CRITERION_METRIC).
+;
+; 79. advance + fixed sessions conflict: `advance when <non-manual>` is
+;     mutually exclusive with an exact-count `sessions = N` session_spec
+;     in the same progressive_decl. Rationale: an exact session count implies
+;     fixed (time-driven) advancement, while a behavior-dependent
+;     advance-condition implies runtime-determined advancement. The two
+;     are semantically contradictory. `sessions >= N` is compatible (acts
+;     as a minimum-duration constraint that the advance condition layers on
+;     top of). Violation → SemanticError (ADVANCE_FIXED_SESSIONS_CONFLICT).
+;     Note: `advance when manual` DOES combine freely with `sessions = N`
+;     because "manual" cedes control to the experimenter and `sessions = N`
+;     documents the observed duration, not a runtime gate.
+;
+; 80. single-step progressive + advance: a progressive_decl whose steps list
+;     contains exactly one element combined with `advance when <predicate>`
+;     is semantically vacuous (there is no second step to advance to).
+;     Linter WARNING (ADVANCE_SINGLE_STEP). Not an error: useful as a
+;     placeholder during incremental development.
+;
+; 81. placeholder in session_spec: within a progressive_body (or a phase
+;     generated by progressive expansion), `sessions = {ident}` or
+;     `sessions >= {ident}` must reference a declared steps variable.
+;     Undefined placeholder → SemanticError (PROGRESSIVE_UNDEFINED_VARIABLE;
+;     same code as §67). Outside a progressive context, the placeholder form
+;     is not permitted → ParseError.
+;
+; 82. manual alternative: `advance when manual` declares experimenter-gated
+;     advancement. No predicate is evaluated at runtime; the experimenter
+;     is responsible for deciding when to advance (typically via external
+;     signal to the execution engine). Non-TC guarantee is preserved because
+;     the DSL itself does not loop or branch on any behavioral measure.
+
+; =====================================================================
+; --- Shaping declaration (Skinner response shaping, v2.x) ---
+; =====================================================================
+;
+; Within-session response shaping via differential reinforcement of
+; successive approximations to a terminal response class. Distinct from
+; progressive_decl (across-session parameter progression). Syntactic sugar
+; that desugars to a single Phase (for method=artful or method=percentile)
+; or to a progressive_decl (for method=staged).
+;
+; Design provenance:
+;   .local/context/ast-completeness-vs-execution-orthogonality.md
+;   (AST completeness vs execution orthogonality principle; shaping as
+;    under-specified procedure; artful/percentile/staged method taxonomy)
+;
+; Desugar rules (D-SHAPING):
+;
+;   shaping Name:
+;     target = "X"
+;     method = artful                     [default]
+;     approximations = ["a1", "a2", ...]  [optional]
+;     stable(...)                         [optional; defaults to ExperimenterJudgment]
+;
+;     ≡  phase Name:
+;          @procedure("shape", target="X", method="artful",
+;                     approximations=["a1", "a2", ...])
+;          CRF
+;          [stability_spec | ExperimenterJudgment]
+;
+;   shaping Name:
+;     target = "X"
+;     method = percentile
+;     dimension = force
+;     percentile_rank = 50
+;     percentile_window = 20   [default 20]
+;     percentile_dir = below   [default below]
+;     stable(...)              [required: stability_spec or session_spec]
+;
+;     ≡  phase Name:
+;          @procedure("shape", target="X", method="percentile", dimension="force")
+;          Pctl(force, 50, window=20, dir=below)
+;          [stability_spec]
+;
+;   shaping Name:
+;     target = "X"
+;     method = staged
+;     stages = [ S_1, S_2, ..., S_n ]
+;     stable(...)              [required]
+;
+;     ≡  progressive Name:
+;          steps i = [1, 2, ..., n]        ; synthetic index
+;          [stability_spec]
+;          <stages[i-1]>                   ; desugar emits each S_i as a phase
+;
+; Note: method=staged's `stages` are literal schedule expressions (not
+; parameter values). Each stage becomes an independent phase.
+;
+; Reference:
+;   Skinner, B. F. (1953). Science and Human Behavior. Macmillan.
+;   Catania, A. C. (2013). Learning (5th ed.). Sloan.
+;   Galbicka, G. (1994). Shaping in the 21st century: Moving percentile
+;     schedules into applied settings. JABA, 27(4), 739-760.
+;     https://doi.org/10.1901/jaba.1994.27-739
+;   Platt, J. R. (1973). Percentile reinforcement: Paradigms for
+;     experimental analysis of response shaping. In G. H. Bower (Ed.),
+;     The psychology of learning and motivation (Vol. 7, pp. 271-296).
+;     Academic Press.
+
+shaping_decl  ::= "shaping" phase_name ":" shaping_body
+
+shaping_body  ::= shaping_meta+ phase_meta* annotation*
+
+shaping_meta  ::= target_decl
+                | method_decl
+                | approximations_decl
+                | dimension_decl
+                | pctl_rank_decl
+                | pctl_window_decl
+                | pctl_dir_decl
+                | stages_decl
+
+; Required. Terminal response class name. Enforces Galbicka (1994) Rule 2.
+target_decl         ::= "target" "=" string_literal
+
+; Optional. Default = artful.
+method_decl         ::= "method" "=" ("artful" | "percentile" | "staged")
+
+; Optional metadata (displayed; not executed).
+approximations_decl ::= "approximations" "=" "[" string_literal_list "]"
+
+; Required when method=percentile.
+; Reuses pctl_target enum from core-stateful/grammar.ebnf §1.
+dimension_decl      ::= "dimension" "=" pctl_target
+
+; Required when method=percentile. Integer in [0, 100].
+pctl_rank_decl      ::= "percentile_rank" "=" number
+
+; Optional. Default = 20 (Platt, 1973).
+pctl_window_decl    ::= "percentile_window" "=" number
+
+; Optional. Default = "below".
+pctl_dir_decl       ::= "percentile_dir" "=" pctl_dir
+
+; Required when method=staged. Ordered list of schedule expressions
+; (minimum length 2).
+stages_decl         ::= "stages" "=" "[" schedule_expr_list "]"
+
+string_literal_list ::= string_literal ("," string_literal)*
+schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
+
+; === Semantic constraints for shaping_decl ===
+;
+; 83. shaping target required: every shaping_decl must include exactly one
+;     target_decl. Missing → SemanticError (MISSING_SHAPING_TARGET).
+;
+; 84. shaping method: if method_decl is omitted, defaults to "artful".
+;     Explicit method_decl value must be one of {artful, percentile, staged}.
+;     Unknown value → SemanticError (UNKNOWN_SHAPING_METHOD).
+;
+; 85. method=percentile requires all of:
+;       - dimension_decl
+;       - pctl_rank_decl
+;       - phase_meta (stability_spec or session_spec) serving as the
+;         phase-change criterion.
+;     Missing any → SemanticError (INCOMPLETE_PERCENTILE_SHAPING).
+;
+; 86. method=staged requires all of:
+;       - stages_decl with at least 2 stages
+;       - phase_meta (stability_spec or session_spec) applied per-stage.
+;     Missing → SemanticError (INCOMPLETE_STAGED_SHAPING).
+;
+; 87. method=artful: phase_meta is optional. When both stability_spec and
+;     session_spec are absent, the desugared phase criterion defaults to
+;     ExperimenterJudgment.
+;
+; 88. percentile_rank range: must be integer in [0, 100]. Out of range →
+;     SemanticError (PCTL_INVALID_RANK; same code as core-stateful §P1).
+;
+; 89. percentile_window positivity: must be integer ≥ 1. Zero or negative
+;     → SemanticError (PCTL_INVALID_WINDOW; same code as core-stateful §P2).
+;
+; 90. duplicate shaping_meta: each shaping_meta kind (target, method,
+;     approximations, dimension, percentile_*, stages) may appear at most
+;     once per shaping_decl. Duplicate → SemanticError
+;     (DUPLICATE_SHAPING_META).
+;
+; 91. shaping_meta validity for method: shaping_meta declarations must be
+;     consistent with the method value.
+;       - method=artful  : dimension, pctl_*, stages are forbidden
+;       - method=percentile : approximations, stages are forbidden
+;       - method=staged  : dimension, pctl_*, approximations are forbidden
+;     Violation → SemanticError (SHAPING_META_METHOD_MISMATCH).
+;
+; 92. empty approximations label: every element of approximations_decl
+;     must be a non-empty string. Empty string → SemanticError
+;     (EMPTY_APPROXIMATION_LABEL).
+;
+; 93. stages minItems: stages_decl list must contain at least 2 elements
+;     (a single stage is a regular phase, not a shaping). Fewer than 2 →
+;     SemanticError (SHAPING_INSUFFICIENT_STAGES).
 
 ; === Semantic constraints (enforced post-parse) ===
 ;
@@ -972,7 +1256,7 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ;     is no changeover requirement, which is the implicit default when FRCO
 ;     is omitted entirely.
 ; 50. Directional keyword arg form `kw_name(dir_ref->dir_ref)=value`:
-;     valid for COD on Conc only in v1.1. Other kw_names (FRCO, BO) or
+;     valid for COD on Conc only. Other kw_names (FRCO, BO) or
 ;     non-Conc combinators with directional form → SemanticError
 ;     (INVALID_DIRECTIONAL_KW).
 ;     Future: BO may accept directional form for asymmetric blackout.

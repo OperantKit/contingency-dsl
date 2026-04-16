@@ -1,219 +1,215 @@
 [
+  { "_comment": "=== Skinner-style within-session response shaping ===" },
+  { "_comment": "Surface keyword: `shaping`. Distinct from `progressive` (ProgressiveTraining, across-session parameter progression). Desugars per `method` field: artful→CRF+@procedure Phase, percentile→Pctl Phase, staged→ProgressiveTraining." },
+
   {
-    "id": "shaping_single_variable",
-    "description": "Shaping with single variable expands to 5 phases",
-    "input": "shaping FI_Training:\n  steps v = [2, 4, 8, 12, 18]\n  sessions >= 3\n  stable(visual)\n  FI {v}s LH3s",
-    "expected_note": "Shaping desugars to 5 phase declarations: FI_Training_1 through FI_Training_5",
+    "id": "shaping_artful_minimal",
+    "description": "Skinner Shaping with method=artful (default) and only a target declaration. Desugars to a Phase with CRF schedule, @procedure annotation, and ExperimenterJudgment criterion.",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"",
+    "expected_note": "Desugars to Phase { schedule: CRF, annotations: [@procedure(shape, target=KeyPeck, method=artful)], criterion: ExperimenterJudgment }.",
     "expected": {
       "type": "PhaseSequence",
       "phases": [
         {
           "type": "Phase",
-          "label": "FI_Training_1",
-          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
-          "schedule": {
-            "type": "Atomic", "dist": "F", "domain": "I", "value": 2.0, "time_unit": "s",
-            "limitedHold": 3.0, "limitedHoldUnit": "s"
-          }
-        },
-        {
-          "type": "Phase",
-          "label": "FI_Training_2",
-          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
-          "schedule": {
-            "type": "Atomic", "dist": "F", "domain": "I", "value": 4.0, "time_unit": "s",
-            "limitedHold": 3.0, "limitedHoldUnit": "s"
-          }
-        },
-        {
-          "type": "Phase",
-          "label": "FI_Training_3",
-          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
-          "schedule": {
-            "type": "Atomic", "dist": "F", "domain": "I", "value": 8.0, "time_unit": "s",
-            "limitedHold": 3.0, "limitedHoldUnit": "s"
-          }
-        },
-        {
-          "type": "Phase",
-          "label": "FI_Training_4",
-          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
-          "schedule": {
-            "type": "Atomic", "dist": "F", "domain": "I", "value": 12.0, "time_unit": "s",
-            "limitedHold": 3.0, "limitedHoldUnit": "s"
-          }
-        },
-        {
-          "type": "Phase",
-          "label": "FI_Training_5",
-          "criterion": { "type": "Stability", "min_sessions": 3, "method": "visual" },
-          "schedule": {
-            "type": "Atomic", "dist": "F", "domain": "I", "value": 18.0, "time_unit": "s",
-            "limitedHold": 3.0, "limitedHoldUnit": "s"
-          }
+          "label": "KeyPeckShaping",
+          "schedule": { "type": "Special", "kind": "CRF" },
+          "phase_annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "procedure",
+              "positional": "shape",
+              "params": { "target": "KeyPeck", "method": "artful" }
+            }
+          ],
+          "criterion": { "type": "ExperimenterJudgment" }
         }
       ]
     }
   },
+
   {
-    "id": "shaping_fixed_sessions",
-    "description": "Shaping with fixed session count (parametric dose-response)",
-    "input": "shaping DoseResponse:\n  steps vol = [6, 12, 25, 50, 100, 200, 300]\n  sessions = 30\n  PR(exponential)",
-    "expected_note": "Expands to 7 phases: DoseResponse_1 through DoseResponse_7, each with PR(exponential) and sessions=30",
+    "id": "shaping_artful_with_approximations",
+    "description": "Skinner Shaping with method=artful and explicit approximations list. Standard pigeon key-peck procedure (Ferster & Skinner, 1957; Peterson, 2004).",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  method = artful\n  approximations = [\"orient\", \"approach\", \"contact\", \"peck\"]",
+    "expected_note": "Approximations appear as annotation metadata for documentation; execution remains experimenter-judged. No parse error; no runtime execution rule for approximations individually.",
     "expected": {
       "type": "PhaseSequence",
       "phases": [
         {
           "type": "Phase",
-          "label": "DoseResponse_1",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_2",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_3",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_4",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_5",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_6",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
-        },
-        {
-          "type": "Phase",
-          "label": "DoseResponse_7",
-          "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "label": "KeyPeckShaping",
+          "schedule": { "type": "Special", "kind": "CRF" },
+          "phase_annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "procedure",
+              "positional": "shape",
+              "params": {
+                "target": "KeyPeck",
+                "method": "artful",
+                "approximations": ["orient", "approach", "contact", "peck"]
+              }
+            }
+          ],
+          "criterion": { "type": "ExperimenterJudgment" }
         }
       ]
     }
   },
+
   {
-    "id": "shaping_multi_variable",
-    "description": "Shaping with two variables zipped pairwise",
-    "input": "shaping AvoidanceTrain:\n  steps rsi = [60, 80, 100, 120]\n  steps intensity = [0.2, 0.3, 0.4, 0.5]\n  sessions >= 5\n  stable(visual)\n  Sidman(SSI=5s, RSI={rsi}s)",
-    "expected_note": "Expands to 4 phases with RSI values 60, 80, 100, 120 and intensity values 0.2, 0.3, 0.4, 0.5",
-    "expected_phase_count": 4,
-    "expected_labels": ["AvoidanceTrain_1", "AvoidanceTrain_2", "AvoidanceTrain_3", "AvoidanceTrain_4"]
-  },
-  {
-    "id": "shaping_mixed_with_phases",
-    "description": "Shaping declaration mixed with regular phase declarations",
-    "input": "phase Pretraining:\n  sessions = 5\n  CRF\n\nshaping FI_Training:\n  steps v = [2, 8, 18]\n  sessions >= 3\n  FI {v}s\n\nphase Terminal:\n  sessions = 25\n  FI18s",
-    "expected_note": "Pretraining (1 phase) + FI_Training (3 expanded phases) + Terminal (1 phase) = 5 phases total",
-    "expected_phase_count": 5,
-    "expected_labels": ["Pretraining", "FI_Training_1", "FI_Training_2", "FI_Training_3", "Terminal"]
-  },
-  {
-    "id": "shaping_interleave_basic",
-    "description": "Shaping with single interleave (intercalate default): 3 doses + 3 recoveries = 6 phases",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nshaping DR:\n  steps v = [2, 4, 8]\n  interleave Recovery\n  sessions >= 5\n  stable(visual)\n  FI {v}s",
-    "expected_note": "intercalate(Recovery, [DR_1, DR_2, DR_3]) = [DR_1, R_after_DR_1, DR_2, R_after_DR_2, DR_3, R_after_DR_3]. Recovery is template-only (does not appear standalone).",
-    "expected_phase_count": 6,
-    "expected_labels": [
-      "DR_1", "Recovery_after_DR_1",
-      "DR_2", "Recovery_after_DR_2",
-      "DR_3", "Recovery_after_DR_3"
-    ]
-  },
-  {
-    "id": "shaping_interleave_no_trailing",
-    "description": "Shaping with interleave + no_trailing (intersperse): 3 doses + 2 recoveries = 5 phases",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nshaping DR:\n  steps v = [2, 4, 8]\n  interleave Recovery no_trailing\n  sessions >= 5\n  stable(visual)\n  FI {v}s",
-    "expected_note": "intersperse(Recovery, [DR_1, DR_2, DR_3]) = [DR_1, R_after_DR_1, DR_2, R_after_DR_2, DR_3]. No trailing clone.",
-    "expected_phase_count": 5,
-    "expected_labels": [
-      "DR_1", "Recovery_after_DR_1",
-      "DR_2", "Recovery_after_DR_2",
-      "DR_3"
-    ]
-  },
-  {
-    "id": "shaping_interleave_john_nader_2016",
-    "description": "Flagship: John & Nader (2016) JEAB-style cocaine dose-response. 'each dose was followed by a return to baseline' → 6 doses + 6 recoveries = 12 phases.",
-    "input": "@species(\"rhesus monkey\") @n(4)\n\nphase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI600s(FR30)\n  @reinforcer(\"cocaine\", dose=\"0.1mg/kg\")\n\nshaping DoseResponse:\n  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]\n  interleave Recovery\n  sessions >= 5\n  stable(visual)\n  FI600s(FR30)\n  @reinforcer(\"cocaine\", dose=\"{dose}mg/kg\")",
-    "expected_note": "Method 'each dose followed by recovery' → intercalate yields 12 phases: 6 doses (with substituted dose annotation) interleaved with 6 Recovery clones (each carrying Recovery's verbatim 0.1mg/kg annotation; no shaping-side {dose} leakage).",
-    "expected_phase_count": 12,
-    "expected_labels": [
-      "DoseResponse_1", "Recovery_after_DoseResponse_1",
-      "DoseResponse_2", "Recovery_after_DoseResponse_2",
-      "DoseResponse_3", "Recovery_after_DoseResponse_3",
-      "DoseResponse_4", "Recovery_after_DoseResponse_4",
-      "DoseResponse_5", "Recovery_after_DoseResponse_5",
-      "DoseResponse_6", "Recovery_after_DoseResponse_6"
-    ]
-  },
-  {
-    "id": "shaping_interleave_multi",
-    "description": "Multiple interleave entries in one shaping: gap block contains BOTH Recovery and Probe. 3 conditions intercalate yields 3 + 3*2 = 9 phases.",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nphase Probe:\n  sessions = 1\n  EXT\n\nshaping DR:\n  steps v = [2, 4, 8]\n  interleave Recovery\n  interleave Probe\n  sessions >= 5\n  stable(visual)\n  FI {v}s",
-    "expected_note": "Gap block = [Recovery_clone, Probe_clone] in declaration order. Result: [DR_1, R, P, DR_2, R, P, DR_3, R, P]. 9 phases.",
-    "expected_phase_count": 9,
-    "expected_labels": [
-      "DR_1", "Recovery_after_DR_1", "Probe_after_DR_1",
-      "DR_2", "Recovery_after_DR_2", "Probe_after_DR_2",
-      "DR_3", "Recovery_after_DR_3", "Probe_after_DR_3"
-    ]
-  },
-  {
-    "id": "shaping_interleave_template_no_standalone",
-    "description": "Constraint 76: template phase (referenced by interleave) does not appear standalone in PhaseSequence at its declaration position. Verifies template consumption.",
-    "input": "phase Pretraining:\n  sessions = 5\n  CRF\n\nphase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nshaping DR:\n  steps v = [2, 4]\n  interleave Recovery\n  sessions >= 5\n  stable(visual)\n  FI {v}s",
-    "expected_note": "Although `phase Recovery` is declared between Pretraining and the shaping, it is consumed as a template by `interleave Recovery` and does NOT appear standalone. Sequence: [Pretraining, DR_1, R_after_DR_1, DR_2, R_after_DR_2]. 5 phases.",
-    "expected_phase_count": 5,
-    "expected_labels": [
-      "Pretraining",
-      "DR_1", "Recovery_after_DR_1",
-      "DR_2", "Recovery_after_DR_2"
-    ]
-  },
-  {
-    "id": "shaping_interleave_with_multivariable",
-    "description": "Multi-variable shaping (zip) composed with interleave (intercalate). Orthogonality: zip → intercalate.",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  Sidman(SSI=10s, RSI=10s)\n\nshaping AvoidanceTrain:\n  steps rsi = [60, 80, 100]\n  steps intensity = [0.2, 0.3, 0.4]\n  interleave Recovery\n  sessions >= 5\n  stable(visual)\n  Sidman(SSI=5s, RSI={rsi}s)",
-    "expected_note": "zip yields 3 generated phases; intercalate inserts 3 Recovery clones (one between each pair AND one trailing). Total = 3 + 3 = 6 phases.",
-    "expected_phase_count": 6,
-    "expected_labels": [
-      "AvoidanceTrain_1", "Recovery_after_AvoidanceTrain_1",
-      "AvoidanceTrain_2", "Recovery_after_AvoidanceTrain_2",
-      "AvoidanceTrain_3", "Recovery_after_AvoidanceTrain_3"
-    ]
-  },
-  {
-    "id": "shaping_interleave_annotation_locality",
-    "description": "Property 4 (annotation locality, theory.md Definition 16): cloned Recovery phases carry the template's verbatim @reinforcer annotation; the shaping's `{dose}` placeholder does NOT leak into clones.",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n  @reinforcer(\"food\", magnitude=\"45mg\")\n\nshaping DR:\n  steps dose = [1, 2, 4]\n  interleave Recovery\n  sessions >= 5\n  stable(visual)\n  FI60s\n  @reinforcer(\"drug\", dose=\"{dose}mg/kg\")",
-    "expected_note": "Generated DR_i phases carry `@reinforcer(drug, dose=<value>mg/kg)`; cloned Recovery_after_DR_i phases carry `@reinforcer(food, magnitude=45mg)` verbatim. The shaping's `{dose}` placeholder is NOT substituted in clones.",
-    "expected_phase_count": 6,
-    "expected_labels": [
-      "DR_1", "Recovery_after_DR_1",
-      "DR_2", "Recovery_after_DR_2",
-      "DR_3", "Recovery_after_DR_3"
-    ],
-    "expected_clone_annotations": {
-      "Recovery_after_DR_1": { "reinforcer": { "name": "food", "magnitude": "45mg" } },
-      "Recovery_after_DR_2": { "reinforcer": { "name": "food", "magnitude": "45mg" } },
-      "Recovery_after_DR_3": { "reinforcer": { "name": "food", "magnitude": "45mg" } }
+    "id": "shaping_artful_with_custom_criterion",
+    "description": "Skinner Shaping with method=artful and an explicit stability criterion. The phase-change criterion overrides the default ExperimenterJudgment.",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  stable(visual)\n  sessions >= 2",
+    "expected_note": "stability_spec and session_spec compose as usual. Desugars to Phase with CRF + @procedure + Stability(min_sessions=2, method=visual) criterion.",
+    "expected": {
+      "type": "PhaseSequence",
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "KeyPeckShaping",
+          "schedule": { "type": "Special", "kind": "CRF" },
+          "phase_annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "procedure",
+              "positional": "shape",
+              "params": { "target": "KeyPeck", "method": "artful" }
+            }
+          ],
+          "criterion": { "type": "Stability", "min_sessions": 2, "method": "visual" }
+        }
+      ]
     }
+  },
+
+  {
+    "id": "shaping_percentile_force",
+    "description": "Automated percentile shaping of force (Platt, 1973; Galbicka, 1994). method=percentile with dimension=force and percentile_rank=50.",
+    "input": "shaping LeverForceShaping:\n  target = \"LeverPress\"\n  method = percentile\n  dimension = force\n  percentile_rank = 50\n  percentile_window = 20\n  stable(visual)",
+    "expected_note": "Desugars to Phase { schedule: Pctl(force, 50, window=20, dir=below), annotations: [@procedure(shape, target=LeverPress, method=percentile, dimension=force)], criterion: stability_spec }.",
+    "expected": {
+      "type": "PhaseSequence",
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "LeverForceShaping",
+          "schedule": {
+            "type": "Modifier",
+            "modifier": "Pctl",
+            "pctl_target": "force",
+            "pctl_rank": 50,
+            "window": 20,
+            "dir": "below"
+          },
+          "phase_annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "procedure",
+              "positional": "shape",
+              "params": {
+                "target": "LeverPress",
+                "method": "percentile",
+                "dimension": "force"
+              }
+            }
+          ],
+          "criterion": { "type": "Stability", "method": "visual" }
+        }
+      ]
+    }
+  },
+
+  {
+    "id": "shaping_staged",
+    "description": "Staged shaping with pre-enumerated stages. Desugars to ProgressiveTraining (equivalent semantics to progressive_decl with explicit stages).",
+    "input": "shaping LeverPressShaping:\n  target = \"LeverPress\"\n  method = staged\n  stages = [CRF, DRH2s, DRH1s]\n  sessions >= 3\n  stable(visual)",
+    "expected_note": "Desugars to a ProgressiveTraining with synthetic integer index; each stage becomes an independent phase with the shared criterion.",
+    "expected_phase_count": 3,
+    "expected_labels": ["LeverPressShaping_1", "LeverPressShaping_2", "LeverPressShaping_3"]
+  },
+
+  {
+    "id": "shaping_mixed_with_other_phases",
+    "description": "Skinner Shaping declaration composed with regular phase declarations. The Shaping phase appears in the PhaseSequence at its declaration position.",
+    "input": "phase MagazineTraining:\n  sessions = 1\n  VT60s\n\nshaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  approximations = [\"orient\", \"peck\"]\n\nphase Acquisition:\n  sessions >= 20\n  stable(visual)\n  VI60s",
+    "expected_note": "Three phases total: MagazineTraining → KeyPeckShaping (artful, ExperimenterJudgment) → Acquisition.",
+    "expected_phase_count": 3,
+    "expected_labels": ["MagazineTraining", "KeyPeckShaping", "Acquisition"]
+  },
+
+  { "_comment": "=== Error cases (§83-§93) ===" },
+
+  {
+    "id": "shaping_missing_target_error",
+    "description": "§83: target is required. Omission raises MISSING_SHAPING_TARGET.",
+    "input": "shaping KeyPeckShaping:\n  method = artful\n  approximations = [\"orient\", \"peck\"]",
+    "expected_error": "MISSING_SHAPING_TARGET",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_unknown_method_error",
+    "description": "§84: method must be artful | percentile | staged. Unknown value raises UNKNOWN_SHAPING_METHOD.",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  method = implicit",
+    "expected_error": "UNKNOWN_SHAPING_METHOD",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_percentile_missing_dimension_error",
+    "description": "§85: method=percentile requires dimension. Missing dimension raises INCOMPLETE_PERCENTILE_SHAPING.",
+    "input": "shaping LeverForceShaping:\n  target = \"LeverPress\"\n  method = percentile\n  percentile_rank = 50\n  stable(visual)",
+    "expected_error": "INCOMPLETE_PERCENTILE_SHAPING",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_percentile_missing_rank_error",
+    "description": "§85: method=percentile requires percentile_rank. Missing rank raises INCOMPLETE_PERCENTILE_SHAPING.",
+    "input": "shaping LeverForceShaping:\n  target = \"LeverPress\"\n  method = percentile\n  dimension = force\n  stable(visual)",
+    "expected_error": "INCOMPLETE_PERCENTILE_SHAPING",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_staged_missing_stages_error",
+    "description": "§86: method=staged requires stages list. Missing stages raises INCOMPLETE_STAGED_SHAPING.",
+    "input": "shaping LeverPressShaping:\n  target = \"LeverPress\"\n  method = staged\n  sessions >= 3",
+    "expected_error": "INCOMPLETE_STAGED_SHAPING",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_staged_insufficient_stages_error",
+    "description": "§93: stages must contain at least 2 elements. Single stage raises SHAPING_INSUFFICIENT_STAGES.",
+    "input": "shaping LeverPressShaping:\n  target = \"LeverPress\"\n  method = staged\n  stages = [CRF]\n  sessions >= 3",
+    "expected_error": "SHAPING_INSUFFICIENT_STAGES",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_percentile_invalid_rank_error",
+    "description": "§88: percentile_rank must be in [0, 100]. Out of range raises PCTL_INVALID_RANK (reused from core-stateful §P1).",
+    "input": "shaping LeverForceShaping:\n  target = \"LeverPress\"\n  method = percentile\n  dimension = force\n  percentile_rank = 150\n  stable(visual)",
+    "expected_error": "PCTL_INVALID_RANK",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_meta_method_mismatch_error",
+    "description": "§91: method=artful forbids dimension / percentile_* / stages. Declaring them raises SHAPING_META_METHOD_MISMATCH.",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  method = artful\n  dimension = force",
+    "expected_error": "SHAPING_META_METHOD_MISMATCH",
+    "expected_phase": "semantic"
+  },
+
+  {
+    "id": "shaping_duplicate_meta_error",
+    "description": "§90: each shaping_meta may appear at most once. Duplicate target raises DUPLICATE_SHAPING_META.",
+    "input": "shaping KeyPeckShaping:\n  target = \"KeyPeck\"\n  target = \"LeverPress\"",
+    "expected_error": "DUPLICATE_SHAPING_META",
+    "expected_phase": "semantic"
   }
 ]

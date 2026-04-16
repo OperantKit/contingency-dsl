@@ -44,9 +44,90 @@
 
     "Shaping": {
       "type": "object",
-      "description": "Syntactic sugar for across-session parameter progressions. Desugars to a sequence of Phase nodes (analogous to Repeat → Tand). Present only in pre-expansion AST; resolved AST contains the expanded Phase list. Reference: Sidman (1960), Tactics of scientific research.",
+      "description": "Within-session response shaping via differential reinforcement of successive approximations (Skinner, 1953; Catania, 2013). Present only in pre-expansion AST; resolved AST desugars to a single Phase whose schedule is determined by `method`. Distinct from `ProgressiveTraining` (across-session parametric progression). Surface keyword: `shaping`. Cross-references: Skinner, B. F. (1953). Science and Human Behavior. Macmillan; Galbicka, G. (1994). Shaping in the 21st century. JABA, 27(4), 739-760. https://doi.org/10.1901/jaba.1994.27-739.",
       "properties": {
         "type": { "const": "Shaping" },
+        "label": {
+          "type": "string",
+          "description": "Phase label for the shaping phase. Appears in PhaseSequence after desugaring."
+        },
+        "target": {
+          "type": "string",
+          "description": "Terminal response class name (required). Enforces Galbicka's (1994) Golden Rule 2: 'clearly define the terminal response.' Example: 'KeyPeck', 'LeverPress'."
+        },
+        "method": {
+          "type": "string",
+          "enum": ["artful", "percentile", "staged"],
+          "default": "artful",
+          "description": "Shaping method. `artful`: human-executed successive approximation (desugars to CRF + @procedure annotation + ExperimenterJudgment criterion). `percentile`: automated per Platt (1973) / Galbicka (1994) (desugars to Phase with Pctl schedule). `staged`: discrete pre-enumerated stages (desugars to ProgressiveTraining). Default `artful` reflects the JEAB convention where shaping details are left to experimenter judgment."
+        },
+        "approximations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered list of approximation labels (metadata only, not executed). Example for pigeon key-peck shaping: ['orient', 'approach', 'contact', 'peck']. Used by downstream tools for documentation and training protocol display."
+        },
+        "dimension": {
+          "type": "string",
+          "enum": ["IRT", "latency", "duration", "force", "rate", "location"],
+          "description": "Response dimension being shaped. Required when method=percentile; informational when method=artful. Maps to Pctl target for percentile shaping."
+        },
+        "percentile_rank": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentile rank for method=percentile. Required when method=percentile; must be integer in [0, 100]."
+        },
+        "percentile_window": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 20,
+          "description": "Window size for method=percentile. Default 20 per Platt (1973) recommendation."
+        },
+        "percentile_dir": {
+          "type": "string",
+          "enum": ["below", "above"],
+          "default": "below",
+          "description": "Direction for method=percentile. See Pctl modifier in core-stateful/grammar.ebnf §1."
+        },
+        "stages": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr" },
+          "minItems": 2,
+          "description": "Ordered list of schedules for method=staged. Required when method=staged; desugars to ProgressiveTraining with one step per stage."
+        },
+        "criterion": {
+          "$ref": "phase-sequence.schema.json#/$defs/Criterion",
+          "description": "Phase-change criterion. Default for method=artful is ExperimenterJudgment. Required when method=percentile or method=staged."
+        },
+        "phase_annotations": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "description": "Additional annotations. The desugaring automatically injects @procedure(\"shape\", target=..., method=..., approximations=[...]). User-supplied annotations are merged."
+        },
+        "phase_param_decls": {
+          "type": "array",
+          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" }
+        }
+      },
+      "required": ["type", "label", "target"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": { "properties": { "method": { "const": "percentile" } } },
+          "then": { "required": ["dimension", "percentile_rank", "criterion"] }
+        },
+        {
+          "if": { "properties": { "method": { "const": "staged" } } },
+          "then": { "required": ["stages", "criterion"] }
+        }
+      ]
+    },
+
+    "ProgressiveTraining": {
+      "type": "object",
+      "description": "Syntactic sugar for across-session parameter progressions. Desugars to a sequence of Phase nodes (analogous to Repeat → Tand). Present only in pre-expansion AST; resolved AST contains the expanded Phase list. Surface keyword: `progressive`. Covers parametric sweeps (e.g., FI 2s→4s→8s, dose-response volumes) and conditions tables. Distinct from `Shaping` (within-session response shaping; Skinner, 1953). Reference: Sidman (1960), Tactics of Scientific Research; Zeiler (1977), Schedules of reinforcement: The controlling variables.",
+      "properties": {
+        "type": { "const": "ProgressiveTraining" },
         "label": {
           "type": "string",
           "description": "Base name for generated phases. Expansion appends _1, _2, ..., _n."
@@ -78,7 +159,7 @@
           "type": "array",
           "default": [],
           "items": { "$ref": "#/$defs/InterleaveDecl" },
-          "description": "Ordered list of phase-name references inserted between every pair of generated phases (gap block). Default semantics is intercalate: the gap block is also appended after the final generated phase. The last entry's no_trailing flag, if true, suppresses the trailing gap (intersperse). Each referenced phase becomes a template (does not appear standalone in PhaseSequence at its declaration position) and is deep-cloned at each insertion site with auto-generated label '<ref>_after_<shaping-label>_<i>'. See theory.md Definition 16 (Shaping Expansion with Interleave) and grammar.ebnf constraints 74-76, 63b."
+          "description": "Ordered list of phase-name references inserted between every pair of generated phases (gap block). Default semantics is intercalate: the gap block is also appended after the final generated phase. The last entry's no_trailing flag, if true, suppresses the trailing gap (intersperse). Each referenced phase becomes a template (does not appear standalone in PhaseSequence at its declaration position) and is deep-cloned at each insertion site with auto-generated label '<ref>_after_<progressive-label>_<i>'. See theory.md Definition 16 (Progressive Training Expansion with Interleave) and grammar.ebnf constraints 74-76, 63b."
         }
       },
       "required": ["type", "label", "steps", "schedule_template"],
@@ -87,7 +168,7 @@
 
     "InterleaveDecl": {
       "type": "object",
-      "description": "Single interleave directive within a Shaping. Names a previously-declared phase (template) whose contents are deep-cloned at each interleave insertion site. The referenced phase must be declared earlier in the same experiment (no forward references — constraint 74). Self-references (target = enclosing or later shaping) are forbidden (constraint 75).",
+      "description": "Single interleave directive within a ProgressiveTraining. Names a previously-declared phase (template) whose contents are deep-cloned at each interleave insertion site. The referenced phase must be declared earlier in the same experiment (no forward references — constraint 74). Self-references (target = enclosing or later ProgressiveTraining) are forbidden (constraint 75).",
       "properties": {
         "type": { "const": "InterleaveDecl" },
         "ref": {
@@ -106,7 +187,7 @@
 
     "StepsDecl": {
       "type": "object",
-      "description": "A named parameter variable with a list of literal values for shaping expansion.",
+      "description": "A named parameter variable with a list of literal values for ProgressiveTraining expansion.",
       "properties": {
         "name": {
           "type": "string",

@@ -346,7 +346,7 @@ Conforming parsers MUST follow this error recovery policy:
 
 ## 3.8 Experiment Layer — Multi-Phase Grammar (v2.0)
 
-The Experiment Layer extends the DSL to describe multi-phase experimental designs — the across-session structure that JEAB Method sections encode as sequences of named conditions with phase-change criteria. This layer is **additive**: a file without `phase` or `shaping` declarations is parsed as a single-phase `program` (fully backward compatible).
+The Experiment Layer extends the DSL to describe multi-phase experimental designs — the across-session structure that JEAB Method sections encode as sequences of named conditions with phase-change criteria. This layer is **additive**: a file without `phase`, `progressive`, or `shaping` declarations is parsed as a single-phase `program` (fully backward compatible).
 
 **Design rationale.** No existing formal notation unifies within-session contingency description (Mechner, 1959; State Notation, Snapper et al., 1982) with across-session experimental design structure (A-B-A-B notation, Cooper et al., 2020). JEAB papers describe these two levels in separate prose subsections of the Method. The Experiment Layer bridges this gap by embedding the existing schedule grammar within a phase-sequencing structure.
 
@@ -356,12 +356,12 @@ The Experiment Layer extends the DSL to describe multi-phase experimental design
 <file>          ::= <experiment> | <program>
 ```
 
-**LL(1) decision:** If the first non-annotation token is `phase` or `shaping`, the file is an `experiment`. Otherwise it is a `program`. Since `phase` and `shaping` are lowercase reserved words not in `FIRST₁(Schedule)`, no ambiguity arises.
+**LL(1) decision:** If the first non-annotation token is `phase`, `progressive`, or `shaping`, the file is an `experiment`. Otherwise it is a `program`. Since all three are lowercase reserved words not in `FIRST₁(Schedule)`, no ambiguity arises.
 
 ### 3.8.2 Experiment and Phase
 
 ```bnf
-<experiment>    ::= <program_annotation>* (<phase_decl> | <shaping_decl>)+
+<experiment>    ::= <program_annotation>* (<phase_decl> | <progressive_decl> | <shaping_decl>)+
 
 <phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
 <phase_name>    ::= <upper_ident>
@@ -380,27 +380,29 @@ The Experiment Layer extends the DSL to describe multi-phase experimental design
 ```
 
 **Semantics:**
-- `program_annotation`s before the first `phase`/`shaping` declaration establish experiment-level defaults. Phase-level annotations override (same resolution as program-level vs. schedule-level in Core).
+- `program_annotation`s before the first `phase`/`progressive`/`shaping` declaration establish experiment-level defaults. Phase-level annotations override (same resolution as program-level vs. schedule-level in Core).
 - `sessions = N` specifies a fixed session count. `sessions >= N` specifies a minimum before stability criteria apply.
 - `use <PhaseName>` copies the referenced phase's schedule expression. Forward references are not permitted.
 - `no_schedule` declares a phase with no operant contingency. Used for Pavlovian revaluation, context exposure, habituation, or other procedures where no response-consequence relation is programmed. Resolves to `Phase.schedule = null` in the AST. Annotations (e.g., `@punisher`, `@context`) may still be attached to describe stimulus presentations.
 
-### 3.8.3 Shaping (Syntactic Sugar)
+### 3.8.3 Progressive Training (Syntactic Sugar)
+
+**Sidman (1960) / Zeiler (1977) sense of "shaping"** — across-session parametric progression where the response class is already established and the schedule parameter is varied across sessions. Surface keyword: `progressive`. Distinct from `shaping` (§3.8.4), which denotes Skinner's within-session successive approximation of response topography.
 
 ```bnf
-<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
-<shaping_body>    ::= <shaping_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
-<shaping_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
+<progressive_decl>    ::= "progressive" <phase_name> ":" <progressive_body>
+<progressive_body>    ::= <progressive_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<progressive_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
 <number_list>     ::= <number> ("," <number>)*
 <interleave_decl> ::= "interleave" <phase_name> [ "no_trailing" ]
 ```
 
-`shaping` desugars to a sequence of `phase` declarations, analogous to `Repeat(n, S)` → `Tand(S, ..., S)`. The schedule expression and annotation values may contain `{ident}` placeholders that reference `steps` variables.
+`progressive` desugars to a sequence of `phase` declarations, analogous to `Repeat(n, S)` → `Tand(S, ..., S)`. The schedule expression and annotation values may contain `{ident}` placeholders that reference `steps` variables.
 
-**Expansion rule (E-SHAPING):**
+**Expansion rule (E-PROGRESSIVE):**
 
 ```
-shaping Name:
+progressive Name:
   steps x = [v₁, v₂, ..., vₙ]
   <meta>
   <schedule_template({x})>
@@ -413,12 +415,12 @@ phase Name_2: <meta>  <schedule_template(v₂)>
 phase Name_n: <meta>  <schedule_template(vₙ)>
 ```
 
-**Multi-variable expansion (E-SHAPING-MULTI):** If multiple `steps` declarations are present, all lists must have identical length. Variables are zipped pairwise: `(x₁, y₁), (x₂, y₂), ...`.
+**Multi-variable expansion (E-PROGRESSIVE-MULTI):** If multiple `steps` declarations are present, all lists must have identical length. Variables are zipped pairwise: `(x₁, y₁), (x₂, y₂), ...`.
 
-**Interleave expansion (E-SHAPING-INTERLEAVE).** Optional `interleave` clauses insert clones of pre-declared phases between every pair of generated phases (and, by default, after the last one — *intercalate* semantics). The referenced phase becomes a **template**: it does not appear standalone in the resolved PhaseSequence at its declaration position. Each clone receives an auto-generated label `<ref>_after_<Name>_<i>` (1-based), e.g., `Recovery_after_DoseResponse_3`.
+**Interleave expansion (E-PROGRESSIVE-INTERLEAVE).** Optional `interleave` clauses insert clones of pre-declared phases between every pair of generated phases (and, by default, after the last one — *intercalate* semantics). The referenced phase becomes a **template**: it does not appear standalone in the resolved PhaseSequence at its declaration position. Each clone receives an auto-generated label `<ref>_after_<Name>_<i>` (1-based), e.g., `Recovery_after_DoseResponse_3`.
 
 ```
-shaping Name:
+progressive Name:
   steps x = [v₁, ..., vₙ]
   interleave R          -- default: trailing clone included (intercalate)
   <meta>
@@ -435,9 +437,91 @@ shaping Name:
 
 `interleave R no_trailing` suppresses the final clone (intersperse). Multiple `interleave` lines compose a gap block in declaration order; `no_trailing` on the last entry applies to the entire block. See [theory.md Definition 16](theory.md) for the formal denotational semantics including the `intercalate` and `intersperse` operators.
 
-**Annotation locality.** Cloned phases inherit only the template's annotations and parameters. The enclosing shaping's annotations and `{ident}` placeholders affect only the generated `Name_i` phases — they do not leak into clones. This guarantees that a `Recovery` template referenced by multiple shapings runs identically (e.g., at a fixed reference dose) at every site.
+**Annotation locality.** Cloned phases inherit only the template's annotations and parameters. The enclosing progressive's annotations and `{ident}` placeholders affect only the generated `Name_i` phases — they do not leak into clones. This guarantees that a `Recovery` template referenced by multiple progressives runs identically (e.g., at a fixed reference dose) at every site.
 
-### 3.8.4 Usage Examples
+### 3.8.4 Shaping (Skinner Response Shaping)
+
+**Skinner (1953) / Catania (2013) sense of "shaping"** — within-session differential reinforcement of successive approximations to a terminal response class. Surface keyword: `shaping`. Distinct from `progressive` (§3.8.3), which denotes Sidman-sense across-session parameter progression.
+
+Shaping is **syntactic sugar** that desugars to a single `Phase` (for `method=artful` or `method=percentile`) or to a `progressive_decl` (for `method=staged`). The primitive exists primarily for IDE auto-completion, required-field enforcement (Galbicka's Rule 2: "clearly define the terminal response"), and paper-to-DSL faithful transcription of under-specified Methods sections.
+
+```bnf
+<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>    ::= <shaping_meta>+ <phase_meta>* <annotation>*
+
+<shaping_meta>    ::= <target_decl>           -- required
+                    | <method_decl>           -- optional (default: artful)
+                    | <approximations_decl>   -- optional
+                    | <dimension_decl>        -- required when method=percentile
+                    | <pctl_rank_decl>        -- required when method=percentile
+                    | <pctl_window_decl>      -- optional (default: 20)
+                    | <pctl_dir_decl>         -- optional (default: below)
+                    | <stages_decl>           -- required when method=staged
+
+<target_decl>         ::= "target" "=" <string_literal>
+<method_decl>         ::= "method" "=" ("artful" | "percentile" | "staged")
+<approximations_decl> ::= "approximations" "=" "[" <string_literal_list> "]"
+<dimension_decl>      ::= "dimension" "=" <pctl_target>
+<pctl_rank_decl>      ::= "percentile_rank" "=" <number>
+<pctl_window_decl>    ::= "percentile_window" "=" <number>
+<pctl_dir_decl>       ::= "percentile_dir" "=" <pctl_dir>
+<stages_decl>         ::= "stages" "=" "[" <schedule_expr_list> "]"
+```
+
+**Desugar rules (D-SHAPING):**
+
+```
+shaping Name:
+  target = "X"
+  method = artful                      [default]
+  approximations = ["a1", "a2", ...]   [optional]
+  stable(...)                          [optional; default = ExperimenterJudgment]
+
+  ≡  phase Name:
+       @procedure("shape", target="X", method="artful",
+                  approximations=["a1", "a2", ...])
+       CRF
+       [stability_spec | ExperimenterJudgment]
+```
+
+```
+shaping Name:
+  target = "X"
+  method = percentile
+  dimension = force
+  percentile_rank = 50
+  percentile_window = 20   [default]
+  percentile_dir = below   [default]
+  stable(...)              [required]
+
+  ≡  phase Name:
+       @procedure("shape", target="X", method="percentile", dimension="force")
+       Pctl(force, 50, window=20, dir=below)
+       [stability_spec]
+```
+
+```
+shaping Name:
+  target = "X"
+  method = staged
+  stages = [S₁, S₂, ..., Sₙ]
+  stable(...)              [required]
+
+  ≡  progressive Name:
+       steps i = [1, 2, ..., n]         -- synthetic index
+       [stability_spec]
+       <stages[i-1]>                     -- each stage becomes a phase
+```
+
+**Reference:**
+- Skinner, B. F. (1953). *Science and human behavior*. Macmillan.
+- Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
+- Galbicka, G. (1994). Shaping in the 21st century: Moving percentile schedules into applied settings. *Journal of Applied Behavior Analysis*, 27(4), 739-760. https://doi.org/10.1901/jaba.1994.27-739
+- Platt, J. R. (1973). Percentile reinforcement: Paradigms for experimental analysis of response shaping. In G. H. Bower (Ed.), *The psychology of learning and motivation* (Vol. 7, pp. 271-296). Academic Press.
+
+**Design rationale:** [AST completeness vs execution orthogonality](../../../.local/context/ast-completeness-vs-execution-orthogonality.md) (method=artful is a declaration, not an executable specification; the DSL transcribes JEAB Methods that report "shaping by successive approximation" without losing that fact).
+
+### 3.8.5 Usage Examples
 
 **ABA Reversal (Brown et al., 2020, JEAB):**
 
@@ -458,13 +542,13 @@ phase ExtinctionTest:
   Conc(EXT @operandum("target-lever"), EXT @operandum("nose-poke"))
 ```
 
-**Shaping Progression (Eckard & Kyonka, 2018, Behav Processes):**
+**Progressive FI Training (Eckard & Kyonka, 2018, Behav Processes):**
 
 ```
 @species("mouse") @strain("C57BL/6J") @n(27)
 @reinforcer("sucrose", concentration="15%")
 
-shaping FI_Training:
+progressive FI_Training:
   steps v = [2, 4, 8, 12, 18]
   sessions >= 3
   stable(visual)
@@ -497,7 +581,7 @@ phase Recovery:
   FI600s(FR30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery
   sessions >= 5
@@ -506,7 +590,7 @@ shaping DoseResponse:
   @reinforcer("cocaine", dose="{dose}mg/kg")
 ```
 
-`phase Recovery` is declared **before** the shaping that references it (no forward references — constraint 74). Because it is referenced by `interleave`, the `Recovery` declaration becomes a *template* (constraint 76) and does not appear standalone in the resolved PhaseSequence; it materializes only as clones interspersed between dose conditions. The expansion produces 12 phases — 6 doses + 6 recoveries, matching the paper's Method exactly:
+`phase Recovery` is declared **before** the progressive that references it (no forward references — constraint 74). Because it is referenced by `interleave`, the `Recovery` declaration becomes a *template* (constraint 76) and does not appear standalone in the resolved PhaseSequence; it materializes only as clones interspersed between dose conditions. The expansion produces 12 phases — 6 doses + 6 recoveries, matching the paper's Method exactly:
 
 ```
 DoseResponse_1, Recovery_after_DoseResponse_1,
@@ -523,22 +607,22 @@ DoseResponse_6, Recovery_after_DoseResponse_6
 @species("rat") @strain("Wistar") @n(15)
 @session_end(rule="time", time=50min)
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps vol = [6, 12, 25, 50, 100, 200, 300]
   sessions = 30
   PR(exponential)
   @reinforcer("sucrose", concentration="0.6M", volume="{vol}ul")
 ```
 
-### 3.8.5 Experiment-Level Semantic Constraints
+### 3.8.6 Experiment-Level Semantic Constraints
 
 | # | Constraint | Error Code | Level |
 |---|---|---|---|
 | 63 | Duplicate phase names | `DUPLICATE_PHASE_NAME` | SemanticError |
 | 64 | Undefined `use` reference | `UNDEFINED_PHASE_REF` | SemanticError |
-| 65 | Shaping steps length mismatch | `SHAPING_STEPS_LENGTH_MISMATCH` | SemanticError |
-| 66 | Empty shaping steps list | `SHAPING_EMPTY_STEPS` | SemanticError |
-| 67 | Undefined shaping placeholder | `SHAPING_UNDEFINED_VARIABLE` | SemanticError |
+| 65 | Progressive steps length mismatch | `PROGRESSIVE_STEPS_LENGTH_MISMATCH` | SemanticError |
+| 66 | Empty progressive steps list | `PROGRESSIVE_EMPTY_STEPS` | SemanticError |
+| 67 | Undefined progressive placeholder | `PROGRESSIVE_UNDEFINED_VARIABLE` | SemanticError |
 | 68 | Experiment-level annotation scoping | (inherits Core scoping) | — |
 | 69 | Duplicate session_spec per phase | `DUPLICATE_SESSION_SPEC` | SemanticError |
 | 70 | Duplicate stability_spec per phase | `DUPLICATE_STABILITY_SPEC` | SemanticError |
@@ -546,22 +630,34 @@ shaping DoseResponse:
 | 72 | `sessions = 0` (nonpositive) | `SESSION_NONPOSITIVE` | SemanticError |
 | 73 | `no_schedule` body (Pavlovian / exposure phase) | (advisory; no error) | — |
 | 74 | `interleave` references undeclared/forward phase | `UNDEFINED_PHASE_REF` | SemanticError |
-| 75 | `interleave` self-reference (target = enclosing or later shaping) | `SHAPING_SELF_INTERLEAVE` | SemanticError |
+| 75 | `interleave` self-reference (target = enclosing or later progressive_decl) | `PROGRESSIVE_SELF_INTERLEAVE` | SemanticError |
 | 76 | Template consumption — referenced phase removed from standalone PhaseSequence | (semantics; no error) | — |
 | 63b | `interleave` clone label collides with user-declared phase | `DUPLICATE_PHASE_NAME` | SemanticError |
+| 83 | `shaping` missing required `target` | `MISSING_SHAPING_TARGET` | SemanticError |
+| 84 | `shaping` unknown `method` value | `UNKNOWN_SHAPING_METHOD` | SemanticError |
+| 85 | `shaping` method=percentile missing `dimension` / `percentile_rank` / criterion | `INCOMPLETE_PERCENTILE_SHAPING` | SemanticError |
+| 86 | `shaping` method=staged missing `stages` / criterion | `INCOMPLETE_STAGED_SHAPING` | SemanticError |
+| 87 | `shaping` method=artful: both stability_spec and session_spec absent ⇒ default ExperimenterJudgment | (advisory; no error) | — |
+| 88 | `percentile_rank` out of range | `PCTL_INVALID_RANK` | SemanticError |
+| 89 | `percentile_window` non-positive | `PCTL_INVALID_WINDOW` | SemanticError |
+| 90 | Duplicate shaping_meta declaration | `DUPLICATE_SHAPING_META` | SemanticError |
+| 91 | shaping_meta forbidden for chosen method | `SHAPING_META_METHOD_MISMATCH` | SemanticError |
+| 92 | Empty string in `approximations` | `EMPTY_APPROXIMATION_LABEL` | SemanticError |
+| 93 | `stages` list contains fewer than 2 elements | `SHAPING_INSUFFICIENT_STAGES` | SemanticError |
 
-### 3.8.6 LL(1) Verification
+### 3.8.7 LL(1) Verification
 
 All Experiment Layer decision points are LL(1):
 
 | Decision Point | Lookahead | Token Sets |
 |---|---|---|
-| `file → experiment \| program` | 1 | `{phase, shaping}` vs. all others |
-| `(phase_decl \| shaping_decl)+` | 1 | `phase` vs. `shaping` |
+| `file → experiment \| program` | 1 | `{phase, progressive, shaping}` vs. all others |
+| `(phase_decl \| progressive_decl \| shaping_decl)+` | 1 | `phase` vs. `progressive` vs. `shaping` |
 | `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs. `stable` |
 | `session_spec → "=" \| ">="` | 1 | `=` vs. `>=` |
 | `phase_content \| phase_ref` | 1 | `use` vs. all others |
-| `shaping_body: interleave_decl* vs. phase_meta*` | 1 | `interleave` vs. `{sessions, stable, ...}` |
+| `progressive_body: interleave_decl* vs. phase_meta*` | 1 | `interleave` vs. `{sessions, stable, ...}` |
+| `shaping_body: shaping_meta+` | 1 | `{target, method, approximations, dimension, stages, percentile_*}` vs. FOLLOW |
 | `interleave_decl: optional "no_trailing"` | 1 | `no_trailing` vs. FOLLOW (`interleave`, `sessions`, `stable`, `let`, `@`, schedule starters) |
 
 No new LL(2) decision points are introduced. See [LL(2) Formal Proof §11](ll2-proof.md) for the verification.

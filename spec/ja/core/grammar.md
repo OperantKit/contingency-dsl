@@ -350,7 +350,7 @@ Conc(baseline, probe)
 
 ### 3.8 実験層 — 多フェーズ文法（v2.0）
 
-実験層は DSL を拡張し、多フェーズの実験デザイン — JEAB Method セクションが命名された条件の列と相変化基準として記述するセッション間構造 — を記述可能にする。この層は**追加的（additive）**である: `phase` または `shaping` 宣言を含まないファイルは単一フェーズの `program` として解析される（完全な後方互換性）。
+実験層は DSL を拡張し、多フェーズの実験デザイン — JEAB Method セクションが命名された条件の列と相変化基準として記述するセッション間構造 — を記述可能にする。この層は**追加的（additive）**である: `phase`、`progressive`、`shaping` のいずれの宣言も含まないファイルは単一フェーズの `program` として解析される（完全な後方互換性）。
 
 **設計根拠。** セッション内の随伴性記述（Mechner, 1959; State Notation, Snapper et al., 1982）とセッション間の実験デザイン構造（A-B-A-B 記法, Cooper et al., 2020）を統一する既存の形式的表記法は存在しない。JEAB 論文はこの2つのレベルを Method セクションの別々の散文で記述する。実験層はこのギャップを、既存のスケジュール文法をフェーズ順序構造内に埋め込むことで橋渡しする。
 
@@ -360,12 +360,12 @@ Conc(baseline, probe)
 <file>          ::= <experiment> | <program>
 ```
 
-**LL(1) 判定:** 最初の非アノテーショントークンが `phase` または `shaping` であればファイルは `experiment`。それ以外は `program`。`phase` と `shaping` は `FIRST₁(Schedule)` に含まれない小文字予約語であるため、曖昧性は生じない。
+**LL(1) 判定:** 最初の非アノテーショントークンが `phase`、`progressive`、または `shaping` であればファイルは `experiment`。それ以外は `program`。3 つはいずれも `FIRST₁(Schedule)` に含まれない小文字予約語であるため、曖昧性は生じない。
 
 #### 3.8.2 実験とフェーズ
 
 ```bnf
-<experiment>    ::= <program_annotation>* (<phase_decl> | <shaping_decl>)+
+<experiment>    ::= <program_annotation>* (<phase_decl> | <progressive_decl> | <shaping_decl>)+
 
 <phase_decl>    ::= "phase" <phase_name> ":" <phase_body>
 <phase_name>    ::= <upper_ident>
@@ -384,27 +384,29 @@ Conc(baseline, probe)
 ```
 
 **意味論:**
-- 最初の `phase`/`shaping` 宣言の前にある `program_annotation` は実験レベルのデフォルトを設定する。フェーズレベルのアノテーションが上書きする（Core のプログラムレベル vs スケジュールレベルと同じ解決規則）。
+- 最初の `phase`/`progressive`/`shaping` 宣言の前にある `program_annotation` は実験レベルのデフォルトを設定する。フェーズレベルのアノテーションが上書きする（Core のプログラムレベル vs スケジュールレベルと同じ解決規則）。
 - `sessions = N` は固定セッション数を指定する。`sessions >= N` は安定性基準適用前の最低数を指定する。
 - `use <PhaseName>` は参照先フェーズのスケジュール式をコピーする。前方参照は許可されない。
 - `no_schedule` はオペラント随伴性を含まないフェーズを宣言する。Pavlov 型再評価、文脈曝露、馴化など、反応-結果関係がプログラムされない手続きに使用する。AST では `Phase.schedule = null` に解決される。アノテーション（例: `@punisher`、`@context`）は刺激呈示を記述するためになお付加できる。
 
-#### 3.8.3 Shaping（構文糖衣）
+#### 3.8.3 Progressive Training（構文糖衣）
+
+**Sidman (1960) / Zeiler (1977) 意味の "shaping"** — 反応クラスが既に確立された状態で、セッションをまたいでスケジュールパラメータを段階的に変化させる手続き。表層キーワード: `progressive`。`shaping`（§3.8.4: Skinner 流のセッション内反応形成）とは区別される。
 
 ```bnf
-<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
-<shaping_body>    ::= <shaping_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
-<shaping_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
+<progressive_decl>    ::= "progressive" <phase_name> ":" <progressive_body>
+<progressive_body>    ::= <progressive_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<progressive_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
 <number_list>     ::= <number> ("," <number>)*
 <interleave_decl> ::= "interleave" <phase_name> [ "no_trailing" ]
 ```
 
-`shaping` はフェーズ宣言の列に脱糖される。`Repeat(n, S)` → `Tand(S, ..., S)` と同じ戦略。スケジュール式とアノテーション値は `steps` 変数を参照する `{ident}` プレースホルダーを含むことができる。
+`progressive` はフェーズ宣言の列に脱糖される。`Repeat(n, S)` → `Tand(S, ..., S)` と同じ戦略。スケジュール式とアノテーション値は `steps` 変数を参照する `{ident}` プレースホルダーを含むことができる。
 
-**展開規則（E-SHAPING）:**
+**展開規則（E-PROGRESSIVE）:**
 
 ```
-shaping Name:
+progressive Name:
   steps x = [v₁, v₂, ..., vₙ]
   <meta>
   <schedule_template({x})>
@@ -417,12 +419,12 @@ phase Name_2: <meta>  <schedule_template(v₂)>
 phase Name_n: <meta>  <schedule_template(vₙ)>
 ```
 
-**複数変数展開（E-SHAPING-MULTI）:** 複数の `steps` 宣言がある場合、全リストの長さは同一でなければならない。変数はペアワイズで zip される: `(x₁, y₁), (x₂, y₂), ...`。
+**複数変数展開（E-PROGRESSIVE-MULTI）:** 複数の `steps` 宣言がある場合、全リストの長さは同一でなければならない。変数はペアワイズで zip される: `(x₁, y₁), (x₂, y₂), ...`。
 
-**Interleave 展開（E-SHAPING-INTERLEAVE）。** 任意の `interleave` 句は、生成された phase の各ペアの間（既定では最後の phase の後にも）に、事前宣言された phase の clone を挿入する — *intercalate* 意味論。参照された phase は **template** となり、宣言位置の standalone PhaseSequence には現れない。各 clone は自動生成ラベル `<ref>_after_<Name>_<i>`（1-based）を持つ。例: `Recovery_after_DoseResponse_3`。
+**Interleave 展開（E-PROGRESSIVE-INTERLEAVE）。** 任意の `interleave` 句は、生成された phase の各ペアの間（既定では最後の phase の後にも）に、事前宣言された phase の clone を挿入する — *intercalate* 意味論。参照された phase は **template** となり、宣言位置の standalone PhaseSequence には現れない。各 clone は自動生成ラベル `<ref>_after_<Name>_<i>`（1-based）を持つ。例: `Recovery_after_DoseResponse_3`。
 
 ```
-shaping Name:
+progressive Name:
   steps x = [v₁, ..., vₙ]
   interleave R          -- 既定: 末尾 clone あり（intercalate）
   <meta>
@@ -439,9 +441,91 @@ shaping Name:
 
 `interleave R no_trailing` は最後の clone を抑制する（intersperse）。複数の `interleave` 行は宣言順に gap block を構成する。`no_trailing` は最後の entry に置かれた場合、ブロック全体に適用される。形式的な表示的意味論（`intercalate` および `intersperse` 演算子を含む）は [theory.md 定義 16](theory.md) を参照。
 
-**アノテーション局所性。** clone された phase は template の annotation と parameter のみを継承する。外側の shaping の annotation と `{ident}` placeholder は生成された `Name_i` phase にのみ作用し、clone には伝播しない。これにより、複数の shaping から参照された Recovery template はどの挿入位置でも同一に動作する（例: 固定参照用量で）。
+**アノテーション局所性。** clone された phase は template の annotation と parameter のみを継承する。外側の progressive の annotation と `{ident}` placeholder は生成された `Name_i` phase にのみ作用し、clone には伝播しない。これにより、複数の progressive から参照された Recovery template はどの挿入位置でも同一に動作する（例: 固定参照用量で）。
 
-#### 3.8.4 使用例
+#### 3.8.4 Shaping（Skinner 流の反応形成）
+
+**Skinner (1953) / Catania (2013) 意味の "shaping"** — 最終反応クラスへの連続近似を差動強化によって実現するセッション内手続き。表層キーワード: `shaping`。`progressive`（§3.8.3: Sidman 意味のセッション間パラメータ漸進）とは区別される。
+
+Shaping は**構文糖衣**であり、`method=artful` / `method=percentile` では単一 Phase に、`method=staged` では `progressive_decl` に脱糖される。primitive の存在意義は (1) IDE の補完支援、(2) 必須フィールド（`target`）の parse 時強制（Galbicka の Rule 2: "clearly define the terminal response"）、(3) 「shaped by successive approximation」と書かれる論文 Method の忠実な転記である。
+
+```bnf
+<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>    ::= <shaping_meta>+ <phase_meta>* <annotation>*
+
+<shaping_meta>    ::= <target_decl>           -- 必須
+                    | <method_decl>           -- 任意（既定: artful）
+                    | <approximations_decl>   -- 任意
+                    | <dimension_decl>        -- method=percentile で必須
+                    | <pctl_rank_decl>        -- method=percentile で必須
+                    | <pctl_window_decl>      -- 任意（既定: 20）
+                    | <pctl_dir_decl>         -- 任意（既定: below）
+                    | <stages_decl>           -- method=staged で必須
+
+<target_decl>         ::= "target" "=" <string_literal>
+<method_decl>         ::= "method" "=" ("artful" | "percentile" | "staged")
+<approximations_decl> ::= "approximations" "=" "[" <string_literal_list> "]"
+<dimension_decl>      ::= "dimension" "=" <pctl_target>
+<pctl_rank_decl>      ::= "percentile_rank" "=" <number>
+<pctl_window_decl>    ::= "percentile_window" "=" <number>
+<pctl_dir_decl>       ::= "percentile_dir" "=" <pctl_dir>
+<stages_decl>         ::= "stages" "=" "[" <schedule_expr_list> "]"
+```
+
+**脱糖規則（D-SHAPING）:**
+
+```
+shaping Name:
+  target = "X"
+  method = artful                      [既定]
+  approximations = ["a1", "a2", ...]   [任意]
+  stable(...)                          [任意; 省略時 ExperimenterJudgment]
+
+  ≡  phase Name:
+       @procedure("shape", target="X", method="artful",
+                  approximations=["a1", "a2", ...])
+       CRF
+       [stability_spec | ExperimenterJudgment]
+```
+
+```
+shaping Name:
+  target = "X"
+  method = percentile
+  dimension = force
+  percentile_rank = 50
+  percentile_window = 20   [既定]
+  percentile_dir = below   [既定]
+  stable(...)              [必須]
+
+  ≡  phase Name:
+       @procedure("shape", target="X", method="percentile", dimension="force")
+       Pctl(force, 50, window=20, dir=below)
+       [stability_spec]
+```
+
+```
+shaping Name:
+  target = "X"
+  method = staged
+  stages = [S₁, S₂, ..., Sₙ]
+  stable(...)              [必須]
+
+  ≡  progressive Name:
+       steps i = [1, 2, ..., n]         -- 合成インデックス
+       [stability_spec]
+       <stages[i-1]>                     -- 各 stage が phase になる
+```
+
+**参考文献:**
+- Skinner, B. F. (1953). *Science and human behavior*. Macmillan.
+- Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
+- Galbicka, G. (1994). Shaping in the 21st century: Moving percentile schedules into applied settings. *Journal of Applied Behavior Analysis*, 27(4), 739-760. https://doi.org/10.1901/jaba.1994.27-739
+- Platt, J. R. (1973). Percentile reinforcement: Paradigms for experimental analysis of response shaping. In G. H. Bower (Ed.), *The psychology of learning and motivation* (Vol. 7, pp. 271-296). Academic Press.
+
+**設計根拠:** [AST completeness vs execution orthogonality](../../../.local/context/ast-completeness-vs-execution-orthogonality.md) （method=artful は宣言であり実行可能仕様ではない。JEAB Method セクションにおける "shaped by successive approximation" 記述を事実として保存したまま DSL 化するための primitive）。
+
+#### 3.8.5 使用例
 
 **ABA 反転デザイン（Brown et al., 2020, JEAB）:**
 
@@ -462,13 +546,13 @@ phase ExtinctionTest:
   Conc(EXT @operandum("target-lever"), EXT @operandum("nose-poke"))
 ```
 
-**シェイピング漸進（Eckard & Kyonka, 2018, Behav Processes）:**
+**Progressive FI 訓練（Eckard & Kyonka, 2018, Behav Processes）:**
 
 ```
 @species("mouse") @strain("C57BL/6J") @n(27)
 @reinforcer("sucrose", concentration="15%")
 
-shaping FI_Training:
+progressive FI_Training:
   steps v = [2, 4, 8, 12, 18]
   sessions >= 3
   stable(visual)
@@ -501,7 +585,7 @@ phase Recovery:
   FI600s(FR30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery
   sessions >= 5
@@ -510,7 +594,7 @@ shaping DoseResponse:
   @reinforcer("cocaine", dose="{dose}mg/kg")
 ```
 
-`phase Recovery` は shaping より **前** に宣言する必要がある（前方参照禁止 — 制約 74）。`interleave` で参照された Recovery は **template**（制約 76）となり、宣言位置の standalone PhaseSequence には現れず、用量条件間に clone として展開される。展開結果は 12 phase（6 用量 + 6 recovery）— 論文 Method と完全一致する:
+`phase Recovery` は progressive より **前** に宣言する必要がある（前方参照禁止 — 制約 74）。`interleave` で参照された Recovery は **template**（制約 76）となり、宣言位置の standalone PhaseSequence には現れず、用量条件間に clone として展開される。展開結果は 12 phase（6 用量 + 6 recovery）— 論文 Method と完全一致する:
 
 ```
 DoseResponse_1, Recovery_after_DoseResponse_1,
@@ -527,22 +611,22 @@ DoseResponse_6, Recovery_after_DoseResponse_6
 @species("rat") @strain("Wistar") @n(15)
 @session_end(rule="time", time=50min)
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps vol = [6, 12, 25, 50, 100, 200, 300]
   sessions = 30
   PR(exponential)
   @reinforcer("sucrose", concentration="0.6M", volume="{vol}ul")
 ```
 
-#### 3.8.5 実験層の意味制約
+#### 3.8.6 実験層の意味制約
 
 | # | 制約 | エラーコード | レベル |
 |---|---|---|---|
 | 63 | フェーズ名の重複 | `DUPLICATE_PHASE_NAME` | SemanticError |
 | 64 | 未定義の `use` 参照 | `UNDEFINED_PHASE_REF` | SemanticError |
-| 65 | Shaping steps 長の不一致 | `SHAPING_STEPS_LENGTH_MISMATCH` | SemanticError |
-| 66 | 空の shaping steps リスト | `SHAPING_EMPTY_STEPS` | SemanticError |
-| 67 | 未定義の shaping プレースホルダー | `SHAPING_UNDEFINED_VARIABLE` | SemanticError |
+| 65 | Progressive steps 長の不一致 | `PROGRESSIVE_STEPS_LENGTH_MISMATCH` | SemanticError |
+| 66 | 空の progressive steps リスト | `PROGRESSIVE_EMPTY_STEPS` | SemanticError |
+| 67 | 未定義の progressive プレースホルダー | `PROGRESSIVE_UNDEFINED_VARIABLE` | SemanticError |
 | 68 | 実験レベルアノテーションスコーピング | （Core スコーピングを継承） | — |
 | 69 | フェーズごとの session_spec 重複 | `DUPLICATE_SESSION_SPEC` | SemanticError |
 | 70 | フェーズごとの stability_spec 重複 | `DUPLICATE_STABILITY_SPEC` | SemanticError |
@@ -550,22 +634,34 @@ shaping DoseResponse:
 | 72 | `sessions = 0`（非正） | `SESSION_NONPOSITIVE` | SemanticError |
 | 73 | `no_schedule` 本体（パヴロフ型/曝露 phase） | （情報のみ・エラーなし） | — |
 | 74 | `interleave` が未宣言/前方の phase を参照 | `UNDEFINED_PHASE_REF` | SemanticError |
-| 75 | `interleave` の self-reference（target = 外側または以降の shaping） | `SHAPING_SELF_INTERLEAVE` | SemanticError |
+| 75 | `interleave` の self-reference（target = 外側または以降の progressive_decl） | `PROGRESSIVE_SELF_INTERLEAVE` | SemanticError |
 | 76 | Template 消費 — 参照された phase は standalone PhaseSequence から除去 | （意味論・エラーなし） | — |
 | 63b | `interleave` clone label がユーザ宣言 phase と衝突 | `DUPLICATE_PHASE_NAME` | SemanticError |
+| 83 | `shaping` に必須の `target` が欠落 | `MISSING_SHAPING_TARGET` | SemanticError |
+| 84 | `shaping` の `method` 値が未知 | `UNKNOWN_SHAPING_METHOD` | SemanticError |
+| 85 | `shaping` method=percentile で `dimension` / `percentile_rank` / criterion が欠落 | `INCOMPLETE_PERCENTILE_SHAPING` | SemanticError |
+| 86 | `shaping` method=staged で `stages` / criterion が欠落 | `INCOMPLETE_STAGED_SHAPING` | SemanticError |
+| 87 | `shaping` method=artful で stability_spec/session_spec 両方が省略 ⇒ 既定で ExperimenterJudgment | （情報のみ・エラーなし） | — |
+| 88 | `percentile_rank` が範囲外 | `PCTL_INVALID_RANK` | SemanticError |
+| 89 | `percentile_window` が非正 | `PCTL_INVALID_WINDOW` | SemanticError |
+| 90 | shaping_meta の重複宣言 | `DUPLICATE_SHAPING_META` | SemanticError |
+| 91 | 選択された method で禁止されている shaping_meta | `SHAPING_META_METHOD_MISMATCH` | SemanticError |
+| 92 | `approximations` に空文字列が含まれる | `EMPTY_APPROXIMATION_LABEL` | SemanticError |
+| 93 | `stages` リストの要素数が 2 未満 | `SHAPING_INSUFFICIENT_STAGES` | SemanticError |
 
-#### 3.8.6 LL(1) 検証
+#### 3.8.7 LL(1) 検証
 
 実験層の全判定点は LL(1):
 
 | 判定点 | 先読み | トークン集合 |
 |---|---|---|
-| `file → experiment \| program` | 1 | `{phase, shaping}` vs その他全て |
-| `(phase_decl \| shaping_decl)+` | 1 | `phase` vs `shaping` |
+| `file → experiment \| program` | 1 | `{phase, progressive, shaping}` vs その他全て |
+| `(phase_decl \| progressive_decl \| shaping_decl)+` | 1 | `phase` vs `progressive` vs `shaping` |
 | `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs `stable` |
 | `session_spec → "=" \| ">="` | 1 | `=` vs `>=` |
 | `phase_content \| phase_ref` | 1 | `use` vs その他全て |
-| `shaping_body: interleave_decl* vs phase_meta*` | 1 | `interleave` vs `{sessions, stable, ...}` |
+| `progressive_body: interleave_decl* vs phase_meta*` | 1 | `interleave` vs `{sessions, stable, ...}` |
+| `shaping_body: shaping_meta+` | 1 | `{target, method, approximations, dimension, stages, percentile_*}` vs FOLLOW |
 | `interleave_decl: 任意の "no_trailing"` | 1 | `no_trailing` vs FOLLOW（`interleave`、`sessions`、`stable`、`let`、`@`、スケジュール開始トークン） |
 
 新しい LL(2) 判定点は導入されない。[LL(2) 形式的証明 §11](ll2-proof.md) を参照。

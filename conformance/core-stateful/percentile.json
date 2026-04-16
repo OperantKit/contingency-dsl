@@ -173,14 +173,14 @@
   {
     "id": "pctl_let_binding",
     "description": "Percentile schedule bound to identifier via let",
-    "input": "let shaping = Pctl(IRT, 50, window=20)\nMult(shaping, EXT)",
+    "input": "let pctl_sched = Pctl(IRT, 50, window=20)\nMult(pctl_sched, EXT)",
     "expected": {
       "type": "Program",
       "param_decls": [],
       "bindings": [
         {
           "type": "Binding",
-          "name": "shaping",
+          "name": "pctl_sched",
           "value": {
             "type": "Modifier",
             "modifier": "Pctl",
@@ -195,7 +195,7 @@
         "type": "Compound",
         "combinator": "Mult",
         "components": [
-          { "type": "IdentifierRef", "name": "shaping" },
+          { "type": "IdentifierRef", "name": "pctl_sched" },
           { "type": "Special", "kind": "EXT" }
         ]
       }

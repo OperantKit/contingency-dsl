@@ -70,8 +70,8 @@
 | `PCTL_DIR_VAL` | below, above | パーセンタイル方向値（Core-Stateful） |
 | `ADJ_ARG_KW` | start, step, min, max | 調整キーワード引数名（Core-Stateful） |
 | `INTERLOCK_ARG_KW` | R0, T | 連動キーワード引数名（Core-Stateful） |
-| `KW_INTERLEAVE` | interleave | shaping interleave キーワード（Experiment v2.x） |
-| `KW_NO_TRAILING` | no_trailing | shaping interleave の末尾抑制修飾子（Experiment v2.x） |
+| `KW_INTERLEAVE` | interleave | progressive interleave キーワード（Experiment v2.x） |
+| `KW_NO_TRAILING` | no_trailing | progressive interleave の末尾抑制修飾子（Experiment v2.x） |
 
 **字句解析器の前提:**
 
@@ -1017,7 +1017,7 @@ Core-Stateful レイヤは**保守的な文法拡張**である: 既存の決定
 
 ## §11 実験層の判定点（v2.0）
 
-実験層（grammar.ebnf の `file`、`experiment`、`phase_decl`、`shaping_decl`）は以下の判定点を導入する。すべて LL(1) — 新たな LL(2) 判定点は生じない。
+実験層（grammar.ebnf の `file`、`experiment`、`phase_decl`、`progressive_decl`）は以下の判定点を導入する。すべて LL(1) — 新たな LL(2) 判定点は生じない。
 
 ### §11.1 ファイルレベルの曖昧性解消
 
@@ -1028,7 +1028,7 @@ Core-Stateful レイヤは**保守的な文法拡張**である: 既存の決定
 **FIRST₁ 分析:**
 
 ```
-FIRST₁(annotations 後の experiment) = { KW_PHASE, KW_SHAPING }
+FIRST₁(annotations 後の experiment) = { KW_PHASE, KW_PROGRESSIVE }
 FIRST₁(annotations 後の program)    = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
                                      = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
                                          KW_LET, DIST, KW_EXT, KW_CRF, COMB,
@@ -1038,25 +1038,25 @@ FIRST₁(annotations 後の program)    = FIRST₁(param_decl) ∪ FIRST₁(bind
                                          IDENT, LPAREN, ... }
 ```
 
-`KW_PHASE` と `KW_SHAPING` は既存のいずれの FIRST₁ 集合にも含まれない新しい予約トークンであるため:
+`KW_PHASE` と `KW_PROGRESSIVE` は既存のいずれの FIRST₁ 集合にも含まれない新しい予約トークンであるため:
 
 ```
-{ KW_PHASE, KW_SHAPING } ∩ FIRST₁(annotations 後の program) = ∅
+{ KW_PHASE, KW_PROGRESSIVE } ∩ FIRST₁(annotations 後の program) = ∅
 ```
 
 **結果:** LL(1)。∎
 
-**アノテーションに関する注:** `experiment` と `program` のいずれも `program_annotation`（トークン `@`）で始まることができる。構文解析器は先頭の `@` アノテーションをすべて消費した後、次のトークンを確認する。`KW_PHASE` または `KW_SHAPING` であれば experiment、それ以外は program。アノテーションはどちらの生成規則でも有効。
+**アノテーションに関する注:** `experiment` と `program` のいずれも `program_annotation`（トークン `@`）で始まることができる。構文解析器は先頭の `@` アノテーションをすべて消費した後、次のトークンを確認する。`KW_PHASE` または `KW_PROGRESSIVE` であれば experiment、それ以外は program。アノテーションはどちらの生成規則でも有効。
 
-### §11.2 Phase vs. Shaping
+### §11.2 Phase vs. Progressive
 
-**判定:** `experiment` 内の各位置で `phase_decl` と `shaping_decl` を選択する。
+**判定:** `experiment` 内の各位置で `phase_decl` と `progressive_decl` を選択する。
 
 ```
 FIRST₁(phase_decl)   = { KW_PHASE }
-FIRST₁(shaping_decl) = { KW_SHAPING }
+FIRST₁(progressive_decl) = { KW_PROGRESSIVE }
 
-{ KW_PHASE } ∩ { KW_SHAPING } = ∅
+{ KW_PHASE } ∩ { KW_PROGRESSIVE } = ∅
 ```
 
 **結果:** LL(1)。∎
@@ -1111,12 +1111,12 @@ FIRST₁(phase_content)   = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST
 
 **結果:** LL(1)。∎
 
-### §11.6 Shaping 本体の継続（interleave_decl 付き、v2.x）
+### §11.6 Progressive 本体の継続（interleave_decl 付き、v2.x）
 
-`shaping_body` 生成規則は `shaping_steps+` と `phase_meta*` の間に任意の `interleave_decl` の列を導入する:
+`progressive_body` 生成規則は `progressive_steps+` と `phase_meta*` の間に任意の `interleave_decl` の列を導入する:
 
 ```
-shaping_body  →  shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+progressive_body  →  progressive_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
 ```
 
 **判定 A — 別の `interleave_decl` を消費するか:**
@@ -1160,7 +1160,7 @@ KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
 1. *G'* は LL(2): すべての Core および Core-Stateful の性質を保存し、実験層は LL(1)。
 2. *G'* は LL(1) ではない: Core の PosTail LL(2) 点が残る。
 3. *G'* は曖昧性を持たない（1 の系）。
-4. shaping 展開規則（E-SHAPING / E-SHAPING-MULTI / E-SHAPING-INTERLEAVE）は意味論フェーズで動作し、構文解析には影響しない。
+4. shaping 展開規則（E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE）は意味論フェーズで動作し、構文解析には影響しない。
 5. Phase 名（upper_ident）は識別子（小文字）およびスケジュールキーワード（大文字だが FR、VI のような複数文字組合せ）と字句的に素であり、トークンの曖昧性を防ぐ。
 6. `interleave` 句（v2.x）は構文解析後の意味論フェーズで template 消費（制約 76）と clone label 生成（制約 63b）を導入する — これらは文法分類に影響しない。
 
@@ -1229,7 +1229,7 @@ COMMA の後、パーサは以下から選択する:
 | `EQ` | ScalarKwArg |
 | `LPAREN` | DirectionalKwArg |
 
-これは v1.1 以来存在する既存の LL(2) 決定点。新追加により変化しない。
+これは既存の LL(2) 決定点。新追加により変化しない。
 
 ### §12.5 PosTail の保存
 
@@ -1245,6 +1245,110 @@ v1.y の `overlay_kw_arg` および `punish_directive` 拡張は LL(2) 分類を
 新内部決定点はすべて LL(1) であり、既存の LL(2) 決定点（§6）は影響を受けない。
 文法は、`PosTail` のみ 2 トークン先読みを要求し他はすべて 1 トークン先読みで
 動作する再帰下降 LL(2) パーサで解析可能のままである。
+
+---
+
+## §13 Core-TrialBased MTS 拡張の決定点（R-7）
+
+Core-TrialBased 層の `mts_schedule` 生成規則に 2 つの新キーワード引数
+（`delay`, `correction`）と 1 つの新生成規則（`correction_spec`）を追加する。
+本節は、これらの追加が LL(2) 分類を保存することを示す。
+
+### §13.1 拡張された mts_kw_arg
+
+```
+mts_kw_arg → "comparisons"  EQ NUMBER
+           | "consequence"  EQ Schedule
+           | "incorrect"    EQ Schedule
+           | "ITI"          EQ Value
+           | "type"         EQ MtsType
+           | "delay"        EQ Value             ; [R-7]
+           | "correction"   EQ CorrectionSpec    ; [R-7]
+           | LH_KW          EQ Value
+```
+
+既存の 5 alternative に 2 alternative を追加。各 alternative の先頭は
+文脈限定キーワード（`MTS(` 内でのみ keyword 扱い、§13.2）。
+
+### §13.2 context-sensitive reservation
+
+`delay` / `correction` は文法のトップレベル reserved に含めない。
+`MTS` `(` の直後で `IDENT` `=` のパターンに現れた場合のみ keyword と解釈される。
+これは既存の `type` と同じ扱いであり、トップレベルの `let delay = ...` /
+`let correction = ...` と衝突しない。
+
+### §13.3 mts_kw_arg の選択判定
+
+`MTS` `(` の直後、あるいは `,` の直後、パーサは IDENT を見て以下のテーブルから
+alternative を選択する:
+
+| IDENT 値 | 選択される alternative |
+|---|---|
+| `"comparisons"` | comparisons arg |
+| `"consequence"` | consequence arg |
+| `"incorrect"` | incorrect arg |
+| `"ITI"` | ITI arg |
+| `"type"` | type arg |
+| `"delay"` | delay arg (**NEW**) |
+| `"correction"` | correction arg (**NEW**) |
+| `LH_KW`（`LH` / `LimitedHold` / `limitedHold`） | LH arg |
+
+単一 token 先読みで一意決定可能。**LL(1)**。
+
+### §13.4 correction_spec 内部決定
+
+```
+correction_spec → boolean | number | '"repeat_until_correct"'
+```
+
+先頭 token の字句クラスで三分岐:
+
+| FIRST₁ | 選択 alternative |
+|---|---|
+| `KW_TRUE` / `KW_FALSE` | boolean |
+| `NUMBER` (= [0-9]+ ("." [0-9]+)?) | number |
+| `STRING` (= `"..."`) | string（M15 で `"repeat_until_correct"` のみ許可） |
+
+boolean / number / string の lexer 分類は pairwise disjoint。**LL(1)**。
+
+整数制約（fractional reject）は M15 semantic error
+（MTS_INVALID_CORRECTION）として semantic layer に委譲される — これは
+`comparisons=3s` が syntactically valid `value` でありながら M2
+で拒否されるのと同じパターン。
+
+### §13.5 PosTail への影響
+
+§6 の中核的 LL(2) 決定点（`PosTail` — Schedule vs KwTail 直前の COMMA）は
+複合スケジュール（Conc, Mult, Chain 等）の arg_list 内に存在する。
+`mts_schedule` は独自の括弧構造 `MTS(...)` を持ち、その内部では
+`mts_kw_arg` の選択のみが行われる（PosTail 判定は発生しない）。
+したがって §6 の LL(2) 分析は影響を受けない。
+
+### §13.6 FIRST / FOLLOW 更新
+
+- **FIRST₁(mts_kw_arg)** に `"delay"` / `"correction"` を追加（既存の
+  `"comparisons"` 等と disjoint な IDENT 値）。
+- **FIRST₁(correction_spec)** = `{ KW_TRUE, KW_FALSE, NUMBER, STRING }`。
+  pairwise disjoint。
+- **FOLLOW** 集合は変化しない（既存の `mts_kw_arg` の FOLLOW に
+  `COMMA` と `RPAREN` がある状態が維持される）。
+
+### §13.7 結論
+
+R-7 の `delay` / `correction` 追加および `correction_spec` 新生成規則は
+LL(2) 分類を保存する。
+新内部決定点（§13.3, §13.4）はすべて LL(1)。既存の LL(2) 決定点（§6 の
+`PosTail`）は `mts_schedule` とは独立な arg_list 構造にあり、影響を受けない。
+
+**更新された定理（§8・§11.7 の拡張）:**
+
+拡張文法 *G''* = Core ∪ Core-Stateful ∪ Experiment ∪ Overlay ∪ Core-TrialBased
+は以下を満たす:
+
+1. *G''* は LL(2): すべての先行する性質を保存し、Core-TrialBased は LL(1)。
+2. *G''* は LL(1) ではない: Core の `PosTail` LL(2) 点が残る。
+3. *G''* は曖昧性を持たない（1 の系）。
+4. `correction_spec` の整数制約は semantic layer（M15）に委譲される。
 
 ---
 

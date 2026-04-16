@@ -441,9 +441,9 @@ Mult(Pctl(IRT, 50), EXT, BO=5-s)
 -- Concurrent: shape different dimensions on different operanda
 Conc(Pctl(IRT, 30), Pctl(force, 75, dir=above), COD=2-s)
 
--- Named binding for readability
-let shaping = Pctl(IRT, 50, window=20)
-Mult(shaping, EXT)
+-- Named binding for readability (note: `shaping` is a reserved keyword; pick another name)
+let pctl_sched = Pctl(IRT, 50, window=20)
+Mult(pctl_sched, EXT)
 ```
 
 **Clinical application (ABA):**
@@ -476,7 +476,7 @@ phase Recovery:
   FI 600-s(FR 30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery
   sessions >= 5
@@ -486,11 +486,11 @@ shaping DoseResponse:
 ```
 
 **What this does:**
-- `phase Recovery` is declared **before** the shaping (no forward references — constraint 74)
+- `phase Recovery` is declared **before** the progressive_decl (no forward references — constraint 74)
 - Because `Recovery` is referenced by `interleave`, it becomes a **template** (constraint 76) and does not appear standalone in the timeline
 - The `interleave Recovery` clause uses default **intercalate** semantics: a clone of `Recovery` is inserted after every dose condition, including the last one
 - The expansion produces 12 phases — 6 doses + 6 recoveries — matching the paper's Method "*each dose was followed by a return to baseline*" exactly
-- Cloned recoveries carry `Recovery`'s verbatim `@reinforcer("cocaine", dose="0.1mg/kg")` annotation (annotation locality, theory.md Definition 16, Property 4); the shaping's `{dose}` placeholder does not leak into clones
+- Cloned recoveries carry `Recovery`'s verbatim `@reinforcer("cocaine", dose="0.1mg/kg")` annotation (annotation locality, theory.md Definition 16, Property 4); the progressive_decl's `{dose}` placeholder does not leak into clones
 
 **Resolved phase sequence:**
 
@@ -557,7 +557,7 @@ Mult(choice_component, chain_component)
 | `Lag` | Operant variability, ASD stereotypy reduction, creativity research | Cannot reinforce response variability directly |
 | `Pctl` | Automated shaping, adaptive differentiation, clinical shaping | Manual shaping only; no quantitative criterion |
 | `let` | Readable complex programs | Unreadable nested expressions |
-| `phase` / `shaping` | Multi-phase experimental designs (A-B-A reversal, parametric studies) | Cannot express across-session structure declaratively |
+| `phase` / `progressive` / `shaping` | Multi-phase experimental designs (A-B-A reversal, parametric studies, Skinner response shaping) | Cannot express across-session structure declaratively |
 | `interleave` | Dose-response, reinforcer-magnitude, intervening-baseline designs (1:1 with paper Method) | Hand-write 2N phases with mostly identical bodies |
 
 ---

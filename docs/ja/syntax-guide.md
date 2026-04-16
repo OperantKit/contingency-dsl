@@ -300,7 +300,7 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30 は LH=5-s、VI 60 はデフォ
 
 ## レベル 6: 実験層（多フェーズ）
 
-セッション間デザイン（A-B-A 反転、用量反応、パラメトリック研究）には、`phase` と `shaping` 宣言を使う。
+セッション間デザイン（A-B-A 反転、用量反応、パラメトリック研究）には、`phase`、`progressive`、`shaping` の各宣言を使う。`progressive` は Sidman 意味のパラメータ漸進（セッション間）、`shaping` は Skinner 意味のセッション内反応形成を表す。
 
 ### Phase 宣言
 
@@ -317,12 +317,12 @@ phase Reversal:
   use Baseline      -- Baseline のスケジュール式を再利用
 ```
 
-### Shaping（パラメトリック漸進）
+### Progressive Training（パラメトリック漸進）
 
-`shaping` は番号付き `phase` 宣言列に脱糖される。FI 漸進訓練、用量反応、強化子量研究などに有用:
+`progressive` は番号付き `phase` 宣言列に脱糖される。FI 漸進訓練、用量反応、強化子量研究などに有用（Sidman, 1960; Zeiler, 1977）:
 
 ```
-shaping FI_Training:
+progressive FI_Training:
   steps v = [2, 4, 8, 12, 18]
   sessions >= 3
   stable(visual)
@@ -331,18 +331,50 @@ shaping FI_Training:
 
 `FI_Training_1, …, FI_Training_5` に展開され、`{v}` placeholder は steps リストの値で置換される。
 
-### Interleave（Recovery / 介在 baseline）
+### Shaping（Skinner 流の反応形成）
 
-`interleave R` 句を追加すると、生成された各 phase ペアの間に事前宣言された phase `R` の clone が挿入される。既定の意味論は **intercalate**（最後の phase の後にも clone が追加される）。`no_trailing` で intersperse に切り替え可能。
+`shaping` は連続近似によるセッション内反応形成を宣言する（Skinner, 1953; Catania, 2013）。`method` により脱糖先が変わる:
 
 ```
-phase Recovery:                       -- shaping より前に宣言（前方参照禁止）
+-- method=artful（既定）: 人間実行による連続近似
+shaping KeyPeckShaping:
+  target = "KeyPeck"
+  method = artful
+  approximations = ["orient", "approach", "contact", "peck"]
+  -- CRF + @procedure("shape", ...) + ExperimenterJudgment criterion に脱糖
+
+-- method=percentile: Platt (1973) / Galbicka (1994) に基づく自動化
+shaping LeverForceShaping:
+  target = "LeverPress"
+  method = percentile
+  dimension = force
+  percentile_rank = 50
+  stable(visual)
+  -- Phase with Pctl(force, 50, window=20) schedule に脱糖
+
+-- method=staged: 事前列挙された段階
+shaping LeverPressShaping:
+  target = "LeverPress"
+  method = staged
+  stages = [CRF, DRH 2-s, DRH 1-s]
+  sessions >= 3
+  -- 各 stage を phase とする progressive_decl に脱糖
+```
+
+`target` フィールドは必須（Galbicka の "clearly define the terminal response" ルールを強制）。
+
+### Interleave（Recovery / 介在 baseline）
+
+`interleave R` 句を `progressive_decl` に追加すると、生成された各 phase ペアの間に事前宣言された phase `R` の clone が挿入される。既定の意味論は **intercalate**（最後の phase の後にも clone が追加される）。`no_trailing` で intersperse に切り替え可能。
+
+```
+phase Recovery:                       -- progressive_decl より前に宣言（前方参照禁止）
   sessions >= 3
   stable(visual)
   FI 600-s(FR 30)
   @reinforcer("cocaine", dose="0.1mg/kg")
 
-shaping DoseResponse:
+progressive DoseResponse:
   steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
   interleave Recovery                 -- intercalate（既定）
   sessions >= 5
@@ -356,7 +388,7 @@ shaping DoseResponse:
 複数の `interleave` 行は宣言順に gap block を構成する:
 
 ```
-shaping DR:
+progressive DR:
   steps v = [2, 4, 8]
   interleave Recovery
   interleave Probe        -- gap = [Recovery_clone, Probe_clone]
@@ -378,7 +410,8 @@ shaping DR:
 | `let x = S` | 束縛 | `let a = VI 60-s` | 名前付きスケジュール |
 | `Repeat(n, S)` | 糖衣構文 | `Repeat(3, FR 10)` | = `Tand(FR 10, FR 10, FR 10)` |
 | `phase Name: ... S` | 実験 | `phase Baseline: sessions = 25 VI 60-s` | 基準付き名前付き phase |
-| `shaping Name: steps x = [...] S({x})` | 実験 | `shaping FI: steps v=[2,4,8] FI {v}-s` | パラメトリック phase 漸進 |
+| `progressive Name: steps x = [...] S({x})` | 実験 | `progressive FI: steps v=[2,4,8] FI {v}-s` | パラメトリック phase 漸進 |
+| `shaping Name: target="X" method=artful` | 実験 | `shaping KeyPeck: target="KeyPeck" approximations=["orient","peck"]` | Skinner 流反応形成（CRF + @procedure + ExperimenterJudgment に脱糖） |
 | `interleave R [no_trailing]` | 実験 | `interleave Recovery` | R-clone を間に挿入（intercalate 既定） |
 
 ---

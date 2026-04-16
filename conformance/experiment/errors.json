@@ -24,27 +24,27 @@
     ]
   },
   {
-    "id": "error_shaping_steps_length_mismatch",
-    "description": "Shaping with mismatched steps lengths → SHAPING_STEPS_LENGTH_MISMATCH",
-    "input": "shaping Train:\n  steps x = [1, 2, 3]\n  steps y = [10, 20]\n  sessions = 5\n  FI {x}s",
+    "id": "error_progressive_steps_length_mismatch",
+    "description": "ProgressiveTraining with mismatched steps lengths → PROGRESSIVE_STEPS_LENGTH_MISMATCH",
+    "input": "progressive Train:\n  steps x = [1, 2, 3]\n  steps y = [10, 20]\n  sessions = 5\n  FI {x}s",
     "errors": [
-      { "code": "SHAPING_STEPS_LENGTH_MISMATCH", "category": "SemanticError" }
+      { "code": "PROGRESSIVE_STEPS_LENGTH_MISMATCH", "category": "SemanticError" }
     ]
   },
   {
-    "id": "error_shaping_empty_steps",
-    "description": "Shaping with empty steps list → SHAPING_EMPTY_STEPS",
-    "input": "shaping Train:\n  steps v = []\n  sessions = 5\n  FI {v}s",
+    "id": "error_progressive_empty_steps",
+    "description": "ProgressiveTraining with empty steps list → PROGRESSIVE_EMPTY_STEPS",
+    "input": "progressive Train:\n  steps v = []\n  sessions = 5\n  FI {v}s",
     "errors": [
-      { "code": "SHAPING_EMPTY_STEPS", "category": "SemanticError" }
+      { "code": "PROGRESSIVE_EMPTY_STEPS", "category": "SemanticError" }
     ]
   },
   {
-    "id": "error_shaping_undefined_variable",
-    "description": "Shaping placeholder references undeclared variable → SHAPING_UNDEFINED_VARIABLE",
-    "input": "shaping Train:\n  steps v = [2, 4, 8]\n  sessions = 5\n  FI {w}s",
+    "id": "error_progressive_undefined_variable",
+    "description": "ProgressiveTraining placeholder references undeclared variable → PROGRESSIVE_UNDEFINED_VARIABLE",
+    "input": "progressive Train:\n  steps v = [2, 4, 8]\n  sessions = 5\n  FI {w}s",
     "errors": [
-      { "code": "SHAPING_UNDEFINED_VARIABLE", "category": "SemanticError" }
+      { "code": "PROGRESSIVE_UNDEFINED_VARIABLE", "category": "SemanticError" }
     ]
   },
   {
@@ -80,9 +80,9 @@
     ]
   },
   {
-    "id": "error_shaping_collides_with_phase",
-    "description": "Shaping-generated name collides with user-defined phase → DUPLICATE_PHASE_NAME",
-    "input": "phase Train_1:\n  sessions = 5\n  FR5\n\nshaping Train:\n  steps v = [10, 20]\n  sessions = 5\n  FR {v}",
+    "id": "error_progressive_collides_with_phase",
+    "description": "ProgressiveTraining-generated name collides with user-defined phase → DUPLICATE_PHASE_NAME",
+    "input": "phase Train_1:\n  sessions = 5\n  FR5\n\nprogressive Train:\n  steps v = [10, 20]\n  sessions = 5\n  FR {v}",
     "errors": [
       { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
     ]
@@ -90,33 +90,74 @@
   {
     "id": "error_interleave_undefined_ref",
     "description": "Constraint 74: interleave references an undeclared phase → UNDEFINED_PHASE_REF",
-    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave Nonexistent\n  sessions = 5\n  FR {v}",
+    "input": "progressive DR:\n  steps v = [1, 2]\n  interleave Nonexistent\n  sessions = 5\n  FR {v}",
     "errors": [
       { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
     ]
   },
   {
     "id": "error_interleave_forward_ref",
-    "description": "Constraint 74: interleave with forward reference (phase declared after the shaping) → UNDEFINED_PHASE_REF",
-    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}\n\nphase Recovery:\n  sessions >= 3\n  stable(visual)\n  FR5",
+    "description": "Constraint 74: interleave with forward reference (phase declared after the progressive_decl) → UNDEFINED_PHASE_REF",
+    "input": "progressive DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}\n\nphase Recovery:\n  sessions >= 3\n  stable(visual)\n  FR5",
     "errors": [
       { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
     ]
   },
   {
-    "id": "error_interleave_self",
-    "description": "Constraint 75: interleave references its own enclosing shaping label → SHAPING_SELF_INTERLEAVE",
-    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave DR\n  sessions = 5\n  FR {v}",
+    "id": "error_progressive_interleave_self",
+    "description": "Constraint 75: interleave references its own enclosing progressive_decl label → PROGRESSIVE_SELF_INTERLEAVE",
+    "input": "progressive DR:\n  steps v = [1, 2]\n  interleave DR\n  sessions = 5\n  FR {v}",
     "errors": [
-      { "code": "SHAPING_SELF_INTERLEAVE", "category": "SemanticError" }
+      { "code": "PROGRESSIVE_SELF_INTERLEAVE", "category": "SemanticError" }
     ]
   },
   {
     "id": "error_interleave_clone_collides",
     "description": "Constraint 63b: user-declared phase collides with an interleave-generated clone label → DUPLICATE_PHASE_NAME",
-    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nphase Recovery_after_DR_1:\n  sessions = 1\n  EXT\n\nshaping DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}",
+    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nphase Recovery_after_DR_1:\n  sessions = 1\n  EXT\n\nprogressive DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}",
     "errors": [
       { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
     ]
+  },
+
+  { "_comment": "=== R-4: I-13a progressive_advance errors ===" },
+
+  {
+    "id": "error_progressive_advance_duplicate",
+    "description": "Constraint 77: at most one `advance when` per progressive_decl → DUPLICATE_PROGRESSIVE_ADVANCE",
+    "input": "progressive FI_Training:\n  steps v = [2, 4, 8]\n  advance when criterion(metric=\"rate\", threshold=>=10, window=3 sessions)\n  advance when manual\n  FI {v}s",
+    "errors": [
+      { "code": "DUPLICATE_PROGRESSIVE_ADVANCE", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_undefined_criterion_metric",
+    "description": "Constraint 78: criterion metric not in standard registry → UNDEFINED_CRITERION_METRIC",
+    "input": "progressive Training:\n  steps v = [1, 2]\n  advance when criterion(metric=\"wakawaka\", threshold=>=5, window=2 sessions)\n  FR {v}",
+    "errors": [
+      { "code": "UNDEFINED_CRITERION_METRIC", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_advance_fixed_sessions_conflict",
+    "description": "Constraint 79: advance when criterion(...) with sessions = N (exact) → ADVANCE_FIXED_SESSIONS_CONFLICT",
+    "input": "progressive FI_Training:\n  steps v = [2, 4, 8]\n  advance when criterion(metric=\"rate\", threshold=>=10, window=3 sessions)\n  sessions = 5\n  FI {v}s",
+    "errors": [
+      { "code": "ADVANCE_FIXED_SESSIONS_CONFLICT", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "advance_manual_with_fixed_sessions_ok",
+    "description": "Constraint 79 exception: `advance when manual` + `sessions = N` is legal (exception to fixed-sessions conflict)",
+    "input": "progressive Omission_Training:\n  steps ratio = [5, 10, 20]\n  advance when manual\n  sessions = 3\n  FR {ratio}",
+    "expected_note": "No error — manual advancement documented alongside observed session duration. This is the §79 explicit exception.",
+    "expected_phase_count": 3
+  },
+  {
+    "id": "warning_advance_single_step",
+    "description": "Constraint 80: single-step progressive_decl with advance_when → ADVANCE_SINGLE_STEP (WARNING, not error)",
+    "input": "progressive FI_Single:\n  steps v = [5]\n  advance when criterion(metric=\"rate\", threshold=>=10, window=3 sessions)\n  FI {v}s",
+    "warning": "ADVANCE_SINGLE_STEP",
+    "expected_note": "Vacuous advance condition (no second step to advance to). Accepted but flagged."
   }
 ]
