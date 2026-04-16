@@ -1,9 +1,70 @@
 # Versioning Strategy
 
-> Part of the [contingency-dsl spec](architecture.md). Defines DSL version management, annotator capability discovery, and backward compatibility guarantees.
+> Part of the [contingency-dsl spec](architecture.md). Defines DSL version management, annotator capability discovery, backward compatibility guarantees, and the design-change log.
 
-**Status:** Draft (2026-04-14)
+**Status:** Draft (2026-04-14; updated 2026-04-17)
 **Addresses:** EXTENSION_RULES_REVIEW §3.7 — "Versioning strategy gap"
+
+---
+
+## 0. Design-Change Log
+
+This section is a log of design changes to the DSL architecture. It is
+distinct from version declarations: this repository does not currently
+have a git remote, and no version numbers are published. Each entry is
+a **design checkpoint**, not a version bump.
+
+### 2026-04-17 — Ψ restructure (design checkpoint, not a version bump)
+
+**Rationale.** The previous Core / Core-Stateful / Core-TrialBased naming
+conflated formal-structure axes with scientific categories. Ψ
+reorganizes by scientific category (foundations / operant / respondent /
+composed / experiment / annotations) to reflect the Skinner (1938)
+operant versus Pavlov (1927) respondent distinction at the directory
+level, and to make the Rescorla & Solomon (1967) two-process theory
+accommodatable as a first-class sibling (`composed/`). The Experiment
+layer and Context become first-class, enabling future renewal /
+reinstatement procedures via the respondent extension point.
+
+**Scope.** Directory restructure across `spec/{en,ja}/`, `schema/`,
+`conformance/`, `dist/`, `docs/{en,ja}/`, plus a new package
+`operantkit/apps/core/contingency-respondent-dsl` covering Tier B
+respondent procedures (blocking, overshadowing, latent inhibition,
+renewal, reinstatement, spontaneous recovery, counterconditioning,
+occasion-setting, and related designs).
+
+**Layer map (old → new).**
+
+| Old | New |
+|---|---|
+| `Core` | `Operant.Literal` (`operant/schedules/`) |
+| `Core-Stateful` | `Operant.Stateful` (`operant/stateful/`) |
+| `Core-TrialBased` | `Operant.TrialBased` (`operant/trial-based/`) |
+| (implicit in Core / Experiment) | `Foundations` (paradigm-neutral formal base) |
+| (absent) | `Respondent` (two-term CS-US primitives + extension point) |
+| (absent) | `Composed` (operant × respondent: CER, PIT, autoshaping, omission, two-process) |
+| `Experiment` | `Experiment` (now first-class, includes Context) |
+| `Annotation` | `Annotation` (now includes `extensions/respondent-annotator`) |
+
+**Not a version bump.** No git remote is configured for this repository;
+version declarations are deferred until publication. This entry is
+recorded as a design checkpoint under the authority of
+design-philosophy.md §8.3 (obligation to record rationale for
+non-additive changes against the canon).
+
+**Related work.**
+
+- Added `annotations/extensions/respondent-annotator` providing `@cs`,
+  `@us`, `@iti`, `@cs_interval`
+- Added the Respondent extension point in `respondent/grammar.md`
+  (`ExtensionRespondentPrimitive`), parallel to the pre-existing
+  Schedule Extension point in the Operant layer
+- Tier A respondent primitives enumerated in design-philosophy §2 and
+  `respondent/primitives.md`: `Pair.{ForwardDelay, ForwardTrace,
+  Simultaneous, Backward}`, `Extinction`, `CSOnly`, `USOnly`,
+  `Contingency(p_us_given_cs, p_us_given_no_cs)`, `TrulyRandom`,
+  `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`,
+  `Differential(cs+, cs−)`
 
 ---
 
