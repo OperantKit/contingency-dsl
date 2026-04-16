@@ -473,5 +473,210 @@
         "limitedHoldUnit": "s"
       }
     }
+  },
+
+  { "_comment": "=== R-7: DMTS (Delayed Matching-to-Sample; Blough, 1959) — delay parameter ===" },
+
+  {
+    "id": "mts_dmts_basic",
+    "description": "R-7: DMTS with 5-s retention interval (Blough, 1959; sample offset → 5s delay → comparison onset)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 5.0,
+        "delay_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "mts_dmts_zero_delay",
+    "description": "R-7: delay=0s is explicit simultaneous MTS (functionally equivalent to omitted delay)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=0s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 0.0,
+        "delay_unit": "s"
+      }
+    }
+  },
+  {
+    "id": "mts_dmts_ms_delay",
+    "description": "R-7: DMTS with sub-second delay (500 ms), Grant (1975) proactive-interference paradigm",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=500ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 500.0,
+        "delay_unit": "ms"
+      }
+    }
+  },
+
+  { "_comment": "=== R-7: correction procedure (Harrison, 1970; Saunders & Green, 1999) ===" },
+
+  {
+    "id": "mts_correction_boolean_true",
+    "description": "R-7: correction=true — repeat incorrect trials until correct (standard acquisition procedure)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "correction": { "mode": "unlimited" }
+      }
+    }
+  },
+  {
+    "id": "mts_correction_boolean_false",
+    "description": "R-7: correction=false — advance to next trial after incorrect (non-correction, equivalent to omitted correction)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=false)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "correction": { "mode": "disabled" }
+      }
+    }
+  },
+  {
+    "id": "mts_correction_with_limit",
+    "description": "R-7: correction=3 — repeat up to 3 times, then advance to next trial (bounded correction)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "correction": { "mode": "bounded", "limit": 3 }
+      }
+    }
+  },
+  {
+    "id": "mts_correction_string_form",
+    "description": "R-7: correction=\"repeat_until_correct\" — semantically equivalent to correction=true",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=\"repeat_until_correct\")",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "correction": { "mode": "unlimited" }
+      }
+    }
+  },
+  {
+    "id": "mts_dmts_with_correction_bounded",
+    "description": "R-7: DMTS with bounded correction — combined delay + limit (triggers no warning because correction is bounded)",
+    "input": "MTS(comparisons=3, consequence=CRF, incorrect=FT3s, ITI=5s, delay=2s, correction=3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": {
+          "type": "Atomic",
+          "dist": "F",
+          "domain": "T",
+          "value": 3.0,
+          "time_unit": "s"
+        },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 2.0,
+        "delay_unit": "s",
+        "correction": { "mode": "bounded", "limit": 3 }
+      }
+    }
+  },
+  {
+    "id": "mts_backward_compat_v10_minimal",
+    "description": "R-7: v1.0 minimal program — AST equivalence without new keywords (backward compatibility)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    }
   }
 ]

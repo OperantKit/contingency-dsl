@@ -66,6 +66,9 @@ MTS(comparisons=3, consequence=CRF, ITI=5s)                       -- 最小形
 MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=5s)        -- incorrect 指定
 MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
                                                                    -- 全パラメータ指定
+MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)              -- DMTS (v1.1)
+MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true)       -- 修正手続 (v1.1)
+MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + 制限付き修正
 ```
 
 ### パラメータ
@@ -77,6 +80,8 @@ MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
 | `incorrect` | keyword | schedule | — | `EXT` | 誤答時の結果事象（Core スケジュール式） |
 | `ITI` | keyword | 時間値 | ✅ | — | 試行間間隔 |
 | `type` | keyword | 列挙型 | — | `"arbitrary"` | マッチング種別: `"identity"` or `"arbitrary"` |
+| `delay` | keyword | 時間値 ≥ 0 | — | `0s` | **[v1.1, R-7]** 見本消去から比較呈示までの保持間隔。`delay=0s` は simultaneous MTS と等価、`delay>0` で DMTS（Blough, 1959）|
+| `correction` | keyword | boolean / 正整数 / `"repeat_until_correct"` | — | `false` | **[v1.1, R-7]** 修正手続（Harrison, 1970）。`true` / `"repeat_until_correct"` は無制限に正答するまで反復、正整数 N は最大 N 回反復 |
 
 全パラメータが keyword（positional 引数なし）。
 
@@ -106,13 +111,15 @@ MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
 
 ```
 1. 見本刺激提示
-2. 比較刺激提示  （comparisons 個、位置ランダム化）
-3. 反応           （被験体が比較刺激を 1 つ選択）
-4. 結果事象
+2. [保持間隔 delay > 0 のとき: 見本消去 → delay 秒間 → 比較呈示] (v1.1: DMTS)
+3. 比較刺激提示  （comparisons 個、位置ランダム化）
+4. 反応           （被験体が比較刺激を 1 つ選択）
+5. 結果事象
    ├─ 正答  → consequence スケジュールを実行
    └─ 誤答  → incorrect スケジュールを実行
-5. 試行間間隔     （ITI、全刺激消去）
-6. → 次の試行
+6. [修正手続 correction が有効なとき: 誤答試行の反復] (v1.1)
+7. 試行間間隔     （ITI、全刺激消去）
+8. → 次の試行
 ```
 
 正誤判定の定義:
@@ -121,6 +128,32 @@ MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
 type=identity:   correct ⟺ response_stimulus == sample_stimulus
 type=arbitrary:  correct ⟺ class(response_stimulus) == class(sample_stimulus)
 ```
+
+#### DMTS（保持間隔） — v1.1, R-7
+
+`delay > 0` のとき、見本提示後に保持間隔が挿入される（Delayed Matching-to-Sample; Blough, 1959）。
+保持間隔中は見本は消去され、比較刺激はまだ呈示されない（標準 DMTS 手続き）。
+`delay=0s` は simultaneous MTS（既存動作）と形式的に等価であり、明示的に書くことで意図を明確化できる。
+
+典型的なパラメトリック範囲は 0–60 秒（Grant, 1975; White, 1985）。
+`delay > 60s` は WARNING（`MTS_LONG_DELAY`）を発火する。
+
+#### 修正手続（correction procedure） — v1.1, R-7
+
+誤答試行の扱いを宣言的に制御する（Harrison, 1970; Saunders & Green, 1999）:
+
+```
+correction=false                    → 誤答後は次の試行へ（デフォルト、v1.0 と同等）
+correction=true                     → 正答するまで同一試行を反復
+correction="repeat_until_correct"   → correction=true と等価（脱糖規則、冪等）
+correction=N  (N ≥ 1 の整数)         → 最大 N 回反復、到達後は次の試行へ
+```
+
+位置バイアスのリスク（Dube & McIlvane, 1996）に留意すること。
+Sidman tradition の等価性テストでは修正なし・分化強化なしが標準である。
+`delay > 0` と `correction=true` / `"repeat_until_correct"` の組み合わせは
+retention 手続きと acquisition 手続きを混同するため WARNING
+（`DMTS_WITH_CORRECTION`）を発火する。
 
 ### 刺激等価性とアノテーション
 
@@ -172,11 +205,17 @@ Mult(ab_training, ba_test)
 | `MTS_INVALID_CONSEQUENCE` | consequence が compound schedule | SemanticError |
 | `MTS_RECURSIVE_CONSEQUENCE` | consequence が trial_based_schedule | SemanticError |
 | `DUPLICATE_MTS_KW_ARG` | keyword 引数の重複 | SemanticError |
+| `MTS_INVALID_DELAY` | delay < 0 | SemanticError |
+| `MTS_DELAY_TIME_UNIT_REQUIRED` | delay に時間単位なし | SemanticError |
+| `MTS_CORRECTION_LIMIT_NONPOSITIVE` | correction=N で N ≤ 0 | SemanticError |
+| `MTS_INVALID_CORRECTION` | correction が boolean / 正整数 / `"repeat_until_correct"` 以外 | SemanticError |
 | `MTS_MANY_COMPARISONS` | comparisons > 9 | WARNING |
 | `MTS_NO_REINFORCEMENT` | consequence=EXT | WARNING |
 | `MTS_IDENTITY_WITH_CLASSES` | type=identity で `@stimulus_classes` あり | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | type=arbitrary で `@stimulus_classes` なし | WARNING |
 | `MTS_SHORT_ITI` | ITI < 1s | WARNING |
+| `DMTS_WITH_CORRECTION` | delay > 0 かつ correction=true / `"repeat_until_correct"` | WARNING |
+| `MTS_LONG_DELAY` | delay > 60s | WARNING |
 
 ---
 

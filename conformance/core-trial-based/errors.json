@@ -344,5 +344,109 @@
         "limitedHoldUnit": "min"
       }
     }
+  },
+
+  { "_comment": "=== R-7: DMTS delay semantic errors (M12–M13) ===" },
+
+  {
+    "id": "mts_error_delay_negative",
+    "description": "M12: delay must be non-negative — delay < 0 is incoherent",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=-1s)",
+    "error": "MTS_INVALID_DELAY"
+  },
+  {
+    "id": "mts_error_delay_no_time_unit",
+    "description": "M13: delay must include a time unit (s/ms/min) — dimensionless delay is invalid",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5)",
+    "error": "MTS_DELAY_TIME_UNIT_REQUIRED"
+  },
+  {
+    "id": "mts_error_duplicate_delay",
+    "description": "M11: duplicate keyword argument — delay",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s, delay=10s)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+
+  { "_comment": "=== R-7: correction procedure semantic errors (M14–M15) ===" },
+
+  {
+    "id": "mts_error_correction_zero",
+    "description": "M14: correction=N with N ≤ 0 is invalid — limit must be positive",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=0)",
+    "error": "MTS_CORRECTION_LIMIT_NONPOSITIVE"
+  },
+  {
+    "id": "mts_error_correction_negative",
+    "description": "M14: negative correction limit is invalid",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=-2)",
+    "error": "MTS_CORRECTION_LIMIT_NONPOSITIVE"
+  },
+  {
+    "id": "mts_error_correction_invalid_string",
+    "description": "M15: correction string must be \"repeat_until_correct\" (only defined string form)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=\"always\")",
+    "error": "MTS_INVALID_CORRECTION"
+  },
+  {
+    "id": "mts_error_correction_fractional",
+    "description": "M15: correction integer limit must be an integer (not fractional)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=2.5)",
+    "error": "MTS_INVALID_CORRECTION"
+  },
+  {
+    "id": "mts_error_duplicate_correction",
+    "description": "M11: duplicate keyword argument — correction",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true, correction=3)",
+    "error": "DUPLICATE_MTS_KW_ARG"
+  },
+
+  { "_comment": "=== R-7: DMTS + correction warning (W8) and long-delay warning (W9) ===" },
+
+  {
+    "id": "mts_warn_dmts_with_correction",
+    "description": "W8: delay > 0 combined with correction=true — DMTS + unbounded correction confounds retention procedure with acquisition procedure",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s, correction=true)",
+    "warning": "DMTS_WITH_CORRECTION",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 5.0,
+        "delay_unit": "s",
+        "correction": { "mode": "unlimited" }
+      }
+    }
+  },
+  {
+    "id": "mts_warn_long_delay",
+    "description": "W9: delay > 60s on MTS — long retention intervals typically lie outside published parametric range (White, 1985)",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=90s)",
+    "warning": "MTS_LONG_DELAY",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary",
+        "delay": 90.0,
+        "delay_unit": "s"
+      }
+    }
   }
 ]
