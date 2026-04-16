@@ -93,8 +93,19 @@
       "additionalProperties": false
     },
 
+    "ResponseCostParams": {
+      "type": "object",
+      "description": "Response cost parameters. Response-contingent removal of a conditioned reinforcer (negative punishment; Weiner, 1962; Kazdin, 1972). Declarative structure only — token balance, bankruptcy, and state accumulation are recording-layer concerns, not expressed by the DSL. Absorbed into the inner node's optional 'responseCost' property, not emitted as a separate wrapper node.",
+      "properties": {
+        "amount": { "type": "number", "exclusiveMinimum": 0, "description": "Magnitude of conditioned reinforcer removed per target response. Must be strictly positive." },
+        "unit": { "type": "string", "description": "Label for the conditioned reinforcer being removed. Default: 'token' (Hackenberg, 2009). Common alternatives: 'point' (Weiner, 1962, 1963)." }
+      },
+      "required": ["amount"],
+      "additionalProperties": false
+    },
+
     "ScheduleExpr": {
-      "description": "Discriminated union of schedule expression types. LimitedHold is represented as an optional property (limitedHold, limitedHoldUnit) on leaf schedule nodes (Atomic, Special, DRModifier, SecondOrder, TrialBased), not as a wrapper node. Timeout is represented as an optional 'timeout' property (TimeoutParams object) on the same leaf nodes. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed. (3) Resolved: post-expansion + LH default propagation applied (§1.6.1).",
+      "description": "Discriminated union of schedule expression types. LimitedHold is represented as an optional property (limitedHold, limitedHoldUnit) on leaf schedule nodes (Atomic, Special, DRModifier, SecondOrder, TrialBased), not as a wrapper node. Timeout is represented as an optional 'timeout' property (TimeoutParams object) on the same leaf nodes. ResponseCost is represented as an optional 'responseCost' property (ResponseCostParams object) on the same leaf nodes. Schedule-level annotations (grammar: annotated_schedule ::= schedule annotation*) are represented as an optional 'annotations' array on each schedule node — they override program-level annotation defaults for the attached expression. Three AST phases exist: (1) Pre-expansion: all branches valid, including IdentifierRef and RepeatModifier. (2) Post-expansion: IdentifierRef and RepeatModifier removed. (3) Resolved: post-expansion + LH default propagation applied (§1.6.1).",
       "oneOf": [
         { "$ref": "#/$defs/Atomic" },
         { "$ref": "#/$defs/Special" },
@@ -118,7 +129,9 @@
         "time_unit": { "$ref": "#/$defs/TimeUnit" },
         "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration. FI30s LH10s → limitedHold=10." },
         "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." },
-        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters (v2.0). VI60s TO(duration=30s, reset_on_response=true) → timeout={duration:30, durationUnit:'s', resetOnResponse:true}." }
+        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters. VI60s TO(duration=30s, reset_on_response=true) → timeout={duration:30, durationUnit:'s', resetOnResponse:true}." },
+        "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. VI60s ResponseCost(amount=1) → responseCost={amount:1}. Optional unit defaults to 'token'." },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations (grammar: annotated_schedule ::= schedule annotation*). Overrides program-level annotation defaults for this expression." }
       },
       "required": ["type", "dist", "domain", "value"],
       "additionalProperties": false
@@ -132,7 +145,9 @@
         "kind": { "type": "string", "enum": ["EXT", "CRF"] },
         "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration." },
         "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." },
-        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters (v2.0)." }
+        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters." },
+        "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters." },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "kind"],
       "additionalProperties": false
@@ -140,7 +155,7 @@
 
     "Compound": {
       "type": "object",
-      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. v1.1: COD and FRCO for Conc, BO for Mult/Mix.",
+      "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. COD and FRCO for Conc, BO for Mult/Mix.",
       "properties": {
         "type": { "const": "Compound" },
         "combinator": { "$ref": "#/$defs/Combinator" },
@@ -149,7 +164,8 @@
           "items": { "$ref": "#/$defs/ScheduleExpr" },
           "minItems": 2
         },
-        "params": { "$ref": "#/$defs/CombinatorParams" }
+        "params": { "$ref": "#/$defs/CombinatorParams" },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations attached to the compound as a whole." }
       },
       "required": ["type", "combinator", "components"],
       "additionalProperties": false
@@ -327,7 +343,9 @@
         "time_unit": { "$ref": "#/$defs/TimeUnit" },
         "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration. DRL3s LH8s → limitedHold=8 (Kramer & Rilling, 1970)." },
         "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." },
-        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters (v2.0)." }
+        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters." },
+        "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters." },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "modifier", "value"],
       "additionalProperties": false
@@ -345,7 +363,8 @@
         },
         "pr_start": { "type": "integer", "minimum": 1 },
         "pr_increment": { "type": "integer", "minimum": 1 },
-        "pr_ratio": { "type": "number", "exclusiveMinimum": 1 }
+        "pr_ratio": { "type": "number", "exclusiveMinimum": 1 },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "modifier", "pr_step"],
       "additionalProperties": false
@@ -358,7 +377,8 @@
         "type": { "const": "Modifier" },
         "modifier": { "const": "Repeat" },
         "value": { "type": "integer", "minimum": 1 },
-        "inner": { "$ref": "#/$defs/ScheduleExpr" }
+        "inner": { "$ref": "#/$defs/ScheduleExpr" },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations (pre-expansion). Transferred to the expanded Tand node during desugaring." }
       },
       "required": ["type", "modifier", "value", "inner"],
       "additionalProperties": false
@@ -375,7 +395,8 @@
           "type": "integer",
           "minimum": 1,
           "description": "Sequence length (Page & Neuringer, 1985). 1 = individual response (applied research default). N = sequence of N responses."
-        }
+        },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "modifier", "value", "length"],
       "additionalProperties": false
@@ -407,7 +428,8 @@
           "type": "string",
           "enum": ["below", "above"],
           "description": "Reinforcement direction. 'below': at or below threshold. 'above': at or above. Default: 'below'."
-        }
+        },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "modifier", "pctl_target", "pctl_rank"],
       "additionalProperties": false
@@ -428,7 +450,9 @@
         },
         "limitedHold": { "type": "number", "exclusiveMinimum": 0, "description": "Temporal availability window duration for second-order schedule completion." },
         "limitedHoldUnit": { "$ref": "#/$defs/TimeUnit", "description": "Time unit for limitedHold." },
-        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters (v2.0)." }
+        "timeout": { "$ref": "#/$defs/TimeoutParams", "description": "Timeout parameters." },
+        "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. Applied to the second-order schedule as a whole: each target response during either the overall or the unit component triggers cost." },
+        "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
       },
       "required": ["type", "overall", "unit"],
       "additionalProperties": false
@@ -442,7 +466,9 @@
           "properties": {
             "type": { "const": "AversiveSchedule" },
             "kind": { "const": "Sidman" },
-            "params": { "$ref": "#/$defs/SidmanParams" }
+            "params": { "$ref": "#/$defs/SidmanParams" },
+            "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. Permitted on aversive schedules; empirical validity of shock + point-loss combinations is a research question, not a syntactic constraint." },
+            "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
           },
           "required": ["type", "kind", "params"],
           "additionalProperties": false
@@ -452,7 +478,9 @@
           "properties": {
             "type": { "const": "AversiveSchedule" },
             "kind": { "const": "DiscrimAv" },
-            "params": { "$ref": "#/$defs/DiscrimAvParams" }
+            "params": { "$ref": "#/$defs/DiscrimAvParams" },
+            "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. Permitted on aversive schedules." },
+            "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
           },
           "required": ["type", "kind", "params"],
           "additionalProperties": false

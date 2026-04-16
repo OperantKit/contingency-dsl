@@ -613,7 +613,7 @@ References:
   (2003). Punishment in human choice: Direct or competitive suppression?
   *JEAB*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
 
-## Timeout (TO) — v2.0
+## Timeout (TO)
 
 Timeout is a response-contingent removal of reinforcement availability
 (negative punishment; Leitenberg, 1965). TO is a postfix qualifier on
@@ -696,3 +696,115 @@ See grammar.ebnf constraints §75–§83.
   determinants of the reinforcing and punishing effects of timeout.
   *JABA*, 10(3), 415-424.
   https://doi.org/10.1901/jaba.1977.10-415
+
+## Response Cost
+
+Response cost is a response-contingent removal of a conditioned reinforcer
+(negative punishment; Kazdin, 1972; Weiner, 1962). Postfix qualifier on
+schedule expressions, following LH and TO in position.
+
+### Syntax
+
+```
+VI 60-s ResponseCost(amount=1)
+VI 60-s ResponseCost(amount=2, unit="point")
+```
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `amount` | number | YES | — | Magnitude of conditioned reinforcer removed per target response. Must be > 0. |
+| `unit` | string | NO | `"token"` | Label for the conditioned reinforcer. Contemporary standard: `"token"` (Hackenberg, 2009). `"point"` retained for Weiner (1962, 1963) fidelity. |
+
+### Default unit: `"token"`
+
+The `unit` default is `"token"`. Rationale: Hackenberg's (2009) JEAB
+review established "token" as the dominant term in contemporary behavior
+analysis, both in applied (token economy) and basic (token reinforcement)
+contexts. Weiner's (1962, 1963) original human-operant paradigm used
+"points"; `unit="point"` is available for fidelity to that tradition.
+`unit` is a free-form string label and does not constrain the contingency
+structure.
+
+### Declarative-only contract
+
+The DSL declares the contingency `response → remove amount of unit`. It
+does NOT declare:
+
+- Initial token endowment (session/protocol-layer concern).
+- Zero-balance behavior (bankruptcy handling, response blocking, session
+  termination — all recording-layer policy).
+- Between-session carryover of token balance.
+- Token-to-primary-reinforcer conversion ratio (`@reinforcer` annotation or
+  a token-economy extension).
+
+This is consistent with the DSL's non-Turing-complete stance: static
+contingency structure is in scope; longitudinal state accumulation is not.
+
+### AST representation
+
+Response cost is absorbed into the inner schedule node as an optional
+`responseCost` property (a `ResponseCostParams` object), not emitted as a
+separate wrapper. Structurally parallel to `timeout` for TO and
+`limitedHold` for LH.
+
+```json
+{
+  "type": "Atomic",
+  "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s",
+  "responseCost": {
+    "amount": 1,
+    "unit": "token"
+  }
+}
+```
+
+When `unit` is omitted at the source level, conforming parsers SHOULD emit
+the default value `"token"` explicitly into the AST, making the default
+visible in downstream tooling. (Alternative: omit `unit` in AST and let
+consumers apply the default. The former is preferred for explicitness.)
+
+### Permitted targets
+
+| Target | Allowed | Error/Warning |
+|--------|---------|---------------|
+| Atomic | YES | — |
+| Special (CRF) | YES | — |
+| Special (EXT) | YES | — |
+| DRModifier | YES | — |
+| SecondOrder | YES | — |
+| AversiveSchedule | YES | — (empirical validity is a research question, not a syntactic constraint) |
+| Compound | NO | SemanticError: RC_ON_COMPOUND |
+
+### Token-context warning
+
+Declaration of the conditioned reinforcer (via `@reinforcer` annotation at
+program or schedule level) is RECOMMENDED but not required. If no
+`@reinforcer` annotation appears anywhere in the program and at least one
+`ResponseCost(...)` is present, the linter emits `RC_WITHOUT_TOKEN_CONTEXT`
+(Warning, not an error). Adding any `@reinforcer(...)` annotation suppresses
+the warning.
+
+Limitation: the check does not distinguish primary from conditioned
+reinforcers. `@reinforcer("food")` (primary) suppresses the warning even
+though food is not a token being removed. Refining this requires a
+reinforcer-type annotation extension beyond the core DSL.
+
+### Semantic constraints
+
+See grammar.ebnf constraints §91–§96.
+
+### References
+
+- Hackenberg, T. D. (2009). Token reinforcement: A review and analysis.
+  *JEAB*, 91(2), 257-286. https://doi.org/10.1901/jeab.2009.91-257
+- Kazdin, A. E. (1972). Response cost: The removal of conditioned
+  reinforcers for therapeutic change. *Behavior Therapy*, 3(4), 533-546.
+  https://doi.org/10.1016/S0005-7894(72)80001-7
+- Weiner, H. (1962). Some effects of response cost upon human operant
+  behavior. *JEAB*, 5(2), 201-208.
+  https://doi.org/10.1901/jeab.1962.5-201
+- Weiner, H. (1963). Response cost and the aversive control of human
+  operant behavior. *JEAB*, 6(3), 415-421.
+  https://doi.org/10.1901/jeab.1963.6-415

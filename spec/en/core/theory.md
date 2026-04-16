@@ -718,6 +718,63 @@ Resetting TO (`reset_on_response=true`) and DRO share identical contingency stru
 - Leitenberg, H. (1965). Is time-out from positive reinforcement an aversive event? *Psychological Bulletin*, 64(6), 428–441. https://doi.org/10.1037/h0022657
 - Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some determinants of the reinforcing and punishing effects of timeout. *Journal of Applied Behavior Analysis*, 10(3), 415–424. https://doi.org/10.1901/jaba.1977.10-415
 
+### 2.5.2 Response Cost
+
+Response cost is a response-contingent removal of a conditioned reinforcer (Kazdin, 1972; Weiner, 1962). Like TO, it functions as negative punishment, but the operational structure is distinct: TO suspends reinforcement *availability* for a duration, whereas response cost *subtracts* a fixed quantity of a previously delivered conditioned reinforcer (token, point) at the moment of the target response.
+
+**Operational definition.** When the target response occurs, a fixed amount of a conditioned reinforcer is removed from the subject's accumulated supply. The contingency is discrete (one response → one subtraction event), not temporal. The DSL describes only the contingency relation; the token supply itself, its initial endowment, bankruptcy handling, and between-session carryover are all recording-layer concerns, outside the static contingency structure.
+
+**Syntax.** Response cost is a postfix qualifier on schedule expressions, following LH and TO:
+
+```
+VI 60-s ResponseCost(amount=1)
+
+-- Weiner (1962) replication: points as unit
+VI 60-s ResponseCost(amount=1, unit="point")
+
+-- Per-component in concurrent schedule
+Conc(
+  VI 30-s ResponseCost(amount=2),
+  VI 60-s,
+  COD=2-s
+)
+
+-- Combined with LH and TO
+FI 30-s LH 10-s TO(duration=20-s, reset_on_response=false) ResponseCost(amount=1)
+```
+
+**Operational distinction from TO.**
+
+| | TO | Response Cost |
+|---|---|---|
+| **Operation** | Suspension of reinforcement availability | Removal of accumulated conditioned reinforcer |
+| **Temporal profile** | Duration (period) | Discrete (instantaneous) |
+| **Recorded state** | Timer | Token/point supply (recording-layer) |
+| **Canonical context** | Experimental research | Token economy, human operant |
+| **Quadrant** | Negative punishment (SP−) | Negative punishment (SP−) |
+
+Both TO and response cost are instances of negative punishment, but they act on different referents: TO acts on the *future* (reinforcement that has not yet been earned becomes inaccessible for a time), response cost acts on the *past* (a conditioned reinforcer already delivered is reclaimed). Leitenberg (1965) drew the original operational distinction; Kazdin (1972) synthesized the response cost literature.
+
+**Declarative-only contract.** The DSL declares the contingency `response → remove amount of unit`. It does not declare:
+
+- Initial token endowment (belongs to the session/protocol layer).
+- Behavior at zero balance (bankruptcy, response blocking, session termination — all recording-layer policy).
+- Between-session carryover of token balance.
+- Conversion ratio of tokens to primary reinforcers (belongs to `@reinforcer` annotations or a token-economy extension).
+
+This matches the DSL's broader stance on state: within-session state machines are internal to the schedule's denotation (§2.13), but longitudinal state accumulation (balances, histories, bankruptcies) is deferred to the recording/execution layer.
+
+**Relation to token reinforcement.** Response cost operates on a conditioned reinforcer — there must be *something* to remove. Declaration of the conditioned reinforcer via `@reinforcer` annotations is recommended but not required. A program that uses `ResponseCost(...)` without any `@reinforcer` annotation triggers a linter warning (`RC_WITHOUT_TOKEN_CONTEXT`; grammar.ebnf constraint §96), noting that the removed token is otherwise underspecified. The warning does not distinguish primary from conditioned reinforcers — a program declaring `@reinforcer("food")` (primary) would suppress the warning even though food is not a token. Refining this requires a reinforcer-type annotation extension beyond the core DSL. Hackenberg (2009) synthesized the contemporary token reinforcement literature, in which "token" is the dominant term; `unit="token"` is therefore the default, with `unit="point"` retained for fidelity to Weiner (1962, 1963).
+
+**Empirical anchors.** Weiner (1962) demonstrated that response cost produces differential suppression across schedule types (VI and FI), with the contingency structure (per-response subtraction) orthogonal to the schedule structure (interval arrangement). Weiner (1963) further showed that point-loss contingencies can maintain human avoidance and escape responding in the absence of shock, establishing response cost as a general aversive control procedure. Kazdin (1972) reviewed the clinical literature and located response cost as the dominant mechanism of behavioral suppression in token economies. Hackenberg (2009) synthesized the contemporary token reinforcement literature.
+
+**References.**
+
+- Hackenberg, T. D. (2009). Token reinforcement: A review and analysis. *Journal of the Experimental Analysis of Behavior*, 91(2), 257–286. https://doi.org/10.1901/jeab.2009.91-257
+- Kazdin, A. E. (1972). Response cost: The removal of conditioned reinforcers for therapeutic change. *Behavior Therapy*, 3(4), 533–546. https://doi.org/10.1016/S0005-7894(72)80001-7
+- Weiner, H. (1962). Some effects of response cost upon human operant behavior. *Journal of the Experimental Analysis of Behavior*, 5(2), 201–208. https://doi.org/10.1901/jeab.1962.5-201
+- Weiner, H. (1963). Response cost and the aversive control of human operant behavior. *Journal of the Experimental Analysis of Behavior*, 6(3), 415–421. https://doi.org/10.1901/jeab.1963.6-415
+
 ### 2.6 Choice Behavior and the Procedure–Effect Boundary
 
 A concurrent VR-VR schedule produces qualitatively different choice behavior from a concurrent VI-VI schedule. Under concurrent VI-VI, organisms typically allocate responses in proportion to the relative reinforcement rate — the **matching law** (Herrnstein, 1961). Under concurrent VR-VR, organisms tend to allocate nearly all responses to the richer alternative — **exclusive choice** (Herrnstein & Loveland, 1975; Baum, Aparicio, & Alonso-Alvarez, 2022).

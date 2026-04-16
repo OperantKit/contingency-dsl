@@ -51,6 +51,7 @@ binding       ::= "let" ident "=" schedule
 
 schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
                                  (("TO" | "Timeout") "(" timeout_args ")")?
+                                 ("ResponseCost" "(" response_cost_args ")")?
 ; LH is a temporal availability property of the schedule it follows.
 ; AST: absorbed into the inner node's optional `limitedHold` / `limitedHoldUnit` properties.
 ; No separate LimitedHold wrapper node is emitted.
@@ -81,6 +82,25 @@ schedule      ::= base_schedule (("LH" | "LimitedHold") ws? value)?
 ;
 ; Permitted targets: Atomic, Special, DRModifier, SecondOrder.
 ; Combined with LH: `FI 30-s LH 10-s TO(duration=30-s, reset_on_response=true)` is valid.
+;
+; ResponseCost is a response-contingent removal of a conditioned reinforcer
+; (negative punishment; Kazdin, 1972; Weiner, 1962). Postfix position follows TO.
+; AST: absorbed into the inner node's optional `responseCost` property (object).
+; No separate ResponseCost wrapper node is emitted. Declarative only — balance
+; tracking, bankruptcy, and dynamic token state are the responsibility of
+; the recording/execution layer, not the DSL (static, non-Turing-complete).
+;
+; Semantic constraint (RC_ON_COMPOUND):
+;   ResponseCost applied to a Compound → SemanticError. Apply per-component instead.
+;   "Conc(VI 30-s ResponseCost(amount=1), VI 60-s)" —
+;   not "Conc(VI 30-s, VI 60-s) ResponseCost(amount=1)".
+;
+; Permitted targets: Atomic, Special, DRModifier, SecondOrder, AversiveSchedule.
+; RC on AversiveSchedule is permitted: the grammar does not exclude combining
+; shock-based avoidance with point-loss contingencies. Whether such combinations
+; are empirically meaningful is a research question, not a syntactic constraint.
+; Combined with LH/TO: `FI 30-s LH 10-s TO(duration=30-s, reset_on_response=true)
+;   ResponseCost(amount=1)` is syntactically valid.
 
 base_schedule ::= atomic_or_second
                 | compound
@@ -162,9 +182,11 @@ reserved      ::= "let" | "def"
                 | "CSUSInterval" | "ITI" | "mode"
                 | "ShockDuration" | "MaxShock"
                 | "fixed" | "escape"          -- da_mode values
-                | "TO" | "Timeout"             -- v2.0: timeout (Leitenberg, 1965)
+                | "TO" | "Timeout"             -- timeout (Leitenberg, 1965)
                 | "duration" | "reset_on_response" | "contingent_response"  -- TO keyword args
                 | "true" | "false"             -- boolean literals (TO reset_on_response)
+                | "ResponseCost"               -- response cost (Weiner, 1962; Kazdin, 1972)
+                | "amount" | "unit"            -- ResponseCost keyword args (note: "amount" also in adj_target)
                 | "Overlay"                   -- v1.x: punishment overlay combinator
                 | "target" | "changeover" | "all"  -- Overlay target kw_arg
                 | "PUNISH"                    -- response-class-specific punishment (Conc kw_arg)
@@ -333,6 +355,36 @@ timeout_kwarg ::= "duration" "=" value
 
 boolean       ::= "true" | "false"
 label_ref     ::= ident | number          -- operandum index (1-based) or let-bound name
+
+; === Response Cost ===
+;
+; Response cost: response-contingent removal of a conditioned reinforcer
+; (negative punishment; Kazdin, 1972; Weiner, 1962). Postfix on schedule
+; expressions, following LH and TO.
+;
+; Declarative structure only:
+;   - amount (required): magnitude of conditioned reinforcer removed per response
+;   - unit (optional): label for the conditioned reinforcer; default "token"
+;
+; The DSL does NOT track token balance, bankruptcy, or bank-account state.
+; Balance arithmetic is a recording-layer concern, outside the static
+; contingency structure described here.
+;
+; References:
+;   Weiner, H. (1962). Some effects of response cost upon human operant
+;     behavior. *JEAB*, 5(2), 201-208. https://doi.org/10.1901/jeab.1962.5-201
+;   Weiner, H. (1963). Response cost and the aversive control of human
+;     operant behavior. *JEAB*, 6(3), 415-421.
+;     https://doi.org/10.1901/jeab.1963.6-415
+;   Kazdin, A. E. (1972). Response cost: The removal of conditioned
+;     reinforcers for therapeutic change. *Behavior Therapy*, 3(4), 533-546.
+;     https://doi.org/10.1016/S0005-7894(72)80001-7
+;   Hackenberg, T. D. (2009). Token reinforcement: A review and analysis.
+;     *JEAB*, 91(2), 257-286. https://doi.org/10.1901/jeab.2009.91-257
+
+response_cost_args  ::= rc_kwarg ("," rc_kwarg)*
+rc_kwarg            ::= "amount" "=" number
+                      | "unit" "=" string_literal
 
 ; === Aversive schedules (v1.x) ===
 ;
@@ -988,3 +1040,43 @@ number_list   ::= number ("," number)*
 ;     nested PUNISH inside a PUNISH schedule → SemanticError
 ;     (NESTED_PUNISH_DIRECTIVE). The punishment schedule itself cannot contain
 ;     response-class-specific punishment.
+;
+; --- Response Cost (RC) constraints ---
+;
+; 91. ResponseCost: `amount` keyword arg is REQUIRED.
+;     Missing amount → SemanticError (MISSING_RC_AMOUNT).
+;     Rationale: the magnitude of the removed conditioned reinforcer is the
+;     defining quantity of response cost (Weiner, 1962); omission is not
+;     meaningful.
+; 92. ResponseCost: `amount` must be strictly positive (> 0).
+;     amount=0 or amount<0 → SemanticError (RC_AMOUNT_NONPOSITIVE).
+;     Rationale: zero magnitude collapses the contingency to no-op;
+;     negative magnitude would denote reinforcer addition, which is not
+;     response cost but token reinforcement (use `@reinforcer` annotation
+;     or a separate schedule).
+; 93. ResponseCost: `unit` is OPTIONAL. Default = "token".
+;     Rationale: contemporary ABA literature uses "token" almost universally
+;     (Hackenberg, 2009); "point" is retained for fidelity to Weiner's (1962,
+;     1963) human-operant paradigm. `unit` is a free-form string label and
+;     does not affect the contingency structure.
+; 94. ResponseCost: applied to a Compound → SemanticError (RC_ON_COMPOUND).
+;     Apply per-component instead. Parallel to LH_ON_COMPOUND (§6) and
+;     TO_ON_COMPOUND (§80). The target of cost must be unambiguous.
+; 95. ResponseCost: duplicate keyword args → SemanticError (DUPLICATE_RC_PARAM).
+;     E.g., `ResponseCost(amount=1, amount=2)` or
+;     `ResponseCost(unit="token", unit="point")` → error.
+; 96. ResponseCost: declaration of the conditioned reinforcer (via
+;     `@reinforcer` annotation at program or schedule level) is RECOMMENDED
+;     but not required. If no `@reinforcer` annotation appears anywhere in
+;     the program and at least one ResponseCost is present → Linter WARNING
+;     (RC_WITHOUT_TOKEN_CONTEXT). Not a SemanticError.
+;     Rationale: response cost operates on a conditioned reinforcer; an
+;     explicit `@reinforcer` annotation makes the removed token's identity
+;     self-documenting and aids downstream tooling. Absence is permitted
+;     because simple test programs and pedagogical examples may omit the
+;     annotation without ambiguity.
+;     Limitation: this check does not distinguish primary from conditioned
+;     reinforcers. A program declaring `@reinforcer("food")` (primary) and
+;     using ResponseCost will not trigger the warning, even though "food"
+;     is not a token being removed. Refining this requires a reinforcer-type
+;     annotation extension beyond the core DSL.

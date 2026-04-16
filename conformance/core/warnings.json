@@ -626,5 +626,128 @@
         "unit": { "type": "Atomic", "dist": "F", "domain": "I", "value": 30.0, "time_unit": "s" }
       }
     }
+  },
+  {
+    "_comment": "=== RC_WITHOUT_TOKEN_CONTEXT (constraint §96): ResponseCost without any @reinforcer annotation ==="
+  },
+  {
+    "id": "warn_rc_without_reinforcer_annotation",
+    "description": "VI 60s ResponseCost(amount=1) with no @reinforcer declared anywhere in the program. Token being removed is underspecified (Kazdin, 1972 framed RC as conditioned reinforcer removal, presupposing a declared token). Valid, but triggers RC_WITHOUT_TOKEN_CONTEXT (constraint §96).",
+    "input": "VI 60s ResponseCost(amount=1)",
+    "warnings": ["RC_WITHOUT_TOKEN_CONTEXT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "responseCost": {
+          "amount": 1,
+          "unit": "token"
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_rc_without_reinforcer_point_unit",
+    "description": "RC with unit=\"point\" but no @reinforcer annotation — still triggers RC_WITHOUT_TOKEN_CONTEXT. The unit label alone does not constitute a reinforcer declaration.",
+    "input": "VI 60s ResponseCost(amount=1, unit=\"point\")",
+    "warnings": ["RC_WITHOUT_TOKEN_CONTEXT"],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "responseCost": {
+          "amount": 1,
+          "unit": "point"
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_rc_with_program_reinforcer_no_warning",
+    "description": "Program-level @reinforcer annotation suppresses RC_WITHOUT_TOKEN_CONTEXT. This is the canonical configuration for token-economy procedures (Hackenberg, 2009).",
+    "input": "@reinforcer(\"token\") VI 60s ResponseCost(amount=1)",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "token" }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "responseCost": {
+          "amount": 1,
+          "unit": "token"
+        }
+      }
+    }
+  },
+  {
+    "id": "warn_rc_with_schedule_reinforcer_no_warning",
+    "description": "Schedule-level @reinforcer annotation also suppresses RC_WITHOUT_TOKEN_CONTEXT. Constraint §96 checks for any @reinforcer annotation anywhere in the program, not specifically at program level.",
+    "input": "VI 60s ResponseCost(amount=1) @reinforcer(\"token\")",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "responseCost": {
+          "amount": 1,
+          "unit": "token"
+        },
+        "annotations": [
+          { "type": "Annotation", "keyword": "reinforcer", "positional": "token" }
+        ]
+      }
+    }
+  },
+  {
+    "id": "warn_rc_with_punisher_annotation_no_warning",
+    "description": "Program-level @punisher annotation (reinforcer-family in the procedure-stimulus annotator) also suppresses RC_WITHOUT_TOKEN_CONTEXT. The constraint accepts any reinforcer-family stimulus annotation, not only the literal keyword 'reinforcer'.",
+    "input": "@reinforcer(\"token\") @punisher(\"token_loss\") VI 60s ResponseCost(amount=1)",
+    "warnings": [],
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "token" },
+        { "type": "Annotation", "keyword": "punisher", "positional": "token_loss" }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s",
+        "responseCost": {
+          "amount": 1,
+          "unit": "token"
+        }
+      }
+    }
   }
 ]

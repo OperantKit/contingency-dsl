@@ -683,6 +683,63 @@ Conc(
 - Leitenberg, H. (1965). Is time-out from positive reinforcement an aversive event? *Psychological Bulletin*, 64(6), 428–441. https://doi.org/10.1037/h0022657
 - Solnick, J. V., Rincover, A., & Peterson, C. R. (1977). Some determinants of the reinforcing and punishing effects of timeout. *Journal of Applied Behavior Analysis*, 10(3), 415–424. https://doi.org/10.1901/jaba.1977.10-415
 
+### 2.5.2 レスポンスコスト（Response Cost）
+
+レスポンスコストとは、条件性強化子の応答随伴的な除去である（Kazdin, 1972; Weiner, 1962）。TO と同様に負の罰として機能するが、操作的構造は異なる：TO は強化の「利用可能性」を一定時間だけ停止するのに対し、レスポンスコストは既に付与された条件性強化子（トークン、ポイント）の一定量を標的応答の瞬間に「減算」する。
+
+**操作的定義。** 標的応答が生起すると、被験体の蓄積した条件性強化子の供給から一定量が除去される。随伴性は離散的（1応答 → 1減算事象）であり、時間的ではない。DSL が記述するのは随伴関係のみであり、トークンの供給そのもの・初期付与・破産処理・セッション間持ち越しはいずれも記録層（recording-layer）の責務であり、静的な随伴性構造の外に置かれる。
+
+**構文。** レスポンスコストは LH と TO に続くスケジュール式の postfix 修飾子である:
+
+```
+VI 60-s ResponseCost(amount=1)
+
+-- Weiner (1962) 再現: ポイント単位
+VI 60-s ResponseCost(amount=1, unit="point")
+
+-- 並立スケジュールの特定成分への付加
+Conc(
+  VI 30-s ResponseCost(amount=2),
+  VI 60-s,
+  COD=2-s
+)
+
+-- LH と TO との組合せ
+FI 30-s LH 10-s TO(duration=20-s, reset_on_response=false) ResponseCost(amount=1)
+```
+
+**TO との操作的区別。**
+
+| | TO | レスポンスコスト |
+|---|---|---|
+| **操作** | 強化利用可能性の停止 | 蓄積された条件性強化子の除去 |
+| **時間的特性** | 期間（duration） | 離散（瞬間） |
+| **記録される状態** | タイマー | トークン/ポイント供給（記録層） |
+| **典型的な文脈** | 実験研究 | トークンエコノミー、ヒトオペラント |
+| **四分位象限** | 負の罰（SP−） | 負の罰（SP−） |
+
+TO とレスポンスコストはいずれも負の罰の事例だが、作用対象が異なる：TO は「未来」（まだ獲得されていない強化が一定時間アクセス不能になる）に作用し、レスポンスコストは「過去」（既に付与された条件性強化子が取り戻される）に作用する。Leitenberg (1965) が最初にこの操作的区別を与え、Kazdin (1972) がレスポンスコスト文献を統合した。
+
+**宣言のみの契約。** DSL は随伴性 `応答 → amount の unit を除去` を宣言する。以下は宣言しない:
+
+- 初期トークン付与（セッション/プロトコル層の責務）。
+- 残高ゼロでの挙動（破産処理、応答ブロック、セッション終了 — いずれも記録層のポリシー）。
+- トークン残高のセッション間持ち越し。
+- トークンから一次強化子への変換比率（`@reinforcer` アノテーションまたはトークンエコノミー拡張の責務）。
+
+これは DSL の状態に関する一般的スタンスと整合する：セッション内の状態マシンはスケジュールの表示的意味論に内在するが（§2.13）、縦断的な状態蓄積（残高、履歴、破産）は記録/実行層に委ねられる。
+
+**トークン強化との関係。** レスポンスコストは条件性強化子に作用する — 除去すべき「何か」が存在しなければならない。条件性強化子の宣言は `@reinforcer` アノテーション経由で推奨されるが必須ではない。`ResponseCost(...)` を使用しながら `@reinforcer` アノテーションが一切存在しないプログラムは linter WARNING（`RC_WITHOUT_TOKEN_CONTEXT`; grammar.ebnf 制約 §96）を発火する — 除去対象のトークンが不特定であることを示す。この警告は一次強化子と条件性強化子を区別しない — `@reinforcer("food")`（一次）を宣言したプログラムは、food がトークンでないにもかかわらず警告を抑制する。この区別の精緻化は DSL コア外の reinforcer-type アノテーション拡張を要する。Hackenberg (2009) が現代のトークン強化文献を統合しており、そこでは "token" が支配的用語である；そのため `unit="token"` が既定値であり、`unit="point"` は Weiner (1962, 1963) への忠実性のために保持されている。
+
+**経験的裏付け。** Weiner (1962) は、レスポンスコストがスケジュール種別（VI と FI）を跨いで差別的な抑制を生むことを実証した — 随伴性構造（応答毎の減算）はスケジュール構造（間隔設定）と直交する。Weiner (1963) はさらに、ポイント喪失随伴性がショックなしでもヒトの回避・逃避反応を維持しうることを示し、レスポンスコストを一般的な嫌悪制御手続きとして確立した。Kazdin (1972) は臨床文献を総説し、レスポンスコストをトークンエコノミーにおける行動抑制の支配的メカニズムとして位置付けた。Hackenberg (2009) は現代のトークン強化文献を統合した。
+
+**参考文献。**
+
+- Hackenberg, T. D. (2009). Token reinforcement: A review and analysis. *Journal of the Experimental Analysis of Behavior*, 91(2), 257–286. https://doi.org/10.1901/jeab.2009.91-257
+- Kazdin, A. E. (1972). Response cost: The removal of conditioned reinforcers for therapeutic change. *Behavior Therapy*, 3(4), 533–546. https://doi.org/10.1016/S0005-7894(72)80001-7
+- Weiner, H. (1962). Some effects of response cost upon human operant behavior. *Journal of the Experimental Analysis of Behavior*, 5(2), 201–208. https://doi.org/10.1901/jeab.1962.5-201
+- Weiner, H. (1963). Response cost and the aversive control of human operant behavior. *Journal of the Experimental Analysis of Behavior*, 6(3), 415–421. https://doi.org/10.1901/jeab.1963.6-415
+
 ### 2.6 選択行動と手続き–帰結の境界
 
 並立 VR-VR スケジュールは、並立 VI-VI スケジュールとは質的に異なる選択行動を産出する。並立 VI-VI では、被験体は相対的な強化率に比例して反応を配分する——**マッチング法則**（Herrnstein, 1961）。並立 VR-VR では、被験体はより豊かな選択肢にほぼ全ての反応を集中させる——**排他的選択**（exclusive choice; Herrnstein & Loveland, 1975; Baum, Aparicio, & Alonso-Alvarez, 2022）。
