@@ -55,11 +55,15 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | 23 | `interp_kw_arg` | `core/interpolated.json`, `core/errors.json` | count: `interpolate_basic`; onset: `interpolate_with_onset` | ✅ Both keywords |
 | 24 | `arg_list` | `core/compound.json`, `core/compound-kw-aliases.json` | positional-only + keyword-mixed | ✅ |
 | 25 | `positional_args` | `core/compound.json` | 2-component: `conc_vi_vi`; 3: `conc_three_components`; 5: `conc_five_components` | ✅ |
-| 26 | `keyword_arg` | `core/compound.json`, `core/compound-kw-aliases.json` | scalar + directional forms | ✅ |
+| 26 | `keyword_arg` | `core/compound.json`, `core/compound-kw-aliases.json` | scalar + directional + overlay_kw_arg forms | ✅ |
 | 27 | `scalar_kw_arg` | `core/compound.json`, `core/compound-kw-aliases.json` | `conc_vi_vi_with_cod`, `conc_with_frco`, `mult_fr_ext_with_bo` | ✅ |
 | 28 | `directional_kw_arg` | `core/compound.json`, `core/semantic-violations-extended.json`, `core/warnings.json` | `conc_directional_cod_two` .. `conc_directional_cod_overrides_param_decl` | ✅ 7 cases |
 | 29 | `dir_ref` | `core/compound.json`, `core/errors.json` | numeric: `conc_directional_cod_two`; ident: `conc_directional_cod_let_bindings` | ✅ Both forms |
 | 30 | `kw_name` | `core/compound.json`, `core/compound-kw-aliases.json` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | ✅ All 6 |
+| 30a | `overlay_kw_arg` | `core/compound.json` | `overlay_target_changeover`, `overlay_target_all_explicit` | ✅ 2 cases |
+| 30b | `target_value` | `core/compound.json` | changeover: `overlay_target_changeover`; all: `overlay_target_all_explicit` | ✅ Both values |
+| 30c | `punish_directive` | `core/compound.json` | `conc_punish_directional`, `conc_punish_changeover`, `conc_punish_component`, `conc_punish_ident` | ✅ 4 cases |
+| 30d | `punish_target` | `core/compound.json` | changeover: `conc_punish_changeover`; directional: `conc_punish_directional`; single dir_ref: `conc_punish_component` | ✅ All 3 forms |
 | 31 | `modifier` | `core/modifier.json` | 23 cases | ✅ |
 | 32 | `dr_mod` | `core/modifier.json` | `drl_5s`, `drh_2s`, `dro_10s`, `drl_space` | ✅ DRL, DRH, DRO |
 | 33 | `pr_mod` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric`, `pr_geometric_defaults`, `pr_shorthand_5`, `pr_shorthand_1`, `pr_shorthand_no_space` | ✅ Both forms |
@@ -215,6 +219,13 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | `INVALID_KEYWORD_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_cod_on_chain`, `error_cod_on_alt`, `error_frco_on_tand`, `error_bo_on_conc`, `error_bo_on_chain`, `error_bo_on_tand`, `error_bo_on_alt`, `error_overlay_keyword_arg`, `error_directional_frco`, `error_directional_bo`, `error_directional_cod_on_chain`, + 18 extended cases | ✅ 29 cases |
 | `DUPLICATE_KEYWORD_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_duplicate_keyword`, `error_duplicate_bo`, + 3 alias-collision cases, `multi_error_semantic_nonpositive_and_duplicate_kw`, `multi_error_semantic_binding_and_keyword` | ✅ 7 cases |
 | `OVERLAY_REQUIRES_TWO` | SemanticError | `core/errors.json` | `error_overlay_three_components` | ✅ |
+| `INVALID_OVERLAY_TARGET` | SemanticError | `core/compound.json` | `error_non_overlay_target` | ✅ |
+| `TARGET_REQUIRES_CONC` | SemanticError | `core/compound.json` | `error_overlay_target_non_conc` | ✅ |
+| `EXPECTED_TARGET_VALUE` | ParseError | `core/compound.json` | `error_overlay_target_unknown` | ✅ |
+| `INVALID_PUNISH_COMBINATOR` | SemanticError | `core/compound.json` | `error_punish_non_conc` | ✅ |
+| `PUNISH_SELF_REFERENCE` | SemanticError | `core/compound.json` | `error_punish_self_ref` | ✅ |
+| `DUPLICATE_PUNISH_DIRECTIVE` | SemanticError | `core/compound.json` | `error_punish_duplicate` | ✅ |
+| `PUNISH_TARGET_CONFLICT` | SemanticError | `core/compound.json` | `error_punish_target_conflict` | ✅ |
 | `INTERPOLATE_REQUIRES_TWO` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_three_components`, `error_interp_alias_three_components` | ✅ 2 cases |
 | `MISSING_INTERPOLATE_COUNT` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_missing_count`, `error_interp_alias_missing_count` | ✅ 2 cases |
 | `INTERPOLATE_NONPOSITIVE_COUNT` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_count_zero`, `error_interpolate_count_negative` | ✅ 2 cases |
@@ -229,7 +240,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
 | `DIRECTIONAL_SELF_REFERENCE` | SemanticError | `core/errors.json` | `error_directional_cod_self_reference` | ✅ |
-| `DIRECTIONAL_INDEX_OUT_OF_RANGE` | SemanticError | `core/errors.json` | `error_directional_cod_index_out_of_range` | ✅ |
+| `DIRECTIONAL_INDEX_OUT_OF_RANGE` | SemanticError | `core/errors.json`, `core/compound.json` | `error_directional_cod_index_out_of_range`, `error_punish_index_oob` | ✅ 2 cases |
 | `DIRECTIONAL_IDENT_NOT_FOUND` | SemanticError | `core/errors.json` | `error_directional_cod_ident_not_found` | ✅ |
 | `DUPLICATE_DIRECTIONAL_KW` | SemanticError | `core/errors.json` | `error_directional_cod_duplicate` | ✅ |
 | `INVALID_DIRECTIONAL_KW` | SemanticError | `core/errors.json` | `error_directional_frco`, `error_directional_bo` | ✅ 2 cases |

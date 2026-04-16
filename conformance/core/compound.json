@@ -591,6 +591,91 @@
     }
   },
   {
+    "id": "overlay_target_changeover",
+    "description": "Changeover-specific punishment: only changeover responses are punished (Todorov, 1971)",
+    "input": "Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          {
+            "type": "Compound",
+            "combinator": "Conc",
+            "components": [
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+              { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+            ],
+            "params": {
+              "COD": { "value": 2.0, "time_unit": "s" }
+            }
+          },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ],
+        "params": {
+          "target": "changeover"
+        }
+      }
+    }
+  },
+  {
+    "id": "overlay_target_all_explicit",
+    "description": "Explicit target=all produces same AST as omission (backward-compatible)",
+    "input": "Overlay(VI60s, FR1, target=all)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Overlay",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+        ]
+      }
+    }
+  },
+  {
+    "id": "error_overlay_target_non_conc",
+    "description": "target=changeover requires Conc baseline; non-Conc baseline is an error",
+    "input": "Overlay(VI60s, FR1, target=changeover)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TARGET_REQUIRES_CONC"
+    }
+  },
+  {
+    "id": "error_overlay_target_unknown",
+    "description": "Unknown target value is a parse error",
+    "input": "Overlay(Conc(VI30s, VI60s), FR1, target=foo)",
+    "error": {
+      "type": "ParseError",
+      "code": "EXPECTED_TARGET_VALUE"
+    }
+  },
+  {
+    "id": "error_overlay_duplicate_target",
+    "description": "Duplicate target keyword arg",
+    "input": "Overlay(Conc(VI30s, VI60s), FR1, target=changeover, target=all)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_KEYWORD_ARG"
+    }
+  },
+  {
+    "id": "error_non_overlay_target",
+    "description": "target keyword is only valid on Overlay; other combinators reject it",
+    "input": "Conc(VI30s, VI60s, target=changeover)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_OVERLAY_TARGET"
+    }
+  },
+  {
     "id": "conc_directional_cod_two",
     "description": "Directional COD on 2-component Conc (Pliskoff, 1971; Williams & Bell, 1999)",
     "input": "Conc(VI30s, VI60s, COD(1->2)=2s, COD(2->1)=5s)",
@@ -776,6 +861,157 @@
           }
         }
       }
+    }
+  },
+  {
+    "id": "conc_punish_directional",
+    "description": "Directional punishment: FR1 punisher on each changeover direction (Todorov, 1971, Exp. 1-2)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "PUNISH": {
+            "directional": [
+              { "from": 1, "to": 2, "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 } },
+              { "from": 2, "to": 1, "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 } }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_punish_changeover",
+    "description": "Changeover punishment (shorthand for all changeover directions; Todorov, 1971)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(changeover)=FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "PUNISH": {
+            "changeover": { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_punish_component",
+    "description": "Component-targeted punishment: all responses on component 1 punished (de Villiers, 1980)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(1)=VI30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "PUNISH": {
+            "component": [
+              { "component": 1, "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" } }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "conc_punish_ident",
+    "description": "Directional punishment with let-bound identifier references (parallel to directional COD)",
+    "input": "let rich = VI30s\nlet lean = VI60s\nConc(rich, lean, COD=2s, PUNISH(rich->lean)=FR1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        { "type": "Binding", "name": "rich", "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" } },
+        { "type": "Binding", "name": "lean", "value": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" } }
+      ],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Conc",
+        "components": [
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
+          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        ],
+        "params": {
+          "COD": { "value": 2.0, "time_unit": "s" },
+          "PUNISH": {
+            "directional": [
+              { "from": 1, "to": 2, "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 1.0 } }
+            ]
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "error_punish_non_conc",
+    "description": "PUNISH is Conc-only; use on other combinators is a semantic error",
+    "input": "Overlay(VI60s, FR1, PUNISH(changeover)=FR1)",
+    "error": {
+      "type": "SemanticError",
+      "code": "INVALID_PUNISH_COMBINATOR"
+    }
+  },
+  {
+    "id": "error_punish_self_ref",
+    "description": "Self-referencing punish direction is a semantic error (parallel to COD §53)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(1->1)=FR1)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PUNISH_SELF_REFERENCE"
+    }
+  },
+  {
+    "id": "error_punish_duplicate",
+    "description": "Duplicate directional punish entries with same (from, to) pair",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(1->2)=VI30s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DUPLICATE_PUNISH_DIRECTIVE"
+    }
+  },
+  {
+    "id": "error_punish_target_conflict",
+    "description": "PUNISH(changeover) and PUNISH(x->y) cannot coexist (ambiguous layering)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(changeover)=FR1, PUNISH(1->2)=VI30s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PUNISH_TARGET_CONFLICT"
+    }
+  },
+  {
+    "id": "error_punish_index_oob",
+    "description": "Punish dir_ref out of range (component index > N)",
+    "input": "Conc(VI30s, VI60s, COD=2s, PUNISH(3->1)=FR1)",
+    "error": {
+      "type": "SemanticError",
+      "code": "DIRECTIONAL_INDEX_OUT_OF_RANGE"
     }
   }
 ]
