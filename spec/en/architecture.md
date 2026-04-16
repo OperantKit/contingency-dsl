@@ -1,80 +1,84 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the six-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](theory.md). Describes the Ψ six-layer architecture, computability properties, and annotation system.
 
 ---
 
-## 4.1 Six-Layer Architecture
+## 4.1 Ψ Six-Layer Architecture
 
-Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies.
+Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies. Pavlovian (respondent) procedures introduce an orthogonal structural axis: two-term CS–US relations that do not require an operant response.
 
-We propose a six-layer architecture that separates concerns along the dimensions of computational power, response opportunity structure, and experimental design structure:
+The DSL is organized by **scientific category**. Layers inside `contingency-dsl` follow the Pavlov / Skinner distinction (two-term vs three-term contingency) at the directory level; composed procedures (e.g., conditioned suppression, Pavlovian-to-instrumental transfer) are a first-class sibling category, not a sub-case of either. Turing-complete runtime is delegated to sibling packages (`contingency-core`, `experiment-core`):
 
 ```
-┌───────────────────────────────┐
-│   contingency-dsl             │
-│   ┌─────────────────────────┐ │
-│   │ Experiment              │ │  Declarative, phase-structured
-│   │ Phase sequences         │ │  PhaseSequence, Criterion
-│   │ criterion =             │ │  ABA: VI→EXT→VI, Stability(5, 10%)
-│   │   phase_change_rule     │ │  FixedSessions(10)
-│   ├─────────────────────────┤ │
-│   │ Core              │ │  Non-Turing-complete (CFG)
-│   │ Free-operant      │ │  Static, declarative
-│   │ criterion =       │ │  FR 10, Conc(VI 30-s, VI 60-s)
-│   │   literal_value   │ │
-│   ├───────────────────┤ │
-│   │ Core-Stateful     │ │  CFG syntax, TC-proximate evaluation
-│   │ Free-operant      │ │  Parameters declarative, criteria runtime-computed
-│   │ criterion =       │ │  Pctl(IRT, 50), Adj(start=FR1, step=2)
-│   │   f(runtime_state)│ │
-│   ├───────────────────┤ │
-│   │ Core-TrialBased   │ │  CFG syntax, discrete trials
-│   │ Discrete trial    │ │  Stimulus–response matching criterion
-│   │ consequence =     │ │  MTS(comparisons=3, consequence=CRF, ITI=5s)
-│   │   Core schedule   │ │
-│   └───────────────────┘ │
-├───────────────────────────────┤
-│   contingency-core             │  Turing-complete
-│   "How contingencies           │  Dynamic, procedural
-│    change over time"           │  if rate > 5.0: switch(VI → VR)
-├───────────────────────────────┤
-│   experiment-core              │  Turing-complete + constraints
-│   "Making it a                 │  Verification, finalization
-│    finite experiment"          │  Session(sched, exit=Reinf(50))
-└───────────────────────────────┘
+┌───────────────────────────────────────────┐
+│ contingency-dsl                            │
+│ ┌─────────────────────────────────────────┐│
+│ │ Annotation (program-scoped, extensions/) ││
+│ ├─────────────────────────────────────────┤│
+│ │ Experiment (phase-sequence, context,     ││
+│ │             criteria)                     ││
+│ ├─────────────────────────────────────────┤│
+│ │ Composed (CER, PIT, autoshape, omission, ││
+│ │           two-process)                    ││
+│ ├────────────────────┬────────────────────┤│
+│ │ Operant (3-term)   │ Respondent (2-term)││
+│ │  - schedules/      │  - Tier A primitives││
+│ │  - stateful/       │  - extension point  ││
+│ │  - trial-based/    │                     ││
+│ ├────────────────────┴────────────────────┤│
+│ │ Foundations (CFG/LL(2), contingency type,││
+│ │              time, stimulus, valence,    ││
+│ │              context)                     ││
+│ └─────────────────────────────────────────┘│
+├───────────────────────────────────────────┤
+│ contingency-core (TC, dynamic)             │
+├───────────────────────────────────────────┤
+│ experiment-core (TC + constraints,         │
+│                  finalization)              │
+└───────────────────────────────────────────┘
 ```
 
-The **Experiment layer** sits above the three Core layers within contingency-dsl. It arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, etc.), covering the common experimental designs found in JEAB papers. The Core layers describe *what each contingency is*; the Experiment layer describes *how those contingencies are sequenced across phases* in a declarative, non-procedural manner. For arbitrary runtime-conditioned transitions (e.g., rate-based schedule switching), contingency-core remains the appropriate layer.
+**Why Operant and Respondent are sibling categories (not nested under a common "Paradigm" node).** The three-term contingency (SD-R-SR) and the two-term contingency (CS-US) are structurally distinct relations, not two parameterizations of a common super-relation. The operant analysis (Skinner, 1938) asks under what discriminative stimulus a response produces a consequence; the respondent analysis (Pavlov, 1927) asks what CS-US temporal / probabilistic relationship predicts the US. Attempting to nest them under a shared "Paradigm" node either (a) forces an artificial parameterization that obscures their distinct grammars, or (b) collapses the three-term and two-term structures into one, which misrepresents the discipline. They share only the neutral foundations (time scales, stimulus typing, valence, context) and a first-class composition point (`composed/`) for operant × respondent procedures.
 
-A phase may declare `no_schedule` to indicate that no operant contingency is active during that phase. This covers Pavlovian revaluation procedures, context exposure, habituation, and other experimental intervals where no response-consequence relation is programmed. Such phases resolve to `Phase.schedule = null` in the AST; annotations (e.g., `@punisher`, `@context`) may still describe stimulus presentations or environmental conditions.
+**TC vs non-TC boundary (unchanged).** Foundations + Operant + Respondent remain CFG and non-TC. `contingency-core` and `experiment-core` remain Turing-complete. The Composed layer inherits the non-TC property from its Operant × Respondent constituents; it composes existing non-TC grammars and does not introduce new computational power.
 
-The Experiment layer follows the JEAB convention: Subjects and Apparatus annotations are shared across phases (inherited unless overridden), while each Phase specifies its own schedule and phase-change criterion. See `schema/experiment/phase-sequence.schema.json` for the full schema.
+The **Experiment layer** sits above the Foundations / Operant / Respondent / Composed layers within contingency-dsl. It arranges non-TC expressions into ordered phases with declarative phase-change criteria (Stability, FixedSessions, PerformanceCriterion), covering the common experimental designs found in JEAB papers. The lower layers describe *what each contingency is*; the Experiment layer describes *how those contingencies are sequenced across phases* in a declarative, non-procedural manner. For arbitrary runtime-conditioned transitions (e.g., rate-based schedule switching), `contingency-core` remains the appropriate layer.
 
-The three Core layers are distinguished along two independent axes:
+A phase may declare `no_schedule` to indicate that no operant contingency is active during that phase. This covers Pavlovian revaluation procedures, context exposure, habituation, and other experimental intervals where no response-consequence relation is programmed. Such phases resolve to `Phase.schedule = null` in the AST; annotations (e.g., `@punisher`, `@context`) and respondent-layer expressions may still describe stimulus presentations or environmental conditions.
+
+The Experiment layer follows the JEAB convention: Subjects and Apparatus annotations are shared across phases (inherited unless overridden), while each Phase specifies its own schedule and phase-change criterion. See `schema/experiment/phase-sequence.schema.json` for the full schema. Context is first-class (`foundations/context.md`, `experiment/context.md`) so that renewal, reinstatement, and context-driven respondent designs can be expressed via the respondent extension point (see design-philosophy §5.4).
+
+The Operant layer is subdivided along two independent axes inherited from the previous five-layer architecture:
 
 ```
                       Response Opportunity
-                 Free-operant    Discrete trial
-                 ┌─────────────┬─────────────┐
-  Criterion      │             │             │
-  Literal        │    Core     │             │
-                 │  FR,VI,DRL  │  Core-      │
-                 ├─────────────┤  TrialBased │
-  Runtime        │   Core-     │    MTS      │
-  state          │  Stateful   │             │
-                 │  Pctl,Adj   │             │
-                 └─────────────┴─────────────┘
+                 Free-operant       Discrete trial
+                 ┌────────────────┬────────────────┐
+  Criterion      │                │                │
+  Literal        │ Operant.Literal│ Operant.       │
+                 │ (schedules/)   │   TrialBased   │
+                 │ FR,VI,DRL      │ (trial-based/) │
+                 ├────────────────┤   MTS,         │
+  Runtime        │ Operant.       │   Go/NoGo      │
+  state          │   Stateful     │                │
+                 │ (stateful/)    │                │
+                 │ Pctl,Adj       │                │
+                 └────────────────┴────────────────┘
 ```
 
-| Layer | Computational Power | Describes | Examples |
-|-------|-------------------|-----------|----------|
-| **contingency-dsl (Experiment)** | Declarative (enumerated criteria) | Multi-phase experimental designs, phase-change criteria | `PhaseSequence(Acquisition→Extinction→Test)`, `Stability(5, 10%)`, `FixedSessions(10)` |
-| **contingency-dsl (Core)** | CFG (non-TC) | Static contingency structure, literal criteria | `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
-| **contingency-dsl (Core-Stateful)** | CFG syntax, TC-proximate eval | Established schedules with runtime-computed criteria | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)`, `Interlocking(R0=100, T=60s)` |
-| **contingency-dsl (Core-TrialBased)** | CFG syntax, discrete trials | Trial-based procedures with stimulus–response matching | `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
-| **contingency-core** | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, arbitrary GTS transitions |
-| **experiment-core** | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
+The Respondent layer is uniform at this resolution: it hosts the Tier-A primitives enumerated in design-philosophy §2 plus the Respondent extension point (§5.4). Depth beyond Tier A (blocking, overshadowing, latent inhibition, renewal, reinstatement, etc.) is delegated to the companion package `contingency-respondent-dsl`.
+
+| Layer | Directory | Computational Power | Describes | Examples |
+|-------|-----------|---------------------|-----------|----------|
+| **Annotation** | `annotations/` | Metadata (program-scoped) | Subjects, Apparatus, Procedure, Measurement; extensions (respondent-annotator, learning-models-annotator) | `@species("rat")`, `@cs("tone", duration=10s)`, `@model(RW)` |
+| **Experiment** | `experiment/` | Declarative (enumerated criteria) | Multi-phase experimental designs, phase-change criteria, first-class Context | `PhaseSequence(Acquisition→Extinction→Test)`, `Stability(5, 10%)`, `FixedSessions(10)` |
+| **Composed** | `composed/` | Non-TC (inherits from components) | Operant × Respondent composites | `CER`, `PIT`, `Autoshaping`, `Omission`, `TwoProcess` |
+| **Operant** | `operant/` | CFG (non-TC) | Three-term contingency (SD-R-SR) | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Pctl(IRT, 50)`, `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
+| **Respondent** | `respondent/` | CFG (non-TC) | Two-term contingency (CS-US) — Tier A primitives + extension point | `Pair.ForwardDelay(cs, us)`, `Contingency(0.9, 0.1)`, `Differential(cs+, cs−)` |
+| **Foundations** | `foundations/` | CFG / type theory (non-TC) | Paradigm-neutral formal base: CFG/LL(2), contingency type (2-term vs 3-term, contingent vs non-contingent), time scales, stimulus typing (SD, SΔ, CS, US, Sr+, Sr−), valence, context | Meta-grammar, type definitions |
+| **contingency-core** | sibling package | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, arbitrary GTS transitions |
+| **experiment-core** | sibling package | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
 **contingency-core** (Turing-complete) enables:
 - "Switch from VR to VI when response rate exceeds threshold"
@@ -96,7 +100,7 @@ Therefore:
 
 ## 4.1.1 Operational Boundary: contingency-dsl vs. contingency-core
 
-The four-layer diagram above uses the terms "static" and "dynamic" informally. This section provides an **operational definition** — a litmus test that determines, for any given procedure, which layer it belongs to.
+The Ψ layer diagram above uses the terms "static" and "dynamic" informally. This section provides an **operational definition** — a litmus test that determines, for any given procedure, which layer it belongs to. The test is semantically unchanged from the previous architecture; only the layer labels on the DSL side are renamed (`Core` → `Operant.Literal`, `Core-Stateful` → `Operant.Stateful`, `Core-TrialBased` → `Operant.TrialBased`, and the Respondent layer is an additional CFG non-TC sibling to which the same SEI reasoning applies).
 
 ### One-Sentence Summary
 
@@ -104,7 +108,7 @@ The four-layer diagram above uses the terms "static" and "dynamic" informally. T
 
 ### Schedule Expression Invariance (SEI) — The Three-Property Test
 
-A procedure belongs to contingency-dsl (Core or Core-Stateful) if and only if **all three** of the following properties hold. Violation of any single property places it in contingency-core.
+A procedure belongs to contingency-dsl (any of Operant.Literal, Operant.Stateful, Operant.TrialBased, or Respondent) if and only if **all three** of the following properties hold. Violation of any single property places it in contingency-core.
 
 **P1 — Expression Tree Fixity.** The schedule expression tree (AST) is fully determined at parse time and does not structurally change during the session. The set of schedule nodes, their types, and their combinatorial structure remain identical from the first reinforcement cycle to the last.
 
@@ -122,42 +126,47 @@ Is the AST fully determined at parse time? (P1)
     YES → Does the schedule identity remain invariant — no transitions
           to a schedule not already a subtree of the original expression? (P3)
       NO  → contingency-core
-      YES → Are response opportunities discrete trials?
-        YES → Core-TrialBased
-        NO  → Are criteria compared against literal values?
-          YES → Core
-          NO (compared against runtime-computed values) → Core-Stateful
+      YES → Is the procedure two-term (CS-US, no operant response)?
+        YES → Respondent (Tier A or respondent extension point)
+        NO  → Are response opportunities discrete trials?
+          YES → Operant.TrialBased
+          NO  → Are criteria compared against literal values?
+            YES → Operant.Literal
+            NO (compared against runtime-computed values) → Operant.Stateful
 ```
 
 ### Comparison Table
 
-| Property | Core | Core-Stateful | Core-TrialBased | contingency-core |
-|---|---|---|---|---|
-| AST structure | Fixed at parse time | Fixed at parse time | Fixed at parse time | Changes during session |
-| Parameters | Literal values | Literal values | Literal values | May be computed or switched |
-| Criterion value | Literal | f(runtime_state), rule fixed at parse time | Stimulus–response matching | May depend on arbitrary state |
-| Response opportunity | Free-operant (continuous) | Free-operant (continuous) | Discrete trial | Any |
-| Consequence | Implicit | Implicit | Explicit (Core schedule ref) | Any |
-| Active schedule identity | Invariant | Invariant | Invariant | Transitions to different schedule |
-| Computational model | CFG (non-TC) | CFG syntax, TC-proximate eval | CFG syntax | Turing-complete |
+| Property | Operant.Literal | Operant.Stateful | Operant.TrialBased | Respondent | contingency-core |
+|---|---|---|---|---|---|
+| AST structure | Fixed at parse time | Fixed at parse time | Fixed at parse time | Fixed at parse time | Changes during session |
+| Parameters | Literal values | Literal values | Literal values | Literal values | May be computed or switched |
+| Criterion value | Literal | f(runtime_state), rule fixed at parse time | Stimulus–response matching | N/A (CS-US temporal / probabilistic structure) | May depend on arbitrary state |
+| Response opportunity | Free-operant (continuous) | Free-operant (continuous) | Discrete trial | N/A (no operant response) | Any |
+| Consequence | Implicit | Implicit | Explicit (operant schedule ref) | US presentation per CS-US structure | Any |
+| Active schedule identity | Invariant | Invariant | Invariant | Invariant | Transitions to different schedule |
+| Contingency type | Three-term (SD-R-SR) | Three-term (SD-R-SR) | Three-term (SD-R-SR) | Two-term (CS-US) | Any |
+| Computational model | CFG (non-TC) | CFG syntax, TC-proximate eval | CFG syntax | CFG (non-TC) | Turing-complete |
 
-The critical distinction between Core-Stateful and contingency-core: in Core-Stateful, the schedule expression is **self-contained** — the criterion computation rule is declared within the expression itself (e.g., `Pctl(IRT, 50)` declares a fixed percentile rule). In contingency-core, the system must evaluate **external conditions** (response rate, multi-trial outcome patterns, another subject's behavior) to determine which schedule expression should be **currently active**, and that expression may be structurally different from the previous one.
+The critical distinction between Operant.Stateful and contingency-core: in Operant.Stateful, the schedule expression is **self-contained** — the criterion computation rule is declared within the expression itself (e.g., `Pctl(IRT, 50)` declares a fixed percentile rule). In contingency-core, the system must evaluate **external conditions** (response rate, multi-trial outcome patterns, another subject's behavior) to determine which schedule expression should be **currently active**, and that expression may be structurally different from the previous one.
+
+The Respondent layer applies the same SEI reasoning at the two-term contingency level: a `Pair.ForwardDelay(cs, us, isi=...)` or `Contingency(p_us_given_cs, p_us_given_no_cs)` expression is fully parse-time-determined; it does not transition to a structurally different CS-US expression based on runtime state. Procedures that require such transitions (e.g., a renewal design where the CS-US contingency shifts based on external context changes) are handled by the Respondent extension point plus the Experiment layer's phase-sequence structure, not by primitive-level mutation.
 
 ### Boundary Case Classifications
 
 **Case 1: Adaptive DRO.**
 
-- *Fixed step-function adaptation* (e.g., threshold increases by 1 s on each criterion achievement): expressible as `Adj(delay, start=5s, step=1s)`. All three properties hold. → **Core-Stateful.**
+- *Fixed step-function adaptation* (e.g., threshold increases by 1 s on each criterion achievement): expressible as `Adj(delay, start=5s, step=1s)`. All three properties hold. → **Operant.Stateful.**
 - *Externally-conditioned adaptation* (e.g., if response rate drops below X, increase threshold; otherwise decrease by 2× step): the parameter computation rule itself is a conditional expression, not a fixed closed-form function. P2 is violated. → **contingency-core.**
 
 **Case 2: Titration.**
 
-- *Fixed staircase method* (e.g., +0.1 on correct, −0.1 on incorrect): expressible as `Adj(amount, start=0.4, step=0.1)`. Structurally identical to Progressive Ratio — the rule is fixed at parse time; only the current value varies. → **Core-Stateful.**
+- *Fixed staircase method* (e.g., +0.1 on correct, −0.1 on incorrect): expressible as `Adj(amount, start=0.4, step=0.1)`. Structurally identical to Progressive Ratio — the rule is fixed at parse time; only the current value varies. → **Operant.Stateful.**
 - *Conditional-branching titration* (e.g., increase if correct on 3 of last 5 trials, otherwise decrease by 2× step): requires control flow that the DSL cannot express. P2 is violated. → **contingency-core.**
 
 **Case 3: Phase-internal schedule changes.**
 
-- *Fixed sequential order* (e.g., "complete FR 5 ten times, then VI 30"): expressible as `Tand(Repeat(10, FR 5), VI 30-s)`. The transition target is a subtree already present in the original AST. All three properties hold. → **Core.**
+- *Fixed sequential order* (e.g., "complete FR 5 ten times, then VI 30"): expressible as `Tand(Repeat(10, FR 5), VI 30-s)`. The transition target is a subtree already present in the original AST. All three properties hold. → **Operant.Literal.**
 - *Behavior-criterion-triggered transition* (e.g., "switch from FR 5 to VI 30 when response rate exceeds threshold"): the AST must change from one schedule to a structurally different one based on an external evaluation. P1 and P3 are violated. → **contingency-core.**
 
 **Case 4: Discriminated avoidance.**
@@ -166,11 +175,11 @@ Discriminated avoidance (Solomon & Wynne, 1953) has a clear trial structure: CS 
 
 However, the response opportunity *within* each trial is free-operant: the subject can respond at any moment during the CS-US interval, may emit multiple responses, and response latency is a primary dependent variable. The trial structure constrains *when the avoidance contingency is active* (signaled vs. unsignaled periods), not *how the subject responds*. This is analogous to a `Mult(avoidance, EXT)` arrangement where the CS signals the active component.
 
-Core-TrialBased requires that the response opportunity itself be discrete — a selection among presented alternatives (e.g., comparison stimuli in MTS). In discriminated avoidance, no such selection exists; the response is the same operant (e.g., lever press, shuttle crossing) available continuously within the signaled period.
+Operant.TrialBased requires that the response opportunity itself be discrete — a selection among presented alternatives (e.g., comparison stimuli in MTS). In discriminated avoidance, no such selection exists; the response is the same operant (e.g., lever press, shuttle crossing) available continuously within the signaled period.
 
 Additionally, discriminated avoidance shares its aversive contingency structure with Sidman avoidance (free-operant, Core). The CS in discriminated avoidance adds a discriminative stimulus to the same underlying avoidance contingency; it does not transform the response opportunity from free-operant to discrete trial.
 
-- All three SEI properties hold. Response opportunities are free-operant within trial boundaries. → **Core.**
+- All three SEI properties hold. Response opportunities are free-operant within trial boundaries. → **Operant.Literal.**
 
 ### Recommended Computational Model for contingency-core: Guarded Transition System (GTS)
 
@@ -186,7 +195,7 @@ Transition = (State, Guard, State)   -- if guard is satisfied, transition S1 →
 
 | Property | Specification |
 |---|---|
-| States | Each state is a valid contingency-dsl expression (Core or Core-Stateful) |
+| States | Each state is a valid contingency-dsl expression (any of Operant.Literal, Operant.Stateful, Operant.TrialBased, Respondent, or Composed) |
 | Guards | Boolean expressions over defined runtime observables (response rate, reinforcement count, time elapsed, cumulative responses, etc.) |
 | Transitions | Deterministic: at most one guard may be true at any point, or a priority ordering resolves ties |
 | Initial state | The first state in the definition |
@@ -308,7 +317,7 @@ These properties are decidable by syntax tree traversal. In a Turing-complete la
 
 - **PR step functions**: Enumerated within the DSL (`hodos`, `linear`, `exponential`, `geometric`). Arbitrary functions available only via the Python API.
 - **Fleshler-Hoffman generation**: `seed` parameter for deterministic generation. Runtime randomness is the engine's responsibility.
-- **DR thresholds**: Scalar values only in Core. Fixed step-function adaptation (e.g., `Adj(delay, start=5s, step=1s)`) belongs in Core-Stateful. Only adaptive DRO with externally-conditioned adjustment rules (conditional branching on behavioral criteria) is delegated to contingency-core. See §4.1.1 for the operational boundary definition.
+- **DR thresholds**: Scalar values only in Operant.Literal. Fixed step-function adaptation (e.g., `Adj(delay, start=5s, step=1s)`) belongs in Operant.Stateful. Only adaptive DRO with externally-conditioned adjustment rules (conditional branching on behavioral criteria) is delegated to contingency-core. See §4.1.1 for the operational boundary definition.
 
 ## 4.7 Annotation Architecture — Orthogonal Annotation Dimensions
 
@@ -628,14 +637,33 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 | Layer | Computational Power | Responsibility | Expressible Range |
 |-------|-------------------|----------------|-------------------|
-| **contingency-dsl** | CFG (non-TC) | Static contingency structure (SEI: P1-P3 hold, §4.1.1) | 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings |
+| **contingency-dsl** (Foundations + Operant + Respondent + Composed + Experiment + Annotation) | CFG (non-TC) | Static contingency structure (SEI: P1-P3 hold, §4.1.1), covering both three-term operant and two-term respondent relations and their composites | Operant: 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings + stateful (Pctl, Adj, Interlocking) + trial-based (MTS, Go/NoGo). Respondent: Tier A primitives + respondent extension point. Composed: CER, PIT, autoshaping, omission, two-process. Experiment: phase sequences + context + criteria. |
 | **contingency-core** | TC | Dynamic contingency transitions (SEI: any of P1-P3 violated, §4.1.1) | Guarded transitions between DSL expressions, conditional-branching titration/DRO, yoking |
 | **experiment-core** | TC + constraints | Experimental finalization/verification | Exit conditions, ABA designs, safety constraints, static verification |
 | **contingency-py** | Runtime | Evaluation engine | `is_satisfied()` judgment, state management, FH sequence cycling |
 
 ---
 
+## Schema Path Conventions
+
+The `schema/` tree mirrors the Ψ directory structure:
+
+- `schema/foundations/` — meta-grammar, contingency-type definitions, time scales, stimulus typing, valence, context types
+- `schema/operant/grammar.ebnf`, `schema/operant/ast.schema.json` — Operant layer grammar and AST
+- `schema/operant/schedules/{ratio,interval,time,differential,compound,progressive}.ebnf` — per-class schedule EBNF fragments
+- `schema/operant/stateful/grammar.ebnf` — Operant.Stateful (Percentile, Adjusting, Interlocking)
+- `schema/operant/trial-based/grammar.ebnf` — Operant.TrialBased (MTS, Go/NoGo)
+- `schema/respondent/grammar.ebnf`, `schema/respondent/ast.schema.json` — Respondent Tier A primitives + extension point
+- `schema/composed/*.schema.json` — per-procedure composed schemas (conditioned-suppression, pit, autoshaping, omission, two-process-theory)
+- `schema/experiment/phase-sequence.schema.json` — Experiment layer
+- `schema/annotations/extensions/` — annotator extension schemas (learning-models, respondent-annotator, etc.)
+- `schema/representations/` — alternative coordinate systems
+
+---
+
 ## References
 
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267-272. https://doi.org/10.1901/jeab.1961.4-267
+- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
 - Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian conditioning: Variations in the effectiveness of reinforcement and nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), *Classical conditioning II: Current research and theory* (pp. 64-99). Appleton-Century-Crofts.
+- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
