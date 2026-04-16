@@ -90,6 +90,35 @@ Combinators compose freely:
 Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s), COD=2-s)
 ```
 
+### Punishment Combinators
+
+```
+Overlay(VI 60-s, FR 1)                              -- punish every response
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1,
+        target=changeover)                          -- punish changeovers only
+                                                    --   (Todorov, 1971)
+
+-- Response-class-specific punishment: PUNISH directive on Conc
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+                                                    -- asymmetric directional
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+                                                    -- all changeovers (shorthand)
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)     -- component-targeted
+                                                    --   (de Villiers, 1980)
+```
+
+### Compound Keyword Arguments
+
+| Keyword | Combinator(s) | Form | Purpose |
+|---|---|---|---|
+| `COD` | Conc | `COD=2-s` (scalar) or `COD(1->2)=2-s` (directional) | Changeover delay (Catania, 1966) |
+| `FRCO` | Conc | `FRCO=3` | Fixed-ratio changeover (Hunter & Davison, 1985) |
+| `BO` | Mult, Mix | `BO=5-s` | Blackout between components (Reynolds, 1961) |
+| `count` | Interpolate | `count=16` | Reinforcements in interpolated block |
+| `onset` | Interpolate | `onset=3-min` | Delay before interpolation |
+| `target` | Overlay | `target=changeover` or `target=all` | Response-class targeting (v1.y) |
+| `PUNISH(...)` | Conc | `PUNISH(changeover)=S` / `PUNISH(x->y)=S` / `PUNISH(n)=S` | Response-class-specific punishment (v1.y) |
+
 ---
 
 ## Level 3: Modifiers

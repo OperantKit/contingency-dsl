@@ -30,6 +30,11 @@ FR5(FI30)                     -- Second-order: 5 FI30 completions
 let baseline = VI60s          -- Named binding
 DRL5s                         -- Differential Reinforcement of Low rate
 FI30 LH10                    -- Limited Hold: 10s availability window
+Overlay(VI60s, FR1)           -- Punishment overlay on VI60 baseline
+Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
+                              -- Changeover-only punishment (Todorov, 1971)
+Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
+                              -- Directional response-class punishment
 ```
 
 ## Documentation

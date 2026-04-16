@@ -88,6 +88,35 @@ Mix(FR 5, FR 10)                 -- 混合: 同上だが刺激変化なし
 Conc(Chain(FR 5, VI 60-s), Alt(FR 10, FT 30-s), COD=2-s)
 ```
 
+### 罰の重畳
+
+```
+Overlay(VI 60-s, FR 1)                              -- 全反応に罰
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1,
+        target=changeover)                          -- 切替反応のみに罰
+                                                    --   （Todorov, 1971）
+
+-- 反応クラス特異的罰: Conc の PUNISH directive
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+                                                    -- 方向非対称罰
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(changeover)=FR 1)
+                                                    -- 全 changeover 方向（短縮形）
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)     -- 成分特異的罰
+                                                    --   （de Villiers, 1980）
+```
+
+### 複合スケジュールのキーワード引数
+
+| キーワード | 対象コンビネータ | 形式 | 役割 |
+|---|---|---|---|
+| `COD` | Conc | `COD=2-s`（スカラー）または `COD(1->2)=2-s`（方向指定） | 切替遅延（Catania, 1966） |
+| `FRCO` | Conc | `FRCO=3` | 切替固定比（Hunter & Davison, 1985） |
+| `BO` | Mult, Mix | `BO=5-s` | 成分間の暗転（Reynolds, 1961） |
+| `count` | Interpolate | `count=16` | 挿入ブロックの強化回数 |
+| `onset` | Interpolate | `onset=3-min` | 挿入開始までの時間 |
+| `target` | Overlay | `target=changeover` / `target=all` | 反応クラス targeting（v1.y） |
+| `PUNISH(...)` | Conc | `PUNISH(changeover)=S` / `PUNISH(x->y)=S` / `PUNISH(n)=S` | 反応クラス特異的罰（v1.y） |
+
 ---
 
 ## レベル 3: 修飾子

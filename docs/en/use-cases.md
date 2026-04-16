@@ -366,8 +366,49 @@ Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)
   @punisher("shock", intensity="0.5mA")
 ```
 
+**Changeover-only punishment (Todorov, 1971).** Punishing only the switching
+response on a concurrent VI VI baseline:
+
+```
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1, target=changeover)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+This suppresses changeover responses without punishing the operant responses
+themselves, isolating the aversive effect on switching behavior.
+
+**Asymmetric directional punishment (PUNISH directive).** When the experimenter
+wants different punishers in each changeover direction — e.g., stronger
+punishment switching away from the richer schedule:
+
+```
+Conc(VI 30-s, VI 60-s, COD=2-s,
+     PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+With intensity annotations on each punisher schedule, asymmetric punishment
+intensities (Todorov, 1971, Exp. 1) become representable directly.
+
+**Component-specific punishment (de Villiers, 1980).** Punishing all responses
+on a particular component while leaving the other unpunished:
+
+```
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+de Villiers (1980) used this paradigm to test the subtractive model of
+punishment against competing suppression models in conc VI VI.
+
 **References:**
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Critchfield, T. S., Paletz, E. M., MacAleese, K. R., & Newland, M. C. (2003). Punishment in human choice: Direct or competitive suppression? *JEAB*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
+- de Villiers, P. A. (1980). Toward a quantitative theory of punishment. *JEAB*, 33(1), 15-25. https://doi.org/10.1901/jeab.1980.33-15
+- Farley, J. (1980). Reinforcement and punishment effects in concurrent schedules: A test of two models. *JEAB*, 33(3), 311-326. https://doi.org/10.1901/jeab.1980.33-311
 - Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
 
 ---

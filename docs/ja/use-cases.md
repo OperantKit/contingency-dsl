@@ -337,8 +337,46 @@ Overlay(Conc(VI 60-s, VI 180-s, COD=2-s), FR 1)
   @punisher("shock", intensity="0.5mA")
 ```
 
+**切替反応のみへの罰（Todorov, 1971）:** 並立 VI VI ベースラインで、切替反応
+のみを罰する:
+
+```
+Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1, target=changeover)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+オペラント反応そのものは罰せず、切替行動への嫌悪効果を分離する。
+
+**方向非対称罰（PUNISH directive）:** 実験者が各切替方向に異なる罰子を
+適用したい場合（例: 高頻度側から低頻度側への切替を強く罰する）:
+
+```
+Conc(VI 30-s, VI 60-s, COD=2-s,
+     PUNISH(1->2)=FR 1, PUNISH(2->1)=FR 1)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+各罰子スケジュールに強度アノテーションを付与することで、非対称罰強度
+（Todorov, 1971, 実験 1）を直接表現できる。
+
+**成分特異的罰（de Villiers, 1980）:** 特定の成分上の全反応を罰し、他方は罰しない:
+
+```
+Conc(VI 30-s, VI 60-s, COD=2-s, PUNISH(1)=VI 30-s)
+  @reinforcer("food")
+  @punisher("shock", intensity="0.5mA")
+```
+
+de Villiers (1980) はこのパラダイムで並立 VI VI における罰の減算モデルを
+競合抑制モデルと比較検証した。
+
 **参考文献:**
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
+- Critchfield, T. S., Paletz, E. M., MacAleese, K. R., & Newland, M. C. (2003). Punishment in human choice: Direct or competitive suppression? *JEAB*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
+- de Villiers, P. A. (1980). Toward a quantitative theory of punishment. *JEAB*, 33(1), 15-25. https://doi.org/10.1901/jeab.1980.33-15
+- Farley, J. (1980). Reinforcement and punishment effects in concurrent schedules: A test of two models. *JEAB*, 33(3), 311-326. https://doi.org/10.1901/jeab.1980.33-311
 - Todorov, J. C. (1971). Concurrent performances: Effect of punishment contingent on the switching response. *JEAB*, 16(1), 51-62. https://doi.org/10.1901/jeab.1971.16-51
 
 ---
