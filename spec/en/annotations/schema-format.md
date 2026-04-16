@@ -531,11 +531,12 @@ The following schema files conform to this specification as of
 |---|---|---|---|
 | `procedure-stimulus.schema.json` | Procedure | `reinforcer`, `sd`, `brief` | Schema Design |
 | `procedure-temporal.schema.json` | Procedure | `clock`, `warmup`, `algorithm` | Schema Design |
+| `procedure-trial-structure.schema.json` | Procedure | `trial_mix` (types: peak, reinstatement, temporal_bisection) | Proposed |
 | `subjects.schema.json` | Subjects | `species`, `strain`, `deprivation`, `history`, `n` | Schema Design |
 | `apparatus.schema.json` | Apparatus | `chamber`, `operandum`, `interface`, `hardware` | Schema Design |
 | `measurement.schema.json` | Measurement | `session_end`, `baseline`, `steady_state` | Schema Design |
 
-Total: 5 annotation schema files, 17 keywords, 4 JEAB categories fully covered.
+Total: 6 annotation schema files, 18 keywords, 4 JEAB categories fully covered.
 
 Note: The `schema/experiment/` directory contains separate schemas for multi-phase experimental designs (`phase-sequence.schema.json`, `experiment.schema.json`). These are not annotation schemas but structural schemas that reference Core AST types and annotations via `$ref`.
 

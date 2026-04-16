@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/procedure-trial-structure.schema.json",
+  "title": "procedure-trial-structure",
+  "description": "JEAB Procedure category, trial-structure sub-annotator. Declares session-level trial composition for free-operant schedules with mixed trial types: peak procedure (Catania & Reynolds, 1968), reinstatement tests (Baker et al., 1991), and free-operant temporal bisection (Fetterman & Killeen, 1995). Complements procedure-stimulus @testing (which applies to discrete-trial MTS only).",
+  "category": "Procedure",
+  "sub_annotator": "trial-structure",
+  "version": "0.1",
+  "status": "Proposed",
+
+  "keywords": {
+    "trial_mix": {
+      "description": "Session-level composition of a Mix/Mult schedule into trial types with counts, durations, and reinforcement. Applies to free-operant Mix/Mult combinators only. For discrete-trial MTS probe testing, use @testing (procedure-stimulus) instead. The annotation captures paper-level Methods description (counts, ordering specification); runtime randomization details (seed, shuffling algorithm) are delegated to execution_profile.",
+      "scope": ["schedule"],
+      "positional": null,
+      "params": {
+        "type": {
+          "type": "string",
+          "enum": ["peak", "reinstatement", "temporal_bisection"],
+          "required": true,
+          "description": "Trial-mix variant. 'peak': reinforced FI trials intermixed with extended unreinforced probe trials (Catania & Reynolds, 1968; Roberts, 1981). 'reinstatement': within-session response-independent reinforcer deliveries during/after extinction to induce recovery of responding (Baker et al., 1991; Ostlund & Balleine, 2007). 'temporal_bisection': short/long anchor trials intermixed with intermediate probe durations for psychophysical scaling (Fetterman & Killeen, 1995; free-operant variant of Church & Deluty, 1977)."
+        },
+
+        "reinforced_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["peak"] },
+          "forbidden_if": { "type": ["reinstatement", "temporal_bisection"] },
+          "description": "Peak only: zero-based index of the reinforced (standard FI) component within the annotated Mix/Mult expression."
+        },
+        "reinforced_count": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "type": ["peak"] },
+          "forbidden_if": { "type": ["reinstatement", "temporal_bisection"] },
+          "description": "Peak only: number of reinforced (standard) trials per session."
+        },
+        "probe_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["peak", "temporal_bisection"] },
+          "forbidden_if": { "type": ["reinstatement"] },
+          "description": "Peak and temporal_bisection: zero-based index of the probe (unreinforced) component. For peak, this is the extended FI trial; for temporal_bisection, this is the intermediate-duration probe component."
+        },
+        "probe_count": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "type": ["peak", "temporal_bisection"] },
+          "forbidden_if": { "type": ["reinstatement"] },
+          "description": "Peak and temporal_bisection: number of probe trials per session. For temporal_bisection, this is the count per probe duration in probe_duration_list (total probe trials = probe_count * len(probe_duration_list))."
+        },
+        "probe_duration": {
+          "type": "time_value",
+          "required_if": { "type": ["peak"] },
+          "forbidden_if": { "type": ["reinstatement", "temporal_bisection"] },
+          "description": "Peak only: duration of each probe trial (typically 3-4x the reinforced FI value; Catania & Reynolds, 1968)."
+        },
+
+        "extinction_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["reinstatement"] },
+          "forbidden_if": { "type": ["peak", "temporal_bisection"] },
+          "description": "Reinstatement only: zero-based index of the extinction component (the target operant with reinforcement withheld)."
+        },
+        "reinstatement_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["reinstatement"] },
+          "forbidden_if": { "type": ["peak", "temporal_bisection"] },
+          "description": "Reinstatement only: zero-based index of the response-independent reinforcer delivery component (typically FT; Zeiler, 1968)."
+        },
+        "reinstatement_count": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "type": ["reinstatement"] },
+          "forbidden_if": { "type": ["peak", "temporal_bisection"] },
+          "description": "Reinstatement only: number of response-independent reinforcer deliveries (Baker et al., 1991 used 4; varies 1-16 across literature)."
+        },
+        "reinstatement_interval": {
+          "type": "time_value",
+          "required": false,
+          "forbidden_if": { "type": ["peak", "temporal_bisection"] },
+          "description": "Reinstatement only, optional: inter-delivery interval for response-independent reinforcers. When omitted, the runtime derives it from the reinstatement_ref component's schedule parameter (e.g., FT60s implies 60s interval)."
+        },
+
+        "short_anchor_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: zero-based index of the short-duration anchor component (reinforced; trains 'short' response class)."
+        },
+        "short_anchor_duration": {
+          "type": "time_value",
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: stimulus duration of the short anchor (e.g., 2s in Church & Deluty, 1977)."
+        },
+        "short_anchor_count": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: number of short anchor trials per session."
+        },
+        "long_anchor_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: zero-based index of the long-duration anchor component (reinforced; trains 'long' response class)."
+        },
+        "long_anchor_duration": {
+          "type": "time_value",
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: stimulus duration of the long anchor (e.g., 8s in Church & Deluty, 1977)."
+        },
+        "long_anchor_count": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: number of long anchor trials per session."
+        },
+        "probe_duration_list": {
+          "type": "array_of_string",
+          "required_if": { "type": ["temporal_bisection"] },
+          "forbidden_if": { "type": ["peak", "reinstatement"] },
+          "description": "Temporal bisection only: list of intermediate probe durations as quoted time-value strings (e.g., [\"3s\", \"4s\", \"5s\", \"6s\", \"7s\"]). Typically 3-7 values logarithmically or linearly spaced between short_anchor_duration and long_anchor_duration. Validator parses each string as a time_value."
+        },
+
+        "ordering_spec": {
+          "type": "string",
+          "enum": ["random", "blocked", "fixed_sequence"],
+          "required": false,
+          "default": "random",
+          "description": "Paper-level ordering specification. 'random': trials randomly interspersed (typical for peak and temporal_bisection). 'blocked': trial types presented in separate blocks. 'fixed_sequence': deterministic paper-specified order (typical for reinstatement: extinction block -> reinforcer deliveries -> test). Runtime implementation details (seed, shuffling algorithm) are delegated to execution_profile, preserving AST/execution orthogonality."
+        }
+      },
+      "applies_to_note": "Applies only to Core Mix/Mult combinators (free-operant response opportunity). Applying to MTS/GoNoGo trial-based primitives triggers TRIAL_MIX_WRONG_PRIMITIVE linter warning; use @testing (procedure-stimulus) for MTS probe testing. This separation reflects Theorem 1 (core-trial-based/theory.md §4): free-operant and discrete-trial paradigms have incompatible semantics. Component count requirements vary by type: peak requires >=2 components, reinstatement requires >=2 components, temporal_bisection requires >=3 components.",
+      "errors": {
+        "TRIAL_MIX_WRONG_PRIMITIVE": "@trial_mix applies only to Mix/Mult combinators (free-operant); discrete-trial MTS/GoNoGo should use @testing instead",
+        "TRIAL_MIX_INVALID_REF": "Component ref (reinforced_ref, probe_ref, extinction_ref, reinstatement_ref, short_anchor_ref, long_anchor_ref) must index a valid component of the Mix/Mult expression",
+        "TRIAL_MIX_DUPLICATE_REF": "Component refs must reference distinct components within the same @trial_mix annotation",
+        "TRIAL_MIX_INSUFFICIENT_COMPONENTS": "Mix/Mult expression must have enough components for the declared type (peak: >=2, reinstatement: >=2, temporal_bisection: >=3)",
+        "TRIAL_MIX_MISSING_TYPE": "type parameter is required; must be one of 'peak', 'reinstatement', 'temporal_bisection'",
+        "TRIAL_MIX_FORBIDDEN_PARAM": "Parameter not applicable to the declared type (e.g., reinforced_count is peak-only; extinction_ref is reinstatement-only)",
+        "TRIAL_MIX_INVALID_PROBE_DURATION": "probe_duration_list entries must be parseable as time_value strings (e.g., '3s', '150ms', '1min')",
+        "TRIAL_MIX_PROBE_OUT_OF_ANCHOR_RANGE": "For temporal_bisection, all probe_duration_list values must fall strictly between short_anchor_duration and long_anchor_duration"
+      },
+      "reference": "Catania, A. C., & Reynolds, G. S. (1968). A quantitative analysis of the responding maintained by interval schedules of reinforcement. Journal of the Experimental Analysis of Behavior, 11(s3), 327-383. https://doi.org/10.1901/jeab.1968.11-s327; Roberts, S. (1981). Isolation of an internal clock. Journal of Experimental Psychology: Animal Behavior Processes, 7(3), 242-268. https://doi.org/10.1037/0097-7403.7.3.242; Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of response sequences in peak procedures. Behavioural Processes, 151, 111-118. https://doi.org/10.1016/j.beproc.2018.03.014; Baker, A. G., Steinwald, H., & Bouton, M. E. (1991). Contextual conditioning and reinstatement of extinguished instrumental responding. Quarterly Journal of Experimental Psychology, 43B, 199-218; Ostlund, S. B., & Balleine, B. W. (2007). Selective reinstatement of instrumental performance depends on the discriminative stimulus properties of the mediating outcome. Learning & Behavior, 35, 43-52. https://doi.org/10.3758/BF03196073; Church, R. M., & Deluty, M. Z. (1977). Bisection of temporal intervals. Journal of Experimental Psychology: Animal Behavior Processes, 3(3), 216-228. https://doi.org/10.1037/0097-7403.3.3.216; Fetterman, J. G., & Killeen, P. R. (1995). Categorical scaling of time: Implications for clock-counter models. Journal of Experimental Psychology: Animal Behavior Processes, 21(1), 43-63. https://doi.org/10.1037/0097-7403.21.1.43"
+    }
+  },
+
+  "future_keywords": []
+}
