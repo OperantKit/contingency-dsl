@@ -14,7 +14,7 @@ The DSL defines `AnnotationModule.version` (semver) and `schema-format.md` requi
 1. Detecting breaking changes at the DSL source level
 2. Pinning conformance tests to specific versions
 3. Managing Tier classification changes across versions
-4. Ensuring that a DSL source file written for annotator v1.0 does not silently break under v1.1
+4. Ensuring that a DSL source file written for annotator v1.0 does not silently break under v1.0
 
 Without a versioning strategy, the system will accumulate implicit compatibility assumptions that shatter as annotators evolve.
 
@@ -150,7 +150,7 @@ subjects-annotator is loaded. Either:
   2. Remove @species/@strain/@deprivation annotations from the source.
 
 VersionTooLowError: DSL source requires 'procedure.stimulus@>=1.1'
-(keyword @reinforcer with param 'modality' introduced in v1.1),
+(keyword @reinforcer with param 'modality' introduced in v1.0),
 but loaded procedure-annotator provides stimulus v1.0.
 ```
 
@@ -194,11 +194,11 @@ When present, the parser validates that its grammar version is compatible with t
 conformance/
 ├── core/
 │   ├── v1.0/          # Tests for core grammar v1.0
-│   └── v1.1/          # Tests added in v1.1
+│   └── v1.0/          # Tests added in v1.0
 ├── annotators/
 │   ├── procedure-stimulus/
 │   │   ├── v1.0/
-│   │   └── v1.1/
+│   │   └── v1.0/
 │   ├── subjects/
 │   │   └── v1.0/
 │   └── ...
@@ -213,7 +213,7 @@ core:
   - version: "1.0"
     test_suite: conformance/core/v1.0/
   - version: "1.1"
-    test_suite: conformance/core/v1.1/
+    test_suite: conformance/core/v1.0/
     backward_compatible_with: "1.0"
 
 annotators:
@@ -221,7 +221,7 @@ annotators:
     - version: "1.0"
       test_suite: conformance/annotators/procedure-stimulus/v1.0/
     - version: "1.1"
-      test_suite: conformance/annotators/procedure-stimulus/v1.1/
+      test_suite: conformance/annotators/procedure-stimulus/v1.0/
       backward_compatible_with: "1.0"
       migration: migrations/procedure-stimulus-1.0-to-1.1.md
 ```

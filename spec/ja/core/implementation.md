@@ -49,7 +49,7 @@ class AtomicSchedule:
 class CompoundSchedule:
     combinator: str  # "Conc" | "Alt" | "Conj" | "Chain" | "Tand" | "Mult" | "Mix"
     components: tuple[ScheduleExpr, ...]
-    params: dict[str, Any] | None = None  # v1.1: {"COD": {"value": 2.0, "time_unit": "s"}, "FRCO": {"value": 5}}
+    params: dict[str, Any] | None = None  # {"COD": {"value": 2.0, "time_unit": "s"}, "FRCO": {"value": 5}}
 
 @dataclass(frozen=True)
 class ModifierSchedule:

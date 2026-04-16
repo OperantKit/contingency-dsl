@@ -48,7 +48,7 @@ class CompoundSchedule:
     combinator: str  # "Conc" | "Alt" | "Conj" | "Chain" | "Tand" | "Mult" | "Mix"
     components: tuple[ScheduleExpr, ...]
     params: dict[str, Any] | None = None
-    # v1.1 params examples:
+    # params examples:
     #   Symmetric COD:    {"COD": {"value": 2.0, "time_unit": "s"}}
     #   Directional COD:  {"COD": {"base": {...}, "directional": [{"from": 2, "to": 1, "value": 5.0, ...}]}}
     #   FRCO:             {"FRCO": {"value": 5}}

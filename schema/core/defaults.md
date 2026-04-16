@@ -173,7 +173,7 @@ References:
 The runtime default is `COD=0s` (no changeover delay), applied at the runtime
 bridge layer — the AST does not contain an implicit COD.
 
-**v1.1 (planned):**
+**Current:**
 
 | Parameter | Alias | Syntax (expression) | Syntax (param_decl) | Dimension |
 |-----------|-------|---------------------|---------------------|-----------|
@@ -251,7 +251,7 @@ responsibility. The above is provided as a literature pointer only.
 
 ## Blackout (BO) — Multiple/Mixed schedules
 
-**v1.1:** BO is **optional** for `Mult` and `Mix`. Omitting BO means no blackout
+**Current:** BO is **optional** for `Mult` and `Mix`. Omitting BO means no blackout
 (immediate component transition). This contrasts with COD, which is mandatory
 for `Conc`.
 
@@ -263,7 +263,7 @@ for `Conc`.
   (same priority rule as LH and COD).
 - `BO=0s` is legal (explicit no-blackout, equivalent to omission).
 - Default behavior: symmetric (same BO for all component transitions).
-- **Future (v1.2):** Asymmetric BO per transition direction.
+- **Future:** Asymmetric BO per transition direction.
 
 **Design rationale:** BO directly affects behavioral contrast between components
 (Reynolds, 1961) and inter-component associative independence (Bouton, 2004).

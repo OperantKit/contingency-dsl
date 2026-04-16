@@ -221,13 +221,13 @@ virtual/simulation mode (see validation-modes §4.2).
 
 **`@session_end` / `@baseline` / `@steady_state`** — Measurement category (v1.0).
 **`@dependent_measure` / `@training_volume` / `@microstructure`** — Measurement category
-(v1.1, added 2026-04-13). `@dependent_measure` declares primary dependent variables
+(v1.0, added 2026-04-13). `@dependent_measure` declares primary dependent variables
 (including timing indices, behavioral economics measures, and CER suppression ratios);
 `@training_volume` tracks cumulative training exposure for overtraining/habit formation
 paradigms; `@microstructure` configures IRT distribution, bout analysis, log-survivor
 analysis, and post-reinforcement pause measurement parameters.
 **`@phase_end` / `@logging` / `@iri_window` / `@warmup_exclude`** — Measurement category
-(v1.2, added 2026-04-13). `@phase_end` declares compound phase termination criteria
+(v1.0, added 2026-04-13). `@phase_end` declares compound phase termination criteria
 (conjunction/disjunction of session count, stability, and CV thresholds);
 `@logging` specifies event-level data recording (event types, format, precision);
 `@iri_window` configures inter-reinforcement interval analysis (binning, normalization,

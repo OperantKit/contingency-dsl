@@ -276,7 +276,7 @@
   },
   {
     "id": "error_bo_on_conc",
-    "description": "BO keyword argument is only valid on Mult/Mix combinators (v1.1 constraint §8)",
+    "description": "BO keyword argument is only valid on Mult/Mix combinators (constraint §8)",
     "input": "Conc(VI30s, VI60s, COD=2s, BO=5s)",
     "error": {
       "type": "SemanticError",
@@ -672,7 +672,7 @@
   },
   {
     "id": "error_directional_bo",
-    "description": "Directional form not valid for BO in v1.1 (constraint 50)",
+    "description": "Directional form not valid for BO (constraint 50)",
     "input": "Mult(FR5, EXT, BO(1->2)=5s)",
     "error": {
       "type": "SemanticError",

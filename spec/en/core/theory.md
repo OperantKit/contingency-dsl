@@ -655,7 +655,7 @@ Semantic rules for directional COD:
 - Program-level `param_decl` accepts scalar COD only (symmetric base). Expression-level directional COD overrides specific directions.
 - Per-value validation: same rules as scalar COD (time unit required, ≥ 0).
 
-**Future (v1.2):** Resetting COD (timer restarts on re-switch during active COD).
+**Future:** Resetting COD (timer restarts on re-switch during active COD).
 
 **Note on behavioral consequences.** The behavioral consequences of COD vs FRCO are asymmetric — see Hunter & Davison (1985) and Pliskoff & Fetterman (1981) for the empirical dissociation of their effects on generalized matching law sensitivity. COD typically produces undermatching (a < 1), while FRCO typically produces overmatching (a > 1) in concurrent VI VI preparations. This DSL encodes both as procedural parameters and delegates outcome prediction to downstream analyzers.
 
@@ -673,7 +673,7 @@ Mult(FR 5, EXT)                       -- no blackout (immediate transition)
 
 **Default behavior:** BO is optional (unlike COD). Omission or `BO=0-s` means immediate component transition with no blackout period. Symmetric (same duration for all transitions).
 
-**Future (v1.2):** Asymmetric BO (different values per transition direction, e.g., Rich→Lean vs. Lean→Rich). To be designed in conjunction with asymmetric COD (Issue #25).
+**Future:** Asymmetric BO (different values per transition direction, e.g., Rich→Lean vs. Lean→Rich). To be designed in conjunction with asymmetric COD (Issue #25).
 
 **Relationship to Timeout (TO).** BO is response-independent; TO is response-contingent. TO functions as negative punishment (removal of positive reinforcement contingent on a response). See §2.5.1 for the full TO specification and the operational distinction from BO and DRO.
 

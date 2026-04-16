@@ -14,7 +14,7 @@ DSL は `AnnotationModule.version`（semver）を定義し、`schema-format.md` 
 1. DSL ソースレベルでの破壊的変更検出
 2. 適合性テストの version pin
 3. Tier 分類のバージョン管理
-4. アノテータ v1.0 向けに書かれた DSL ソースが v1.1 で暗黙に壊れることの防止
+4. アノテータ v1.0 向けに書かれた DSL ソースが v1.0 で暗黙に壊れることの防止
 
 バージョニング戦略がなければ、暗黙の互換性仮定が蓄積し、アノテータの進化に伴い破綻する。
 
@@ -149,7 +149,7 @@ subjects-annotator is loaded. Either:
   2. Remove @species/@strain/@deprivation annotations from the source.
 
 VersionTooLowError: DSL source requires 'procedure.stimulus@>=1.1'
-(keyword @reinforcer with param 'modality' introduced in v1.1),
+(keyword @reinforcer with param 'modality' introduced in v1.0),
 but loaded procedure-annotator provides stimulus v1.0.
 ```
 
@@ -193,11 +193,11 @@ FR5 @reinforcer("sucrose")
 conformance/
 ├── core/
 │   ├── v1.0/          # コア文法 v1.0 のテスト
-│   └── v1.1/          # v1.1 で追加されたテスト
+│   └── v1.0/          # v1.0 で追加されたテスト
 ├── annotators/
 │   ├── procedure-stimulus/
 │   │   ├── v1.0/
-│   │   └── v1.1/
+│   │   └── v1.0/
 │   ├── subjects/
 │   │   └── v1.0/
 │   └── ...
@@ -212,7 +212,7 @@ core:
   - version: "1.0"
     test_suite: conformance/core/v1.0/
   - version: "1.1"
-    test_suite: conformance/core/v1.1/
+    test_suite: conformance/core/v1.0/
     backward_compatible_with: "1.0"
 
 annotators:
@@ -220,7 +220,7 @@ annotators:
     - version: "1.0"
       test_suite: conformance/annotators/procedure-stimulus/v1.0/
     - version: "1.1"
-      test_suite: conformance/annotators/procedure-stimulus/v1.1/
+      test_suite: conformance/annotators/procedure-stimulus/v1.0/
       backward_compatible_with: "1.0"
       migration: migrations/procedure-stimulus-1.0-to-1.1.md
 ```
