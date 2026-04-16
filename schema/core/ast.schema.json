@@ -157,7 +157,7 @@
 
     "CombinatorParams": {
       "type": "object",
-      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. Semantic pass validates per-combinator validity.",
+      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. target: Overlay-only. Semantic pass validates per-combinator validity.",
       "properties": {
         "COD": {
           "description": "Changeover Delay: minimum time after operandum switch before reinforcement is available (Catania, 1966). Conc-only. Symmetric (scalar 'value') or directional ('base' + 'directional' overrides; Pliskoff, 1971; Williams & Bell, 1999). Discriminated on 'value' key (symmetric) vs 'directional' key (asymmetric).",
@@ -245,6 +245,62 @@
           },
           "required": ["value", "time_unit"],
           "additionalProperties": false
+        },
+        "target": {
+          "type": "string",
+          "description": "Response-class targeting for Overlay combinator (Todorov, 1971). Overlay-only. 'changeover' = punishment contingent on changeover responses only (requires Conc baseline). 'all' = all responses (default; omitted from AST when implicit). Explicit 'all' and omission produce identical AST.",
+          "enum": ["changeover", "all"]
+        },
+        "PUNISH": {
+          "type": "object",
+          "description": "Response-class-specific punishment directive. Conc-only. Supports three target modes: 'changeover' (all changeover transitions), directional entries (specific from→to transitions; Todorov, 1971), and component-targeted entries (all responses on a component; de Villiers, 1980). Directional and component entries may coexist; 'changeover' mode excludes directional entries (constraint §88).",
+          "properties": {
+            "changeover": {
+              "description": "Punishment schedule applied to all changeover responses. Mutually exclusive with 'directional'. Shape follows ScheduleExpr.",
+              "$ref": "#/$defs/ScheduleExpr"
+            },
+            "directional": {
+              "type": "array",
+              "description": "Directional punishment entries: punishment schedule per (from, to) component pair (Todorov, 1971). dir_ref identifiers resolved to 1-indexed integers.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": { "type": "integer", "minimum": 1, "description": "1-indexed source component" },
+                  "to": { "type": "integer", "minimum": 1, "description": "1-indexed destination component" },
+                  "schedule": { "$ref": "#/$defs/ScheduleExpr" }
+                },
+                "required": ["from", "to", "schedule"],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "component": {
+              "type": "array",
+              "description": "Component-targeted punishment: punishment schedule applied to all responses on the specified component (de Villiers, 1980). Independent of direction.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "component": { "type": "integer", "minimum": 1, "description": "1-indexed target component" },
+                  "schedule": { "$ref": "#/$defs/ScheduleExpr" }
+                },
+                "required": ["component", "schedule"],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
+          "additionalProperties": false,
+          "anyOf": [
+            { "required": ["changeover"] },
+            { "required": ["directional"] },
+            { "required": ["component"] }
+          ],
+          "not": {
+            "allOf": [
+              { "required": ["changeover"] },
+              { "required": ["directional"] }
+            ]
+          }
         }
       },
       "additionalProperties": false

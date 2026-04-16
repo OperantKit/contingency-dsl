@@ -142,7 +142,7 @@
 
     "CombinatorParams": {
       "type": "object",
-      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only.",
+      "description": "Keyword arguments for compound schedule combinators. COD/FRCO: Conc-only. BO: Mult/Mix-only. count/onset: Interpolate-only. target: Overlay-only.",
       "properties": {
         "COD": {
           "description": "Changeover Delay (Catania, 1966). Conc-only. Symmetric (scalar) or directional (Pliskoff, 1971).",
@@ -229,6 +229,46 @@
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
           },
           "required": ["value", "time_unit"],
+          "additionalProperties": false
+        },
+        "target": {
+          "type": "string",
+          "description": "Response-class targeting for Overlay (Todorov, 1971). Overlay-only.",
+          "enum": ["changeover", "all"]
+        },
+        "PUNISH": {
+          "type": "object",
+          "description": "Response-class-specific punishment (Todorov, 1971; de Villiers, 1980). Conc-only.",
+          "properties": {
+            "changeover": { "$ref": "#/$defs/ScheduleExpr" },
+            "directional": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": { "type": "integer", "minimum": 1 },
+                  "to": { "type": "integer", "minimum": 1 },
+                  "schedule": { "$ref": "#/$defs/ScheduleExpr" }
+                },
+                "required": ["from", "to", "schedule"],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            },
+            "component": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "component": { "type": "integer", "minimum": 1 },
+                  "schedule": { "$ref": "#/$defs/ScheduleExpr" }
+                },
+                "required": ["component", "schedule"],
+                "additionalProperties": false
+              },
+              "minItems": 1
+            }
+          },
           "additionalProperties": false
         }
       },

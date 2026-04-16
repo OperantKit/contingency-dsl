@@ -166,6 +166,8 @@ reserved      ::= "let" | "def"
                 | "duration" | "reset_on_response" | "contingent_response"  -- TO keyword args
                 | "true" | "false"             -- boolean literals (TO reset_on_response)
                 | "Overlay"                   -- v1.x: punishment overlay combinator
+                | "target" | "changeover" | "all"  -- Overlay target kw_arg
+                | "PUNISH"                    -- response-class-specific punishment (Conc kw_arg)
                 | "Interpolate" | "Interp"   -- v1.x: interpolated schedule (Ferster & Skinner, 1957)
                 | "count" | "onset"          -- interpolate keyword argument names
                 | "Pctl"                      -- Core-Stateful: percentile schedule (Platt, 1973)
@@ -191,13 +193,18 @@ reserved      ::= "let" | "def"
 ;   - ident "=" in positional position → keyword (not schedule); LL(2) on "="
 ;
 ; Parser accepts both forms syntactically; semantic pass validates per-combinator:
-;   - Conc: COD (scalar or directional), FRCO (scalar only). Mult/Mix: BO (scalar).
-;     Overlay: no keyword args in v1.x. Others: keyword args → SemanticError.
+;   - Conc: COD (scalar or directional), FRCO (scalar only), PUNISH (punish_directive).
+;     Mult/Mix: BO (scalar).
+;     Overlay: `target` only (overlay_kw_arg). Others: keyword args → SemanticError.
 ;   - Directional form: valid for COD on Conc only in v1.1. Other kw_names with
 ;     directional form → SemanticError (INVALID_DIRECTIONAL_KW).
 ;   - Overlay: exactly 2 positional components (baseline + punisher). Semantic
-;     constraint enforces this. v1.x targets all responses; changeover-specific
-;     targeting is planned for v1.y via Conc kw_arg extension.
+;     constraint enforces this. `target=changeover` narrows punishment to
+;     changeover responses only (Todorov, 1971); `target=all` (default) targets
+;     all responses.
+;   - overlay_kw_arg: "target" "=" → distinct from kw_name "=" (target ∉ kw_name).
+;   - punish_directive: "PUNISH" "(" → distinct from kw_name "(" (PUNISH ∉ kw_name).
+;     Value is a schedule expression (vs value expression for scalar/directional).
 
 compound      ::= combinator "(" arg_list ")"
                 | interpolate
@@ -207,13 +214,33 @@ combinator    ::= "Conc" | "Alt" | "Conj"
                 | "Overlay"
 arg_list      ::= positional_args ("," keyword_arg)*
 positional_args ::= schedule ("," schedule)+   -- minimum 2 positional components
-keyword_arg   ::= scalar_kw_arg | directional_kw_arg
+keyword_arg   ::= scalar_kw_arg | directional_kw_arg | overlay_kw_arg | punish_directive
 scalar_kw_arg ::= kw_name "=" value
 directional_kw_arg ::= kw_name "(" dir_ref "->" dir_ref ")" "=" value
 dir_ref       ::= number | ident
 kw_name       ::= "COD" | "ChangeoverDelay"
                  | "FRCO" | "FixedRatioChangeover"
                  | "BO" | "Blackout"
+
+; Overlay-specific keyword argument: response-class targeting.
+; LL(2): "target" "=" → overlay_kw_arg. "target" is not in kw_name,
+; so no ambiguity with scalar_kw_arg.
+overlay_kw_arg ::= "target" "=" target_value
+target_value   ::= "changeover" | "all"
+
+; Response-class-specific punishment directive (Conc-only).
+; Value is a `schedule` expression (unlike scalar_kw_arg which takes `value`).
+; LL(2): "PUNISH" "(" → punish_directive. "PUNISH" is not in kw_name,
+; so no ambiguity with directional_kw_arg.
+;
+; References:
+;   Todorov (1971) — changeover punishment in concurrent schedules.
+;   de Villiers (1980) — subtractive model of punishment on conc VI VI.
+;   Critchfield, Paletz, MacAleese, & Newland (2003) — human punishment choice.
+punish_directive ::= "PUNISH" "(" punish_target ")" "=" schedule
+punish_target    ::= "changeover"
+                   | dir_ref "->" dir_ref       -- directional (L→R etc.)
+                   | dir_ref                    -- all responses on a specific component
 
 ; Interpolated schedule (Ferster & Skinner, 1957):
 ;   A block of reinforcements on one schedule is inserted into a background
@@ -701,8 +728,21 @@ number_list   ::= number ("," number)*
 ; 35. Overlay combinator: exactly 2 positional components.
 ;     Fewer than 2 → ParseError (compound requires 2+).
 ;     More than 2 → SemanticError (OVERLAY_REQUIRES_TWO).
-; 36. Overlay combinator: no keyword args in v1.x.
-;     Any keyword arg → SemanticError (INVALID_KEYWORD_ARG).
+; 36. Overlay combinator: only `target` keyword arg is permitted.
+;     Any other keyword arg (COD, FRCO, BO, etc.) → SemanticError
+;     (INVALID_KEYWORD_ARG).
+; 36a. overlay_kw_arg (`target`) is valid on Overlay ONLY.
+;      `target` on any other combinator → SemanticError (INVALID_OVERLAY_TARGET).
+; 36b. `target=changeover`: the first positional component (baseline) MUST be
+;      a Conc combinator. Non-Conc baseline → SemanticError (TARGET_REQUIRES_CONC).
+;      Rationale: changeover is defined as switching between concurrent components;
+;      a single-schedule baseline has no changeover to target (Todorov, 1971).
+; 36c. `target=all`: all responses in the baseline are targeted. This is the
+;      implicit default when `target` is omitted. Explicitly specifying
+;      `target=all` produces the same AST as omission (backward-compatible).
+; 36d. Duplicate `target` keyword → SemanticError (DUPLICATE_KEYWORD_ARG).
+;      E.g., `Overlay(Conc(VI30s, VI60s), FR1, target=changeover, target=all)`
+;      → error.
 ; 37. Interpolate combinator: exactly 2 positional schedule components.
 ;     First = background schedule, second = inserted block schedule.
 ;     Non-commutative: Interpolate(A, B) ≠ Interpolate(B, A).
@@ -907,3 +947,44 @@ number_list   ::= number ("," number)*
 ;     (MISSING_TO_CONTINGENT_RESPONSE).
 ;     Rationale: In multi-operandum environments, the response class that
 ;     triggers timeout must be unambiguous.
+; 84. punish_directive (`PUNISH(...)=schedule`): valid on Conc only.
+;     PUNISH on any other combinator → SemanticError (INVALID_PUNISH_COMBINATOR).
+;     Rationale: Response-class-specific punishment requires the component
+;     structure of Conc. Overlay provides a simpler whole-response-stream
+;     punishment (see constraint §36 and `target` kw_arg).
+;     References: Todorov (1971); de Villiers (1980); Critchfield et al. (2003).
+; 85. punish_target `dir_ref`: resolution follows the same rules as directional
+;     COD (constraints §51-52).
+;     - Integer: 1-indexed, must be in range [1, N] where N is the number of
+;       positional components. Out of range → SemanticError
+;       (DIRECTIONAL_INDEX_OUT_OF_RANGE, shared with COD).
+;     - Identifier: must resolve to a let-bound name that appears as a
+;       positional component. Unresolvable → SemanticError
+;       (DIRECTIONAL_IDENT_NOT_FOUND, shared with COD).
+; 86. punish_target self-reference: `PUNISH(1->1)=FR1` → SemanticError
+;     (PUNISH_SELF_REFERENCE). A component cannot have directional punishment
+;     for switching to itself (parallel to constraint §53 for COD).
+; 87. Duplicate punish_directive: two entries with the same target →
+;     SemanticError (DUPLICATE_PUNISH_DIRECTIVE).
+;     Examples:
+;       - `PUNISH(1->2)=FR1, PUNISH(1->2)=VI30s` → error.
+;       - `PUNISH(changeover)=FR1, PUNISH(changeover)=VI30s` → error.
+;       - `PUNISH(1)=FR1, PUNISH(1)=VI30s` → error.
+;     Directional and component-targeted entries are distinct: `PUNISH(1->2)`
+;     and `PUNISH(1)` do not collide.
+; 88. punish_target conflict: `PUNISH(changeover)` cannot coexist with any
+;     `PUNISH(x->y)` directional entries → SemanticError
+;     (PUNISH_TARGET_CONFLICT).
+;     Rationale: `changeover` is a shorthand for all changeover directions;
+;     mixing it with explicit directions creates ambiguous layering.
+;     To punish some directions asymmetrically, enumerate all directional
+;     entries instead of using `changeover`.
+; 89. Component-targeted punish `PUNISH(n)=schedule` punishes all responses
+;     on component n (regardless of source component). Directional `PUNISH(x->y)`
+;     punishes only transitions. The two forms may coexist when targets differ.
+;     Reference: de Villiers (1980) — per-component punishment on conc VI VI.
+; 90. PUNISH value is a `schedule` expression (atomic, compound, modifier, or
+;     special). Compound schedules as PUNISH value are permitted; however,
+;     nested PUNISH inside a PUNISH schedule → SemanticError
+;     (NESTED_PUNISH_DIRECTIVE). The punishment schedule itself cannot contain
+;     response-class-specific punishment.
