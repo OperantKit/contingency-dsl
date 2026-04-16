@@ -1,9 +1,69 @@
 # バージョニング戦略
 
-> [contingency-dsl spec](architecture.md) の一部。DSL バージョン管理、アノテータ機能発見、後方互換性保証を定義する。
+> [contingency-dsl spec](architecture.md) の一部。DSL バージョン管理、アノテータ機能発見、後方互換性保証、および設計変更ログを定義する。
 
-**Status:** Draft (2026-04-14)
+**Status:** Draft (2026-04-14; 2026-04-17 更新)
 **Addresses:** EXTENSION_RULES_REVIEW §3.7 —「バージョニング戦略の欠如」
+
+---
+
+## 0. 設計変更ログ
+
+本節は DSL アーキテクチャに対する設計変更のログである。バージョン宣言
+とは区別される: 当リポジトリは現時点で git remote が設定されておらず、
+バージョン番号は公開されていない。各エントリは **設計チェックポイント**
+であって、バージョン更新ではない。
+
+### 2026-04-17 — Ψ 再編（設計チェックポイント、バージョン更新ではない）
+
+**背景。** 以前の Core / Core-Stateful / Core-TrialBased という命名は、
+形式構造の軸と科学的カテゴリを混同させていた。Ψ は科学的カテゴリ
+（foundations / operant / respondent / composed / experiment /
+annotations）によって再編し、Skinner (1938) の operant と Pavlov
+(1927) の respondent の区別をディレクトリレベルで反映する。また
+Rescorla & Solomon (1967) の two-process 理論を第一級姉妹
+（`composed/`）として収容可能にする。Experiment 層と Context は
+第一級となり、将来の renewal / reinstatement 手続きを respondent
+extension point 経由で表現できるようにする。
+
+**範囲。** `spec/{en,ja}/`, `schema/`, `conformance/`, `dist/`,
+`docs/{en,ja}/` にまたがるディレクトリ再編に加え、Tier B respondent
+手続き（blocking、overshadowing、latent inhibition、renewal、
+reinstatement、spontaneous recovery、counterconditioning、
+occasion-setting などを含む）をカバーする新規パッケージ
+`operantkit/apps/core/contingency-respondent-dsl` を新設する。
+
+**層対応表（旧 → 新）。**
+
+| 旧 | 新 |
+|---|---|
+| `Core` | `Operant.Literal`（`operant/schedules/`） |
+| `Core-Stateful` | `Operant.Stateful`（`operant/stateful/`） |
+| `Core-TrialBased` | `Operant.TrialBased`（`operant/trial-based/`） |
+| （Core / Experiment に暗黙） | `Foundations`（paradigm-neutral 形式基盤） |
+| （不在） | `Respondent`（二項 CS-US primitive + extension point） |
+| （不在） | `Composed`（operant × respondent: CER, PIT, autoshaping, omission, two-process） |
+| `Experiment` | `Experiment`（第一級化、Context を含む） |
+| `Annotation` | `Annotation`（`extensions/respondent-annotator` を含む） |
+
+**バージョン更新ではない。** 当リポジトリは git remote が未設定であり、
+バージョン宣言は公開まで保留される。本エントリは design-philosophy.md
+§8.3（正典に対する非 additive 変更の理由記録義務）の権限で、設計
+チェックポイントとして記録される。
+
+**関連作業。**
+
+- `annotations/extensions/respondent-annotator` を新設し、`@cs`,
+  `@us`, `@iti`, `@cs_interval` を提供
+- `respondent/grammar.md` に Respondent extension point
+  （`ExtensionRespondentPrimitive`）を新設; Operant 層の既存の
+  Schedule Extension 点と並置
+- Tier A respondent primitive を design-philosophy §2 と
+  `respondent/primitives.md` に列挙: `Pair.{ForwardDelay,
+  ForwardTrace, Simultaneous, Backward}`, `Extinction`, `CSOnly`,
+  `USOnly`, `Contingency(p_us_given_cs, p_us_given_no_cs)`,
+  `TrulyRandom`, `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`,
+  `Differential(cs+, cs−)`
 
 ---
 
