@@ -500,10 +500,12 @@ positional components: the baseline schedule and the punisher schedule.
 ```
 Overlay(VI 60s, FR 1)          -- every response produces punisher on VI 60s baseline
 Overlay(Conc(VI 60s, VI 180s, COD=2s), FR 1)  -- punishment on a concurrent baseline
+Overlay(Conc(VI 30s, VI 60s, COD=2s), FR 1, target=changeover)
+                               -- punishment contingent on changeover responses only
 ```
 
 - Exactly 2 positional components required. More → `OVERLAY_REQUIRES_TWO`.
-- No keyword args in v1.x. Any keyword arg → `INVALID_KEYWORD_ARG`.
+- Only `target` keyword arg is permitted. Other keyword args → `INVALID_KEYWORD_ARG`.
 - The first component is the reinforcement baseline; the second is the
   punishment schedule. Both schedules operate on the same response stream.
 
@@ -512,9 +514,20 @@ schedule delivers reinforcers; the punisher schedule delivers aversive stimuli.
 This models the standard punishment paradigm in which a response-contingent
 aversive event is added to an ongoing reinforcement schedule.
 
-**v1.x scope.** Punishment targets all responses in the baseline. Changeover-
-specific punishment (e.g., Todorov, 1971) requires response-class targeting
-and is planned for v1.y.
+**Response-class targeting (`target` kw_arg).** Narrows the response class
+that the punisher schedule applies to:
+
+- `target=all` (default): the punisher schedule is contingent on every response
+  in the baseline. Omitting `target` is identical to `target=all`.
+- `target=changeover`: the punisher schedule is contingent only on changeover
+  responses (transitions between concurrent components). Requires the baseline
+  to be a `Conc` combinator; non-Conc baseline → `TARGET_REQUIRES_CONC`.
+  Models Todorov (1971): punishment added to the switching response.
+
+`target` is valid on `Overlay` only; use on other combinators →
+`INVALID_OVERLAY_TARGET`. Duplicate `target` → `DUPLICATE_KEYWORD_ARG`.
+AST: when `target=changeover`, `params.target` is emitted; when `target=all`
+(implicit or explicit), `params.target` is absent (backward-compatible).
 
 References:
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.),
@@ -526,6 +539,79 @@ References:
 - Bloomfield, T. M. (1966). Two types of behavioral contrast in
   discrimination learning. *JEAB*, 9(2), 155-161.
   https://doi.org/10.1901/jeab.1966.9-155
+
+## Response-class-specific punishment — PUNISH directive (Conc kw_arg)
+
+`PUNISH` is a Conc keyword argument that attaches a punishment schedule to
+a specific response class. Unlike `Overlay + target=changeover`, which layers
+a single punisher on a single response class, `PUNISH` supports heterogeneous
+punishers across multiple response classes within one `Conc` expression.
+
+### Syntax
+
+```
+-- Directional punishment (Todorov, 1971, Exp. 1-2)
+Conc(VI 30s, VI 60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
+
+-- Changeover shorthand (all changeover directions)
+Conc(VI 30s, VI 60s, COD=2s, PUNISH(changeover)=FR1)
+
+-- Component-targeted punishment (de Villiers, 1980)
+Conc(VI 30s, VI 60s, COD=2s, PUNISH(1)=VI30s)
+
+-- Let-bound identifiers (parallel to directional COD)
+let rich = VI30s
+let lean = VI60s
+Conc(rich, lean, COD=2s, PUNISH(rich->lean)=FR1)
+```
+
+The value of `PUNISH` is a `schedule` expression (atomic, compound, modifier,
+or special), not a `value` expression. This is the key structural difference
+from `scalar_kw_arg` (COD, FRCO, BO) and `directional_kw_arg` (COD).
+
+### Target modes
+
+1. `PUNISH(changeover)`: punisher schedule applied to all changeover responses.
+   Mutually exclusive with directional entries.
+2. `PUNISH(x->y)`: punisher schedule applied to transitions from component x
+   to component y. Multiple directional entries may coexist (enumerate all
+   asymmetric directions explicitly rather than combining with `changeover`).
+3. `PUNISH(n)`: punisher schedule applied to all responses on component n
+   (regardless of source). Independent of directional entries; may coexist.
+
+### Semantic constraints (summary)
+
+- Conc-only; use on other combinators → `INVALID_PUNISH_COMBINATOR`.
+- `dir_ref` resolution: 1-indexed integer or let-bound identifier (shares
+  resolution rules with directional COD).
+- Self-reference `PUNISH(1->1)` → `PUNISH_SELF_REFERENCE`.
+- Duplicate target → `DUPLICATE_PUNISH_DIRECTIVE`.
+- `PUNISH(changeover)` + `PUNISH(x->y)` → `PUNISH_TARGET_CONFLICT`.
+- Out-of-range index → `DIRECTIONAL_INDEX_OUT_OF_RANGE` (shared with COD).
+- Nested PUNISH inside a PUNISH schedule → `NESTED_PUNISH_DIRECTIVE`.
+
+### When to use PUNISH vs Overlay + target
+
+| Scenario | Use |
+|---|---|
+| Single punisher on all responses | `Overlay(baseline, punisher)` |
+| Single punisher on all changeovers | `Overlay(Conc(...), punisher, target=changeover)` |
+| Asymmetric punishers per direction | `PUNISH(1->2)=..., PUNISH(2->1)=...` |
+| Component-specific punishment | `PUNISH(n)=...` |
+| Mixed direction + component | `PUNISH(1->2)=..., PUNISH(2)=...` |
+
+References:
+- Todorov, J. C. (1971). Concurrent performances: Effect of punishment
+  contingent on the switching response. *JEAB*, 16(1), 51-62.
+  https://doi.org/10.1901/jeab.1971.16-51
+- de Villiers, P. A. (1980). Toward a quantitative theory of punishment.
+  *JEAB*, 33(1), 15-25. https://doi.org/10.1901/jeab.1980.33-15
+- Farley, J. (1980). Reinforcement and punishment effects in concurrent
+  schedules: A test of two models. *JEAB*, 33(3), 311-326.
+  https://doi.org/10.1901/jeab.1980.33-311
+- Critchfield, T. S., Paletz, E. M., MacAleese, K. R., & Newland, M. C.
+  (2003). Punishment in human choice: Direct or competitive suppression?
+  *JEAB*, 80(1), 1-27. https://doi.org/10.1901/jeab.2003.80-1
 
 ## Timeout (TO) — v2.0
 
