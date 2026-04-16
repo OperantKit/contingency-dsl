@@ -98,6 +98,9 @@ MTS(comparisons=3, consequence=CRF, ITI=5s)                       -- minimal
 MTS(comparisons=3, consequence=CRF, incorrect=EXT, ITI=5s)        -- with incorrect
 MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
                                                                    -- fully specified
+MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5s)              -- DMTS (v1.1)
+MTS(comparisons=3, consequence=CRF, ITI=5s, correction=true)       -- correction (v1.1)
+MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + bounded correction
 ```
 
 ### Parameters
@@ -109,6 +112,8 @@ MTS(comparisons=2, consequence=CRF, incorrect=FT5s, ITI=10s, type=identity)
 | `incorrect` | keyword | schedule | NO | `EXT` | Core schedule for incorrect response |
 | `ITI` | keyword | time value | YES | — | Inter-trial interval |
 | `type` | keyword | enum | NO | `"arbitrary"` | Matching type: `"identity"` or `"arbitrary"` |
+| `delay` | keyword | time value ≥ 0 | NO | `0s` | **[v1.1, R-7]** Retention interval between sample offset and comparison onset. `delay=0s` is equivalent to simultaneous MTS; `delay>0` yields DMTS (Blough, 1959). |
+| `correction` | keyword | boolean / positive integer / `"repeat_until_correct"` | NO | `false` | **[v1.1, R-7]** Correction procedure (Harrison, 1970). `true` / `"repeat_until_correct"` repeats the same trial until correct; a positive integer N bounds retries to N. |
 
 All parameters are keyword-only (no positional arguments).
 
@@ -138,13 +143,15 @@ syntactically, but are restricted by semantic constraints:
 
 ```
 1. Sample presentation
-2. Comparison presentation  (comparisons stimuli, position randomized)
-3. Response                 (subject selects one comparison)
-4. Consequence
+2. [if delay > 0: sample offset → delay seconds → comparison onset] (v1.1: DMTS)
+3. Comparison presentation  (comparisons stimuli, position randomized)
+4. Response                 (subject selects one comparison)
+5. Consequence
    ├─ correct match  → execute consequence schedule
    └─ incorrect      → execute incorrect schedule
-5. Inter-Trial Interval     (ITI duration, all stimuli off)
-6. → next trial
+6. [if correction active: repeat trial per correction_spec] (v1.1)
+7. Inter-Trial Interval     (ITI duration, all stimuli off)
+8. → next trial
 ```
 
 Correctness definition:
@@ -153,6 +160,35 @@ Correctness definition:
 type=identity:   correct ⟺ response_stimulus == sample_stimulus
 type=arbitrary:  correct ⟺ class(response_stimulus) == class(sample_stimulus)
 ```
+
+#### DMTS (Delay) — v1.1, R-7
+
+When `delay > 0`, a retention interval is inserted after sample offset
+(Delayed Matching-to-Sample; Blough, 1959). During the retention interval
+the sample is removed, and comparison stimuli have not yet been presented
+(standard DMTS). `delay=0s` is formally equivalent to simultaneous MTS
+(pre-existing behavior); writing it explicitly documents intent.
+
+The published parametric range is typically 0–60 s (Grant, 1975; White, 1985).
+`delay > 60s` triggers WARNING `MTS_LONG_DELAY`.
+
+#### Correction Procedure — v1.1, R-7
+
+Declaratively controls the handling of incorrect trials
+(Harrison, 1970; Saunders & Green, 1999):
+
+```
+correction=false                    → advance to next trial on error (default; v1.0 behavior)
+correction=true                     → repeat same trial until correct
+correction="repeat_until_correct"   → desugars to correction=true (idempotent)
+correction=N  (integer N ≥ 1)       → repeat up to N times, then advance
+```
+
+Mind the position-bias risk (Dube & McIlvane, 1996). In the Sidman tradition,
+equivalence test trials are typically run without correction and without
+differential reinforcement. Combining `delay > 0` with
+`correction=true` / `"repeat_until_correct"` conflates retention and
+acquisition procedures, and thus triggers WARNING `DMTS_WITH_CORRECTION`.
 
 ### Stimulus Equivalence and Annotations
 
@@ -205,11 +241,17 @@ Mult(ab_training, ba_test)
 | `MTS_INVALID_CONSEQUENCE` | consequence is a compound schedule | SemanticError |
 | `MTS_RECURSIVE_CONSEQUENCE` | consequence is a trial_based_schedule | SemanticError |
 | `DUPLICATE_MTS_KW_ARG` | duplicate keyword argument | SemanticError |
+| `MTS_INVALID_DELAY` | delay < 0 | SemanticError |
+| `MTS_DELAY_TIME_UNIT_REQUIRED` | delay without time unit | SemanticError |
+| `MTS_CORRECTION_LIMIT_NONPOSITIVE` | correction=N with N ≤ 0 | SemanticError |
+| `MTS_INVALID_CORRECTION` | correction not a boolean / positive integer / `"repeat_until_correct"` | SemanticError |
 | `MTS_MANY_COMPARISONS` | comparisons > 9 | WARNING |
 | `MTS_NO_REINFORCEMENT` | consequence=EXT | WARNING |
 | `MTS_IDENTITY_WITH_CLASSES` | type=identity with `@stimulus_classes` | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | type=arbitrary without `@stimulus_classes` | WARNING |
 | `MTS_SHORT_ITI` | ITI < 1s | WARNING |
+| `DMTS_WITH_CORRECTION` | delay > 0 and correction=true / `"repeat_until_correct"` | WARNING |
+| `MTS_LONG_DELAY` | delay > 60s | WARNING |
 
 ---
 

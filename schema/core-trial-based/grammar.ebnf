@@ -78,12 +78,60 @@ mts_kw_arg    ::= "comparisons"  "=" number
 mts_type      ::= "identity" | "arbitrary"
 
 ; [v1.1, R-7]
-; correction_spec admits three disjoint value domains:
-;   boolean      — false ≡ disabled (default); true ≡ unbounded correction
-;   integer ≥ 1  — bounded correction (repeat up to N times, then advance)
-;   "repeat_until_correct" — string form; desugars to boolean true
-; The lexer distinguishes boolean / integer / string on first token; LL(1) internal.
+; correction_spec admits three disjoint value domains. The first-sets are
+; pairwise disjoint at the lexical layer, so correction_spec is LL(1):
+;   boolean      — FIRST = { "true", "false" } (reserved keywords)
+;   integer      — FIRST = [0-9]+ without fractional part
+;   string       — FIRST = '"' (double quote); only the literal
+;                  "repeat_until_correct" is admitted (checked by M15).
+; Rationale: boolean / integer / string classes are pairwise disjoint in
+; the lexer; no LL(2) lookahead needed.
+;
+; AST representation (normative, v1.1):
+;   correction is materialized as a tagged record with shape
+;     { "mode": "disabled" | "unlimited" | "bounded", "limit"?: integer }
+;   per the canonical form rules below.
 correction_spec ::= boolean | integer | '"repeat_until_correct"'
+
+; === [v1.1, R-7] AST normalization rules for delay / correction ===
+;
+; A canonical AST form is defined so that semantically-equivalent
+; surface programs produce identical AST. Implementations MUST follow
+; these rules to preserve backward-compatibility with v1.0 AST.
+;
+; N1. delay omission is AST-distinguishable from explicit delay=0s.
+;     - omitted `delay` → no `delay` / `delay_unit` fields in AST
+;                         (canonical v1.0 shape; simultaneous MTS by default)
+;     - `delay=0s`      → `delay: 0.0, delay_unit: "s"` in AST
+;                         (explicit intent marker; semantically equivalent)
+;     Both forms produce identical runtime behavior. The distinction is
+;     preserved in AST as an author-intent marker for round-trip fidelity;
+;     downstream consumers (simulator, linter) MUST treat the two as
+;     behaviorally equivalent.
+;
+; N2. correction omission is AST-distinguishable from explicit correction=false.
+;     - omitted `correction`   → no `correction` field in AST (v1.0 shape)
+;     - `correction=false`     → `correction: { mode: "disabled" }` in AST
+;     - `correction=true`      → `correction: { mode: "unlimited" }` in AST
+;     - `correction="repeat_until_correct"`
+;                              → `correction: { mode: "unlimited" }` in AST
+;                                 (desugared; identical AST to boolean true)
+;     - `correction=N`  (N ≥ 1) → `correction: { mode: "bounded", limit: N }`
+;     Same round-trip/equivalence rationale as N1.
+;
+; Backward compatibility theorem (R-7):
+;   For every v1.0 program P that does not contain the new keywords
+;   `delay` or `correction`, parse_v1.1(P) = parse_v1.0(P) as AST.
+;   Proof sketch: the mts_kw_arg production is additive; unmodified
+;   alternatives match P verbatim; new productions are unreachable
+;   from P's token stream.
+;
+; === Warning interaction order (R-7) ===
+;
+; When multiple warnings apply to the same MTS expression, all are
+; emitted in definition order (W1 → W2 → W3 → W4 → W5 → W7 → W8 → W9).
+; No suppression or precedence rule applies. A linter MAY group
+; warnings in its report but MUST NOT drop any of them.
 
 ; =====================================================================
 ; §2. Go/No-Go Discrimination — Skinner (1938); Terrace (1963);
@@ -269,11 +317,42 @@ gonogo_kw_arg   ::= "responseWindow"  "=" value
 ;     and rely on the trial-level feedback via `incorrect=`.
 ;
 ; W9. delay > 60s on MTS → Linter WARNING (MTS_LONG_DELAY).
-;     Rationale: the published parametric range for DMTS retention
-;     intervals is typically 0–60 s (Blough, 1959; White, 1985).
-;     Delays exceeding 60 s lie outside the canonical range and
-;     may be procedurally indistinguishable from session-level
-;     retention tests.
+;     Rationale: pigeon DMTS retention functions have been examined
+;     primarily with delays up to approximately 60 s (Blough, 1959;
+;     White, 1985). Delays substantially exceeding this range place
+;     the procedure outside the well-characterized parametric space
+;     and may be procedurally indistinguishable from session-level
+;     retention tests. This threshold is advisory, not definitive.
+;
+; === [v1.1, R-7] References for new constructs ===
+;
+; Blough, D. S. (1959). Delayed matching in the pigeon. Journal of the
+;   Experimental Analysis of Behavior, 2(2), 151–160.
+;   https://doi.org/10.1901/jeab.1959.2-151
+;
+; Dube, W. V., & McIlvane, W. J. (1996). Some implications of a stimulus
+;   control topography analysis for emergent stimulus classes. In T. R.
+;   Zentall & P. M. Smeets (Eds.), Stimulus class formation in humans and
+;   animals (pp. 197–218). Elsevier.
+;   https://doi.org/10.1016/S0166-4115(06)80108-6
+;
+; Grant, D. S. (1975). Proactive interference in pigeon short-term memory.
+;   Journal of Experimental Psychology: Animal Behavior Processes, 1(3),
+;   207–220. https://doi.org/10.1037/0097-7403.1.3.207
+;
+; Harrison, J. M. (1970). Behavioral studies of auditory discrimination.
+;   In W. C. Stebbins (Ed.), Animal psychophysics: The design and conduct
+;   of sensory experiments (pp. 357–380). Springer.
+;   https://doi.org/10.1007/978-1-4684-3081-6_15
+;
+; Saunders, K. J., & Green, G. (1999). A discrimination analysis of
+;   training-structure effects on stimulus equivalence outcomes.
+;   Journal of the Experimental Analysis of Behavior, 72(1), 117–137.
+;   https://doi.org/10.1901/jeab.1999.72-117
+;
+; White, K. G. (1985). Characteristics of forgetting functions in
+;   delayed matching to sample. Journal of the Experimental Analysis of
+;   Behavior, 44(1), 15–34. https://doi.org/10.1901/jeab.1985.44-15
 
 ; === GoNoGo semantic constraints ===
 ;
