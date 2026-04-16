@@ -155,6 +155,37 @@ Sidman tradition の等価性テストでは修正なし・分化強化なしが
 retention 手続きと acquisition 手続きを混同するため WARNING
 （`DMTS_WITH_CORRECTION`）を発火する。
 
+#### AST 表現（正規化規則） — v1.1, R-7
+
+`delay` および `correction` は次の規則で AST にマテリアライズされる:
+
+| 表面構文 | AST |
+|---|---|
+| `delay` 省略 | `delay` / `delay_unit` フィールドなし（v1.0 形状） |
+| `delay=0s` | `delay: 0.0, delay_unit: "s"`（意図マーカー） |
+| `delay=Xu` (X>0) | `delay: X, delay_unit: "u"` |
+| `correction` 省略 | `correction` フィールドなし（v1.0 形状） |
+| `correction=false` | `correction: { mode: "disabled" }` |
+| `correction=true` | `correction: { mode: "unlimited" }` |
+| `correction="repeat_until_correct"` | `correction: { mode: "unlimited" }`（`true` と同一 AST、脱糖） |
+| `correction=N` (N≥1) | `correction: { mode: "bounded", limit: N }` |
+
+**省略形と明示形は AST レベルで区別される**（round-trip 保存のため）が、**実行時には等価**。
+下流の consumer（simulator / linter / visualizer）は両者を行動的に同一と扱わなければならない。
+
+#### 後方互換性定理（R-7）
+
+`delay` / `correction` を含まない v1.0 プログラム `P` について、
+`parse_v1.1(P) = parse_v1.0(P)` が AST 同型で成立する。
+証明要旨: `mts_kw_arg` の拡張は additive であり、v1.0 の alternative は P のトークン列に
+verbatim で一致する。新規 production は P のトークン列からは到達不能。
+
+#### 警告発火順序（R-7）
+
+同一 MTS 式に対して複数の WARNING が該当する場合、定義順（W1 → W2 → W3 → W4 → W5 → W7 → W8 → W9）で
+すべて発火する。抑制規則や優先順位は存在しない。
+Linter は報告のグルーピングは可能だが、発火の欠落は許されない。
+
 ### 刺激等価性とアノテーション
 
 MTS は刺激等価性研究（Sidman, 1971）の手続き的基盤。DSL は責務を分離する:
