@@ -334,7 +334,7 @@ See [annotation-design.md](annotation-design.md) §6 for full specification.
 
 **Shared Reinforcers.** "Schedules A and C use the same food pellet reinforcer" — reinforcer identity is not expressible in the base CFG, which models only R-SR rules (schedule structure), not reinforcer properties. DSL-level reinforcer identity enables specification-level comparison with associative learning theories (Rescorla & Wagner, 1972), type-guaranteed reinforcer identity, and formal description of conditional reinforcement dynamics.
 
-**Temporal Context.** Session-level temporal parameters (clock source, warm-up intervals) are orthogonal to schedule structure but must be declarable alongside it. Note: blackout (BO) has been promoted to core grammar as a Mult/Mix keyword argument (v1.1), since BO duration directly affects inter-component behavioral independence (Reynolds, 1961; Bouton, 2004).
+**Temporal Context.** Session-level temporal parameters (clock source, warm-up intervals) are orthogonal to schedule structure but must be declarable alongside it. Note: blackout (BO) has been promoted to core grammar as a Mult/Mix keyword argument, since BO duration directly affects inter-component behavioral independence (Reynolds, 1961; Bouton, 2004).
 
 **Clinical Metadata.** ABA practitioners need to annotate schedules with functional behavior assessment results (function of behavior, target/replacement behavior labels) without polluting the schedule grammar.
 
@@ -353,7 +353,7 @@ annotator reorganization established this correspondence.
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | Session-level temporal parameters |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (renamed from `subject-annotator` on 2026-04-12 to match JEAB plural heading) |
 | `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | Session termination rules, baseline conditions, steady-state criteria (v1.0); dependent variables, training volume, response microstructure (v1.1); phase termination, event logging, IRI analysis, warmup exclusion (v1.2). Introduced 2026-04-12; v1.2 complete 2026-04-14. |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | Session termination rules, baseline conditions, steady-state criteria, dependent variables, training volume, response microstructure, phase termination, event logging, IRI analysis, warmup exclusion. Introduced 2026-04-12; completed 2026-04-14. |
 
 **Extensions** (outside the four JEAB categories, under `annotations/extensions/`):
 
@@ -392,7 +392,7 @@ contingency-dsl (base CFG)
         │     └── temporal/ (sub-annotator)
         │           + @clock, @warmup, @algorithm annotations
         │           + Session-level temporal parameter declaration
-        │           + Note: BO and COD promoted to core grammar in v1.1
+        │           + Note: BO and COD promoted to core grammar
         │
         ├── subjects_annotator/ (JEAB category: Subjects; renamed from subject_annotator on 2026-04-12)
         │     + @species, @strain, @deprivation, @history, @n annotations
@@ -401,10 +401,10 @@ contingency-dsl (base CFG)
         │     + @chamber, @operandum, @interface, @hardware annotations
         │     + Physical chamber, response device, HW interface identity
         │
-        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12, v1.2 complete 2026-04-14)
-        │     + v1.0: @session_end, @baseline, @steady_state
-        │     + v1.1: @dependent_measure, @training_volume, @microstructure
-        │     + v1.2: @phase_end, @logging, @iri_window, @warmup_exclude
+        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12, completed 2026-04-14)
+        │     + @session_end, @baseline, @steady_state
+        │     + @dependent_measure, @training_volume, @microstructure
+        │     + @phase_end, @logging, @iri_window, @warmup_exclude
         │     + Session termination, baseline, steady-state, DV declaration,
         │     + training exposure tracking, response microstructure analysis,
         │     + phase termination, event logging, IRI analysis, warmup exclusion
@@ -523,6 +523,10 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <keyword_only_form>    ::= <annotation_kv> ("," <annotation_kv>)*
 <annotation_kv>        ::= <ident> "=" <annotation_val>
 <annotation_val>       ::= <string_literal> | <number>
+                         | <annotation_array>   -- v0.1: structured values (RFC 2026-04-17)
+                         | <annotation_object>  -- v0.1: structured values (RFC 2026-04-17)
+<annotation_array>     ::= "[" (<annotation_val> ("," <annotation_val>)*)? "]"
+<annotation_object>    ::= "{" (<annotation_kv> ("," <annotation_kv>)*)? "}"
 
 -- procedure-annotator/stimulus adds:
 <annotation_name>      ::= "reinforcer" | "sd" | "brief"

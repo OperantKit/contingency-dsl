@@ -278,7 +278,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 **共有強化子。**「スケジュール A と C は同一の食物ペレットを強化子として使用する」— 強化子の同一性は基底 CFG では表現不可能である。DSL レベルでの強化子同一性は、連合学習理論との仕様レベルでの比較（Rescorla & Wagner, 1972）、型による同一性保証、条件性強化の動学の形式的記述を可能にする。
 
-**時間的文脈。** セッションレベルの時間パラメータ（クロックソース、準備期間）はスケジュール構造と直交するが、スケジュールと並行して宣言可能でなければならない。注: ブラックアウト（BO）は v1.1 でコア文法に昇格し、Mult/Mix の keyword argument となった。BO の持続時間は成分間の行動的独立性に直接影響するため（Reynolds, 1961; Bouton, 2004）。
+**時間的文脈。** セッションレベルの時間パラメータ（クロックソース、準備期間）はスケジュール構造と直交するが、スケジュールと並行して宣言可能でなければならない。注: ブラックアウト（BO）はコア文法に昇格し、Mult/Mix の keyword argument となった。BO の持続時間は成分間の行動的独立性に直接影響するため（Reynolds, 1961; Bouton, 2004）。
 
 **臨床メタデータ。** ABA 実践者は機能的行動アセスメントの結果（行動の機能、標的/代替行動ラベル）をスケジュールに注釈する必要があるが、スケジュール文法を汚すべきではない。
 
@@ -297,7 +297,7 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | セッションレベル時間パラメータ |
 | `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（2026-04-12 に `subject-annotator` から改名、JEAB 複数形見出しに整合） |
 | `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管 |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | セッション終了規則、ベースライン条件、安定性基準 (v1.0); 従属変数宣言、訓練量追跡、反応微細構造分析 (v1.1); Phase 終了条件、イベントログ、IRI 分析、ウォームアップ除外 (v1.2)。2026-04-12 新設; v1.2 完了 2026-04-14。 |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | セッション終了規則、ベースライン条件、安定性基準、従属変数宣言、訓練量追跡、反応微細構造分析、Phase 終了条件、イベントログ、IRI 分析、ウォームアップ除外。2026-04-12 新設; 2026-04-14 完了。 |
 
 **Extensions**（JEAB 4 カテゴリ外、`annotations/extensions/` 配下）:
 
@@ -336,7 +336,7 @@ contingency-dsl（基底 CFG）
         │     └── temporal/（sub-annotator）
         │           + @clock, @warmup, @algorithm 注釈
         │           + セッションレベルの時間パラメータ宣言
-        │           + 注: BO, COD は v1.1 でコア文法に昇格
+        │           + 注: BO, COD はコア文法に昇格済み
         │
         ├── subjects_annotator/ （JEAB カテゴリ: Subjects; 2026-04-12 に subject_annotator から改名）
         │     + @species, @strain, @deprivation, @history, @n 注釈
@@ -345,10 +345,10 @@ contingency-dsl（基底 CFG）
         │     + @chamber, @operandum, @interface, @hardware 注釈
         │     + 物理チャンバー・反応装置・HW インターフェースの同定
         │
-        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設, v1.2 完了 2026-04-14）
-        │     + v1.0: @session_end, @baseline, @steady_state
-        │     + v1.1: @dependent_measure, @training_volume, @microstructure
-        │     + v1.2: @phase_end, @logging, @iri_window, @warmup_exclude
+        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設, 2026-04-14 完了）
+        │     + @session_end, @baseline, @steady_state
+        │     + @dependent_measure, @training_volume, @microstructure
+        │     + @phase_end, @logging, @iri_window, @warmup_exclude
         │     + セッション終了、ベースライン、安定性基準、従属変数宣言、
         │     + 訓練量追跡、反応微細構造分析、Phase 終了条件、
         │     + イベントログ、IRI 分析、ウォームアップ除外
@@ -462,6 +462,10 @@ class AnnotationRegistry:
 <keyword_only_form>  ::= <annotation_kv> ("," <annotation_kv>)*
 <annotation_kv>      ::= <ident> "=" <annotation_val>
 <annotation_val>     ::= <string_literal> | <number>
+                       | <annotation_array>   -- v0.1: 構造化値 (RFC 2026-04-17)
+                       | <annotation_object>  -- v0.1: 構造化値 (RFC 2026-04-17)
+<annotation_array>   ::= "[" (<annotation_val> ("," <annotation_val>)*)? "]"
+<annotation_object>  ::= "{" (<annotation_kv> ("," <annotation_kv>)*)? "}"
 
 -- procedure-annotator/stimulus が追加:
 <annotation_name>    ::= "reinforcer" | "sd" | "brief"

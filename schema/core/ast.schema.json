@@ -35,25 +35,35 @@
         "type": { "const": "Annotation" },
         "keyword": { "type": "string" },
         "positional": {
-          "description": "First positional argument (string or number), if any.",
-          "oneOf": [
-            { "type": "string" },
-            { "type": "number" }
-          ]
+          "description": "First positional argument, if any. Accepts any AnnotationValue (string/number/array/object).",
+          "$ref": "#/$defs/AnnotationValue"
         },
         "params": {
           "type": "object",
-          "description": "Named parameters (key=value pairs). Time values (e.g., time=60min in source) are normalized to a number in the canonical unit (seconds by default) before storage; the original unit is not preserved in the AST.",
-          "additionalProperties": {
-            "oneOf": [
-              { "type": "string" },
-              { "type": "number" }
-            ]
-          }
+          "description": "Named parameters (key=value pairs). Time values (e.g., time=60min in source) are normalized to a number in the canonical unit (seconds by default) before storage; the original unit is not preserved in the AST. Values may be strings, numbers, arrays, or objects (v0.1 structured values, RFC 2026-04-17).",
+          "additionalProperties": { "$ref": "#/$defs/AnnotationValue" }
         }
       },
       "required": ["type", "keyword"],
       "additionalProperties": false
+    },
+
+    "AnnotationValue": {
+      "description": "Value of an annotation argument (positional or params). Recursive definition supports string/number literals, arrays, and objects. Extended in v0.1 (RFC 2026-04-17, annotation_array + annotation_object productions) from the original string|number union. Grammar: annotation_val ::= string_literal | time_value | number | annotation_array | annotation_object.",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        {
+          "type": "array",
+          "description": "annotation_array — ordered list of AnnotationValue.",
+          "items": { "$ref": "#/$defs/AnnotationValue" }
+        },
+        {
+          "type": "object",
+          "description": "annotation_object — map from ident to AnnotationValue. Keys follow the ident production (alphanumeric + underscore).",
+          "additionalProperties": { "$ref": "#/$defs/AnnotationValue" }
+        }
+      ]
     },
 
     "ParamDecl": {

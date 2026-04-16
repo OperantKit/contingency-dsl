@@ -294,6 +294,33 @@ correspond to the DSL grammar's `annotation_val` production
 | `"number"` | `3.14` | JSON number | `number` |
 | `"integer"` | `42` | JSON integer | `number` (semantic: no decimal point) |
 | `"time_value"` | `60min`, `30s`, `2000ms` | JSON number (normalized to seconds) | `time_value` → `number time_unit` |
+| `"object"` | `{key1=val1, key2=val2}` | JSON object | `annotation_object` (v0.1, RFC 2026-04-17) |
+| `"array<T>"` | `[val1, val2, ...]` | JSON array | `annotation_array` (v0.1, RFC 2026-04-17) |
+
+### 7.0 `array<T>` and `object` (structured values, v0.1)
+
+Added by RFC 2026-04-17 as an additive grammar extension
+(design-philosophy §8.1). The corresponding grammar productions
+`annotation_array` and `annotation_object` are defined in
+[grammar.ebnf §4.7](../../../schema/core/grammar.ebnf).
+
+**`array<T>`** — ordered sequence of homogeneous values of type T.
+T may be any type identifier in this vocabulary, including `object`:
+
+- `array<string>` — array of strings (e.g., `["AB", "BC"]`)
+- `array<integer>` — array of integers (e.g., `[1, 2, 3]`)
+- `array<time_value>` — array of time values (e.g., `["3s", "150ms"]`)
+- `array<object>` — array of objects (e.g., `[{role="probe", count=15}, ...]`)
+
+**`object`** — unordered map from identifier to value. Keys follow the
+`ident` production (alphanumeric with underscores). Values are any
+`annotation_val`, enabling arbitrary nesting.
+
+**Legacy alias:** the type identifier `"array_of_string"` is retained
+as an alias for `"array<string>"` for backward compatibility with
+schemas authored before the structured-values extension (see
+`procedure-stimulus.schema.json` relations and `_variadic_named` fields).
+New schemas SHOULD use `"array<string>"`.
 
 ### 7.1 `time_value` normalization
 
@@ -323,16 +350,18 @@ semantic:
 
 ### 7.3 Type extensions
 
-The type vocabulary is intentionally minimal, matching the DSL
-grammar's `annotation_val` production. If future annotations require
-structured/nested values, the type vocabulary will be extended via an
-additive revision of this specification.
+The type vocabulary matches the DSL grammar's `annotation_val`
+production. Further extensions require additive revision of this
+specification in lockstep with `grammar.ebnf`.
 
-Current `annotation_val` does NOT support:
-- Arrays / lists
-- Nested objects
-- Schedule expression references
-- Boolean values
+**Supported** (post RFC 2026-04-17, v0.1):
+- Arrays of any type via `array<T>` (§7.0)
+- Nested objects via `object` (§7.0)
+
+**Not yet supported** in `annotation_val`:
+- Schedule expression references (integer index or identifier ref only
+  supported at validator level, not as a first-class type)
+- Boolean literals (`true` / `false`)
 
 If these become necessary, they require a grammar extension to
 `annotation_val` (additive, per design-philosophy §8.1) and a

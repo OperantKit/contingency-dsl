@@ -37,25 +37,33 @@
         "type": { "const": "Annotation" },
         "keyword": { "type": "string" },
         "positional": {
-          "description": "First positional argument (string or number), if any.",
-          "oneOf": [
-            { "type": "string" },
-            { "type": "number" }
-          ]
+          "description": "First positional argument, if any. Accepts any AnnotationValue (string/number/array/object).",
+          "$ref": "#/$defs/AnnotationValue"
         },
         "params": {
           "type": "object",
-          "description": "Named parameters (key=value pairs). Time values normalized to seconds.",
-          "additionalProperties": {
-            "oneOf": [
-              { "type": "string" },
-              { "type": "number" }
-            ]
-          }
+          "description": "Named parameters (key=value pairs). Time values normalized to seconds. Values may be strings, numbers, arrays, or objects (v0.1 structured values, RFC 2026-04-17).",
+          "additionalProperties": { "$ref": "#/$defs/AnnotationValue" }
         }
       },
       "required": ["type", "keyword"],
       "additionalProperties": false
+    },
+
+    "AnnotationValue": {
+      "description": "Value of an annotation argument. Recursive: string | number | array<AnnotationValue> | object<ident, AnnotationValue>. Grammar: annotation_val (grammar.ebnf §4.7). Structured values added v0.1 (RFC 2026-04-17).",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AnnotationValue" }
+        },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/AnnotationValue" }
+        }
+      ]
     },
 
     "ParamDecl": {

@@ -1,8 +1,8 @@
 [
   {
     "id": "trial_structure_peak_eckard_kyonka_2018",
-    "description": "@trial_mix for Eckard & Kyonka (2018) peak procedure: FI18s LH3s baseline, 45 FI trials + 15 peak trials (54s, unreinforced) per session",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=45, probe_ref=1, probe_count=15, probe_duration=54s, ordering_spec=\"random\")\n\nMix(FI18s LH3s, EXT)",
+    "description": "@trial_mix for Eckard & Kyonka (2018) peak procedure: FI18s LH3s baseline, 45 FI trials + 15 probe trials (54s, unreinforced) per session. Uses structured components array (RFC 2026-04-17).",
+    "input": "@trial_mix(\n  type=\"peak\",\n  components=[\n    {role=\"reinforced\", ref=0, count=45},\n    {role=\"probe\",      ref=1, count=15, duration=54s}\n  ],\n  ordering_spec=\"random\"\n)\nMix(FI18s LH3s, EXT)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -31,23 +31,22 @@
             "keyword": "trial_mix",
             "params": {
               "type": "peak",
-              "reinforced_ref": 0,
-              "reinforced_count": 45,
-              "probe_ref": 1,
-              "probe_count": 15,
-              "probe_duration": 54,
+              "components": [
+                { "role": "reinforced", "ref": 0, "count": 45 },
+                { "role": "probe",      "ref": 1, "count": 15, "duration": 54 }
+              ],
               "ordering_spec": "random"
             }
           }
         ]
       }
     },
-    "_note": "Actual Eckard & Kyonka (2018) parameters: FI 18s with 3s limited hold, probe duration 54s (3x FI value). Mix has 2 components: reinforced FI (ref=0) and extinguished probe (ref=1). Session composition: 45 reinforced + 15 peak, randomly intermixed. Runtime seed/shuffling delegated to execution_profile."
+    "_note": "Actual Eckard & Kyonka (2018) parameters. Structured components array: role='reinforced' tags the FI component (ref=0), role='probe' tags the EXT component (ref=1). The 'duration' field is probe-specific per role_catalog. Runtime seed/shuffling delegated to execution_profile."
   },
   {
     "id": "trial_structure_peak_roberts_1981",
-    "description": "@trial_mix for Roberts (1981) classical peak procedure: FI30s baseline, 90s probes, balanced counts",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=30, probe_ref=1, probe_count=10, probe_duration=90s)\n\nMix(FI30s, EXT)",
+    "description": "@trial_mix for Roberts (1981) classical peak procedure: FI30s baseline, 90s probes, ordering_spec defaulted",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=30}, {role=\"probe\", ref=1, count=10, duration=90s}])\n\nMix(FI30s, EXT)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -75,22 +74,21 @@
             "keyword": "trial_mix",
             "params": {
               "type": "peak",
-              "reinforced_ref": 0,
-              "reinforced_count": 30,
-              "probe_ref": 1,
-              "probe_count": 10,
-              "probe_duration": 90
+              "components": [
+                { "role": "reinforced", "ref": 0, "count": 30 },
+                { "role": "probe",      "ref": 1, "count": 10, "duration": 90 }
+              ]
             }
           }
         ]
       }
     },
-    "_note": "Roberts (1981) 'Isolation of an internal clock' — canonical peak procedure. probe_duration 90s = 3x FI 30s. ordering_spec defaults to 'random' per schema."
+    "_note": "ordering_spec omitted (defaults to 'random'). Single-line components form tests parser handling of structured values in flat syntax."
   },
   {
     "id": "trial_structure_peak_discriminated_mult",
-    "description": "@trial_mix applied to Mult (discriminated peak procedure with stimulus cueing)",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=40, probe_ref=1, probe_count=20, probe_duration=60s, ordering_spec=\"random\")\n\nMult(FI20s, EXT)",
+    "description": "@trial_mix applied to Mult (discriminated peak with stimulus cueing)",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=40}, {role=\"probe\", ref=1, count=20, duration=60s}], ordering_spec=\"random\")\n\nMult(FI20s, EXT)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -118,24 +116,23 @@
             "keyword": "trial_mix",
             "params": {
               "type": "peak",
-              "reinforced_ref": 0,
-              "reinforced_count": 40,
-              "probe_ref": 1,
-              "probe_count": 20,
-              "probe_duration": 60,
+              "components": [
+                { "role": "reinforced", "ref": 0, "count": 40 },
+                { "role": "probe",      "ref": 1, "count": 20, "duration": 60 }
+              ],
               "ordering_spec": "random"
             }
           }
         ]
       }
     },
-    "_note": "Mult (discriminated) peak: distinct SDs for reinforced and probe components enable stimulus control analysis."
+    "_note": "Mult provides discriminative stimuli distinguishing reinforced vs. probe components; same @trial_mix syntax applies."
   },
 
   {
     "id": "trial_structure_reinstatement_baker_1991",
-    "description": "@trial_mix for Baker et al. (1991) reinstatement: extinction + 4 response-independent reinforcer deliveries on FT60s",
-    "input": "@trial_mix(type=\"reinstatement\", extinction_ref=0, reinstatement_ref=1, reinstatement_count=4, reinstatement_interval=60s, ordering_spec=\"fixed_sequence\")\n\nMix(EXT, FT60s)",
+    "description": "@trial_mix for Baker et al. (1991) reinstatement: EXT background + 4 response-independent reinforcers on FT60s",
+    "input": "@trial_mix(\n  type=\"reinstatement\",\n  components=[\n    {role=\"extinction\",    ref=0},\n    {role=\"reinstatement\", ref=1, count=4, interval=60s}\n  ],\n  ordering_spec=\"fixed_sequence\"\n)\nMix(EXT, FT60s)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -163,22 +160,22 @@
             "keyword": "trial_mix",
             "params": {
               "type": "reinstatement",
-              "extinction_ref": 0,
-              "reinstatement_ref": 1,
-              "reinstatement_count": 4,
-              "reinstatement_interval": 60,
+              "components": [
+                { "role": "extinction",    "ref": 0 },
+                { "role": "reinstatement", "ref": 1, "count": 4, "interval": 60 }
+              ],
               "ordering_spec": "fixed_sequence"
             }
           }
         ]
       }
     },
-    "_note": "Baker, Steinwald & Bouton (1991) instrumental reinstatement: 4 response-independent reinforcers on FT60s interleaved with EXT background. ordering_spec='fixed_sequence' because reinstatement is typically deterministic (reinforcers at specific timings)."
+    "_note": "Baker, Steinwald & Bouton (1991): 4 response-independent reinforcers on FT60s interleaved with EXT. role='extinction' carries only ref (no count needed — background). role='reinstatement' carries count and optional interval."
   },
   {
     "id": "trial_structure_reinstatement_interval_omitted",
-    "description": "@trial_mix reinstatement with interval omitted (derived from reinstatement_ref's FT parameter)",
-    "input": "@trial_mix(type=\"reinstatement\", extinction_ref=0, reinstatement_ref=1, reinstatement_count=8)\n\nMix(EXT, FT120s)",
+    "description": "@trial_mix reinstatement with interval attribute omitted (inferred from FT ref)",
+    "input": "@trial_mix(type=\"reinstatement\", components=[{role=\"extinction\", ref=0}, {role=\"reinstatement\", ref=1, count=8}])\n\nMix(EXT, FT120s)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -188,10 +185,7 @@
         "type": "Compound",
         "combinator": "Mix",
         "components": [
-          {
-            "type": "Special",
-            "name": "EXT"
-          },
+          { "type": "Special", "name": "EXT" },
           {
             "type": "Atomic",
             "dist": "F",
@@ -206,21 +200,22 @@
             "keyword": "trial_mix",
             "params": {
               "type": "reinstatement",
-              "extinction_ref": 0,
-              "reinstatement_ref": 1,
-              "reinstatement_count": 8
+              "components": [
+                { "role": "extinction",    "ref": 0 },
+                { "role": "reinstatement", "ref": 1, "count": 8 }
+              ]
             }
           }
         ]
       }
     },
-    "_note": "reinstatement_interval omitted: runtime infers 120s from FT120s component. ordering_spec defaults to 'random' per schema (linter may still warn given reinstatement typically uses 'fixed_sequence')."
+    "_note": "'interval' omitted from role='reinstatement' object: runtime infers 120s from FT120s (ref=1). ordering_spec defaults to 'random' per schema."
   },
 
   {
     "id": "trial_structure_temporal_bisection_church_deluty_1977",
-    "description": "@trial_mix for Church & Deluty (1977) temporal bisection (free-operant variant): 2s short anchor, 8s long anchor, 5 intermediate probes logarithmically spaced",
-    "input": "@trial_mix(type=\"temporal_bisection\", short_anchor_ref=0, short_anchor_duration=2s, short_anchor_count=20, long_anchor_ref=1, long_anchor_duration=8s, long_anchor_count=20, probe_ref=2, probe_count=10, probe_duration_list=[\"2.52s\", \"3.17s\", \"4s\", \"5.04s\", \"6.35s\"], ordering_spec=\"random\")\n\nMix(FI2s, FI8s, EXT)",
+    "description": "@trial_mix for Church & Deluty (1977) temporal bisection: 2s short, 8s long, 5 intermediate probes log-spaced",
+    "input": "@trial_mix(\n  type=\"temporal_bisection\",\n  components=[\n    {role=\"short_anchor\", ref=0, duration=2s, count=20},\n    {role=\"long_anchor\",  ref=1, duration=8s, count=20},\n    {role=\"probe\",        ref=2, count=10, durations=[\"2.52s\", \"3.17s\", \"4s\", \"5.04s\", \"6.35s\"]}\n  ],\n  ordering_spec=\"random\"\n)\nMix(FI2s, FI8s, EXT)",
     "expected": {
       "type": "Program",
       "program_annotations": [],
@@ -231,23 +226,14 @@
         "combinator": "Mix",
         "components": [
           {
-            "type": "Atomic",
-            "dist": "F",
-            "domain": "I",
-            "value": 2.0,
-            "time_unit": "s"
+            "type": "Atomic", "dist": "F", "domain": "I",
+            "value": 2.0, "time_unit": "s"
           },
           {
-            "type": "Atomic",
-            "dist": "F",
-            "domain": "I",
-            "value": 8.0,
-            "time_unit": "s"
+            "type": "Atomic", "dist": "F", "domain": "I",
+            "value": 8.0, "time_unit": "s"
           },
-          {
-            "type": "Special",
-            "name": "EXT"
-          }
+          { "type": "Special", "name": "EXT" }
         ],
         "annotations": [
           {
@@ -255,78 +241,104 @@
             "keyword": "trial_mix",
             "params": {
               "type": "temporal_bisection",
-              "short_anchor_ref": 0,
-              "short_anchor_duration": 2,
-              "short_anchor_count": 20,
-              "long_anchor_ref": 1,
-              "long_anchor_duration": 8,
-              "long_anchor_count": 20,
-              "probe_ref": 2,
-              "probe_count": 10,
-              "probe_duration_list": ["2.52s", "3.17s", "4s", "5.04s", "6.35s"],
+              "components": [
+                { "role": "short_anchor", "ref": 0, "duration": 2, "count": 20 },
+                { "role": "long_anchor",  "ref": 1, "duration": 8, "count": 20 },
+                {
+                  "role": "probe", "ref": 2, "count": 10,
+                  "durations": ["2.52s", "3.17s", "4s", "5.04s", "6.35s"]
+                }
+              ],
               "ordering_spec": "random"
             }
           }
         ]
       }
     },
-    "_note": "Church & Deluty (1977) used 5 probe durations logarithmically spaced between 2s and 8s: 2*(4)^(k/6) for k=1..5. Fetterman & Killeen (1995) showed free-operant variants generate similar psychophysical functions. probe_count=10 means 10 trials per probe duration (total 50 probe trials + 40 anchor trials = 90 per session)."
+    "_note": "Church & Deluty (1977) 5 probes logarithmically spaced: 2*(4)^(k/6) for k=1..5. role='probe' under temporal_bisection type requires 'durations' (array<time_value>) instead of the peak-style scalar 'duration'. Each object is self-contained with role-specific attributes."
   },
 
   {
     "id": "trial_structure_error_missing_type",
     "description": "@trial_mix without type parameter triggers TRIAL_MIX_MISSING_TYPE",
-    "input": "@trial_mix(reinforced_ref=0, reinforced_count=45, probe_ref=1, probe_count=15, probe_duration=54s)\n\nMix(FI18s LH3s, EXT)",
-    "expected_error": "TRIAL_MIX_MISSING_TYPE",
-    "_note": "type parameter is required; must be one of 'peak', 'reinstatement', 'temporal_bisection'."
+    "input": "@trial_mix(components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMix(FI18s LH3s, EXT)",
+    "expected_error": "TRIAL_MIX_MISSING_TYPE"
+  },
+  {
+    "id": "trial_structure_error_missing_components",
+    "description": "@trial_mix without components array triggers TRIAL_MIX_MISSING_COMPONENTS",
+    "input": "@trial_mix(type=\"peak\")\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_MISSING_COMPONENTS"
+  },
+  {
+    "id": "trial_structure_error_component_missing_role",
+    "description": "Component object without 'role' field triggers TRIAL_MIX_COMPONENT_MISSING_ROLE",
+    "input": "@trial_mix(type=\"peak\", components=[{ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_COMPONENT_MISSING_ROLE"
+  },
+  {
+    "id": "trial_structure_error_component_missing_ref",
+    "description": "Component object without 'ref' field triggers TRIAL_MIX_COMPONENT_MISSING_REF",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_COMPONENT_MISSING_REF"
   },
   {
     "id": "trial_structure_error_duplicate_ref",
-    "description": "@trial_mix peak with identical reinforced_ref and probe_ref triggers TRIAL_MIX_DUPLICATE_REF",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=45, probe_ref=0, probe_count=15, probe_duration=54s)\n\nMix(FI18s, EXT)",
-    "expected_error": "TRIAL_MIX_DUPLICATE_REF",
-    "_note": "Component refs must reference distinct components."
+    "description": "Two components with identical ref triggers TRIAL_MIX_DUPLICATE_REF",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=0, count=15, duration=54s}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_DUPLICATE_REF"
   },
   {
     "id": "trial_structure_error_invalid_ref",
-    "description": "@trial_mix with ref beyond Mix component count triggers TRIAL_MIX_INVALID_REF",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=45, probe_ref=5, probe_count=15, probe_duration=54s)\n\nMix(FI18s, EXT)",
-    "expected_error": "TRIAL_MIX_INVALID_REF",
-    "_note": "probe_ref=5 indexes beyond Mix's 2 components (indices 0 and 1)."
+    "description": "Component ref beyond Mix component count triggers TRIAL_MIX_INVALID_REF",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=5, count=15, duration=54s}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_INVALID_REF"
+  },
+  {
+    "id": "trial_structure_error_unknown_role",
+    "description": "Component role not in catalog triggers TRIAL_MIX_UNKNOWN_ROLE",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"baseline\", ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_UNKNOWN_ROLE",
+    "_note": "'baseline' is not a role registered in role_catalog (valid peak roles: 'reinforced', 'probe')."
+  },
+  {
+    "id": "trial_structure_error_unexpected_role_for_type",
+    "description": "Role valid in catalog but not allowed for declared type triggers TRIAL_MIX_UNEXPECTED_ROLE",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}, {role=\"extinction\", ref=0}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_UNEXPECTED_ROLE",
+    "_note": "'extinction' is a valid role for reinstatement type, not peak."
+  },
+  {
+    "id": "trial_structure_error_missing_required_role",
+    "description": "components missing a required role for the type triggers TRIAL_MIX_MISSING_REQUIRED_ROLE",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_MISSING_REQUIRED_ROLE",
+    "_note": "peak requires both 'reinforced' and 'probe' roles; 'probe' is missing."
+  },
+  {
+    "id": "trial_structure_error_component_missing_attr_peak_probe_duration",
+    "description": "peak probe without 'duration' attribute triggers TRIAL_MIX_COMPONENT_MISSING_ATTR",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=1, count=15}])\n\nMix(FI18s, EXT)",
+    "expected_error": "TRIAL_MIX_COMPONENT_MISSING_ATTR",
+    "_note": "role='probe' under type='peak' requires 'duration' per role_catalog."
   },
   {
     "id": "trial_structure_error_wrong_primitive",
     "description": "@trial_mix applied to MTS triggers TRIAL_MIX_WRONG_PRIMITIVE",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=45, probe_ref=1, probe_count=15, probe_duration=54s)\n\nMTS(samples=3, comparisons=3)",
+    "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMTS(samples=3, comparisons=3)",
     "expected_error": "TRIAL_MIX_WRONG_PRIMITIVE",
-    "_note": "MTS is Core-TrialBased (discrete-trial). For MTS probe testing, use @testing (procedure-stimulus) instead. This separation enforces the layer boundary established by Theorem 1 (core-trial-based/theory.md §4)."
-  },
-  {
-    "id": "trial_structure_error_forbidden_param_peak_with_extinction",
-    "description": "@trial_mix type=peak with reinstatement-only param triggers TRIAL_MIX_FORBIDDEN_PARAM",
-    "input": "@trial_mix(type=\"peak\", reinforced_ref=0, reinforced_count=45, probe_ref=1, probe_count=15, probe_duration=54s, extinction_ref=0, reinstatement_count=4)\n\nMix(FI18s, EXT)",
-    "expected_error": "TRIAL_MIX_FORBIDDEN_PARAM",
-    "_note": "extinction_ref and reinstatement_count are reinstatement-only per schema forbidden_if. Linter must reject mixing peak fields with reinstatement fields."
-  },
-  {
-    "id": "trial_structure_error_temporal_bisection_insufficient_components",
-    "description": "@trial_mix type=temporal_bisection on 2-component Mix triggers TRIAL_MIX_INSUFFICIENT_COMPONENTS",
-    "input": "@trial_mix(type=\"temporal_bisection\", short_anchor_ref=0, short_anchor_duration=2s, short_anchor_count=20, long_anchor_ref=1, long_anchor_duration=8s, long_anchor_count=20, probe_ref=1, probe_count=10, probe_duration_list=[\"4s\"])\n\nMix(FI2s, FI8s)",
-    "expected_error": "TRIAL_MIX_INSUFFICIENT_COMPONENTS",
-    "_note": "temporal_bisection requires >=3 components (short anchor, long anchor, probe); the given Mix has only 2 components."
+    "_note": "MTS is Core-TrialBased (discrete-trial). For MTS probe testing, use @testing (procedure-stimulus) instead."
   },
   {
     "id": "trial_structure_error_probe_out_of_anchor_range",
-    "description": "@trial_mix temporal_bisection with probe duration outside [short, long] range triggers TRIAL_MIX_PROBE_OUT_OF_ANCHOR_RANGE",
-    "input": "@trial_mix(type=\"temporal_bisection\", short_anchor_ref=0, short_anchor_duration=2s, short_anchor_count=20, long_anchor_ref=1, long_anchor_duration=8s, long_anchor_count=20, probe_ref=2, probe_count=10, probe_duration_list=[\"1s\", \"4s\", \"10s\"])\n\nMix(FI2s, FI8s, EXT)",
-    "expected_error": "TRIAL_MIX_PROBE_OUT_OF_ANCHOR_RANGE",
-    "_note": "probe_duration_list entries '1s' (< 2s short anchor) and '10s' (> 8s long anchor) are out of range. Probes must be strictly between short_anchor_duration and long_anchor_duration."
+    "description": "temporal_bisection probe durations outside [short, long] range triggers TRIAL_MIX_PROBE_OUT_OF_ANCHOR_RANGE",
+    "input": "@trial_mix(type=\"temporal_bisection\", components=[{role=\"short_anchor\", ref=0, duration=2s, count=20}, {role=\"long_anchor\", ref=1, duration=8s, count=20}, {role=\"probe\", ref=2, count=10, durations=[\"1s\", \"4s\", \"10s\"]}])\n\nMix(FI2s, FI8s, EXT)",
+    "expected_error": "TRIAL_MIX_PROBE_OUT_OF_ANCHOR_RANGE"
   },
   {
-    "id": "trial_structure_error_invalid_probe_duration_format",
-    "description": "@trial_mix temporal_bisection with malformed time string triggers TRIAL_MIX_INVALID_PROBE_DURATION",
-    "input": "@trial_mix(type=\"temporal_bisection\", short_anchor_ref=0, short_anchor_duration=2s, short_anchor_count=20, long_anchor_ref=1, long_anchor_duration=8s, long_anchor_count=20, probe_ref=2, probe_count=10, probe_duration_list=[\"three_seconds\", \"4s\"])\n\nMix(FI2s, FI8s, EXT)",
-    "expected_error": "TRIAL_MIX_INVALID_PROBE_DURATION",
-    "_note": "'three_seconds' is not a parseable time_value string. Valid forms: '3s', '150ms', '1min'."
+    "id": "trial_structure_error_invalid_duration_list",
+    "description": "malformed time string in probe.durations triggers TRIAL_MIX_INVALID_DURATION_LIST",
+    "input": "@trial_mix(type=\"temporal_bisection\", components=[{role=\"short_anchor\", ref=0, duration=2s, count=20}, {role=\"long_anchor\", ref=1, duration=8s, count=20}, {role=\"probe\", ref=2, count=10, durations=[\"three_seconds\", \"4s\"]}])\n\nMix(FI2s, FI8s, EXT)",
+    "expected_error": "TRIAL_MIX_INVALID_DURATION_LIST"
   }
 ]

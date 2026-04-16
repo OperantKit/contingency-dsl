@@ -496,6 +496,10 @@ positional_form    ::= annotation_val ("," annotation_kv)*
 keyword_only_form  ::= annotation_kv ("," annotation_kv)*
 annotation_kv      ::= ident "=" annotation_val
 annotation_val     ::= string_literal | time_value | number
+                     | annotation_array     ; v0.1: structured values (RFC 2026-04-17)
+                     | annotation_object    ; v0.1: structured values (RFC 2026-04-17)
+annotation_array   ::= "[" (annotation_val ("," annotation_val)*)? "]"
+annotation_object  ::= "{" (annotation_kv ("," annotation_kv)*)? "}"
 time_value         ::= number time_unit
 string_literal     ::= '"' [^"]* '"'
 
@@ -515,6 +519,28 @@ string_literal     ::= '"' [^"]* '"'
 ;   and stored as a number in the Annotation node's params. The original
 ;   unit is discarded after normalization. Example: `time=60min` → 3600.
 ;   Programs MAY choose a different normalization convention.
+;
+; Structured values (annotation_array / annotation_object) — additive
+; extension per design-philosophy §8.1 (RFC 2026-04-17):
+;   - annotation_array:  [v1, v2, ...]          array literal
+;   - annotation_object: {k1=v1, k2=v2, ...}    object literal (uses "=" not ":")
+;   Both productions are recursive via annotation_val, allowing arbitrary
+;   nesting depth.
+;
+; LL(1) disambiguation (additive): at the start of an annotation_val,
+; the token unambiguously determines the production:
+;     string_literal    → '"'
+;     time_value/number → digit / '-'
+;     annotation_array  → '['
+;     annotation_object → '{'
+; The four alternatives have disjoint FIRST sets; no new lookahead is
+; required beyond the existing LL(2) for time_value vs number.
+;
+; AST representation:
+;     annotation_array  → ordered list of annotation_val values
+;     annotation_object → map from ident to annotation_val
+; See ast.schema.json AnnotationValue definition for the canonical
+; recursive shape.
 
 ; annotation_name is defined per annotator. The following are the DSL
 ; project's RECOMMENDED annotators; a program's registry MAY replace,
