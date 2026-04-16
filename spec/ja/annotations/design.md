@@ -836,21 +836,9 @@ DSL は `@scheduled(VI=60)` を宣言するが、ランタイムは `obtained_ra
 | calibration 実測値 | session-recorder | 実行時測定 |
 | calibration 期待値 | DSL (`@hardware(expected=...)`) | 計画の一部 |
 
-### 8.5 多セッション構造（論争点 — 未決）
+### 8.5 多セッション構造
 
-**多セッション構造提案:**
-```
-program ABA_reversal {
-  session A { baseline }
-  session B { treatment }
-  session A' { return_to_baseline }
-}
-```
-
-**対立する観点（1 DSL = 1 procedure 維持派）:** 複数セッションは manifest 層で束ねる。
-
-**折衷案:** `1 DSL file = 1 session` 原則を維持し、外部 `manifest.yaml` で複数 DSL を束ねる。
-「再現性の単位」は manifest レベルで担保する。
+**原則: `1 DSL file = 1 session`。** 複数セッションは外部 `manifest.yaml` で束ねる。「再現性の単位」は manifest レベルで担保する。
 
 ```yaml
 # manifest.yaml

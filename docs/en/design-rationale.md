@@ -190,7 +190,7 @@ The researcher must always specify which progression they intend.
 
 ---
 
-## 3. Lag: Why `length` Is Explicit and the Operant Dimension Debate
+## 3. Lag: Why `length` Is Explicit
 
 ### The Parameter Problem
 
@@ -220,67 +220,21 @@ when omitted, which matches applied research convention). The default is
 a convenience, not a theoretical commitment — and theory.md documents
 the non-standardization to ensure users make an informed choice.
 
-### Is Variability an Operant Dimension?
-
-The Lag schedule rests on a strong claim: that *variability itself* is
-an operant dimension — a behavioral property that can be directly
-strengthened or weakened by its consequences, like rate or force.
-Page and Neuringer (1985) argued yes: Lag contingencies increased
-response entropy beyond what extinction or schedule-induced effects
-could explain.
-
-This claim has been contested. The key challenge:
-
-**Nergaard and Holth (2020)** offered a systematic critique in
-*Perspectives on Behavior Science*:
-
-1. Under delay-of-reinforcement manipulations, variability *increases*
-   rather than decreases — the opposite of what other operant
-   dimensions do.
-2. "Extinction of repetition" is a more parsimonious explanation:
-   repeated sequences go unreinforced and extinguish, leaving variable
-   sequences by elimination.
-3. Sequence-level U-values (the standard measure) may obscure whether
-   reinforcement operates on whole sequences or individual responses.
-
-No formal published rebuttal to Nergaard and Holth has appeared.
-However:
-
-**Reed (2023, *JEAB*)** provided indirect counter-evidence. In three
-experiments with rats, signaled reinforcement (a brief stimulus marking
-the reinforced response) *increased* variability under Lag-8 and
-DRLeast schedules. Under schedules with no variability requirement,
-the same signal *decreased* variability. This pattern — where a
-signaling manipulation modulates a behavioral property in the same
-direction as other operant dimensions — is consistent with variability
-being directly reinforced.
-
-**Galizio, Friedel, and Odum (2020, *JEAB*)** demonstrated resurgence
-of reinforced variability in humans, showing that variability trained
-in Phase 1 could resurge in Phase 3 after Phase 2 training. Resurgence
-is a hallmark of operant learning, though the effect was not robust
-across all participants.
-
 ### The DSL's Position
 
-The DSL takes no position on whether variability is a "true" operant
-dimension. `Lag` is provided as a procedural tool whose behavioral
-effects are well-documented regardless of the underlying mechanism.
-The grammar is neutral: it defines what a Lag schedule *does*
-(reinforce sequences differing from the previous *n*), not what it
-*means* theoretically.
+The DSL provides `Lag` as a procedural tool whose behavioral effects
+are well-documented. The grammar is neutral: it defines what a Lag
+schedule *does* (reinforce sequences differing from the previous *n*),
+not what it *means* theoretically.
 
 This is consistent with the DSL's general philosophy: the specification
 describes contingency arrangements, not behavioral mechanisms. Whether
 DRL performance is "timing" or "counting," whether DRO is "reinforcing
-other behavior" or "omission training," whether Lag is "reinforcing
-variability" or "extinguishing repetition" — these are empirical
-questions that the DSL leaves to the researcher.
+other behavior" or "omission training" — these are empirical questions
+that the DSL leaves to the researcher.
 
 ### References
 
-- Galizio, A., Friedel, J. E., & Odum, A. L. (2020). An investigation of resurgence of reinforced behavioral variability in humans. *Journal of the Experimental Analysis of Behavior*, *114*(3), 381-393. https://doi.org/10.1002/jeab.637
-- Nergaard, S. K., & Holth, P. (2020). A critical review of the support for variability as an operant dimension. *Perspectives on Behavior Science*, *43*(3), 579-603. https://doi.org/10.1007/s40614-020-00262-y
+- Abreu-Rodrigues, J., Lattal, K. A., dos Santos, C. V., & Matos, R. A. (2005). Variation, repetition, and choice. *Journal of the Experimental Analysis of Behavior*, *83*(2), 147-168. https://doi.org/10.1901/jeab.2005.33-03
 - Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
-- Reed, P. (2023). Effect of signaled reinforcement on response variability. *Journal of the Experimental Analysis of Behavior*, *119*(2), 352-368. https://doi.org/10.1002/jeab.825
 - Ribeiro, M. P., Panetta, N., & Abreu-Rodrigues, J. (2022). Effects of variability requirements on difficult sequence learning. *Journal of the Experimental Analysis of Behavior*, *118*(3), 442-461. https://doi.org/10.1002/jeab.798

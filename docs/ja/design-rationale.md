@@ -104,7 +104,7 @@ DSL は2つの形式を提供し、いずれも研究者にプログレッショ
 
 ---
 
-## 3. Lag: `length` が明示的である理由とオペラント次元論争
+## 3. Lag: `length` が明示的である理由
 
 ### パラメータの問題
 
@@ -123,32 +123,14 @@ Page and Neuringer (1985) が Lag スケジュールを導入した際、2キー
 
 DSL が `length` の明示を要求する（省略時は応用研究の慣習に合わせ1をデフォルト）のはこのためである。デフォルトは利便性であり理論的コミットメントではない — そして theory.md は非標準性を文書化し、ユーザーが情報に基づく選択を行えるようにする。
 
-### 変動性はオペラント次元か?
-
-Lag スケジュールは強い主張に立脚する: *変動性そのもの*がオペラント次元である — 反応率や力と同様に、結果によって直接的に強化・弱化できる行動特性である。Page and Neuringer (1985) はこれを肯定した: Lag 随伴性は消去やスケジュール誘導効果では説明できない水準まで反応エントロピーを増加させた。
-
-この主張には異論がある:
-
-**Nergaard and Holth (2020)** は *Perspectives on Behavior Science* で体系的批判を展開した:
-
-1. 強化遅延操作の下で変動性は*増加*する — 他のオペラント次元とは逆方向
-2. 「反復の消去」がより節約的な説明: 反復された系列は非強化により消去され、変動的系列が消去法で残る
-3. 系列レベルの U 値（標準的測度）が、強化が系列全体に操作しているのか個別反応に操作しているのかを不明瞭にしている可能性
-
-Nergaard and Holth への正式な出版済み反論は見つかっていない。しかし:
-
-**Reed (2023, *JEAB*)** は間接的な反証を提供した。ラット3実験で、シグナル付き強化（強化された反応を標識する短い刺激）が Lag-8 および DRLeast スケジュール下で変動性を*増加*させた。変動性要件がないスケジュールでは同じシグナルが変動性を*低下*させた。このパターン — シグナル操作が行動特性を他のオペラント次元と同じ方向に調整する — は変動性が直接強化されていることと整合する。
-
 ### DSL の立場
 
-DSL は変動性が「真の」オペラント次元であるか否かについて立場を取らない。`Lag` は、基盤メカニズムに関わらず行動的効果が十分に文書化された手続きツールとして提供される。文法は中立である: Lag スケジュールが*何をするか*（直前 *n* 回と異なる系列を強化する）を定義するが、それが理論的に*何を意味するか*は定義しない。
+DSL は `Lag` を、行動的効果が十分に文書化された手続きツールとして提供する。文法は中立である: Lag スケジュールが*何をするか*（直前 *n* 回と異なる系列を強化する）を定義するが、それが理論的に*何を意味するか*は定義しない。
 
-これは DSL の一般的哲学と一致する: 仕様は随伴性配置を記述するのであり、行動メカニズムを記述するのではない。DRL パフォーマンスが「タイミング」なのか「カウンティング」なのか、DRO が「他行動の強化」なのか「省略訓練」なのか、Lag が「変動性の強化」なのか「反復の消去」なのか — これらは DSL が研究者に委ねる経験的問いである。
+これは DSL の一般的哲学と一致する: 仕様は随伴性配置を記述するのであり、行動メカニズムを記述するのではない。DRL パフォーマンスが「タイミング」なのか「カウンティング」なのか、DRO が「他行動の強化」なのか「省略訓練」なのか — これらは DSL が研究者に委ねる経験的問いである。
 
 ### 参考文献
 
-- Galizio, A., Friedel, J. E., & Odum, A. L. (2020). An investigation of resurgence of reinforced behavioral variability in humans. *Journal of the Experimental Analysis of Behavior*, *114*(3), 381-393. https://doi.org/10.1002/jeab.637
-- Nergaard, S. K., & Holth, P. (2020). A critical review of the support for variability as an operant dimension. *Perspectives on Behavior Science*, *43*(3), 579-603. https://doi.org/10.1007/s40614-020-00262-y
+- Abreu-Rodrigues, J., Lattal, K. A., dos Santos, C. V., & Matos, R. A. (2005). Variation, repetition, and choice. *Journal of the Experimental Analysis of Behavior*, *83*(2), 147-168. https://doi.org/10.1901/jeab.2005.33-03
 - Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, *11*(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
-- Reed, P. (2023). Effect of signaled reinforcement on response variability. *Journal of the Experimental Analysis of Behavior*, *119*(2), 352-368. https://doi.org/10.1002/jeab.825
 - Ribeiro, M. P., Panetta, N., & Abreu-Rodrigues, J. (2022). Effects of variability requirements on difficult sequence learning. *Journal of the Experimental Analysis of Behavior*, *118*(3), 442-461. https://doi.org/10.1002/jeab.798

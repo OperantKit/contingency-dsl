@@ -919,7 +919,7 @@ Mult(Lag(5, length=8), CRF)
 - `Lag 0` ≡ CRF は一貫性のために保持される境界ケース。「variability 要求なしの
   Lag schedule」というユーザーの意図を保存し、parse 時に最適化消去されない。
 
-**`length` が明示的である理由。** 文献は標準的な系列長を示さない（Page & Neuringer, 1985: 8; Ribeiro et al., 2022: 5; 応用研究: 1）。DSL が `length` を公開するのは、普遍的に適切な単一のデフォルトが存在しないためである。変動性が真のオペラント次元を構成するか否かは論争中（Nergaard & Holth, 2020 vs. Reed, 2023）; DSL は立場を取らない。詳細は [design-rationale.md §3](../../../docs/ja/design-rationale.md#3-lag-length-が明示的である理由とオペラント次元論争) を参照。
+**`length` が明示的である理由。** 文献は標準的な系列長を示さない（Page & Neuringer, 1985: 8; Ribeiro et al., 2022: 5; 応用研究: 1）。DSL が `length` を公開するのは、普遍的に適切な単一のデフォルトが存在しないためである。
 
 ### 2.9 弁別回避（Discriminated Avoidance）
 

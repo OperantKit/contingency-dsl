@@ -969,7 +969,7 @@ Mult(Lag(5, length=8), CRF)
   the user's intent ("this is a Lag schedule with no variability
   requirement") rather than being optimized away at parse time.
 
-**Why `length` is explicit.** The literature shows no standard sequence length (Page & Neuringer, 1985: 8; Ribeiro et al., 2022: 5; applied research: 1). The DSL exposes `length` because no single default is universally appropriate. Whether variability constitutes a true operant dimension remains debated (Nergaard & Holth, 2020 vs. Reed, 2023); the DSL takes no position. See [design-rationale.md §3](../../../docs/en/design-rationale.md#3-lag-why-length-is-explicit-and-the-operant-dimension-debate) for the full discussion.
+**Why `length` is explicit.** The literature shows no standard sequence length (Page & Neuringer, 1985: 8; Ribeiro et al., 2022: 5; applied research: 1). The DSL exposes `length` because no single default is universally appropriate.
 
 ### 2.9 Discriminated Avoidance
 
