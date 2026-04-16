@@ -476,5 +476,115 @@
       }
     },
     "_note": "Canonical concurrent schedule with full stimulus specification: program-level reinforcer, COD parameter, and per-component discriminative stimuli."
+  },
+
+  { "_comment": "=== R-3: @training / @testing block_size (Arntzen 2012) + test-phase criterion ===" },
+
+  {
+    "id": "stimulus_training_with_block_size",
+    "description": "@training with explicit block_size (R-3) — Arntzen (2012) modal range 18–36 for stimulus equivalence research",
+    "input": "@stimulus_classes(A=[\"A1\",\"A2\",\"A3\"], B=[\"B1\",\"B2\",\"B3\"])\n@training(relations=[\"AB\"], criterion=90, consecutive_blocks=2, block_size=18)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "stimulus_classes",
+          "params": {
+            "A": ["A1", "A2", "A3"],
+            "B": ["B1", "B2", "B3"]
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "training",
+          "params": {
+            "relations": ["AB"],
+            "criterion": 90,
+            "consecutive_blocks": 2,
+            "block_size": 18
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Canonical Saunders & Green (1999) configuration: 90% / 2 consecutive blocks / 18 trials per block (Arntzen 2012 low end of modal range)."
+  },
+  {
+    "id": "stimulus_testing_with_criterion_and_block_size",
+    "description": "@testing with criterion + block_size (R-3) — symmetry with @training per Saunders & Green (1999)",
+    "input": "@testing(relations=[\"BA\"], probe_ratio=0.5, criterion=90, block_size=24)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "testing",
+          "params": {
+            "relations": ["BA"],
+            "probe_ratio": 0.5,
+            "criterion": 90,
+            "block_size": 24
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Test-phase criterion is typically 90%/1 block, distinct from training which uses consecutive_blocks."
+  },
+  {
+    "id": "stimulus_training_block_size_upper",
+    "description": "@training with block_size=36 (upper end of Arntzen 2012 modal range)",
+    "input": "@training(relations=[\"AB\"], criterion=90, consecutive_blocks=2, block_size=36)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "training",
+          "params": {
+            "relations": ["AB"],
+            "criterion": 90,
+            "consecutive_blocks": 2,
+            "block_size": 36
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Boundary: block_size=36 is within Arntzen (2012) modal range — no TRAINING_UNUSUAL_BLOCK_SIZE warning."
   }
 ]

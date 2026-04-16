@@ -92,7 +92,7 @@
       "reference": "Sidman, M., & Tailby, W. (1982). Conditional discrimination vs. matching to sample: An expansion of the testing paradigm. Journal of the Experimental Analysis of Behavior, 37(1), 5-22. https://doi.org/10.1901/jeab.1982.37-5"
     },
     "training": {
-      "description": "Training phase configuration for MTS. Specifies which stimulus relations to train and mastery criteria.",
+      "description": "Training phase configuration for MTS. Specifies which stimulus relations to train and mastery criteria. R-3 adds `block_size` for explicit block size declaration (Arntzen 2012: modal 18–36 trials per block in stimulus equivalence research).",
       "scope": ["schedule"],
       "positional": null,
       "params": {
@@ -106,24 +106,35 @@
           "minimum": 0,
           "maximum": 100,
           "required": false,
-          "description": "Mastery criterion as percent correct (e.g., 90)"
+          "description": "Mastery criterion as percent correct (e.g., 90). Saunders & Green (1999) report 90% as the modal criterion in stimulus-equivalence research."
         },
         "consecutive_blocks": {
           "type": "integer",
           "minimum": 1,
           "required": false,
           "default": 1,
-          "description": "Number of consecutive blocks meeting criterion required"
+          "description": "Number of consecutive blocks meeting criterion required. Saunders & Green (1999): 2 consecutive blocks is the modal value."
+        },
+        "block_size": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Trials per block used for the mastery criterion evaluation (added in R-3). Arntzen (2012) reports modal values 18–36 in stimulus equivalence research. When omitted, runtime defines block size per implementation or defers to `@session(block_size=...)`."
         }
       },
       "errors": {
         "TRAINING_EMPTY_RELATIONS": "relations must contain at least 1 element",
-        "TRAINING_INVALID_CRITERION": "criterion must be 0-100"
+        "TRAINING_INVALID_CRITERION": "criterion must be 0-100",
+        "TRAINING_NONPOSITIVE_BLOCK_SIZE": "block_size must be a positive integer"
       },
-      "reference": "Sidman, M. (1971). Reading and auditory-visual equivalences. Journal of Speech and Hearing Research, 14(1), 5-13."
+      "warnings": {
+        "TRAINING_UNUSUAL_BLOCK_SIZE": "block_size outside typical stimulus-equivalence range 18–36 (Arntzen 2012)",
+        "TRAINING_BLOCK_SIZE_CONFLICTS_SESSION": "both @training(block_size=...) and @session(block_size=...) specified with different values — runtime must disambiguate"
+      },
+      "reference": "Sidman, M. (1971). Reading and auditory-visual equivalences. Journal of Speech and Hearing Research, 14(1), 5-13. https://doi.org/10.1044/jshr.1401.05 ; Saunders, K. J., & Green, G. (1999). A discrimination analysis of training-structure effects on stimulus equivalence outcomes. JEAB, 72(1), 117-137. https://doi.org/10.1901/jeab.1999.72-117 ; Arntzen, E. (2012). Training and testing parameters in formation of stimulus equivalence. European Journal of Behavior Analysis, 13(1), 123-135. https://doi.org/10.1080/15021149.2012.11434412"
     },
     "testing": {
-      "description": "Testing phase configuration for MTS. Specifies which relations to test and probe parameters.",
+      "description": "Testing phase configuration for MTS. Specifies which relations to test and probe parameters. R-3 adds `block_size` and `criterion` for symmetry with @training, reflecting Saunders & Green (1999) recommendation that test-phase criteria be explicitly declared (typically 90% correct over 1 block for test trials).",
       "scope": ["schedule"],
       "positional": null,
       "params": {
@@ -138,14 +149,32 @@
           "maximum": 1,
           "required": false,
           "default": 1.0,
-          "description": "Proportion of probe (unreinforced) trials (1.0 = all probes)"
+          "description": "Proportion of probe (unreinforced) trials (1.0 = all probes). Fields et al. (1997): 0.5 is typical when baseline trials remain reinforced."
+        },
+        "criterion": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "required": false,
+          "description": "Test-phase mastery criterion as percent correct (added in R-3). Saunders & Green (1999): typically 90% over 1 block for test trials, distinct from training-phase `criterion` which typically spans multiple consecutive blocks."
+        },
+        "block_size": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Trials per test block (added in R-3). Arntzen (2012): modal 18–36 for equivalence testing. Complements @session(block_size) for schedule-wide declaration."
         }
       },
       "errors": {
         "TESTING_EMPTY_RELATIONS": "relations must contain at least 1 element",
-        "TESTING_INVALID_PROBE_RATIO": "probe_ratio must be 0-1"
+        "TESTING_INVALID_PROBE_RATIO": "probe_ratio must be 0-1",
+        "TESTING_INVALID_CRITERION": "criterion must be 0-100",
+        "TESTING_NONPOSITIVE_BLOCK_SIZE": "block_size must be a positive integer"
       },
-      "reference": "Sidman, M., & Tailby, W. (1982). Conditional discrimination vs. matching to sample: An expansion of the testing paradigm. Journal of the Experimental Analysis of Behavior, 37(1), 5-22. https://doi.org/10.1901/jeab.1982.37-5"
+      "warnings": {
+        "TESTING_UNUSUAL_BLOCK_SIZE": "block_size outside typical stimulus-equivalence range 18–36 (Arntzen 2012)"
+      },
+      "reference": "Sidman, M., & Tailby, W. (1982). Conditional discrimination vs. matching to sample: An expansion of the testing paradigm. Journal of the Experimental Analysis of Behavior, 37(1), 5-22. https://doi.org/10.1901/jeab.1982.37-5 ; Saunders, K. J., & Green, G. (1999). https://doi.org/10.1901/jeab.1999.72-117 ; Arntzen, E. (2012). https://doi.org/10.1080/15021149.2012.11434412"
     }
   }
 }
