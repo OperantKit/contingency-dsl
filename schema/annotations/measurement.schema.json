@@ -4,7 +4,7 @@
   "title": "measurement-annotator",
   "description": "JEAB Measurement category. Declares when and how the effect of the Core contingency is read: session termination rules, steady-state criteria, and baseline measurement conditions.",
   "category": "Measurement",
-  "version": "1.2",
+  "version": "1.0",
   "status": "Stable",
 
   "keywords": {
@@ -407,6 +407,90 @@
         "WARMUP_EXCLUDE_EXCEEDS_SESSION": "duration must be less than @session_end time (if both are declared)"
       },
       "reference": "Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement. Appleton-Century-Crofts."
+    },
+
+    "session": {
+      "description": "Trial-based session structure declaration (added by R-7 Phase 2). Specifies the structural/volumetric organization of trials per session — distinct from @session_end (which specifies termination rules). Used primarily for MTS / GoNoGo / DMTS and other trial-based procedures where session length is reported in JEAB Method sections as 'N trials per session' or 'K blocks of M trials'.",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "trials": {
+          "type": "integer",
+          "minimum": 1,
+          "required_unless_present": ["blocks"],
+          "description": "Total number of trials per session. Required unless both `blocks` and `block_size` are given (in which case trials = blocks × block_size is computed)."
+        },
+        "blocks": {
+          "type": "integer",
+          "minimum": 1,
+          "required": false,
+          "description": "Number of trial blocks per session. If given, `block_size` must also be given."
+        },
+        "block_size": {
+          "type": "integer",
+          "minimum": 1,
+          "required_if": { "blocks": "present" },
+          "description": "Trials per block. Arntzen (2012) reports that the modal block size in stimulus equivalence research is 18–36 trials."
+        }
+      },
+      "errors": {
+        "SESSION_MISSING_PARAM": "at least one of `trials`, or (`blocks` and `block_size`), must be specified",
+        "SESSION_BLOCKS_WITHOUT_BLOCK_SIZE": "`blocks` was specified but `block_size` was not — both are required when declaring block structure",
+        "SESSION_BLOCK_TRIALS_MISMATCH": "when `trials`, `blocks`, and `block_size` are all given, trials must equal blocks × block_size",
+        "SESSION_NONPOSITIVE_TRIALS": "trials must be a positive integer",
+        "SESSION_NONPOSITIVE_BLOCKS": "blocks must be a positive integer",
+        "SESSION_NONPOSITIVE_BLOCK_SIZE": "block_size must be a positive integer"
+      },
+      "warnings": {
+        "SESSION_OVERLAPS_SESSION_END": "both @session and @session_end declared — runtime must reconcile trial-count vs time/reinforcer termination (OR semantics: whichever first)",
+        "SESSION_UNUSUAL_BLOCK_SIZE": "block_size outside typical stimulus-equivalence research range (18–36; Arntzen 2012)"
+      },
+      "reference": "Arntzen, E. (2012). Training and testing parameters in formation of stimulus equivalence: Methodological issues. European Journal of Behavior Analysis, 13(1), 123-135. https://doi.org/10.1080/15021149.2012.11434412"
+    },
+
+    "probe_policy": {
+      "description": "Probe/baseline trial-mixing policy for stimulus-equivalence testing and related paradigms (added by R-7 Phase 2). Strongly defines the semantics of probe trial interspersion with baseline-reinforced trials, the probe ratio, and the ordering regime. Supersedes the weakly-defined `@test_criterion.baseline_reinforced` (the latter is retained as an alias for backward compatibility).",
+      "scope": ["program"],
+      "positional": null,
+      "params": {
+        "baseline_reinforced": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "Whether baseline (trained) trials within the probe session continue to receive their training-phase consequence schedule. Fields et al. (1997) recommend true to prevent extinction artifacts during equivalence testing."
+        },
+        "probe_ratio": {
+          "type": "real",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "required": false,
+          "default": 0.5,
+          "description": "Fraction of session trials that are probe trials. Typical value is 0.5 (50% probe / 50% baseline; Fields et al. 1997). 1.0 corresponds to all-probe (risk: extinction)."
+        },
+        "interspersed": {
+          "type": "boolean",
+          "required": false,
+          "default": true,
+          "description": "If true, baseline and probe trials are mixed at the trial level (pseudo-random). If false, they are presented in blocks (separated)."
+        },
+        "order": {
+          "type": "string",
+          "enum": ["random", "blocked", "progressive"],
+          "required": false,
+          "default": "random",
+          "description": "Ordering regime for probe introduction. 'random' = trial-level random mixing; 'blocked' = probe block(s) after baseline block(s); 'progressive' = gradually increasing probe ratio across sessions (simple-to-complex protocol; Arntzen 2012)."
+        }
+      },
+      "errors": {
+        "PROBE_POLICY_INVALID_RATIO": "probe_ratio must be in [0.0, 1.0]",
+        "PROBE_POLICY_UNKNOWN_ORDER": "order value not in enum",
+        "PROBE_POLICY_INCONSISTENT_INTERSPERSED_ORDER": "interspersed=true is incompatible with order='blocked' (blocked ordering implies non-interspersed)"
+      },
+      "warnings": {
+        "PROBE_POLICY_EXTINCTION_RISK": "baseline_reinforced=false with probe_ratio < 1.0 — baseline trials run in extinction, which may confound equivalence emergence measurement",
+        "PROBE_POLICY_ALL_PROBE": "probe_ratio=1.0 — entire session runs in extinction (no training trials); acceptable for single-session probe testing but risky for longer sessions"
+      },
+      "reference": "Fields, L., Reeve, K. F., Rosen, D., Varelas, A., Adams, B. J., Belanich, J., & Hobbie, S. A. (1997). Using the simultaneous protocol to study equivalence class formation: The facilitating effects of nodal number and size of previously established equivalence classes. Journal of the Experimental Analysis of Behavior, 67(3), 367-389. https://doi.org/10.1901/jeab.1997.67-367"
     }
   },
 

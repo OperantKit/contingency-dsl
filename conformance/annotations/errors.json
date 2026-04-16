@@ -475,5 +475,122 @@
       "type": "SemanticError",
       "code": "BRIEF_NEGATIVE_DURATION"
     }
+  },
+
+  { "_comment": "=== R-7 Phase 2: @session errors ===" },
+
+  {
+    "id": "error_session_missing_param",
+    "description": "@session requires at least one of `trials` or (`blocks` and `block_size`)",
+    "input": "@session()\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_MISSING_PARAM"
+    }
+  },
+  {
+    "id": "error_session_blocks_without_block_size",
+    "description": "@session with `blocks` but no `block_size`",
+    "input": "@session(blocks=6)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_BLOCKS_WITHOUT_BLOCK_SIZE"
+    }
+  },
+  {
+    "id": "error_session_block_trials_mismatch",
+    "description": "@session with inconsistent trials / (blocks × block_size)",
+    "input": "@session(trials=72, blocks=6, block_size=10)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_BLOCK_TRIALS_MISMATCH"
+    }
+  },
+  {
+    "id": "error_session_nonpositive_trials",
+    "description": "@session trials must be a positive integer",
+    "input": "@session(trials=0)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_NONPOSITIVE_TRIALS"
+    }
+  },
+  {
+    "id": "error_session_negative_blocks",
+    "description": "@session blocks must be a positive integer",
+    "input": "@session(blocks=-1, block_size=12)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "SESSION_NONPOSITIVE_BLOCKS"
+    }
+  },
+
+  { "_comment": "=== R-7 Phase 2: @probe_policy errors ===" },
+
+  {
+    "id": "error_probe_policy_invalid_ratio_above_one",
+    "description": "@probe_policy probe_ratio must be in [0.0, 1.0]",
+    "input": "@probe_policy(probe_ratio=1.5)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PROBE_POLICY_INVALID_RATIO"
+    }
+  },
+  {
+    "id": "error_probe_policy_invalid_ratio_negative",
+    "description": "@probe_policy probe_ratio cannot be negative",
+    "input": "@probe_policy(probe_ratio=-0.1)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PROBE_POLICY_INVALID_RATIO"
+    }
+  },
+  {
+    "id": "error_probe_policy_unknown_order",
+    "description": "@probe_policy order must be one of: random, blocked, progressive",
+    "input": "@probe_policy(order=\"interleaved\")\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PROBE_POLICY_UNKNOWN_ORDER"
+    }
+  },
+  {
+    "id": "error_probe_policy_inconsistent_interspersed_order",
+    "description": "@probe_policy interspersed=true is incompatible with order='blocked'",
+    "input": "@probe_policy(interspersed=true, order=\"blocked\")\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "PROBE_POLICY_INCONSISTENT_INTERSPERSED_ORDER"
+    }
+  },
+
+  { "_comment": "=== R-3: @training / @testing block_size errors ===" },
+
+  {
+    "id": "error_training_nonpositive_block_size",
+    "description": "@training block_size must be a positive integer",
+    "input": "@training(relations=[\"AB\"], block_size=0)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TRAINING_NONPOSITIVE_BLOCK_SIZE"
+    }
+  },
+  {
+    "id": "error_testing_nonpositive_block_size",
+    "description": "@testing block_size must be a positive integer",
+    "input": "@testing(relations=[\"BA\"], block_size=-5)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TESTING_NONPOSITIVE_BLOCK_SIZE"
+    }
+  },
+  {
+    "id": "error_testing_invalid_criterion",
+    "description": "@testing criterion must be 0-100 (R-3)",
+    "input": "@testing(relations=[\"BA\"], criterion=150)\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TESTING_INVALID_CRITERION"
+    }
   }
 ]

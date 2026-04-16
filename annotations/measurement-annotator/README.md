@@ -22,12 +22,13 @@ annotator. This README documents the DSL project's recommended set.
 
 ## Status
 
-`Stable` (v1.2, 2026-04-14)
+`Stable` (v1.0, 2026-04-17)
 
-Lifecycle history:
-- **v1.0** (2026-04-12) — Minimal set: `@session_end`, `@baseline`, `@steady_state`
-- **v1.1** (2026-04-13) — Extended: `@dependent_measure`, `@training_volume`, `@microstructure`
-- **v1.2** (2026-04-13) — Complete: `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude`. `future_keywords` emptied.
+Lifecycle history (all R-series additions tracked as v1.0 features pre-freeze):
+- 2026-04-12 — Minimal set: `@session_end`, `@baseline`, `@steady_state`
+- 2026-04-13 — Extended: `@dependent_measure`, `@training_volume`, `@microstructure`
+- 2026-04-13 — Complete: `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude`. `future_keywords` emptied.
+- 2026-04-17 — Trial-based session structure and equivalence-probe policy (R-7 Phase 2): `@session`, `@probe_policy`.
 
 ---
 
@@ -51,6 +52,8 @@ Lifecycle history:
 | `@logging` | Event-level data recording specification | `@logging(events=["response", "reinforcer"], format="jsonl", precision="ms")` |
 | `@iri_window` | Inter-reinforcement interval analysis | `@iri_window(bin_width=5s, normalize="proportion", track_preceding_iri=true)` |
 | `@warmup_exclude` | Session-onset exclusion for analysis | `@warmup_exclude(duration=5min, scope="analysis")` |
+| `@session` | Trial-based session structure (added by R-7 Phase 2) | `@session(trials=72)` / `@session(blocks=6, block_size=12)` |
+| `@probe_policy` | Equivalence-probe mixing policy (added by R-7 Phase 2) | `@probe_policy(baseline_reinforced=true, probe_ratio=0.5)` |
 
 All keywords are `program`-scoped (apply to the entire session/program).
 
@@ -104,7 +107,7 @@ considered stable enough to end a phase.
 
 **Reference:** Sidman, M. (1960). *Tactics of scientific research: Evaluating experimental data in psychology*. Basic Books.
 
-### `@dependent_measure` (v1.1)
+### `@dependent_measure`
 
 Primary dependent variable declaration. Specifies which behavioral measures
 are recorded, reported, and analyzed.
@@ -118,7 +121,7 @@ are recorded, reported, and analyzed.
 
 **Reference:** Johnston, J. M., & Pennypacker, H. S. (2009). *Strategies and tactics of behavioral research* (3rd ed.). Routledge.
 
-### `@training_volume` (v1.1)
+### `@training_volume`
 
 Cumulative training exposure tracking. Critical for overtraining paradigms
 and habit formation research.
@@ -132,7 +135,7 @@ and habit formation research.
 
 **Reference:** Adams, C. D., & Dickinson, A. (1981). Instrumental responding following reinforcer devaluation. *Quarterly Journal of Experimental Psychology*, *33B*(2), 109-121. https://doi.org/10.1080/14640748108400816
 
-### `@microstructure` (v1.1)
+### `@microstructure`
 
 Response microstructure measurement parameters. Configures fine-grained
 temporal analysis of response patterns.
@@ -149,7 +152,7 @@ temporal analysis of response patterns.
 
 **Reference:** Shull, R. L., Gaynor, S. T., & Grimes, J. A. (2001). Response rate viewed as engagement bouts: Effects of rate of reinforcement. *Journal of the Experimental Analysis of Behavior*, *75*(3), 247-274. https://doi.org/10.1901/jeab.2001.75-247
 
-### `@phase_end` (v1.2)
+### `@phase_end`
 
 Compound phase termination criteria. Unlike `@session_end` (individual sessions)
 and `@steady_state` (stability evaluation), `@phase_end` specifies when the
@@ -166,7 +169,7 @@ experimental phase as a whole terminates.
 
 **Reference:** Sidman, M. (1960). *Tactics of scientific research: Evaluating experimental data in psychology*. Basic Books.
 
-### `@logging` (v1.2)
+### `@logging`
 
 Event-level data recording specification. Controls the granularity of data
 available for post-hoc analysis.
@@ -181,7 +184,7 @@ available for post-hoc analysis.
 
 **Reference:** Tatham, T. A., & Zurn, K. R. (1989). The MED-PC experimental apparatus programming system. *Behavior Research Methods, Instruments, & Computers*, *21*(2), 294-299. https://doi.org/10.3758/BF03205598
 
-### `@iri_window` (v1.2)
+### `@iri_window`
 
 Inter-reinforcement interval (IRI) aggregation window specification.
 Critical for timing research where IRI serves as an implicit temporal cue
@@ -198,7 +201,7 @@ distinct from the nominal schedule parameter.
 
 **Reference:** Catania, A. C., & Reynolds, G. S. (1968). A quantitative analysis of the responding maintained by interval schedules of reinforcement. Journal of the Experimental Analysis of Behavior, 11(S3), 327-383. https://doi.org/10.1901/jeab.1968.11-s327
 
-### `@warmup_exclude` (v1.2)
+### `@warmup_exclude`
 
 Warmup exclusion declaration. Specifies an initial period of each session to
 exclude from dependent variable calculations.
@@ -209,6 +212,44 @@ exclude from dependent variable calculations.
 | `scope` | `string` enum: `"analysis"`, `"logging_and_analysis"` | no | `"analysis"` | What to exclude |
 
 **Reference:** Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
+
+### `@session` (R-7 Phase 2)
+
+Trial-based session structure declaration. Specifies the structural/volumetric
+organization of trials per session — distinct from `@session_end` (which
+specifies termination rules). Used primarily for MTS / GoNoGo / DMTS and other
+trial-based procedures.
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `trials` | `integer` (≥ 1) | required unless `blocks` given | — | Total trials per session |
+| `blocks` | `integer` (≥ 1) | no | — | Number of trial blocks per session (requires `block_size`) |
+| `block_size` | `integer` (≥ 1) | required if `blocks` given | — | Trials per block (Arntzen 2012: modal 18–36) |
+
+**Consistency constraint:** when all three are given, `trials = blocks × block_size` must hold (`SESSION_BLOCK_TRIALS_MISMATCH` otherwise).
+
+**Co-existence with `@session_end`:** both may be declared. Runtime terminates
+on whichever occurs first (OR semantics). Triggers WARNING
+`SESSION_OVERLAPS_SESSION_END`.
+
+**Reference:** Arntzen, E. (2012). Training and testing parameters in formation of stimulus equivalence: Methodological issues. *European Journal of Behavior Analysis*, 13(1), 123-135. https://doi.org/10.1080/15021149.2012.11434412
+
+### `@probe_policy` (R-7 Phase 2)
+
+Probe/baseline trial-mixing policy for stimulus-equivalence testing.
+Supersedes the weakly-defined `@test_criterion.baseline_reinforced` from v1.0
+(alias retained for backward compatibility).
+
+| Parameter | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `baseline_reinforced` | `boolean` | no | `true` | Whether baseline trials continue to receive training consequence during probe session |
+| `probe_ratio` | `real` (0.0–1.0) | no | `0.5` | Fraction of session trials that are probes |
+| `interspersed` | `boolean` | no | `true` | `true` = trial-level random mix; `false` = block-level separation |
+| `order` | `string` enum: `"random"`, `"blocked"`, `"progressive"` | no | `"random"` | Ordering regime |
+
+**Consistency constraint:** `interspersed=true` conflicts with `order="blocked"` (`PROBE_POLICY_INCONSISTENT_INTERSPERSED_ORDER`).
+
+**Reference:** Fields, L., Reeve, K. F., Rosen, D., Varelas, A., Adams, B. J., Belanich, J., & Hobbie, S. A. (1997). Using the simultaneous protocol to study equivalence class formation. *JEAB*, 67(3), 367-389. https://doi.org/10.1901/jeab.1997.67-367
 
 ---
 

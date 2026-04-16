@@ -885,7 +885,7 @@
   },
   {
     "id": "measurement_v1_2_complete_preamble",
-    "description": "Complete v1.2 measurement preamble: all 10 keywords for a comprehensive timing/habit study",
+    "description": "Complete measurement preamble: all 10 keywords for a comprehensive timing/habit study",
     "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n@dependent_measure(variables=[\"rate\", \"irt\", \"prf_pause\", \"peak_time\", \"cv\", \"consumption\", \"response_rate_ratio\"], primary=\"rate\")\n@training_volume(track=[\"sessions\", \"responses\", \"reinforcers\"], criterion_sessions=100)\n@microstructure(burst_threshold=2s, prf_pause_method=\"latency_to_first\", report=[\"irt_distribution\", \"log_survivor\", \"bout_statistics\", \"prf_pause\", \"scallop_index\"])\n@phase_end(rule=\"all\", min_sessions=20, stability=\"steady_state\", cv_threshold=0.15)\n@logging(events=[\"response\", \"reinforcer\", \"schedule_state\"], precision=\"ms\")\n@iri_window(bin_width=5s, track_preceding_iri=true, report=[\"distribution\", \"cv\", \"sequential\"])\n@warmup_exclude(duration=5min)\n\nFI30s",
     "expected": {
       "type": "Program",
@@ -979,6 +979,307 @@
         "time_unit": "s"
       }
     },
-    "_note": "v1.2 complete preamble: all 10 measurement-annotator keywords. Covers timing research (peak_time, cv, iri_window, scallop_index), habit formation (training_volume, microstructure), molecular analysis (log_survivor, reinforcement_proximity), and session management (phase_end, logging, warmup_exclude). FI 30-s as the canonical timing schedule."
+    "_note": "Complete preamble: all 10 measurement-annotator keywords. Covers timing research (peak_time, cv, iri_window, scallop_index), habit formation (training_volume, microstructure), molecular analysis (log_survivor, reinforcement_proximity), and session management (phase_end, logging, warmup_exclude). FI 30-s as the canonical timing schedule."
+  },
+
+  { "_comment": "=== R-7 Phase 2: @session (trial-based session structure) ===" },
+
+  {
+    "id": "measurement_session_trials_only",
+    "description": "@session with trials only (simplest trial-based session structure; MTS canonical pattern)",
+    "input": "@session(trials=72)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session",
+          "params": {
+            "trials": 72
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "JEAB Method-section pattern: 'Sessions consisted of 72 trials.' Structural declaration, not a termination rule per se."
+  },
+  {
+    "id": "measurement_session_blocks_structure",
+    "description": "@session with blocks + block_size (Arntzen 2012 recommended equivalence-training structure)",
+    "input": "@session(blocks=6, block_size=12)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session",
+          "params": {
+            "blocks": 6,
+            "block_size": 12
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "6 blocks × 12 trials = 72 trials (desugared). Arntzen (2012) reports modal block size 18-36; 12 is below-range (triggers SESSION_UNUSUAL_BLOCK_SIZE warning, but still valid)."
+  },
+  {
+    "id": "measurement_session_trials_with_block_structure",
+    "description": "@session with all three parameters (trials + blocks + block_size) — consistency required",
+    "input": "@session(trials=72, blocks=6, block_size=12)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session",
+          "params": {
+            "trials": 72,
+            "blocks": 6,
+            "block_size": 12
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Consistency check: trials == blocks × block_size (72 == 6 × 12). When consistent, all three may coexist."
+  },
+  {
+    "id": "measurement_session_with_session_end",
+    "description": "@session and @session_end coexist — OR termination semantics (whichever first)",
+    "input": "@session(trials=72)\n@session_end(rule=\"time_only\", time=60min)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session",
+          "params": {
+            "trials": 72
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "session_end",
+          "params": {
+            "rule": "time_only",
+            "time": { "value": 60, "time_unit": "min" }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Triggers SESSION_OVERLAPS_SESSION_END warning. Runtime terminates on whichever occurs first: 72 trials or 60 minutes."
+  },
+
+  { "_comment": "=== R-7 Phase 2: @probe_policy (equivalence-testing probe mixing) ===" },
+
+  {
+    "id": "measurement_probe_policy_defaults",
+    "description": "@probe_policy with all defaults (baseline_reinforced=true, probe_ratio=0.5, interspersed=true, order='random')",
+    "input": "@probe_policy()\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "probe_policy",
+          "params": {}
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Empty argument list: all defaults apply per schema (Fields et al. 1997 recommended settings)."
+  },
+  {
+    "id": "measurement_probe_policy_fields_1997_canonical",
+    "description": "@probe_policy matching Fields et al. (1997) canonical settings (50/50 mix, baseline reinforced)",
+    "input": "@probe_policy(baseline_reinforced=true, probe_ratio=0.5, interspersed=true, order=\"random\")\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "probe_policy",
+          "params": {
+            "baseline_reinforced": true,
+            "probe_ratio": 0.5,
+            "interspersed": true,
+            "order": "random"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Explicitly-written defaults are valid (redundant but self-documenting)."
+  },
+  {
+    "id": "measurement_probe_policy_blocked_order",
+    "description": "@probe_policy with blocked ordering (baseline block then probe block)",
+    "input": "@probe_policy(probe_ratio=0.25, interspersed=false, order=\"blocked\")\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "probe_policy",
+          "params": {
+            "probe_ratio": 0.25,
+            "interspersed": false,
+            "order": "blocked"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Blocked protocol: explicitly non-interspersed with non-random order. Used in simple-to-complex protocol variants."
+  },
+  {
+    "id": "measurement_probe_policy_progressive",
+    "description": "@probe_policy with progressive order (simple-to-complex; Arntzen 2012)",
+    "input": "@probe_policy(baseline_reinforced=true, probe_ratio=0.5, order=\"progressive\")\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "probe_policy",
+          "params": {
+            "baseline_reinforced": true,
+            "probe_ratio": 0.5,
+            "order": "progressive"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Arntzen (2012) simple-to-complex protocol: probe ratio increases across sessions. Runtime schedules the progression."
+  },
+  {
+    "id": "measurement_session_probe_policy_combined",
+    "description": "@session + @probe_policy together — canonical equivalence-testing preamble",
+    "input": "@session(blocks=6, block_size=12)\n@probe_policy(baseline_reinforced=true, probe_ratio=0.5)\n\nMTS(comparisons=3, consequence=EXT, ITI=5s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "session",
+          "params": {
+            "blocks": 6,
+            "block_size": 12
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "probe_policy",
+          "params": {
+            "baseline_reinforced": true,
+            "probe_ratio": 0.5
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrialBased",
+        "trial_type": "MTS",
+        "comparisons": 3,
+        "consequence": { "type": "Special", "kind": "CRF" },
+        "incorrect": { "type": "Special", "kind": "EXT" },
+        "ITI": 5.0,
+        "ITI_unit": "s",
+        "mts_type": "arbitrary"
+      }
+    },
+    "_note": "Canonical MTS equivalence-testing session declaration: 72 trials in 6 blocks, 50% probe intermixed, baseline reinforced. Matches Fields et al. (1997) + Arntzen (2012) recommendations."
   }
 ]
