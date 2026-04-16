@@ -70,8 +70,8 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `PCTL_DIR_VAL` | below, above | percentile direction values (Core-Stateful) |
 | `ADJ_ARG_KW` | start, step, min, max | adjusting keyword arg names (Core-Stateful) |
 | `INTERLOCK_ARG_KW` | R0, T | interlocking keyword arg names (Core-Stateful) |
-| `KW_INTERLEAVE` | interleave | shaping interleave keyword (Experiment v2.x) |
-| `KW_NO_TRAILING` | no_trailing | shaping interleave trailing-suppression modifier (Experiment v2.x) |
+| `KW_INTERLEAVE` | interleave | progressive_decl interleave keyword (Experiment v2.x) |
+| `KW_NO_TRAILING` | no_trailing | progressive_decl interleave trailing-suppression modifier (Experiment v2.x) |
 
 **Lexer assumptions:**
 
@@ -1064,7 +1064,7 @@ Since `KW_PHASE` and `KW_PROGRESSIVE` are new reserved tokens not in any existin
 
 **Note on annotations:** Both `experiment` and `program` may begin with `program_annotation` (token `@`). The parser consumes all leading `@` annotations, then checks the next token. If `KW_PHASE` or `KW_PROGRESSIVE`, it is an experiment; otherwise a program. The annotations are valid for either production.
 
-### §11.2 Phase vs. Shaping
+### §11.2 Phase vs. Progressive
 
 **Decision:** Within `experiment`, choose between `phase_decl` and `progressive_decl` at each position.
 
@@ -1127,7 +1127,7 @@ All three alternatives have pairwise disjoint FIRST₁ sets.
 
 **Result:** LL(1). ∎
 
-### §11.6 Shaping Body Continuation (with interleave_decl, v2.x)
+### §11.6 Progressive Body Continuation (with interleave_decl, v2.x)
 
 The `progressive_body` production introduces a sequence of optional `interleave_decl` items between `progressive_steps+` and `phase_meta*`:
 
@@ -1176,7 +1176,7 @@ The extended grammar *G'* = Core ∪ Core-Stateful ∪ Experiment satisfies:
 1. *G'* is LL(2): all Core and Core-Stateful properties preserved; Experiment Layer is LL(1).
 2. *G'* is not LL(1): the Core PosTail LL(2) point remains.
 3. *G'* is unambiguous (corollary of 1).
-4. The shaping expansion rule (E-SHAPING / E-SHAPING-MULTI / E-SHAPING-INTERLEAVE) operates at the semantic phase and does not affect parsing.
+4. The progressive_decl expansion rule (E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE) operates at the semantic phase and does not affect parsing.
 5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
 6. The `interleave` clause (v2.x) introduces template-consumption semantics (constraint 76) and clone-label generation (constraint 63b) at the post-parse semantic phase — these do not affect grammar classification.
 

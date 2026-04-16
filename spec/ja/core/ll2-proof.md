@@ -1160,7 +1160,7 @@ KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
 1. *G'* は LL(2): すべての Core および Core-Stateful の性質を保存し、実験層は LL(1)。
 2. *G'* は LL(1) ではない: Core の PosTail LL(2) 点が残る。
 3. *G'* は曖昧性を持たない（1 の系）。
-4. shaping 展開規則（E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE）は意味論フェーズで動作し、構文解析には影響しない。
+4. progressive_decl 展開規則（E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE）は意味論フェーズで動作し、構文解析には影響しない。
 5. Phase 名（upper_ident）は識別子（小文字）およびスケジュールキーワード（大文字だが FR、VI のような複数文字組合せ）と字句的に素であり、トークンの曖昧性を防ぐ。
 6. `interleave` 句（v2.x）は構文解析後の意味論フェーズで template 消費（制約 76）と clone label 生成（制約 63b）を導入する — これらは文法分類に影響しない。
 

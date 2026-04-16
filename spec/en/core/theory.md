@@ -1708,12 +1708,14 @@ This is a fundamental constraint from the experimental analysis of behavior: the
 
 **Conclusion:** Phase sequences form a *free monoid* over the set of phases, with concatenation as the operation. This is the simplest algebraic structure that respects the temporal irreversibility of behavioral experiments.
 
-### 3.3 Shaping as Syntactic Sugar
+### 3.3 Progressive Training as Syntactic Sugar
 
-**Definition 15 (Shaping Expansion).** A `shaping` declaration with steps variable `x = [v₁, ..., vₙ]`, phase metadata `M`, and schedule template `T(x)` expands to:
+> **Terminology note.** The primitive described in this section corresponds to the Sidman (1960) / Zeiler (1977) sense of "shaping" — across-session parametric progression. In contingency-dsl v2.x, this primitive is spelled `progressive` in the surface syntax and `ProgressiveTraining` in the AST. The keyword `shaping` is reserved for the distinct Skinner (1953) / Catania (2013) sense of within-session response shaping; see `grammar.md` §3.8.4 for that primitive.
+
+**Definition 15 (Progressive Training Expansion).** A `progressive` declaration with steps variable `x = [v₁, ..., vₙ]`, phase metadata `M`, and schedule template `T(x)` expands to:
 
 ```
-⟦shaping(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
+⟦progressive(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
 ```
 
 This is analogous to `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3), operating at the experiment level rather than the schedule level.
@@ -1721,7 +1723,7 @@ This is analogous to `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3), operating a
 **Multi-variable expansion:** Given steps `x = [x₁,...,xₙ]` and `y = [y₁,...,yₙ]` (same length), the expansion zips pairwise:
 
 ```
-⟦shaping(Name, x=[x₁,...,xₙ], y=[y₁,...,yₙ], M, T(x,y))⟧
+⟦progressive(Name, x=[x₁,...,xₙ], y=[y₁,...,yₙ], M, T(x,y))⟧
   = [Phase(Name_1, M, T(x₁,y₁)), ..., Phase(Name_n, M, T(xₙ,yₙ))]
 ```
 
@@ -1729,9 +1731,9 @@ This is analogous to `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3), operating a
 
 **Non-Turing-completeness:** `steps` lists are finite literals — no loops, recursion, or arithmetic. The expansion is a pure macro substitution bounded by the list length.
 
-**Definition 16 (Shaping Expansion with Interleave).** Let a `shaping` declaration carry steps `x⃗ = (x₁=[v₁₁,…,v₁ₙ], …, xₘ=[vₘ₁,…,vₘₙ])`, phase metadata `M`, schedule template `T(x⃗)`, and an ordered list of *interleave references* `R⃗ = [r₁, …, rₖ]` (k ≥ 0). Let the boolean `trailing = ¬last(R⃗).no_trailing` (default `true`; vacuously `false` if k=0).
+**Definition 16 (Progressive Training Expansion with Interleave).** Let a `progressive` declaration carry steps `x⃗ = (x₁=[v₁₁,…,v₁ₙ], …, xₘ=[vₘ₁,…,vₘₙ])`, phase metadata `M`, schedule template `T(x⃗)`, and an ordered list of *interleave references* `R⃗ = [r₁, …, rₖ]` (k ≥ 0). Let the boolean `trailing = ¬last(R⃗).no_trailing` (default `true`; vacuously `false` if k=0).
 
-**Step 1 — Generate the base list (E-SHAPING-MULTI).**
+**Step 1 — Generate the base list (E-PROGRESSIVE-MULTI).**
 
 ```
 G = [Phase(Name_1, M, T(v⃗₁)), …, Phase(Name_n, M, T(v⃗ₙ))]
@@ -1757,7 +1759,7 @@ intersperse(B, [a₁,…,aₙ])  =  [a₁] ++ B(1) ++ [a₂] ++ B(2) ++ … ++ B
 The full expansion is then:
 
 ```
-⟦shaping(Name, x⃗, M, T(x⃗), interleave=R⃗)⟧
+⟦progressive(Name, x⃗, M, T(x⃗), interleave=R⃗)⟧
    = intercalate(B, G)   if trailing
    = intersperse(B, G)   otherwise
 ```
@@ -1766,15 +1768,15 @@ The full expansion is then:
 
 1. **Length boundedness.** `|expansion| = n + n·k` (intercalate) or `n + (n−1)·k` (intersperse). Strictly bounded by the syntactic constants `n` and `k`; non-Turing-completeness preserved.
 2. **Termination.** `clone`, `++`, `intercalate`, `intersperse` are total on finite inputs.
-3. **Identity in absence of interleave.** `R⃗ = []` reduces to E-SHAPING-MULTI: `intercalate([], G) = G`.
-4. **Annotation locality.** Cloned phases inherit only the source template's annotations and parameters. The enclosing shaping's annotations and `{ident}` placeholders affect only `T(v⃗ᵢ)` in `G`; they do not propagate into clones. This guarantees that the template `Recovery` runs identically (e.g., at a fixed reference dose) at every insertion site, regardless of which shaping it neighbors.
+3. **Identity in absence of interleave.** `R⃗ = []` reduces to E-PROGRESSIVE-MULTI: `intercalate([], G) = G`.
+4. **Annotation locality.** Cloned phases inherit only the source template's annotations and parameters. The enclosing progressive's annotations and `{ident}` placeholders affect only `T(v⃗ᵢ)` in `G`; they do not propagate into clones. This guarantees that the template `Recovery` runs identically (e.g., at a fixed reference dose) at every insertion site, regardless of which progressive_decl it neighbors.
 5. **Template consumption.** Each phase referenced in `R⃗` is removed from the standalone PhaseSequence at its declaration position; the phase exists only as the template for clones. (See grammar.ebnf constraint 76.)
 
 **Constraints invoked.**
 
 - Constraint 64 (no forward `use` references) extends to `interleave` via constraint 74 (same lookup mechanism, same error code `UNDEFINED_PHASE_REF`).
 - Constraint 63 (phase name uniqueness) extends to clone labels via constraint 63b.
-- Constraint 75 forbids self-interleave (referencing the enclosing shaping's own future generated phases).
+- Constraint 75 forbids self-interleave (referencing the enclosing progressive_decl's own future generated phases).
 - Constraint 76 specifies the template-consumption semantics that excludes the source phase from the standalone PhaseSequence.
 
 **Reference.** John, W. S., & Nader, M. A. (2016). *Behavioral economic analysis of the reinforcing strength of cocaine* style dose-response paradigms — "each dose was followed by a return to baseline" — map directly onto `intercalate(Recovery, [Dose₁, …, Dose₆])`, yielding the canonical 6 dose × 6 recovery (12 phase) sequence with no manual phase enumeration.

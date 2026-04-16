@@ -1560,21 +1560,23 @@ PhaseSequence = Phase⁺
 
 **結論:** フェーズ列はフェーズの集合上の*自由モノイド*を形成し、連結が演算である。
 
-### 3.3 Shaping は構文糖衣
+### 3.3 Progressive Training は構文糖衣
 
-**定義 15（Shaping 展開）。** steps 変数 `x = [v₁, ..., vₙ]`、フェーズメタデータ `M`、スケジュールテンプレート `T(x)` を持つ `shaping` 宣言は以下に展開される:
+> **用語注記。** 本節で扱う primitive は Sidman (1960) / Zeiler (1977) 意味の "shaping"（セッション間パラメータ漸進）に対応する。contingency-dsl v2.x では表層構文で `progressive`、AST で `ProgressiveTraining` と綴る。キーワード `shaping` は別の Skinner (1953) / Catania (2013) 意味（セッション内反応形成）のために予約されている。その primitive は `grammar.md` §3.8.4 を参照。
+
+**定義 15（Progressive Training 展開）。** steps 変数 `x = [v₁, ..., vₙ]`、フェーズメタデータ `M`、スケジュールテンプレート `T(x)` を持つ `progressive` 宣言は以下に展開される:
 
 ```
-⟦shaping(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
+⟦progressive(Name, x=[v₁,...,vₙ], M, T(x))⟧ = [Phase(Name_1, M, T(v₁)), ..., Phase(Name_n, M, T(vₙ))]
 ```
 
 これは `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3) のスケジュール層における類似物であり、実験層で動作する。
 
 **非チューリング完全性:** `steps` リストは有限リテラル — ループ・再帰・算術なし。展開はリスト長で有界な純粋マクロ置換。
 
-**定義 16（Interleave 付き Shaping 展開）。** steps `x⃗ = (x₁=[v₁₁,…,v₁ₙ], …, xₘ=[vₘ₁,…,vₘₙ])`、フェーズメタデータ `M`、スケジュールテンプレート `T(x⃗)`、および順序付き interleave 参照リスト `R⃗ = [r₁, …, rₖ]`（k ≥ 0）を持つ `shaping` 宣言を考える。ブール値 `trailing = ¬last(R⃗).no_trailing`（既定 `true`、k=0 のとき形式上 `false`）。
+**定義 16（Interleave 付き Progressive Training 展開）。** steps `x⃗ = (x₁=[v₁₁,…,v₁ₙ], …, xₘ=[vₘ₁,…,vₘₙ])`、フェーズメタデータ `M`、スケジュールテンプレート `T(x⃗)`、および順序付き interleave 参照リスト `R⃗ = [r₁, …, rₖ]`（k ≥ 0）を持つ `progressive` 宣言を考える。ブール値 `trailing = ¬last(R⃗).no_trailing`（既定 `true`、k=0 のとき形式上 `false`）。
 
-**ステップ 1 — 基底リストの生成（E-SHAPING-MULTI）。**
+**ステップ 1 — 基底リストの生成（E-PROGRESSIVE-MULTI）。**
 
 ```
 G = [Phase(Name_1, M, T(v⃗₁)), …, Phase(Name_n, M, T(v⃗ₙ))]
@@ -1600,7 +1602,7 @@ intersperse(B, [a₁,…,aₙ])  =  [a₁] ++ B(1) ++ [a₂] ++ B(2) ++ … ++ B
 完全な展開は:
 
 ```
-⟦shaping(Name, x⃗, M, T(x⃗), interleave=R⃗)⟧
+⟦progressive(Name, x⃗, M, T(x⃗), interleave=R⃗)⟧
    = intercalate(B, G)   if trailing
    = intersperse(B, G)   それ以外
 ```
@@ -1609,15 +1611,15 @@ intersperse(B, [a₁,…,aₙ])  =  [a₁] ++ B(1) ++ [a₂] ++ B(2) ++ … ++ B
 
 1. **長さの有界性。** `|expansion| = n + n·k`（intercalate）または `n + (n−1)·k`（intersperse）。構文的定数 `n` と `k` で厳密に有界 — 非チューリング完全性は保存される。
 2. **停止性。** `clone`、`++`、`intercalate`、`intersperse` はいずれも有限入力上で全域。
-3. **interleave 不在時の恒等性。** `R⃗ = []` の場合、E-SHAPING-MULTI に帰着する: `intercalate([], G) = G`。
-4. **アノテーション局所性。** clone された phase は template の annotation と parameter のみを継承する。外側の shaping の annotation と `{ident}` placeholder は `G` 内の `T(v⃗ᵢ)` のみに作用し、clone には伝播しない。これにより、複数の shaping から参照された Recovery template はどの挿入位置でも同一に動作する（例: 固定参照用量で実行される）。
+3. **interleave 不在時の恒等性。** `R⃗ = []` の場合、E-PROGRESSIVE-MULTI に帰着する: `intercalate([], G) = G`。
+4. **アノテーション局所性。** clone された phase は template の annotation と parameter のみを継承する。外側の progressive_decl の annotation と `{ident}` placeholder は `G` 内の `T(v⃗ᵢ)` のみに作用し、clone には伝播しない。これにより、複数の progressive_decl から参照された Recovery template はどの挿入位置でも同一に動作する（例: 固定参照用量で実行される）。
 5. **Template 消費。** `R⃗` で参照された各 phase は宣言位置における standalone PhaseSequence から除去される。当該 phase は clone のための template としてのみ存在する（grammar.ebnf 制約 76 参照）。
 
 **呼び出される制約。**
 
 - 制約 64（`use` の前方参照禁止）は制約 74 を介して `interleave` にも適用される（同じ lookup メカニズム、同じエラーコード `UNDEFINED_PHASE_REF`）。
 - 制約 63（phase 名の一意性）は制約 63b を介して clone label にも拡張される。
-- 制約 75 は self-interleave（外側の shaping 自身の生成 phase を参照すること）を禁止する。
+- 制約 75 は self-interleave（外側の progressive_decl 自身の生成 phase を参照すること）を禁止する。
 - 制約 76 は、template 参照された phase を standalone PhaseSequence から除外する template 消費の意味論を規定する。
 
 **参考文献。** John, W. S., & Nader, M. A. (2016). *Behavioral economic analysis of the reinforcing strength of cocaine* 型の用量反応パラダイム — 「each dose was followed by a return to baseline」 — は `intercalate(Recovery, [Dose₁, …, Dose₆])` に直接写像され、手書きの phase 列挙なしに正準的な 6 用量 × 6 recovery（12 phase）列を得る。
