@@ -158,8 +158,111 @@ strength on a different axis.
 
 ---
 
+## 5. Ψ Restructure Rationale (2026-04-17)
+
+The earlier version of this document (§§1–4 above) evaluated
+annotation-architecture alternatives at the point when the DSL was
+organized in a five-layer structure (Core / Core-Stateful /
+Core-TrialBased / Schedule Extension / Annotation). On 2026-04-17 the
+directory structure was restructured to the Ψ six-layer architecture
+(Foundations / Operant / Respondent / Composed / Experiment /
+Annotation); see [versioning.md §0](versioning.md) for the design
+checkpoint record and [design-philosophy.md §2](design-philosophy.md)
+for the canonical layer definitions.
+
+This section records why the Ψ structure was chosen over the two other
+architectures considered at that decision point.
+
+### 5.1 Alternatives Considered
+
+**Case ρ (rejected)** — abstract axes at the top-level directory:
+`core-paradigm/`, `core-execution/`, `core-composition/`,
+`core-cross-paradigm/`. Each top-level directory was named by an
+abstract engineering axis (paradigm, execution mode, composition,
+cross-paradigm), independent of the scientific categories it covered.
+
+- **Strength:** Formally orthogonal; each axis is a clean dimension of
+  variation.
+- **Weakness:** The naming is too abstract for the target audience (EAB
+  researchers and students). `core-paradigm/` does not communicate that
+  this is where operant vs. respondent procedures live; `core-execution/`
+  does not communicate that this is where Percentile / Adjusting /
+  Interlocking / MTS live. The naming gives operant and respondent
+  symmetric weight, which misrepresents the actual coverage target: the
+  DSL is aimed primarily at operant procedures reported in JEAB, with
+  respondent procedures represented only at the minimum necessary level
+  in the main package and depth delegated to a companion package.
+
+**Case Ω (rejected)** — respondent primitives as annotations only: the
+respondent layer is collapsed into an annotation package (`@cs`, `@us`,
+`@pair`, `@contingency`, etc.) attached to schedule expressions or to
+`no_schedule` phases. No first-class respondent grammar exists.
+
+- **Strength:** Minimal grammar impact; existing Core + annotations
+  suffice.
+- **Weakness:** The CS-US contingency structure (Pavlov, 1927; Rescorla,
+  1967, 1968) is **grammar-level**, not metadata-level. An
+  `ExplicitlyUnpaired` or `Contingency(p_us_given_cs, p_us_given_no_cs)`
+  procedure defines a structural relationship between stimulus events;
+  changing that structure changes what the procedure is, not just how
+  it is described. This is the same boundary test that separates
+  schedule variants from annotations (design-philosophy §5.5). Case Ω
+  fails the test: it would place grammatically load-bearing constructs
+  in a layer whose contract guarantees they do not affect evaluation.
+
+**Case Ψ (chosen)** — scientific-category naming with an extension point
+for respondent depth: the top-level directories are named by the
+scientific categories they cover (foundations / operant / respondent /
+composed / experiment / annotations). The Operant layer carries the
+largest volume; the Respondent layer is deliberately minimal (Tier A
+only) and exposes an extension point (`ExtensionRespondentPrimitive`)
+through which the companion package `contingency-respondent-dsl`
+supplies Tier B primitives.
+
+- **Strength:** Directory names are immediately readable to the target
+  audience; the operant-vs-respondent split matches how the discipline
+  organizes itself (Skinner, 1938; Pavlov, 1927). The Composed layer
+  formalizes Rescorla & Solomon's (1967) two-process composition as a
+  first-class sibling, not a sub-case.
+- **Weakness (accepted):** The directory tree is asymmetric in volume
+  (operant is heavy, respondent is thin). This asymmetry is intentional
+  and explicitly documented in design-philosophy §2 as an EAB-centric
+  weighting.
+
+### 5.2 EAB-Centric Weighting
+
+The Ψ volume distribution reflects the primary coverage target:
+
+- **Operant layer — largest volume.** Six schedule files
+  (`operant/schedules/{ratio,interval,time,differential,compound,progressive}.md`)
+  plus `operant/stateful/{percentile,adjusting,interlocking}.md` plus
+  `operant/trial-based/{mts,go-nogo}.md`. This mirrors the distribution
+  of procedures reported in JEAB since Ferster & Skinner (1957).
+- **Respondent layer — minimal.** Tier A primitives only; deeper
+  Pavlovian procedures (blocking, overshadowing, latent inhibition,
+  renewal, reinstatement, etc.) are delegated to
+  `contingency-respondent-dsl` through the Respondent extension point.
+- **Composed layer — limited initial set, open-ended.** Five initial
+  procedures (conditioned suppression, PIT, autoshaping, omission,
+  two-process theory); further composed procedures admitted on a
+  case-by-case basis per the `composed/` admission criteria.
+
+### 5.3 Scientific Grounding
+
+The Ψ layer names and distinctions derive from primary sources:
+
+- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century. — operant three-term contingency
+- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press. — respondent two-term contingency
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, 74(1), 71–80. https://doi.org/10.1037/h0024109 — contingency space
+- Rescorla, R. A. (1968). Probability of shock in the presence and absence of CS in fear conditioning. *Journal of Comparative and Physiological Psychology*, 66(1), 1–5. https://doi.org/10.1037/h0025984 — contingency parameterization
+- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475 — composed-layer justification
+- Catania, A. C. (2013). *Learning* (5th ed.). Sloan. — unified treatment of contingency relations across operant and respondent
+
+---
+
 ## Relationship to Other Documents
 
 - [design-philosophy.md](design-philosophy.md) — Canonical design intent (superordinate)
 - [evaluation-criteria.md](evaluation-criteria.md) — Axis definitions used in §3
 - [architecture.md](architecture.md) — Structural overview of the current design
+- [versioning.md §0](versioning.md) — Design-change log including the 2026-04-17 Ψ checkpoint
