@@ -355,6 +355,18 @@
     "error": "MTS_INVALID_DELAY"
   },
   {
+    "id": "mts_error_delay_negative_ms",
+    "description": "M12: negative delay in milliseconds — same rule across all time units",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=-500ms)",
+    "error": "MTS_INVALID_DELAY"
+  },
+  {
+    "id": "mts_error_delay_negative_min",
+    "description": "M12: negative delay in minutes — same rule across all time units",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=-2min)",
+    "error": "MTS_INVALID_DELAY"
+  },
+  {
     "id": "mts_error_delay_no_time_unit",
     "description": "M13: delay must include a time unit (s/ms/min) — dimensionless delay is invalid",
     "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, delay=5)",
@@ -391,6 +403,12 @@
     "id": "mts_error_correction_fractional",
     "description": "M15: correction integer limit must be an integer (not fractional)",
     "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=2.5)",
+    "error": "MTS_INVALID_CORRECTION"
+  },
+  {
+    "id": "mts_error_correction_integer_with_fractional_form",
+    "description": "M15: numerically integer but written as float (correction=1.0) — still rejected as MTS_INVALID_CORRECTION because lexer classifies it as NUMBER-with-fractional-form, not INTEGER",
+    "input": "MTS(comparisons=3, consequence=CRF, ITI=5s, correction=1.0)",
     "error": "MTS_INVALID_CORRECTION"
   },
   {
