@@ -392,10 +392,11 @@ Conc(baseline, probe)
 #### 3.8.3 Shaping（構文糖衣）
 
 ```bnf
-<shaping_decl>  ::= "shaping" <phase_name> ":" <shaping_body>
-<shaping_body>  ::= <shaping_steps>+ <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
-<shaping_steps> ::= "steps" <ident> "=" "[" <number_list> "]"
-<number_list>   ::= <number> ("," <number>)*
+<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>    ::= <shaping_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<shaping_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
+<number_list>     ::= <number> ("," <number>)*
+<interleave_decl> ::= "interleave" <phase_name> [ "no_trailing" ]
 ```
 
 `shaping` はフェーズ宣言の列に脱糖される。`Repeat(n, S)` → `Tand(S, ..., S)` と同じ戦略。スケジュール式とアノテーション値は `steps` 変数を参照する `{ident}` プレースホルダーを含むことができる。
@@ -417,6 +418,28 @@ phase Name_n: <meta>  <schedule_template(vₙ)>
 ```
 
 **複数変数展開（E-SHAPING-MULTI）:** 複数の `steps` 宣言がある場合、全リストの長さは同一でなければならない。変数はペアワイズで zip される: `(x₁, y₁), (x₂, y₂), ...`。
+
+**Interleave 展開（E-SHAPING-INTERLEAVE）。** 任意の `interleave` 句は、生成された phase の各ペアの間（既定では最後の phase の後にも）に、事前宣言された phase の clone を挿入する — *intercalate* 意味論。参照された phase は **template** となり、宣言位置の standalone PhaseSequence には現れない。各 clone は自動生成ラベル `<ref>_after_<Name>_<i>`（1-based）を持つ。例: `Recovery_after_DoseResponse_3`。
+
+```
+shaping Name:
+  steps x = [v₁, ..., vₙ]
+  interleave R          -- 既定: 末尾 clone あり（intercalate）
+  <meta>
+  <schedule_template({x})>
+
+  ≡  [ Phase(Name_1, ..., T(v₁)),
+       clone(R, after=Name_1),
+       Phase(Name_2, ..., T(v₂)),
+       clone(R, after=Name_2),
+       ...,
+       Phase(Name_n, ..., T(vₙ)),
+       clone(R, after=Name_n) ]
+```
+
+`interleave R no_trailing` は最後の clone を抑制する（intersperse）。複数の `interleave` 行は宣言順に gap block を構成する。`no_trailing` は最後の entry に置かれた場合、ブロック全体に適用される。形式的な表示的意味論（`intercalate` および `intersperse` 演算子を含む）は [theory.md 定義 16](theory.md) を参照。
+
+**アノテーション局所性。** clone された phase は template の annotation と parameter のみを継承する。外側の shaping の annotation と `{ident}` placeholder は生成された `Name_i` phase にのみ作用し、clone には伝播しない。これにより、複数の shaping から参照された Recovery template はどの挿入位置でも同一に動作する（例: 固定参照用量で）。
 
 #### 3.8.4 使用例
 
@@ -464,6 +487,40 @@ phase Peak_Retest:
   use Peak_Baseline
 ```
 
+**Interleave 付きパラメトリック用量反応（John & Nader, 2016, JEAB スタイル）:**
+
+薬物自己投与の用量反応デザインでは、各テスト用量の後に recovery（baseline 復帰）期間を挟む。`interleave` 句は、Method の記述「each dose was followed by a return to baseline (≥ 3 sessions, visual stability)」を 1:1 で表現する。
+
+```
+@species("rhesus monkey") @n(4)
+@apparatus(chamber="primate-test", operandum="lever")
+
+phase Recovery:
+  sessions >= 3
+  stable(visual)
+  FI600s(FR30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery
+  sessions >= 5
+  stable(visual)
+  FI600s(FR30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+`phase Recovery` は shaping より **前** に宣言する必要がある（前方参照禁止 — 制約 74）。`interleave` で参照された Recovery は **template**（制約 76）となり、宣言位置の standalone PhaseSequence には現れず、用量条件間に clone として展開される。展開結果は 12 phase（6 用量 + 6 recovery）— 論文 Method と完全一致する:
+
+```
+DoseResponse_1, Recovery_after_DoseResponse_1,
+DoseResponse_2, Recovery_after_DoseResponse_2,
+DoseResponse_3, Recovery_after_DoseResponse_3,
+DoseResponse_4, Recovery_after_DoseResponse_4,
+DoseResponse_5, Recovery_after_DoseResponse_5,
+DoseResponse_6, Recovery_after_DoseResponse_6
+```
+
 **パラメトリック用量反応（Rickard et al., 2009, JEAB）:**
 
 ```
@@ -491,6 +548,11 @@ shaping DoseResponse:
 | 70 | フェーズごとの stability_spec 重複 | `DUPLICATE_STABILITY_SPEC` | SemanticError |
 | 71 | `sessions >= 0`（非正） | `SESSION_NONPOSITIVE` | SemanticError |
 | 72 | `sessions = 0`（非正） | `SESSION_NONPOSITIVE` | SemanticError |
+| 73 | `no_schedule` 本体（パヴロフ型/曝露 phase） | （情報のみ・エラーなし） | — |
+| 74 | `interleave` が未宣言/前方の phase を参照 | `UNDEFINED_PHASE_REF` | SemanticError |
+| 75 | `interleave` の self-reference（target = 外側または以降の shaping） | `SHAPING_SELF_INTERLEAVE` | SemanticError |
+| 76 | Template 消費 — 参照された phase は standalone PhaseSequence から除去 | （意味論・エラーなし） | — |
+| 63b | `interleave` clone label がユーザ宣言 phase と衝突 | `DUPLICATE_PHASE_NAME` | SemanticError |
 
 #### 3.8.6 LL(1) 検証
 
@@ -503,6 +565,8 @@ shaping DoseResponse:
 | `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs `stable` |
 | `session_spec → "=" \| ">="` | 1 | `=` vs `>=` |
 | `phase_content \| phase_ref` | 1 | `use` vs その他全て |
+| `shaping_body: interleave_decl* vs phase_meta*` | 1 | `interleave` vs `{sessions, stable, ...}` |
+| `interleave_decl: 任意の "no_trailing"` | 1 | `no_trailing` vs FOLLOW（`interleave`、`sessions`、`stable`、`let`、`@`、スケジュール開始トークン） |
 
 新しい LL(2) 判定点は導入されない。[LL(2) 形式的証明 §11](ll2-proof.md) を参照。
 

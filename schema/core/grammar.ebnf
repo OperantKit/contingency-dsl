@@ -163,6 +163,7 @@ reserved      ::= "let" | "def"
                 | "phase" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
                 | "sessions" | "stable"                   -- phase metadata (v2.0)
                 | "no_schedule"                            -- experiment layer: Pavlovian/exposure phase (v2.0)
+                | "interleave" | "no_trailing"             -- experiment layer: shaping interleave (v2.x)
                 | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
@@ -622,10 +623,24 @@ upper_ident   ::= [A-Z] [a-zA-Z0-9_]*     -- must not match reserved
 
 shaping_decl  ::= "shaping" phase_name ":" shaping_body
 
-shaping_body  ::= shaping_steps+ phase_meta* param_decl* binding* annotated_schedule
+shaping_body  ::= shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
 
 shaping_steps ::= "steps" ident "=" "[" number_list "]"
 number_list   ::= number ("," number)*
+
+interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
+                                ; Inserts a clone of the named phase between every
+                                ; pair of generated phases (gap block). The named phase
+                                ; becomes a "template" — it does NOT appear standalone
+                                ; in the resolved PhaseSequence at its declaration position.
+                                ; Default semantics: intercalate (a clone is also appended
+                                ; after the final generated phase). The "no_trailing"
+                                ; modifier suppresses the trailing clone (intersperse).
+                                ; Multiple interleave_decl entries are concatenated in
+                                ; declaration order to form the gap block; the
+                                ; "no_trailing" flag, if present on any entry, applies
+                                ; to the entire block (the last occurrence wins for
+                                ; readability).
 
 ; Shaping placeholders: within a shaping_body, the schedule expression and
 ; annotation values may contain "{ident}" placeholders that reference a
@@ -645,6 +660,34 @@ number_list   ::= number ("," number)*
 ; Multi-variable expansion (E-SHAPING-MULTI):
 ;   All steps lists must have identical length.
 ;   Expansion zips variables pairwise: (x1,y1), (x2,y2), ...
+;
+; Interleave expansion (E-SHAPING-INTERLEAVE), default = intercalate:
+;   shaping Name:
+;     steps x = [v1, ..., vn]
+;     interleave R           ; trailing=true (intercalate)
+;     <meta>*
+;     <schedule_template(x)>
+;
+;     ≡  [ Phase(Name_1, ..., T(v1)),
+;          clone(R, after=Name_1),
+;          Phase(Name_2, ..., T(v2)),
+;          clone(R, after=Name_2),
+;          ...,
+;          Phase(Name_n, ..., T(vn)),
+;          clone(R, after=Name_n) ]
+;
+;   With "no_trailing" the final clone is omitted (intersperse).
+;   Each clone's label is "<R>_after_<Name>_<i>" (e.g., Recovery_after_DoseResponse_3).
+;   Clones are deep copies of the template phase: the template's schedule,
+;   criterion, phase_annotations, and phase_param_decls are copied verbatim.
+;   The shaping's own annotations and {ident} placeholders are NOT propagated
+;   into clones (annotation locality, theory.md §3.3 Definition 16, Property 4).
+;
+; Multiple interleave_decl entries form a gap block in declaration order:
+;   interleave R1
+;   interleave R2
+;     ⇒ gap = [clone(R1, after=Name_i), clone(R2, after=Name_i)]
+;   Result (intercalate): [Name_1, R1_clone, R2_clone, Name_2, R1_clone, R2_clone, ..., Name_n, R1_clone, R2_clone]
 
 ; --- Experiment-level semantic constraints ---
 ;
@@ -679,6 +722,28 @@ number_list   ::= number ("," number)*
 ;     Annotations (e.g., @reinforcer, @punisher, @context) may still be
 ;     attached to describe stimulus presentations. A no_schedule phase
 ;     resolves to a Phase node with schedule = null in the AST.
+; 74. interleave (E-SHAPING-INTERLEAVE): interleave_decl.ref must reference
+;     an already-declared phase (no forward references). Undeclared/forward
+;     reference → SemanticError (UNDEFINED_PHASE_REF; same code as constraint
+;     64 because the lookup mechanism is identical to `use`).
+; 75. interleave self-reference: a shaping_decl may not interleave a phase
+;     declared by itself or by any later shaping_decl in the file. Detected
+;     statically by collecting all shaping_decl labels and checking that no
+;     interleave_decl.ref equals any later-or-same shaping_decl label.
+;     Violation → SemanticError (SHAPING_SELF_INTERLEAVE).
+; 76. template consumption: a phase referenced by ANY interleave_decl is
+;     "template-only" — it does NOT appear in the resolved PhaseSequence at
+;     its declaration position. Each interleave insertion site receives a
+;     deep copy of the template's contents (schedule, criterion,
+;     phase_annotations, phase_param_decls) with an auto-generated label
+;     of the form "<ref>_after_<shaping-label>_<i>" (1-based). A template
+;     phase MAY also be referenced by `use` from other phases — both `use`
+;     and `interleave` are pure name-based copies and do not interact.
+; 63b. interleave clone labels participate in the standard Constraint 63
+;      uniqueness check after expansion. A user-declared phase whose name
+;      matches a generated clone label (e.g., user `phase Recovery_after_DoseResponse_3`
+;      colliding with a shaping that produces the same label) → SemanticError
+;      (DUPLICATE_PHASE_NAME, reused).
 
 ; === Semantic constraints (enforced post-parse) ===
 ;

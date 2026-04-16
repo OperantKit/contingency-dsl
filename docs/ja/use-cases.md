@@ -419,7 +419,60 @@ Mult(shaping, EXT)
 
 ---
 
-## 13. 複合的な実験プログラム
+## 13. Interleave 付きパラメトリック用量反応（実験層）
+
+**シナリオ:** 各テスト用量の後に baseline 復帰期間を挟む薬物自己投与の用量反応研究 — 行動薬理学 JEAB 論文の正準的な構造（例: John & Nader, 2016）。6 つの単位用量を順次テストし、各ペアの間で動物は固定の参照用量に 3 セッション以上、安定するまで戻る。
+
+```
+@species("rhesus monkey") @n(4)
+@apparatus(chamber="primate-test", operandum="lever")
+
+phase Recovery:
+  sessions >= 3
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery
+  sessions >= 5
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+**この実験の動作:**
+- `phase Recovery` は shaping より **前** に宣言する（前方参照禁止 — 制約 74）
+- `interleave` で参照されているため、`Recovery` は **template**（制約 76）となり、timeline には standalone で現れない
+- `interleave Recovery` は既定の **intercalate** 意味論: 各用量条件の後（最後を含む）に Recovery の clone が挿入される
+- 展開結果は 12 phase（6 用量 + 6 recovery）— 論文 Method「*each dose was followed by a return to baseline*」と完全一致
+- clone された recovery は Recovery の `@reinforcer("cocaine", dose="0.1mg/kg")` annotation を verbatim で持つ（アノテーション局所性、theory.md 定義 16 性質 4）。shaping 側の `{dose}` placeholder は clone に流入しない
+
+**展開された phase 列:**
+
+```
+DoseResponse_1, Recovery_after_DoseResponse_1,
+DoseResponse_2, Recovery_after_DoseResponse_2,
+DoseResponse_3, Recovery_after_DoseResponse_3,
+DoseResponse_4, Recovery_after_DoseResponse_4,
+DoseResponse_5, Recovery_after_DoseResponse_5,
+DoseResponse_6, Recovery_after_DoseResponse_6
+```
+
+**意義:** `interleave` がなければ、ユーザはスケジュールと大半の annotation が同一の 12 個の `phase` 宣言を手書きすることになり、論文 Method と DSL の 1:1 対応が崩れる。`interleave` 句は DSL を簡潔に保ちつつ、実験デザインの構造的忠実性を保存する。
+
+**バリエーション:**
+- `interleave Recovery no_trailing` — **intersperse** 意味論に切り替え（最後の用量の後に recovery を入れない）。phase 数 = 11。
+- `interleave Recovery` の後に `interleave Probe` — gap block は宣言順に両方の phase を含む。各テスト条件の後に recovery + probe 試行を挟むデザインに有用。
+
+**参考文献:**
+- John, W. S., & Nader, M. A. (2016). Dose-response procedures for cocaine self-administration in rhesus monkeys. *Journal of the Experimental Analysis of Behavior*（スタイル参照）.
+- Sidman, M. (1960). *Tactics of scientific research*. Basic Books.（被験体内パラメトリックデザインの基礎的論考）
+
+---
+
+## 14. 複合的な実験プログラム
 
 **シナリオ:** 一方の成分で並立配置、他方で連鎖手続きを使う2成分多元スケジュール。プログラムレベルのデフォルト付き。
 
@@ -461,6 +514,8 @@ Mult(choice_component, chain_component)
 | `Lag` | オペラント変動性、ASD ステレオタイプ低減、創造性研究 | 反応の variability を直接強化できない |
 | `Pctl` | 自動 shaping、適応的分化強化、臨床的 shaping | 手動 shaping のみ。定量的基準なし |
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
+| `phase` / `shaping` | 多フェーズ実験デザイン（A-B-A 反転、パラメトリック研究） | セッション間構造を宣言的に表現できない |
+| `interleave` | 用量反応・強化子量・介在 baseline デザイン（論文 Method と 1:1） | 大半の本体が同一の 2N 個 phase を手書き |
 
 ---
 

@@ -299,6 +299,73 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=
 
 ---
 
+## Level 6: Experiment Layer (Multi-Phase)
+
+For across-session designs (A-B-A reversal, dose-response, parametric studies), the DSL provides `phase` and `shaping` declarations.
+
+### Phase Declarations
+
+A `phase` is a named program with a phase-change criterion (session count or stability):
+
+```
+phase Baseline:
+  sessions = 25
+  Conc(VI 30-s, VI 60-s, COD=2-s)
+
+phase Reversal:
+  sessions >= 10
+  stable(visual)
+  use Baseline      -- reuse Baseline's schedule expression
+```
+
+### Shaping (Parametric Progression)
+
+`shaping` desugars to a numbered sequence of `phase` declarations. Useful for FI-progression training, dose-response, reinforcer-magnitude studies:
+
+```
+shaping FI_Training:
+  steps v = [2, 4, 8, 12, 18]
+  sessions >= 3
+  stable(visual)
+  FI {v}-s LH 3-s
+```
+
+Expands to `FI_Training_1, …, FI_Training_5` with the `{v}` placeholder substituted from the steps list.
+
+### Interleave (Recovery / Intervening Baselines)
+
+Add an `interleave R` clause to insert a clone of pre-declared phase `R` between every pair of generated phases. Default semantics is **intercalate** (a clone is also appended after the last generated phase). Use `no_trailing` to switch to intersperse.
+
+```
+phase Recovery:                       -- declared BEFORE the shaping (no forward refs)
+  sessions >= 3
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery                 -- intercalate (default)
+  sessions >= 5
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+The `phase Recovery` declaration becomes a **template**: it does not appear standalone in the timeline. Instead, six clones (`Recovery_after_DoseResponse_1` … `Recovery_after_DoseResponse_6`) are interleaved with the six dose conditions, yielding 12 phases total — matching the John & Nader (2016) JEAB Method "*each dose was followed by a return to baseline*" 1:1.
+
+Multiple `interleave` lines compose a gap block in declaration order:
+
+```
+shaping DR:
+  steps v = [2, 4, 8]
+  interleave Recovery
+  interleave Probe        -- gap = [Recovery_clone, Probe_clone]
+  ...
+```
+
+---
+
 ## Quick Reference: Syntax Patterns
 
 | Pattern | Type | Example | Meaning |
@@ -311,6 +378,9 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30-s uses LH=5-s, VI 60-s uses LH=
 | `XX ##-s(YY ##)` | **Second-Order** | `FI 120-s(FR 10)` | Overall(Unit) |
 | `let x = S` | Binding | `let a = VI 60-s` | Named schedule |
 | `Repeat(n, S)` | Sugar | `Repeat(3, FR 10)` | = `Tand(FR 10, FR 10, FR 10)` |
+| `phase Name: ... S` | Experiment | `phase Baseline: sessions = 25 VI 60-s` | Named phase with criterion |
+| `shaping Name: steps x = [...] S({x})` | Experiment | `shaping FI: steps v=[2,4,8] FI {v}-s` | Parametric phase progression |
+| `interleave R [no_trailing]` | Experiment | `interleave Recovery` | Insert R-clones between (intercalate default) |
 
 ---
 

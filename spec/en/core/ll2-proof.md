@@ -70,6 +70,8 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `PCTL_DIR_VAL` | below, above | percentile direction values (Core-Stateful) |
 | `ADJ_ARG_KW` | start, step, min, max | adjusting keyword arg names (Core-Stateful) |
 | `INTERLOCK_ARG_KW` | R0, T | interlocking keyword arg names (Core-Stateful) |
+| `KW_INTERLEAVE` | interleave | shaping interleave keyword (Experiment v2.x) |
+| `KW_NO_TRAILING` | no_trailing | shaping interleave trailing-suppression modifier (Experiment v2.x) |
 
 **Lexer assumptions:**
 
@@ -1125,9 +1127,47 @@ All three alternatives have pairwise disjoint FIRST₁ sets.
 
 **Result:** LL(1). ∎
 
-### §11.6 Summary
+### §11.6 Shaping Body Continuation (with interleave_decl, v2.x)
 
-The Experiment Layer adds **5 new decision points**, all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
+The `shaping_body` production introduces a sequence of optional `interleave_decl` items between `shaping_steps+` and `phase_meta*`:
+
+```
+shaping_body  →  shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+```
+
+**Decision A — Whether to consume another `interleave_decl`:**
+
+```
+FIRST₁(interleave_decl)        = { KW_INTERLEAVE }
+FIRST₁(phase_meta)             = { KW_SESSIONS, KW_STABLE }
+FIRST₁(param_decl)             = { PARAM_NAME }            ; LH, COD, FRCO, BO
+FIRST₁(binding)                = { LET_KW }
+FIRST₁(annotated_schedule)     = { AT, SCHED_TYPE, EXT, CRF, COMB, INTERP, DR_KW, PR_KW, REPEAT_KW, LAG_KW, SIDMAN_KW, DA_KW, PCTL_KW, ADJ_KW, INTERLOCK_KW, IDENT (let-bound) }
+
+KW_INTERLEAVE ∩ FIRST₁(continuation) = ∅
+```
+
+`KW_INTERLEAVE` (`interleave`) is a fresh reserved word disjoint from every other FIRST₁ set — `KW_SESSIONS`, `KW_STABLE`, `LET_KW`, `AT`, schedule starters, and `PARAM_NAME` (LH/COD/FRCO/BO are uppercase identifiers, all distinct from `interleave`). The decision is LL(1).
+
+**Decision B — Optional `no_trailing` after `interleave phase_name`:**
+
+```
+FIRST₁("no_trailing")          = { KW_NO_TRAILING }
+FOLLOW₁(interleave_decl tail)  = { KW_INTERLEAVE,           ; another interleave
+                                   KW_SESSIONS, KW_STABLE,  ; phase_meta
+                                   PARAM_NAME, LET_KW, AT,  ; param_decl, binding, annotation
+                                   SCHED_TYPE, EXT, CRF, ... } ; annotated_schedule
+
+KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
+```
+
+`KW_NO_TRAILING` (`no_trailing`) is a fresh reserved word and does not appear in any FOLLOW₁ set continuing `interleave_decl`. The optional decision is LL(1).
+
+**Result:** Both new decision points are LL(1). No new LL(2) points arise. ∎
+
+### §11.7 Summary
+
+The Experiment Layer adds **7 new decision points** (5 from v2.0 + 2 from v2.x interleave), all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
 
 **Updated theorem (extends §8):**
 
@@ -1136,8 +1176,9 @@ The extended grammar *G'* = Core ∪ Core-Stateful ∪ Experiment satisfies:
 1. *G'* is LL(2): all Core and Core-Stateful properties preserved; Experiment Layer is LL(1).
 2. *G'* is not LL(1): the Core PosTail LL(2) point remains.
 3. *G'* is unambiguous (corollary of 1).
-4. The shaping expansion rule (E-SHAPING) operates at the semantic phase and does not affect parsing.
+4. The shaping expansion rule (E-SHAPING / E-SHAPING-MULTI / E-SHAPING-INTERLEAVE) operates at the semantic phase and does not affect parsing.
 5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
+6. The `interleave` clause (v2.x) introduces template-consumption semantics (constraint 76) and clone-label generation (constraint 63b) at the post-parse semantic phase — these do not affect grammar classification.
 
 ---
 

@@ -388,10 +388,11 @@ The Experiment Layer extends the DSL to describe multi-phase experimental design
 ### 3.8.3 Shaping (Syntactic Sugar)
 
 ```bnf
-<shaping_decl>  ::= "shaping" <phase_name> ":" <shaping_body>
-<shaping_body>  ::= <shaping_steps>+ <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
-<shaping_steps> ::= "steps" <ident> "=" "[" <number_list> "]"
-<number_list>   ::= <number> ("," <number>)*
+<shaping_decl>    ::= "shaping" <phase_name> ":" <shaping_body>
+<shaping_body>    ::= <shaping_steps>+ <interleave_decl>* <phase_meta>* <param_decl>* <binding>* <annotated_schedule>
+<shaping_steps>   ::= "steps" <ident> "=" "[" <number_list> "]"
+<number_list>     ::= <number> ("," <number>)*
+<interleave_decl> ::= "interleave" <phase_name> [ "no_trailing" ]
 ```
 
 `shaping` desugars to a sequence of `phase` declarations, analogous to `Repeat(n, S)` → `Tand(S, ..., S)`. The schedule expression and annotation values may contain `{ident}` placeholders that reference `steps` variables.
@@ -413,6 +414,28 @@ phase Name_n: <meta>  <schedule_template(vₙ)>
 ```
 
 **Multi-variable expansion (E-SHAPING-MULTI):** If multiple `steps` declarations are present, all lists must have identical length. Variables are zipped pairwise: `(x₁, y₁), (x₂, y₂), ...`.
+
+**Interleave expansion (E-SHAPING-INTERLEAVE).** Optional `interleave` clauses insert clones of pre-declared phases between every pair of generated phases (and, by default, after the last one — *intercalate* semantics). The referenced phase becomes a **template**: it does not appear standalone in the resolved PhaseSequence at its declaration position. Each clone receives an auto-generated label `<ref>_after_<Name>_<i>` (1-based), e.g., `Recovery_after_DoseResponse_3`.
+
+```
+shaping Name:
+  steps x = [v₁, ..., vₙ]
+  interleave R          -- default: trailing clone included (intercalate)
+  <meta>
+  <schedule_template({x})>
+
+  ≡  [ Phase(Name_1, ..., T(v₁)),
+       clone(R, after=Name_1),
+       Phase(Name_2, ..., T(v₂)),
+       clone(R, after=Name_2),
+       ...,
+       Phase(Name_n, ..., T(vₙ)),
+       clone(R, after=Name_n) ]
+```
+
+`interleave R no_trailing` suppresses the final clone (intersperse). Multiple `interleave` lines compose a gap block in declaration order; `no_trailing` on the last entry applies to the entire block. See [theory.md Definition 16](theory.md) for the formal denotational semantics including the `intercalate` and `intersperse` operators.
+
+**Annotation locality.** Cloned phases inherit only the template's annotations and parameters. The enclosing shaping's annotations and `{ident}` placeholders affect only the generated `Name_i` phases — they do not leak into clones. This guarantees that a `Recovery` template referenced by multiple shapings runs identically (e.g., at a fixed reference dose) at every site.
 
 ### 3.8.4 Usage Examples
 
@@ -460,6 +483,40 @@ phase Peak_Retest:
   use Peak_Baseline
 ```
 
+**Parametric Dose-Response with Interleaved Recovery (John & Nader, 2016, JEAB style):**
+
+In drug-self-administration dose-response designs, each test dose is followed by a recovery (return-to-baseline) period before the next dose. The `interleave` clause expresses this 1:1 with the Method statement *"each dose was followed by a return to baseline (≥ 3 sessions, visual stability)"*.
+
+```
+@species("rhesus monkey") @n(4)
+@apparatus(chamber="primate-test", operandum="lever")
+
+phase Recovery:
+  sessions >= 3
+  stable(visual)
+  FI600s(FR30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery
+  sessions >= 5
+  stable(visual)
+  FI600s(FR30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+`phase Recovery` is declared **before** the shaping that references it (no forward references — constraint 74). Because it is referenced by `interleave`, the `Recovery` declaration becomes a *template* (constraint 76) and does not appear standalone in the resolved PhaseSequence; it materializes only as clones interspersed between dose conditions. The expansion produces 12 phases — 6 doses + 6 recoveries, matching the paper's Method exactly:
+
+```
+DoseResponse_1, Recovery_after_DoseResponse_1,
+DoseResponse_2, Recovery_after_DoseResponse_2,
+DoseResponse_3, Recovery_after_DoseResponse_3,
+DoseResponse_4, Recovery_after_DoseResponse_4,
+DoseResponse_5, Recovery_after_DoseResponse_5,
+DoseResponse_6, Recovery_after_DoseResponse_6
+```
+
 **Parametric Dose-Response (Rickard et al., 2009, JEAB):**
 
 ```
@@ -487,6 +544,11 @@ shaping DoseResponse:
 | 70 | Duplicate stability_spec per phase | `DUPLICATE_STABILITY_SPEC` | SemanticError |
 | 71 | `sessions >= 0` (nonpositive) | `SESSION_NONPOSITIVE` | SemanticError |
 | 72 | `sessions = 0` (nonpositive) | `SESSION_NONPOSITIVE` | SemanticError |
+| 73 | `no_schedule` body (Pavlovian / exposure phase) | (advisory; no error) | — |
+| 74 | `interleave` references undeclared/forward phase | `UNDEFINED_PHASE_REF` | SemanticError |
+| 75 | `interleave` self-reference (target = enclosing or later shaping) | `SHAPING_SELF_INTERLEAVE` | SemanticError |
+| 76 | Template consumption — referenced phase removed from standalone PhaseSequence | (semantics; no error) | — |
+| 63b | `interleave` clone label collides with user-declared phase | `DUPLICATE_PHASE_NAME` | SemanticError |
 
 ### 3.8.6 LL(1) Verification
 
@@ -499,5 +561,7 @@ All Experiment Layer decision points are LL(1):
 | `phase_meta → session_spec \| stability_spec` | 1 | `sessions` vs. `stable` |
 | `session_spec → "=" \| ">="` | 1 | `=` vs. `>=` |
 | `phase_content \| phase_ref` | 1 | `use` vs. all others |
+| `shaping_body: interleave_decl* vs. phase_meta*` | 1 | `interleave` vs. `{sessions, stable, ...}` |
+| `interleave_decl: optional "no_trailing"` | 1 | `no_trailing` vs. FOLLOW (`interleave`, `sessions`, `stable`, `let`, `@`, schedule starters) |
 
 No new LL(2) decision points are introduced. See [LL(2) Formal Proof §11](ll2-proof.md) for the verification.

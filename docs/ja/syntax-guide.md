@@ -298,6 +298,73 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30 は LH=5-s、VI 60 はデフォ
 
 ---
 
+## レベル 6: 実験層（多フェーズ）
+
+セッション間デザイン（A-B-A 反転、用量反応、パラメトリック研究）には、`phase` と `shaping` 宣言を使う。
+
+### Phase 宣言
+
+`phase` は phase 変化基準（セッション数または安定性）を持つ名前付きプログラム:
+
+```
+phase Baseline:
+  sessions = 25
+  Conc(VI 30-s, VI 60-s, COD=2-s)
+
+phase Reversal:
+  sessions >= 10
+  stable(visual)
+  use Baseline      -- Baseline のスケジュール式を再利用
+```
+
+### Shaping（パラメトリック漸進）
+
+`shaping` は番号付き `phase` 宣言列に脱糖される。FI 漸進訓練、用量反応、強化子量研究などに有用:
+
+```
+shaping FI_Training:
+  steps v = [2, 4, 8, 12, 18]
+  sessions >= 3
+  stable(visual)
+  FI {v}-s LH 3-s
+```
+
+`FI_Training_1, …, FI_Training_5` に展開され、`{v}` placeholder は steps リストの値で置換される。
+
+### Interleave（Recovery / 介在 baseline）
+
+`interleave R` 句を追加すると、生成された各 phase ペアの間に事前宣言された phase `R` の clone が挿入される。既定の意味論は **intercalate**（最後の phase の後にも clone が追加される）。`no_trailing` で intersperse に切り替え可能。
+
+```
+phase Recovery:                       -- shaping より前に宣言（前方参照禁止）
+  sessions >= 3
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery                 -- intercalate（既定）
+  sessions >= 5
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+`phase Recovery` 宣言は **template** となり、timeline には standalone で現れない。代わりに 6 つの clone（`Recovery_after_DoseResponse_1` … `Recovery_after_DoseResponse_6`）が 6 つの用量条件と交互に配置され、計 12 phase が得られる — John & Nader (2016) JEAB Method「*each dose was followed by a return to baseline*」と 1:1 で一致する。
+
+複数の `interleave` 行は宣言順に gap block を構成する:
+
+```
+shaping DR:
+  steps v = [2, 4, 8]
+  interleave Recovery
+  interleave Probe        -- gap = [Recovery_clone, Probe_clone]
+  ...
+```
+
+---
+
 ## クイックリファレンス: 構文パターン一覧
 
 | パターン | 種類 | 例 | 意味 |
@@ -310,6 +377,9 @@ Conc(VI 30-s LH 5-s, VI 60-s, COD=2-s)  -- VI 30 は LH=5-s、VI 60 はデフォ
 | `XX##(YY##)` | **二次** | `FI 120-s(FR 10)` | Overall(Unit) |
 | `let x = S` | 束縛 | `let a = VI 60-s` | 名前付きスケジュール |
 | `Repeat(n, S)` | 糖衣構文 | `Repeat(3, FR 10)` | = `Tand(FR 10, FR 10, FR 10)` |
+| `phase Name: ... S` | 実験 | `phase Baseline: sessions = 25 VI 60-s` | 基準付き名前付き phase |
+| `shaping Name: steps x = [...] S({x})` | 実験 | `shaping FI: steps v=[2,4,8] FI {v}-s` | パラメトリック phase 漸進 |
+| `interleave R [no_trailing]` | 実験 | `interleave Recovery` | R-clone を間に挿入（intercalate 既定） |
 
 ---
 

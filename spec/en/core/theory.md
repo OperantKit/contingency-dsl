@@ -1729,9 +1729,59 @@ This is analogous to `Repeat(n, S)` → `Tand(S, ..., S)` (§2.2.3), operating a
 
 **Non-Turing-completeness:** `steps` lists are finite literals — no loops, recursion, or arithmetic. The expansion is a pure macro substitution bounded by the list length.
 
+**Definition 16 (Shaping Expansion with Interleave).** Let a `shaping` declaration carry steps `x⃗ = (x₁=[v₁₁,…,v₁ₙ], …, xₘ=[vₘ₁,…,vₘₙ])`, phase metadata `M`, schedule template `T(x⃗)`, and an ordered list of *interleave references* `R⃗ = [r₁, …, rₖ]` (k ≥ 0). Let the boolean `trailing = ¬last(R⃗).no_trailing` (default `true`; vacuously `false` if k=0).
+
+**Step 1 — Generate the base list (E-SHAPING-MULTI).**
+
+```
+G = [Phase(Name_1, M, T(v⃗₁)), …, Phase(Name_n, M, T(v⃗ₙ))]
+```
+
+where `v⃗ᵢ = (v₁ᵢ, …, vₘᵢ)` is the i-th column of the zipped step variables.
+
+**Step 2 — Build the gap block from references, indexed by insertion site i.**
+
+```
+B(i) = [ clone(R(r₁), Name, i), clone(R(r₂), Name, i), …, clone(R(rₖ), Name, i) ]
+```
+
+where `R(rⱼ)` resolves the previously-declared template phase with label `rⱼ`, and `clone(P, Name, i)` returns a deep copy of `P` whose `label` is rewritten to `P.label ++ "_after_" ++ Name ++ "_" ++ str(i)`. All other fields (`schedule`, `criterion`, `phase_annotations`, `phase_param_decls`) are copied verbatim.
+
+**Step 3 — Intercalate (default) or intersperse (with `no_trailing`).**
+
+```
+intercalate(B, [a₁,…,aₙ])  =  [a₁] ++ B(1) ++ [a₂] ++ B(2) ++ … ++ B(n−1) ++ [aₙ] ++ B(n)
+intersperse(B, [a₁,…,aₙ])  =  [a₁] ++ B(1) ++ [a₂] ++ B(2) ++ … ++ B(n−1) ++ [aₙ]
+```
+
+The full expansion is then:
+
+```
+⟦shaping(Name, x⃗, M, T(x⃗), interleave=R⃗)⟧
+   = intercalate(B, G)   if trailing
+   = intersperse(B, G)   otherwise
+```
+
+**Properties.**
+
+1. **Length boundedness.** `|expansion| = n + n·k` (intercalate) or `n + (n−1)·k` (intersperse). Strictly bounded by the syntactic constants `n` and `k`; non-Turing-completeness preserved.
+2. **Termination.** `clone`, `++`, `intercalate`, `intersperse` are total on finite inputs.
+3. **Identity in absence of interleave.** `R⃗ = []` reduces to E-SHAPING-MULTI: `intercalate([], G) = G`.
+4. **Annotation locality.** Cloned phases inherit only the source template's annotations and parameters. The enclosing shaping's annotations and `{ident}` placeholders affect only `T(v⃗ᵢ)` in `G`; they do not propagate into clones. This guarantees that the template `Recovery` runs identically (e.g., at a fixed reference dose) at every insertion site, regardless of which shaping it neighbors.
+5. **Template consumption.** Each phase referenced in `R⃗` is removed from the standalone PhaseSequence at its declaration position; the phase exists only as the template for clones. (See grammar.ebnf constraint 76.)
+
+**Constraints invoked.**
+
+- Constraint 64 (no forward `use` references) extends to `interleave` via constraint 74 (same lookup mechanism, same error code `UNDEFINED_PHASE_REF`).
+- Constraint 63 (phase name uniqueness) extends to clone labels via constraint 63b.
+- Constraint 75 forbids self-interleave (referencing the enclosing shaping's own future generated phases).
+- Constraint 76 specifies the template-consumption semantics that excludes the source phase from the standalone PhaseSequence.
+
+**Reference.** John, W. S., & Nader, M. A. (2016). *Behavioral economic analysis of the reinforcing strength of cocaine* style dose-response paradigms — "each dose was followed by a return to baseline" — map directly onto `intercalate(Recovery, [Dose₁, …, Dose₆])`, yielding the canonical 6 dose × 6 recovery (12 phase) sequence with no manual phase enumeration.
+
 ### 3.4 Denotational Semantics of Experiments
 
-**Definition 16 (Experiment Machine).** An Experiment Machine maps a Phase Sequence to a sequence of Schedule Machines:
+**Definition 17 (Experiment Machine).** An Experiment Machine maps a Phase Sequence to a sequence of Schedule Machines:
 
 ```
 ⟦experiment⟧ : PhaseSequence → ScheduleMachine*

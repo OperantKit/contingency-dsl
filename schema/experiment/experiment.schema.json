@@ -73,9 +73,34 @@
         "phase_param_decls": {
           "type": "array",
           "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" }
+        },
+        "interleave": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/$defs/InterleaveDecl" },
+          "description": "Ordered list of phase-name references inserted between every pair of generated phases (gap block). Default semantics is intercalate: the gap block is also appended after the final generated phase. The last entry's no_trailing flag, if true, suppresses the trailing gap (intersperse). Each referenced phase becomes a template (does not appear standalone in PhaseSequence at its declaration position) and is deep-cloned at each insertion site with auto-generated label '<ref>_after_<shaping-label>_<i>'. See theory.md Definition 16 (Shaping Expansion with Interleave) and grammar.ebnf constraints 74-76, 63b."
         }
       },
       "required": ["type", "label", "steps", "schedule_template"],
+      "additionalProperties": false
+    },
+
+    "InterleaveDecl": {
+      "type": "object",
+      "description": "Single interleave directive within a Shaping. Names a previously-declared phase (template) whose contents are deep-cloned at each interleave insertion site. The referenced phase must be declared earlier in the same experiment (no forward references — constraint 74). Self-references (target = enclosing or later shaping) are forbidden (constraint 75).",
+      "properties": {
+        "type": { "const": "InterleaveDecl" },
+        "ref": {
+          "type": "string",
+          "description": "Name of the phase to interleave. Must match a phase_label declared earlier in the same experiment."
+        },
+        "no_trailing": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, suppress the trailing gap block after the final generated phase (intersperse semantics). Only meaningful on the last InterleaveDecl in the array; if multiple entries set this true, the last occurrence wins."
+        }
+      },
+      "required": ["type", "ref"],
       "additionalProperties": false
     },
 

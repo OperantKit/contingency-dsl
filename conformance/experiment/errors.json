@@ -86,5 +86,37 @@
     "errors": [
       { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
     ]
+  },
+  {
+    "id": "error_interleave_undefined_ref",
+    "description": "Constraint 74: interleave references an undeclared phase → UNDEFINED_PHASE_REF",
+    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave Nonexistent\n  sessions = 5\n  FR {v}",
+    "errors": [
+      { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_interleave_forward_ref",
+    "description": "Constraint 74: interleave with forward reference (phase declared after the shaping) → UNDEFINED_PHASE_REF",
+    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}\n\nphase Recovery:\n  sessions >= 3\n  stable(visual)\n  FR5",
+    "errors": [
+      { "code": "UNDEFINED_PHASE_REF", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_interleave_self",
+    "description": "Constraint 75: interleave references its own enclosing shaping label → SHAPING_SELF_INTERLEAVE",
+    "input": "shaping DR:\n  steps v = [1, 2]\n  interleave DR\n  sessions = 5\n  FR {v}",
+    "errors": [
+      { "code": "SHAPING_SELF_INTERLEAVE", "category": "SemanticError" }
+    ]
+  },
+  {
+    "id": "error_interleave_clone_collides",
+    "description": "Constraint 63b: user-declared phase collides with an interleave-generated clone label → DUPLICATE_PHASE_NAME",
+    "input": "phase Recovery:\n  sessions >= 3\n  stable(visual)\n  FI60s\n\nphase Recovery_after_DR_1:\n  sessions = 1\n  EXT\n\nshaping DR:\n  steps v = [1, 2]\n  interleave Recovery\n  sessions = 5\n  FR {v}",
+    "errors": [
+      { "code": "DUPLICATE_PHASE_NAME", "category": "SemanticError" }
+    ]
   }
 ]

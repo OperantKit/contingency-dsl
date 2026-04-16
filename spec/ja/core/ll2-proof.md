@@ -70,6 +70,8 @@
 | `PCTL_DIR_VAL` | below, above | パーセンタイル方向値（Core-Stateful） |
 | `ADJ_ARG_KW` | start, step, min, max | 調整キーワード引数名（Core-Stateful） |
 | `INTERLOCK_ARG_KW` | R0, T | 連動キーワード引数名（Core-Stateful） |
+| `KW_INTERLEAVE` | interleave | shaping interleave キーワード（Experiment v2.x） |
+| `KW_NO_TRAILING` | no_trailing | shaping interleave の末尾抑制修飾子（Experiment v2.x） |
 
 **字句解析器の前提:**
 
@@ -1010,6 +1012,157 @@ Core-Stateful レイヤは**保守的な文法拡張**である: 既存の決定
 2. **新しいスケジュール構成が位置引数/キーワード引数の混合意味論を持つ COMMA ベースの反復を導入してはならない**（同じ LL(2) 戦略を採用する場合を除く）。
 3. **アノテーション拡張** が `FIRST₁(Schedule)` 内のトークンで始まる新しい `AnnotationVal` 形式を追加すると §9 の衝突が拡大する。`SCHED_TYPE` や `COMB` をアノテーション値として追加することを避けるべきである。
 4. **Core-Stateful 拡張**（新しいステートフルスケジュール）は §10 で確立されたパターンに従うべきである: 固定の位置引数数（またはキーワードのみ）の関数呼び出し構文、素な先頭キーワード、COMMA/RPAREN 反復。このパターンにより LL(1) の内部決定が保証される。
+
+---
+
+## §11 実験層の判定点（v2.0）
+
+実験層（grammar.ebnf の `file`、`experiment`、`phase_decl`、`shaping_decl`）は以下の判定点を導入する。すべて LL(1) — 新たな LL(2) 判定点は生じない。
+
+### §11.1 ファイルレベルの曖昧性解消
+
+**判定:** `file → experiment | program`
+
+構文解析器は最初の非アノテーショントークンの時点で、ファイルが experiment か単一フェーズの program かを決定する必要がある。
+
+**FIRST₁ 分析:**
+
+```
+FIRST₁(annotations 後の experiment) = { KW_PHASE, KW_SHAPING }
+FIRST₁(annotations 後の program)    = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
+                                     = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
+                                         KW_LET, DIST, KW_EXT, KW_CRF, COMB,
+                                         KW_DRL, KW_DRH, KW_DRO, KW_PR, KW_REPEAT,
+                                         KW_SIDMAN, KW_DISCRIMAV, KW_LAG,
+                                         KW_INTERPOLATE, KW_INTERP,
+                                         IDENT, LPAREN, ... }
+```
+
+`KW_PHASE` と `KW_SHAPING` は既存のいずれの FIRST₁ 集合にも含まれない新しい予約トークンであるため:
+
+```
+{ KW_PHASE, KW_SHAPING } ∩ FIRST₁(annotations 後の program) = ∅
+```
+
+**結果:** LL(1)。∎
+
+**アノテーションに関する注:** `experiment` と `program` のいずれも `program_annotation`（トークン `@`）で始まることができる。構文解析器は先頭の `@` アノテーションをすべて消費した後、次のトークンを確認する。`KW_PHASE` または `KW_SHAPING` であれば experiment、それ以外は program。アノテーションはどちらの生成規則でも有効。
+
+### §11.2 Phase vs. Shaping
+
+**判定:** `experiment` 内の各位置で `phase_decl` と `shaping_decl` を選択する。
+
+```
+FIRST₁(phase_decl)   = { KW_PHASE }
+FIRST₁(shaping_decl) = { KW_SHAPING }
+
+{ KW_PHASE } ∩ { KW_SHAPING } = ∅
+```
+
+**結果:** LL(1)。∎
+
+### §11.3 Phase メタデータ
+
+**判定:** `phase_meta → session_spec | stability_spec`
+
+```
+FIRST₁(session_spec)   = { KW_SESSIONS }
+FIRST₁(stability_spec) = { KW_STABLE }
+
+{ KW_SESSIONS } ∩ { KW_STABLE } = ∅
+```
+
+**結果:** LL(1)。∎
+
+### §11.4 Session Spec 演算子
+
+**判定:** `session_spec → "sessions" "=" number | "sessions" ">=" number`
+
+`KW_SESSIONS` を消費した後、構文解析器は次のトークンを確認する:
+
+```
+FIRST₁("=" number)  = { EQUALS }
+FIRST₁(">=" number) = { GTE }
+
+{ EQUALS } ∩ { GTE } = ∅
+```
+
+**結果:** LL(1)。∎
+
+### §11.5 Phase 内容 vs. Phase 参照 vs. No-Schedule
+
+**判定:** `phase_body_content → phase_content | phase_ref | "no_schedule"`
+
+```
+FIRST₁(phase_ref)       = { KW_USE }
+FIRST₁(no_schedule)     = { KW_NO_SCHEDULE }
+FIRST₁(phase_content)   = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(annotated_schedule)
+```
+
+`KW_USE` と `KW_NO_SCHEDULE` は既存のいずれの FIRST₁ 集合にも含まれない予約トークンであるため:
+
+```
+{ KW_USE } ∩ FIRST₁(phase_content) = ∅
+{ KW_NO_SCHEDULE } ∩ FIRST₁(phase_content) = ∅
+{ KW_USE } ∩ { KW_NO_SCHEDULE } = ∅
+```
+
+3 つの選択肢の FIRST₁ 集合は対毎に互いに素。
+
+**結果:** LL(1)。∎
+
+### §11.6 Shaping 本体の継続（interleave_decl 付き、v2.x）
+
+`shaping_body` 生成規則は `shaping_steps+` と `phase_meta*` の間に任意の `interleave_decl` の列を導入する:
+
+```
+shaping_body  →  shaping_steps+ interleave_decl* phase_meta* param_decl* binding* annotated_schedule
+```
+
+**判定 A — 別の `interleave_decl` を消費するか:**
+
+```
+FIRST₁(interleave_decl)        = { KW_INTERLEAVE }
+FIRST₁(phase_meta)             = { KW_SESSIONS, KW_STABLE }
+FIRST₁(param_decl)             = { PARAM_NAME }            ; LH, COD, FRCO, BO
+FIRST₁(binding)                = { LET_KW }
+FIRST₁(annotated_schedule)     = { AT, SCHED_TYPE, EXT, CRF, COMB, INTERP, DR_KW, PR_KW, REPEAT_KW, LAG_KW, SIDMAN_KW, DA_KW, PCTL_KW, ADJ_KW, INTERLOCK_KW, IDENT (let 束縛) }
+
+KW_INTERLEAVE ∩ FIRST₁(継続) = ∅
+```
+
+`KW_INTERLEAVE`（`interleave`）は他のすべての FIRST₁ 集合と素な新しい予約語 — `KW_SESSIONS`、`KW_STABLE`、`LET_KW`、`AT`、スケジュール開始トークン、`PARAM_NAME`（LH/COD/FRCO/BO は大文字識別子で `interleave` と異なる）。判定は LL(1)。
+
+**判定 B — `interleave phase_name` の後の任意 `no_trailing`:**
+
+```
+FIRST₁("no_trailing")          = { KW_NO_TRAILING }
+FOLLOW₁(interleave_decl tail)  = { KW_INTERLEAVE,           ; 別の interleave
+                                   KW_SESSIONS, KW_STABLE,  ; phase_meta
+                                   PARAM_NAME, LET_KW, AT,  ; param_decl, binding, annotation
+                                   SCHED_TYPE, EXT, CRF, ... } ; annotated_schedule
+
+KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
+```
+
+`KW_NO_TRAILING`（`no_trailing`）は新しい予約語であり、`interleave_decl` を継続するいかなる FOLLOW₁ 集合にも含まれない。任意要素の判定は LL(1)。
+
+**結果:** いずれの新規判定点も LL(1)。新たな LL(2) 判定点は生じない。∎
+
+### §11.7 まとめ
+
+実験層は **7 つの新規判定点**（v2.0 から 5 つ + v2.x interleave から 2 つ）を追加し、すべて LL(1)。Core 文法の単一の LL(2) 判定点（複合スケジュールの arg_list における PosTail、§6）は影響を受けない — 実験層の生成規則はスケジュール式の構文解析と構造的に独立しており、`program` の上位のファイルレベルで動作するため。
+
+**更新された定理（§8 の拡張）:**
+
+拡張文法 *G'* = Core ∪ Core-Stateful ∪ Experiment は以下を満たす:
+
+1. *G'* は LL(2): すべての Core および Core-Stateful の性質を保存し、実験層は LL(1)。
+2. *G'* は LL(1) ではない: Core の PosTail LL(2) 点が残る。
+3. *G'* は曖昧性を持たない（1 の系）。
+4. shaping 展開規則（E-SHAPING / E-SHAPING-MULTI / E-SHAPING-INTERLEAVE）は意味論フェーズで動作し、構文解析には影響しない。
+5. Phase 名（upper_ident）は識別子（小文字）およびスケジュールキーワード（大文字だが FR、VI のような複数文字組合せ）と字句的に素であり、トークンの曖昧性を防ぐ。
+6. `interleave` 句（v2.x）は構文解析後の意味論フェーズで template 消費（制約 76）と clone label 生成（制約 63b）を導入する — これらは文法分類に影響しない。
 
 ---
 

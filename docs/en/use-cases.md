@@ -462,7 +462,60 @@ Pctl(duration, 50, window=15) @target("vocalization") @function("access")
 
 ---
 
-## 13. Complex Real-World Experiment
+## 13. Parametric Dose-Response with Interleaved Recovery (Experiment Layer)
+
+**Scenario:** A drug-self-administration dose-response study where each test dose is followed by a return-to-baseline period — the canonical structure of behavioral-pharmacology JEAB papers (e.g., John & Nader, 2016). Six unit doses are tested in sequence; between each pair, the animal returns to a fixed reference dose for 3+ stable sessions.
+
+```
+@species("rhesus monkey") @n(4)
+@apparatus(chamber="primate-test", operandum="lever")
+
+phase Recovery:
+  sessions >= 3
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+shaping DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery
+  sessions >= 5
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+**What this does:**
+- `phase Recovery` is declared **before** the shaping (no forward references — constraint 74)
+- Because `Recovery` is referenced by `interleave`, it becomes a **template** (constraint 76) and does not appear standalone in the timeline
+- The `interleave Recovery` clause uses default **intercalate** semantics: a clone of `Recovery` is inserted after every dose condition, including the last one
+- The expansion produces 12 phases — 6 doses + 6 recoveries — matching the paper's Method "*each dose was followed by a return to baseline*" exactly
+- Cloned recoveries carry `Recovery`'s verbatim `@reinforcer("cocaine", dose="0.1mg/kg")` annotation (annotation locality, theory.md Definition 16, Property 4); the shaping's `{dose}` placeholder does not leak into clones
+
+**Resolved phase sequence:**
+
+```
+DoseResponse_1, Recovery_after_DoseResponse_1,
+DoseResponse_2, Recovery_after_DoseResponse_2,
+DoseResponse_3, Recovery_after_DoseResponse_3,
+DoseResponse_4, Recovery_after_DoseResponse_4,
+DoseResponse_5, Recovery_after_DoseResponse_5,
+DoseResponse_6, Recovery_after_DoseResponse_6
+```
+
+**Why this matters:** Without `interleave`, the user would hand-write 12 `phase` declarations whose schedule and most annotations are identical — losing the 1:1 correspondence between paper Method and DSL. The `interleave` clause keeps the DSL terse while preserving the structural fidelity of the experimental design.
+
+**Variants:**
+- `interleave Recovery no_trailing` — switch to **intersperse** semantics (no recovery after the final dose). Produces 11 phases.
+- `interleave Recovery` followed by `interleave Probe` — gap block contains both phases in declaration order. Useful for designs where each test condition is followed by a recovery + a probe trial.
+
+**References:**
+- John, W. S., & Nader, M. A. (2016). Dose-response procedures for cocaine self-administration in rhesus monkeys. *Journal of the Experimental Analysis of Behavior* (style reference).
+- Sidman, M. (1960). *Tactics of scientific research*. Basic Books. (Foundational treatment of within-subject parametric designs.)
+
+---
+
+## 14. Complex Real-World Experiment
 
 **Scenario:** A two-component multiple schedule where one component uses a concurrent arrangement and the other uses a chained procedure, with program-level defaults.
 
@@ -504,6 +557,8 @@ Mult(choice_component, chain_component)
 | `Lag` | Operant variability, ASD stereotypy reduction, creativity research | Cannot reinforce response variability directly |
 | `Pctl` | Automated shaping, adaptive differentiation, clinical shaping | Manual shaping only; no quantitative criterion |
 | `let` | Readable complex programs | Unreadable nested expressions |
+| `phase` / `shaping` | Multi-phase experimental designs (A-B-A reversal, parametric studies) | Cannot express across-session structure declaratively |
+| `interleave` | Dose-response, reinforcer-magnitude, intervening-baseline designs (1:1 with paper Method) | Hand-write 2N phases with mostly identical bodies |
 
 ---
 
