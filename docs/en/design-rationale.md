@@ -7,7 +7,94 @@ this document says why it is that way.
 
 ---
 
-## 1. DRO: Why "Other Behavior" Is a Misnomer
+## 1. Ψ Layer Organization: Organizing by Scientific Category, Not by Formal Axis
+
+### The Choice
+
+The DSL is organized into six layers by **scientific category** rather than
+by an abstract formal axis. The layers are:
+
+| Layer | What it holds |
+|---|---|
+| **Foundations** | Paradigm-neutral formal base: CFG/LL(2), contingency-type theory (contingent vs. non-contingent; two-term vs. three-term), time scales, stimulus typing (SD, SΔ, CS, US, Sr+, Sr−), valence, context. |
+| **Operant** | Three-term contingency (SD-R-SR): reinforcement schedules, stateful schedules with runtime-computed criteria, trial-based (discrete-trial) schedules. |
+| **Respondent** | Two-term contingency (CS-US): Tier A Pavlovian primitives + an extension point for third-party additions. |
+| **Composed** | Operant × respondent composites: CER, PIT, autoshaping, omission, two-process theory. |
+| **Experiment** | Declarative multi-phase experimental designs with first-class Context. |
+| **Annotation** | Program-scoped metadata, including two shipped extensions (`respondent-annotator`, `learning-models-annotator`). |
+
+An alternative organization — grouping primitives by an abstract formal axis
+such as "static vs. dynamic" or "literal vs. computed criterion" — was
+considered and rejected.
+
+### Why Scientific Category Won
+
+The discipline itself already uses the operant / respondent distinction
+(Skinner, 1938) and the two-process framing (Rescorla & Solomon, 1967) as
+primary categories of procedure classification. Organizing the DSL along
+the same axis produces an architecture that:
+
+1. **Reads naturally to the target user.** The DSL's principal users are
+   EAB researchers and their students. Placing `FR 5` under `operant/` and
+   `Pair.ForwardDelay(cs, us)` under `respondent/` mirrors how the
+   discipline already categorizes these procedures. A "dynamic vs. static"
+   axis would require users to translate the discipline's categories into
+   a formal taxonomy at every interaction.
+
+2. **Protects the boundary between two- and three-term contingencies.**
+   The three-term contingency (SD-R-SR) and the two-term contingency
+   (CS-US) are structurally distinct relations. Attempting to nest them
+   under a common "Paradigm" node either (a) forces an artificial
+   parameterization that obscures their distinct grammars, or (b)
+   collapses the structures into one, misrepresenting the discipline.
+   Operant and Respondent are therefore first-class siblings, not
+   specializations of a common super-relation.
+
+3. **Gives composed procedures a principled home.** CER, PIT, autoshaping,
+   and omission are not sub-cases of either operant or respondent — they
+   are operant × respondent composites. A scientific-category organization
+   represents this directly (`composed/` is a sibling of `operant/` and
+   `respondent/`), whereas an axial organization would be forced to
+   either duplicate them or fabricate a cross-cutting category.
+
+4. **Matches JEAB publication structure.** Method sections in JEAB papers
+   describe operant baseline schedules, Pavlovian overlays, and composed
+   procedures as distinct units of methodological vocabulary. The layer
+   structure makes each vocabulary directly addressable at the
+   documentation level.
+
+### Respondent Depth Is Minimal by Design
+
+The Respondent layer holds fourteen Tier A primitives — the founding
+procedures named by the Rescorla (1967) contingency-space formalism and
+its immediate controls (see
+[respondent/primitives.md](../../spec/en/respondent/primitives.md)). Deeper
+respondent procedures (blocking, overshadowing, latent inhibition,
+conditioned inhibition, renewal, reinstatement, spontaneous recovery,
+counterconditioning, occasion-setting, and others) are delegated to the
+companion package `contingency-respondent-dsl` through the Respondent
+extension point (see design-philosophy §5.4).
+
+The rationale for this split is scope discipline. The principal coverage
+target of contingency-dsl is operant procedures + JEAB paper reproduction;
+the respondent machinery required to express composed procedures (CER,
+PIT, autoshaping, omission) bottoms out at the Tier A set. Admitting the
+full respondent literature into the Core would (i) expand the primitive
+set by an order of magnitude, (ii) require context-sensitive primitives
+(e.g., renewal across ABA/ABC/AAB contexts) that strain the paradigm-
+neutral Foundations, and (iii) dilute the audience focus. The extension
+point preserves compositional reach without those costs.
+
+### References
+
+- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, *74*(1), 71–80. https://doi.org/10.1037/h0024109
+- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, *74*(3), 151–182. https://doi.org/10.1037/h0024475
+- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
+
+---
+
+## 2. DRO: Why "Other Behavior" Is a Misnomer
 
 ### The Name
 
@@ -79,7 +166,7 @@ vs. variable).
 
 ---
 
-## 2. Progressive Ratio: Why the Step Function Is Required
+## 3. Progressive Ratio: Why the Step Function Is Required
 
 ### The Problem
 
@@ -190,7 +277,7 @@ The researcher must always specify which progression they intend.
 
 ---
 
-## 3. Lag: Why `length` Is Explicit
+## 4. Lag: Why `length` Is Explicit
 
 ### The Parameter Problem
 
