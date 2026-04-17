@@ -1,6 +1,6 @@
 # Omission (Negative Automaintenance)
 
-> Part of the contingency-dsl composed layer (Ψ). Omission is a diagnostic procedure: a forward Pavlovian pairing is programmed as in autoshaping, but with the additional constraint that any response during the CS **cancels** the scheduled US on that trial. Omission separates Pavlovian from operant control of autoshaped responding: if the response were operant in nature, the omission contingency would quickly extinguish it; if the response is Pavlovian, it often persists despite the omission.
+> Part of the contingency-dsl composed layer. Omission is a diagnostic procedure: a forward Pavlovian pairing is programmed as in autoshaping, but with the additional constraint that any response during the CS **cancels** the scheduled US on that trial. Omission separates Pavlovian from operant control of autoshaped responding: if the response were operant in nature, the omission contingency would quickly extinguish it; if the response is Pavlovian, it often persists despite the omission.
 
 **Companion documents:**
 - [Autoshaping](autoshaping.md) — the procedure from which omission diverges diagnostically.

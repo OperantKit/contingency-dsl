@@ -1,6 +1,6 @@
 # respondent-annotator — レスポンデント手続きのための注釈拡張
 
-> contingency-dsl 注釈層（Ψ）の一部。レスポンデント・プリミティブおよび合成オペラント × レスポンデント手続きをホストするフェーズにメタデータを付与する 4 つのレスポンデント関連注釈 — `@cs`, `@us`, `@iti`, `@cs_interval` — を文書化する。この拡張は contingency-dsl プロジェクトに同梱されるが、4 つの JEAB 準拠カテゴリ（Subjects / Apparatus / Procedure / Measurement）の外に位置するため `annotations/extensions/` 配下に置かれる。
+> contingency-dsl 注釈層の一部。レスポンデント・プリミティブおよび合成オペラント × レスポンデント手続きをホストするフェーズにメタデータを付与する 4 つのレスポンデント関連注釈 — `@cs`, `@us`, `@iti`, `@cs_interval` — を文書化する。この拡張は contingency-dsl プロジェクトに同梱されるが、4 つの JEAB 準拠カテゴリ（Subjects / Apparatus / Procedure / Measurement）の外に位置するため `annotations/extensions/` 配下に置かれる。
 
 **関連文書:**
 - [注釈設計](../design.md) — 注釈層アーキテクチャとレジストリ意味論。
@@ -14,7 +14,7 @@
 
 ## 1. ステータス
 
-**ステータス:** Schema Design（Ψ 再構成の一部として導入）。対応する JSON Schema ファイル `schema/annotations/extensions/respondent-annotator.schema.json` は Phase Ψ-4 スキーマ再構成で作成予定である。それまで、本 Markdown 仕様が設計の権威的記述である。
+**ステータス:** Schema Design（層再構成の一部として導入）。対応する JSON Schema ファイル `schema/annotations/extensions/respondent-annotator.schema.json` は a later schema restructure スキーマ再構成で作成予定である。それまで、本 Markdown 仕様が設計の権威的記述である。
 
 ## 2. カテゴリ
 
@@ -156,7 +156,7 @@ respondent-annotator はレスポンデント拡張ポイント（`respondent/gr
 schema/annotations/extensions/respondent-annotator.schema.json
 ```
 
-このファイルは `annotations/schema-format.md` で定義される注釈スキーマ・メタフォーマットに従う。作成は Phase Ψ-4 スキーマ再構成で予定されている。スキーマ・ファイルが存在するまで、本 Markdown が概念設計について権威を持つ。
+このファイルは `annotations/schema-format.md` で定義される注釈スキーマ・メタフォーマットに従う。作成は a later schema restructure スキーマ再構成で予定されている。スキーマ・ファイルが存在するまで、本 Markdown が概念設計について権威を持つ。
 
 ## 8. 実働例 — 完全な CER 符号化
 

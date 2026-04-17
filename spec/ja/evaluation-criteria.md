@@ -28,9 +28,9 @@
 
 | # | 軸 | 定義 | design-philosophy の根拠 | 現在のクレーム |
 |---|---|---|---|---|
-| 1 | **形式的健全性** | 文法の決定性、型・意味論の well-definedness | §2（Ψ 六層: Foundations + Operant + Respondent 非TC、CFG、決定可能性） | Foundations + Operant + Respondent + Composed に渡って非TC; LL(1)/LL(2) 決定可能 |
+| 1 | **形式的健全性** | 文法の決定性、型・意味論の well-definedness | §2（六層: Foundations + Operant + Respondent 非TC、CFG、決定可能性） | Foundations + Operant + Respondent + Composed に渡って非TC; LL(1)/LL(2) 決定可能 |
 | 2 | **言語非依存性** | 単一の spec が言語固有の仮定なしに複数実装を駆動できるか | §6（Python/Rust 並立実装） | 二言語戦略; メタ DSL 構想 |
-| 3 | **段階的拡張性** | 新しい次元を追加しても既存の構成素やプログラムが壊れない | §2（Ψ 六層、Operant / Respondent 分離）, §4（program-scoped Annotation、respondent-annotator 拡張を含む）, §5（Schedule Extension + Respondent extension point） | Annotator plugin + Operant.Stateful admission + Schedule Extension + Respondent extension point（Tier B は `contingency-respondent-dsl` に委譲） |
+| 3 | **段階的拡張性** | 新しい次元を追加しても既存の構成素やプログラムが壊れない | §2（六層、Operant / Respondent 分離）, §4（program-scoped Annotation、respondent-annotator 拡張を含む）, §5（Schedule Extension + Respondent extension point） | Annotator plugin + Operant.Stateful admission + Schedule Extension + Respondent extension point（Tier B は `contingency-respondent-dsl` に委譲） |
 | 4 | **教育的最小性** | 最も単純な有効プログラムが単一トークンで成立する; 複雑性は opt-in | §3.1（全ユーザー共通の記法としての DSL） | `FR 5` が parse/dev mode で完全なプログラム; respondent のみのプログラム（例: `Pair.ForwardDelay(cs, us)`）も単一トークンのプログラム |
 | 5 | **研究的厳密性** | 実機・出版要件を黙って省略・取りこぼさない | §1（最上位の目的）, §7.1（近期ゴール） | production / publication validation mode; JEAB operant カバー率を優先; respondent Tier A は Rescorla (1967) contingency space をカバー |
 | 6 | **概念境界の明瞭性** | annotation・schedule variant・coordinate change・paradigm（operant vs respondent vs composed）が原理的基準で区別される（ad hoc な慣習ではなく） | §2（Operant / Respondent / Composed 姉妹構造）, §4.3（カテゴリ中立的等価性）, §5.5（Annotation / Schedule Extension / Respondent extension 境界） | 境界テスト + §5.5 判定マトリクス + `composed/` admission 基準 |

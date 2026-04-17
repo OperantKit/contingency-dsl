@@ -18,7 +18,7 @@ schema/*/grammar.ebnf          （正典 — git で追跡）
                 contingency-dsl.langium, LSP サーババンドル, .vsix
 ```
 
-`schema/` ディレクトリに規範的な EBNF 文法が Ψ 仕様と同じレイアウトで
+`schema/` ディレクトリに規範的な EBNF 文法が 仕様と同じレイアウトで
 格納されている:
 
 | ファイル | スコープ |

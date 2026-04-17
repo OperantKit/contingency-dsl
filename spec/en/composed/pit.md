@@ -1,6 +1,6 @@
 # Pavlovian-to-Instrumental Transfer (PIT)
 
-> Part of the contingency-dsl composed layer (Ψ). PIT denotes the modulation of an instrumentally trained response by a separately trained Pavlovian CS. The two training histories are established independently; the test phase presents the Pavlovian CS while the operant response is available under extinction (or maintained baseline).
+> Part of the contingency-dsl composed layer. PIT denotes the modulation of an instrumentally trained response by a separately trained Pavlovian CS. The two training histories are established independently; the test phase presents the Pavlovian CS while the operant response is available under extinction (or maintained baseline).
 
 **Companion documents:**
 - [Two-Process Theory](two-process-theory.md) — the Rescorla–Solomon (1967) framework that motivates the transfer effect.

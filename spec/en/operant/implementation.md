@@ -1,6 +1,6 @@
 # Operant Layer — Theory-Implementation Bridge and Legacy Assessment
 
-> Part of the contingency-dsl operant layer (Ψ). Covers Python type mapping, runtime bridge, and OperantKit legacy evaluation for operant schedule expressions. See [theory.md](theory.md) for the operant theory and [grammar.md](grammar.md) for the operant EBNF.
+> Part of the contingency-dsl operant layer. Covers Python type mapping, runtime bridge, and OperantKit legacy evaluation for operant schedule expressions. See [theory.md](theory.md) for the operant theory and [grammar.md](grammar.md) for the operant EBNF.
 
 ---
 

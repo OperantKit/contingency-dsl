@@ -1,6 +1,6 @@
 # 実験層における文脈
 
-> contingency-dsl 実験層（Ψ）の一部。フェーズレベル構成要素としての文脈を詳細化する: 時間的・空間的・刺激的文脈を命名してフェーズに付与することで、更新（renewal）、再発（reinstatement）、および文脈駆動レスポンデント手続きが姉妹パッケージ `contingency-respondent-dsl` で表現可能となる。基盤レベルの文脈定義は `foundations/context.md` に置く。本ファイルは実験層構文を規定する。
+> contingency-dsl 実験層の一部。フェーズレベル構成要素としての文脈を詳細化する: 時間的・空間的・刺激的文脈を命名してフェーズに付与することで、更新（renewal）、再発（reinstatement）、および文脈駆動レスポンデント手続きが姉妹パッケージ `contingency-respondent-dsl` で表現可能となる。基盤レベルの文脈定義は `foundations/context.md` に置く。本ファイルは実験層構文を規定する。
 
 **関連文書:**
 - [基盤 / 文脈](../foundations/context.md) — パラダイム中立な文脈型付け（時間的・空間的・刺激的）。

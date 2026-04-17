@@ -1,6 +1,6 @@
 # Foundations Theory — Paradigm-Neutral Mathematical Substrate
 
-> Part of the contingency-dsl foundations layer (Ψ). Defines the paradigm-neutral mathematical foundations shared by operant (three-term) and respondent (two-term) contingency structures: the general definition of contingency, determinism of the grammar, and the non-Turing-complete (non-TC) claim. Operant-specific derivations (three-term contingency computations, schedule algebra, combinator semantics) live in `operant/theory.md`; respondent-specific derivations live in `respondent/theory.md`.
+> Part of the contingency-dsl foundations layer. Defines the paradigm-neutral mathematical foundations shared by operant (three-term) and respondent (two-term) contingency structures: the general definition of contingency, determinism of the grammar, and the non-Turing-complete (non-TC) claim. Operant-specific derivations (three-term contingency computations, schedule algebra, combinator semantics) live in `operant/theory.md`; respondent-specific derivations live in `respondent/theory.md`.
 
 ---
 

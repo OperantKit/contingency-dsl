@@ -1,6 +1,6 @@
 # Autoshaping / Sign-Tracking
 
-> Part of the contingency-dsl composed layer (Ψ). Autoshaping is the spontaneous emergence of approach and engagement responses directed at a localized CS (e.g., a key light, an inserted lever) under a forward Pavlovian CS–US contingency. No operant response contingency is programmed, yet organisms come to emit a directed response to the CS.
+> Part of the contingency-dsl composed layer. Autoshaping is the spontaneous emergence of approach and engagement responses directed at a localized CS (e.g., a key light, an inserted lever) under a forward Pavlovian CS–US contingency. No operant response contingency is programmed, yet organisms come to emit a directed response to the CS.
 
 **Companion documents:**
 - [Two-Process Theory](two-process-theory.md) — Pavlovian-instrumental framework.

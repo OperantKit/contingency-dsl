@@ -1,6 +1,6 @@
 # Phase Sequence — First-Class Multi-Phase Experimental Design
 
-> Part of the contingency-dsl experiment layer (Ψ). Defines the `PhaseSequence` construct, the `Phase` element and its annotation inheritance rules, the `no_schedule` phase variant, and the JEAB-aligned Method-section conventions that motivate the design. This file is the human-facing specification; the corresponding JSON Schema is `schema/experiment/phase-sequence.schema.json`.
+> Part of the contingency-dsl experiment layer. Defines the `PhaseSequence` construct, the `Phase` element and its annotation inheritance rules, the `no_schedule` phase variant, and the JEAB-aligned Method-section conventions that motivate the design. This file is the human-facing specification; the corresponding JSON Schema is `schema/experiment/phase-sequence.schema.json`.
 
 **Companion documents:**
 - [Experiment / Context](context.md) — first-class Context and its interaction with phase sequencing.

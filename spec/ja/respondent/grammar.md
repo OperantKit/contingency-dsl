@@ -1,6 +1,6 @@
 # レスポンデント文法 — 二項随伴性（CS–US）
 
-> contingency-dsl レスポンデント層（Ψ）の一部。二項随伴性（CS–US）のためのレスポンデント固有 EBNF 産出規則、Tier A パヴロフ型プリミティブ（R1〜R14）、およびサードパーティ・パッケージ（主として `contingency-respondent-dsl`）がレスポンデント文法を変更することなく Tier B 手続きを寄与する文法レベル拡張ポイントを定義する。パラダイム中立のメタ文法は `foundations/grammar.md` で定義される。オペラント固有の産出規則は `operant/grammar.md`、プリミティブごとの操作的仕様は `respondent/primitives.md` を参照。
+> contingency-dsl レスポンデント層の一部。二項随伴性（CS–US）のためのレスポンデント固有 EBNF 産出規則、Tier A パヴロフ型プリミティブ（R1〜R14）、およびサードパーティ・パッケージ（主として `contingency-respondent-dsl`）がレスポンデント文法を変更することなく Tier B 手続きを寄与する文法レベル拡張ポイントを定義する。パラダイム中立のメタ文法は `foundations/grammar.md` で定義される。オペラント固有の産出規則は `operant/grammar.md`、プリミティブごとの操作的仕様は `respondent/primitives.md` を参照。
 
 **関連文書:**
 - [レスポンデント理論](theory.md) — 形式オブジェクトとしての二項随伴性、Rescorla 随伴性空間、獲得／消去、I/T 比。

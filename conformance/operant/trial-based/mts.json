@@ -641,8 +641,8 @@
     }
   },
   {
-    "id": "mts_backward_compat_v10_minimal",
-    "description": "R-7: v1.0 minimal program — AST equivalence without new keywords (backward compatibility)",
+    "id": "mts_backward_compat_minimal",
+    "description": "R-7: minimal program — AST equivalence without new keywords (backward compatibility)",
     "input": "MTS(comparisons=3, consequence=CRF, ITI=5s)",
     "expected": {
       "type": "Program",

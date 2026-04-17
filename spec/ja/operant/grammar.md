@@ -1,6 +1,6 @@
 # オペラント文法 — 三項随伴性（SD–R–SR）
 
-> contingency-dsl オペラント層（Ψ）の一部。オペラント固有の EBNF 産出規則を定義する: `ScheduleExpr`、コンビネータ群（Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay）、修飾子（DRL, DRH, DRO, PR, Lag, Repeat）、限定子（LH, TO, ResponseCost）、嫌悪的スケジュール（Sidman, DiscriminatedAvoidance）。パラダイム中立なメタ文法は `foundations/grammar.md` で定義される。スケジュールクラスごとの仕様は `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md` に置く。状態依存および試行ベースの下位層は `operant/stateful/` および `operant/trial-based/` にある。
+> contingency-dsl オペラント層の一部。オペラント固有の EBNF 産出規則を定義する: `ScheduleExpr`、コンビネータ群（Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay）、修飾子（DRL, DRH, DRO, PR, Lag, Repeat）、限定子（LH, TO, ResponseCost）、嫌悪的スケジュール（Sidman, DiscriminatedAvoidance）。パラダイム中立なメタ文法は `foundations/grammar.md` で定義される。スケジュールクラスごとの仕様は `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md` に置く。状態依存および試行ベースの下位層は `operant/stateful/` および `operant/trial-based/` にある。
 
 **関連文書:** [LL(2) 形式的証明](../foundations/ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ 集合、LL(2) 構文解析表、曖昧性のなさの証明。オペラント文法の LL(2) 決定点はちょうど 1 つのみ（合成の `arg_list` 内の `PosTail`）であり、他のすべての決定点は LL(1) である。
 

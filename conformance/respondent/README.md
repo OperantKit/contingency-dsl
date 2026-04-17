@@ -14,7 +14,7 @@ Tests here validate parsing and semantic analysis of respondent primitives defin
 
 ## Current status
 
-Empty (fixtures are forthcoming). Phase Ψ-10 introduces the `contingency-respondent-dsl` package and will populate this directory with Tier A primitive fixtures covering the full extension point surface.
+Empty (fixtures are forthcoming). a later phase introduces the `contingency-respondent-dsl` package and will populate this directory with Tier A primitive fixtures covering the full extension point surface.
 
 ## Extension point
 

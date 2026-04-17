@@ -2,7 +2,7 @@
 
 Language-independent specification for declaring reinforcement contingencies and Pavlovian pairings. Organized by scientific category (operant / respondent / composed) under a paradigm-neutral formal foundation.
 
-## Ψ layer structure
+## Layer structure
 
 | Layer | Scope | Directory |
 |---|---|---|
@@ -87,7 +87,7 @@ Omission(cs=KeyLight, us=Food, cancel_response=KeyPeck)
 - **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — Metadata layers including `@cs`, `@us`, `@iti`, `@cs_interval`, `@model`
 - **[Paper Examples (EN)](docs/en/paper-examples.md)** / **[論文例 (JA)](docs/ja/paper-examples.md)** — DSL encodings of CER, autoshaping, PIT, omission, and classical schedule studies
 - **[Architecture (EN)](spec/en/architecture.md)** / **[アーキテクチャ (JA)](spec/ja/architecture.md)** — Six-layer diagram, SEI P1/P2/P3, TC / non-TC boundary
-- **[Design Philosophy (EN)](spec/en/design-philosophy.md)** / **[設計思想 (JA)](spec/ja/design-philosophy.md)** — Supreme objective, Ψ layer rationale, admission gate
+- **[Design Philosophy (EN)](spec/en/design-philosophy.md)** / **[設計思想 (JA)](spec/ja/design-philosophy.md)** — Supreme objective, layer rationale, admission gate
 - **[Operant Grammar (EN)](spec/en/operant/grammar.md)** / **[オペラント文法 (JA)](spec/ja/operant/grammar.md)** — Three-term contingency productions
 - **[Respondent Grammar (EN)](spec/en/respondent/grammar.md)** / **[レスポンデント文法 (JA)](spec/ja/respondent/grammar.md)** — Tier A primitives + extension point
 - **[Foundations Grammar (EN)](spec/en/foundations/grammar.md)** / **[基盤文法 (JA)](spec/ja/foundations/grammar.md)** — Paradigm-neutral lexical structure
@@ -105,7 +105,7 @@ cd ../contingency-dsl-py && pytest tests/test_conformance.py -v
 cd ../contingency-dsl-rs && cargo test conformance
 ```
 
-The test corpus is organized by Ψ layer:
+The test corpus is organized by layer:
 - `conformance/foundations/` — paradigm-neutral lexical tests
 - `conformance/operant/` — schedule behavior (ratio, interval, time, differential, compound, progressive)
 - `conformance/operant/stateful/` — Percentile, Adjusting, Interlocking

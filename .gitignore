@@ -4,6 +4,16 @@ tmp/
 .env
 .DS_Store
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
 # Generated artifacts (reproducible from schema/*/grammar.ebnf via scripts/)
 # Release binaries are published to GitHub Releases, not tracked in git.
 dist/

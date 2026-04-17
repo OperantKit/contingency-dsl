@@ -545,8 +545,7 @@ acknowledged.
    d. **Addition of a new Operant or Respondent primitive** — last
       resort, subject to §2.1 disciplinary-establishment criteria.
 2. Any addition must be **additive only** (no modification of existing
-   syntax or semantics). Additive changes are recorded as design
-   checkpoints in `versioning.md`.
+   syntax or semantics).
 
 ### 8.2 Conditions Under Which Breaking Changes Are Exceptionally Permitted
 
@@ -569,14 +568,12 @@ are met:
 
 When a breaking change is judged unavoidable:
 
-1. Record the change as a **design checkpoint** in `versioning.md`,
-   specifying which condition in §8.2 applies and what the old and new
-   structures are. This repository has no external publication checkpoint
-   yet (no git remote is configured); design checkpoints are the
-   authoritative record.
+1. Record the change in the git commit message, specifying which
+   condition in §8.2 applies and what the old and new structures are.
+   This repository has no external publication checkpoint yet (no git
+   remote is configured); the git history is the authoritative record.
 2. Simultaneously provide a conversion tool that enables mechanical
-   migration of DSL written against the previous design checkpoint to
-   the new one.
+   migration of DSL written against the previous design to the new one.
 3. Update this document and the canonical spec tree accordingly.
 
 ---

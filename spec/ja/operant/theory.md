@@ -12,7 +12,7 @@
 - [foundations/ll2-proof.md](../foundations/ll2-proof.md) — LL(2) 構文解析表および証明
 - [grammar.md](grammar.md) — オペラント固有の EBNF 産出規則
 - [implementation.md](implementation.md) — Python 型マッピング、レガシー評価
-- [../architecture.md](../architecture.md) — Ψ 六層アーキテクチャ、計算可能性、注釈システム
+- [../architecture.md](../architecture.md) — 六層アーキテクチャ、計算可能性、注釈システム
 - [../representations/overview.md](../representations/overview.md) — 代替座標系（T-tau）
 
 ---

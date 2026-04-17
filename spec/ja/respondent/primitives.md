@@ -1,6 +1,6 @@
 # レスポンデント・プリミティブ — Tier A 仕様（R1〜R14）
 
-> contingency-dsl レスポンデント層（Ψ）の一部。14 個の Tier A パヴロフ型プリミティブの操作的定義、パラメータ意味論、引用、例示的 DSL 用例。文法産出規則は `grammar.md`、理論的動機は `theory.md` を参照。拡張ポイントのプリミティブ（Tier B）は姉妹パッケージ `contingency-respondent-dsl` を参照。
+> contingency-dsl レスポンデント層の一部。14 個の Tier A パヴロフ型プリミティブの操作的定義、パラメータ意味論、引用、例示的 DSL 用例。文法産出規則は `grammar.md`、理論的動機は `theory.md` を参照。拡張ポイントのプリミティブ（Tier B）は姉妹パッケージ `contingency-respondent-dsl` を参照。
 
 ---
 

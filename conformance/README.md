@@ -141,7 +141,7 @@ Empty (placeholder). See `foundations/README.md` for the dividing principle and 
 
 ### respondent/
 
-Empty (placeholder). See `respondent/README.md`. Tier A primitive fixtures added in Phase Ψ-10.
+Empty (placeholder). See `respondent/README.md`. Tier A primitive fixtures added in a later phase.
 
 ### composed/
 

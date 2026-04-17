@@ -226,7 +226,7 @@
   },
 
   {
-    "_comment": "=== Second-order unit: compound inner rejected (constraint §5, v1.0 freeze) ==="
+    "_comment": "=== Second-order unit: compound inner rejected (constraint §5) ==="
   },
   {
     "id": "error_second_order_chain_unit",
@@ -546,7 +546,7 @@
   },
   {
     "id": "error_overlay_keyword_arg",
-    "description": "Overlay does not accept keyword args in v1.x",
+    "description": "Overlay does not accept keyword args",
     "input": "Overlay(VI60s, FR1, COD=2s)",
     "error": {
       "type": "SemanticError",

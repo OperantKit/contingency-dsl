@@ -18,7 +18,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Operant** | 19 | 420+ | ✅ Primary coverage |
 | **Operant-Stateful** | 4 | 92 | ✅ Full coverage |
 | **Operant-Trial-Based** | 3 | 84 | ✅ Full coverage |
-| **Respondent** | 0 | 0 | Forthcoming (Phase Ψ-10 — Tier A primitive fixtures) |
+| **Respondent** | 0 | 0 | Forthcoming (Tier A primitive fixtures) |
 | **Composed** | 0 | 0 | Forthcoming (CER / PIT / autoshape / omission / two-process) |
 | **Experiment** | 4 | 35 | ✅ Full coverage |
 | **Annotations** | 8 | 140+ | ✅ Full coverage (incl. respondent-annotator extension stub) |
@@ -569,5 +569,4 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 
 ---
 
-*Last updated: 2026-04-17 (Phase Ψ-5 restructure — core/ → operant/, core-stateful/ → operant/stateful/, core-trial-based/ → operant/trial-based/)*
 *References: `schema/foundations/grammar.ebnf`, `schema/operant/grammar.ebnf`, `schema/operant/stateful/grammar.ebnf`, `schema/operant/trial-based/grammar.ebnf`, `schema/respondent/grammar.ebnf`, `schema/composed/*.schema.json`, `schema/annotations/extensions/respondent-annotator.schema.json`*

@@ -1,6 +1,6 @@
 # Stimulus Typing — SD, SΔ, CS, US, Sr+, Sr−, Punisher
 
-> Part of the contingency-dsl foundations layer (Ψ). Fixes the canonical stimulus-type lattice used across operant, respondent, and composed layers. Paradigm layers reuse these types; they are not re-introduced per layer.
+> Part of the contingency-dsl foundations layer. Fixes the canonical stimulus-type lattice used across operant, respondent, and composed layers. Paradigm layers reuse these types; they are not re-introduced per layer.
 
 ---
 

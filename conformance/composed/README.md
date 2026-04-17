@@ -14,7 +14,7 @@ Tests here validate parsing, semantic analysis, and canonicalization of composed
 
 ## Current status
 
-Empty (fixtures are forthcoming). Phase Ψ-extras / Phase Ψ-10 will populate this directory once respondent primitives are implemented in the parser.
+Empty (fixtures are forthcoming). Phase-extras / a later phase will populate this directory once respondent primitives are implemented in the parser.
 
 ## Schema references
 

@@ -1,10 +1,10 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the Ψ six-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](theory.md). Describes the six-layer architecture, computability properties, and annotation system.
 
 ---
 
-## 4.1 Ψ Six-Layer Architecture
+## 4.1 Six-Layer Architecture
 
 Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies. Pavlovian (respondent) procedures introduce an orthogonal structural axis: two-term CS–US relations that do not require an operant response.
 
@@ -100,7 +100,7 @@ Therefore:
 
 ## 4.1.1 Operational Boundary: contingency-dsl vs. contingency-core
 
-The Ψ layer diagram above uses the terms "static" and "dynamic" informally. This section provides an **operational definition** — a litmus test that determines, for any given procedure, which layer it belongs to. The test is semantically unchanged from the previous architecture; only the layer labels on the DSL side are renamed (`Core` → `Operant.Literal`, `Core-Stateful` → `Operant.Stateful`, `Core-TrialBased` → `Operant.TrialBased`, and the Respondent layer is an additional CFG non-TC sibling to which the same SEI reasoning applies).
+The layer diagram above uses the terms "static" and "dynamic" informally. This section provides an **operational definition** — a litmus test that determines, for any given procedure, which layer it belongs to. The test applies uniformly to Operant.Literal, Operant.Stateful, Operant.TrialBased, and the Respondent layer (an additional CFG non-TC sibling).
 
 ### One-Sentence Summary
 
@@ -446,7 +446,7 @@ class AnnotationModule(Protocol):
     """Contract for a DSL annotation module that adds an orthogonal dimension."""
 
     name: ClassVar[str]       # e.g. "procedure-annotator" or "subjects-annotator"
-    version: ClassVar[str]    # semver — see versioning.md §3 for capability semantics
+    version: ClassVar[str]    # semver
 
     @property
     def annotation_keywords(self) -> FrozenSet[str]:
@@ -646,7 +646,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 ## Schema Path Conventions
 
-The `schema/` tree mirrors the Ψ directory structure:
+The `schema/` tree mirrors the directory structure:
 
 - `schema/foundations/` — meta-grammar, contingency-type definitions, time scales, stimulus typing, valence, context types
 - `schema/operant/grammar.ebnf`, `schema/operant/ast.schema.json` — Operant layer grammar and AST

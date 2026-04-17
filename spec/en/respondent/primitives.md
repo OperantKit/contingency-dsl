@@ -1,6 +1,6 @@
 # Respondent Primitives — Tier A Specifications (R1–R14)
 
-> Part of the contingency-dsl respondent layer (Ψ). Operational definitions, parameter semantics, citations, and illustrative DSL examples for the fourteen Tier A Pavlovian primitives. For grammar productions, see `grammar.md`; for theoretical motivation, see `theory.md`; for extension-point primitives (Tier B), see the companion package `contingency-respondent-dsl`.
+> Part of the contingency-dsl respondent layer. Operational definitions, parameter semantics, citations, and illustrative DSL examples for the fourteen Tier A Pavlovian primitives. For grammar productions, see `grammar.md`; for theoretical motivation, see `theory.md`; for extension-point primitives (Tier B), see the companion package `contingency-respondent-dsl`.
 
 ---
 

@@ -7,7 +7,7 @@ this document says why it is that way.
 
 ---
 
-## 1. Ψ Layer Organization: Organizing by Scientific Category, Not by Formal Axis
+## 1. Layer Organization: Organizing by Scientific Category, Not by Formal Axis
 
 ### The Choice
 

@@ -5,7 +5,7 @@
 
 ---
 
-## Annotator layers in the Ψ design checkpoint
+## Annotator layers in the design checkpoint
 
 The annotation system has two tiers:
 
@@ -108,9 +108,6 @@ to the same AST node and do not affect equivalence judgment. See
 | `@reinforcer` | Declares a reinforcer (primary form) | `@reinforcer("food", type="unconditioned", access_duration=3)` |
 | `@sd` | Discriminative stimulus identity | `@sd("red_light", component=1)` |
 | `@brief` | Brief stimulus in second-order schedules | `@brief("light", duration=2)` |
-
-Note: `@operandum` (response device identity) was previously listed here but
-moved to **apparatus-annotator** on 2026-04-12. See the Apparatus section below.
 
 **Example: Concurrent schedule with identified components**
 

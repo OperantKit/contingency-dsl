@@ -1,6 +1,6 @@
 # オペラント層 — 理論-実装ブリッジとレガシー評価
 
-> contingency-dsl オペラント層（Ψ）の一部。オペラント・スケジュール式のための Python 型マッピング、ランタイムブリッジ、OperantKit レガシー評価を扱う。オペラント理論は [theory.md](theory.md)、オペラント EBNF は [grammar.md](grammar.md) を参照。
+> contingency-dsl オペラント層の一部。オペラント・スケジュール式のための Python 型マッピング、ランタイムブリッジ、OperantKit レガシー評価を扱う。オペラント理論は [theory.md](theory.md)、オペラント EBNF は [grammar.md](grammar.md) を参照。
 
 ---
 

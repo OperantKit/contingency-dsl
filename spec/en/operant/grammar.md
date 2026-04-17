@@ -1,6 +1,6 @@
 # Operant Grammar — Three-Term Contingency (SD–R–SR)
 
-> Part of the contingency-dsl operant layer (Ψ). Defines the operant-specific EBNF productions: `ScheduleExpr`, the combinator family (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay), modifiers (DRL, DRH, DRO, PR, Lag, Repeat), qualifiers (LH, TO, ResponseCost), and aversive schedules (Sidman, DiscriminatedAvoidance). Paradigm-neutral meta-grammar is defined in `foundations/grammar.md`. Per-schedule-class specifications live in `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md`. Stateful and trial-based sublayers live under `operant/stateful/` and `operant/trial-based/`.
+> Part of the contingency-dsl operant layer. Defines the operant-specific EBNF productions: `ScheduleExpr`, the combinator family (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay), modifiers (DRL, DRH, DRO, PR, Lag, Repeat), qualifiers (LH, TO, ResponseCost), and aversive schedules (Sidman, DiscriminatedAvoidance). Paradigm-neutral meta-grammar is defined in `foundations/grammar.md`. Per-schedule-class specifications live in `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md`. Stateful and trial-based sublayers live under `operant/stateful/` and `operant/trial-based/`.
 
 **Companion document:** [LL(2) Formal Proof](../foundations/ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ sets, LL(2) parse table, unambiguity proof. The operant grammar has exactly one LL(2) decision point (`PosTail` in compound `arg_list`); all other decision points are LL(1).
 

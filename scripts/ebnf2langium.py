@@ -454,7 +454,7 @@ _LOAD_ORDER = (
 
 
 def _load_grammars(schema_dir: Path) -> Grammar:
-    """Load and merge all EBNF grammar files under Ψ layout.
+    """Load and merge all EBNF grammar files under layout.
 
     Foundations is loaded first (paradigm-neutral lexical rules), then
     Operant (three-term contingency), then Operant.Stateful,

@@ -1,6 +1,6 @@
 # LL(2) 形式的証明 — contingency-dsl コア文法
 
-> contingency-dsl 基盤層（Ψ）の一部。コア文法の LL(2) 性・非 LL(1) 性・曖昧性のなさを形式的に証明する。
+> contingency-dsl 基盤層の一部。コア文法の LL(2) 性・非 LL(1) 性・曖昧性のなさを形式的に証明する。
 
 ---
 

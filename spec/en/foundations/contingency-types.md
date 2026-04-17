@@ -1,6 +1,6 @@
 # Contingency Types — Contingent vs Non-Contingent, Two-Term vs Three-Term
 
-> Part of the contingency-dsl foundations layer (Ψ). Defines the foundational type distinctions that divide the DSL into paradigm layers. Not a treatise — this file fixes the canonical definitions used throughout the spec.
+> Part of the contingency-dsl foundations layer. Defines the foundational type distinctions that divide the DSL into paradigm layers. Not a treatise — this file fixes the canonical definitions used throughout the spec.
 
 ---
 

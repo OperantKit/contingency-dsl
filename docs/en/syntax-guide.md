@@ -3,11 +3,11 @@
 > A progressive guide to contingency-dsl syntax — from basic schedules to advanced constructs.
 > For the formal grammar (BNF), see [foundations/grammar.md](../../spec/en/foundations/grammar.md), [operant/grammar.md](../../spec/en/operant/grammar.md), and [respondent/grammar.md](../../spec/en/respondent/grammar.md).
 >
-> ## Ψ layer map
+> ## Layer map
 >
 > The DSL is organized by scientific category. This guide is grouped accordingly:
 >
-> | Ψ layer | Covered in |
+> | Layer | Covered in |
 > |---|---|
 > | **Foundations** (paradigm-neutral formal base) | implicit throughout — atomic syntax, literal types |
 > | **Operant** (three-term SD-R-SR) | Levels 1–4 below (atomic, compound, modifiers, second-order) |
@@ -17,8 +17,6 @@
 > | **Composed** (operant × respondent) | Level 8 — Composed procedures |
 > | **Experiment** (declarative phase structure) | Level 6 — Experiment layer (multi-phase) |
 > | **Annotation** (program-scoped metadata) | see [annotations.md](annotations.md) |
->
-> The layer names Core, Core-Stateful, and Core-TrialBased used in prior drafts have been retired; all tracked documents use the Foundations / Operant / Operant.Stateful / Operant.TrialBased / Respondent / Composed / Experiment vocabulary introduced with the Ψ design checkpoint.
 
 ---
 

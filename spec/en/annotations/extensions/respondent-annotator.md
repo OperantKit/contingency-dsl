@@ -1,6 +1,6 @@
 # respondent-annotator — Annotation Extension for Respondent Procedures
 
-> Part of the contingency-dsl annotation layer (Ψ). Documents the four respondent-related annotations — `@cs`, `@us`, `@iti`, `@cs_interval` — that attach metadata to respondent primitives and to phases that host composed operant × respondent procedures. The extension is bundled with the contingency-dsl project but lives under `annotations/extensions/` because it falls outside the four JEAB-aligned categories (Subjects / Apparatus / Procedure / Measurement).
+> Part of the contingency-dsl annotation layer. Documents the four respondent-related annotations — `@cs`, `@us`, `@iti`, `@cs_interval` — that attach metadata to respondent primitives and to phases that host composed operant × respondent procedures. The extension is bundled with the contingency-dsl project but lives under `annotations/extensions/` because it falls outside the four JEAB-aligned categories (Subjects / Apparatus / Procedure / Measurement).
 
 **Companion documents:**
 - [Annotation Design](../design.md) — annotation layer architecture and registry semantics.
@@ -14,7 +14,7 @@
 
 ## 1. Status
 
-**Status:** Schema Design (introduced as part of the Ψ restructuring). The companion JSON Schema file at `schema/annotations/extensions/respondent-annotator.schema.json` is scheduled for creation in the Phase Ψ-4 schema restructure. Until then, this markdown specification is the authoritative design description.
+**Status:** Schema Design (introduced as part of the layer restructuring). The companion JSON Schema file at `schema/annotations/extensions/respondent-annotator.schema.json` is scheduled for creation in a later schema restructure. Until then, this markdown specification is the authoritative design description.
 
 ## 2. Category
 
@@ -156,7 +156,7 @@ The authoritative schema for these four annotations will live at:
 schema/annotations/extensions/respondent-annotator.schema.json
 ```
 
-That file follows the annotation-schema meta-format defined in `annotations/schema-format.md`. Its creation is scheduled for the Phase Ψ-4 schema restructure; the present markdown is authoritative for the conceptual design until the schema file exists.
+That file follows the annotation-schema meta-format defined in `annotations/schema-format.md`. Its creation is scheduled for a later schema restructure; the present markdown is authoritative for the conceptual design until the schema file exists.
 
 ## 8. Worked Example — Full CER Encoding
 

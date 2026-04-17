@@ -1,6 +1,6 @@
 # Valence — Appetitive vs Aversive
 
-> Part of the contingency-dsl foundations layer (Ψ). Defines the appetitive / aversive axis as an orthogonal property independent of stimulus type.
+> Part of the contingency-dsl foundations layer. Defines the appetitive / aversive axis as an orthogonal property independent of stimulus type.
 
 ---
 

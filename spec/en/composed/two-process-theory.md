@@ -1,6 +1,6 @@
 # Two-Process Theory
 
-> Part of the contingency-dsl composed layer (Ψ). Two-process theory is the theoretical account under which the composed procedures in this layer are unified. It posits that Pavlovian and instrumental learning are distinct processes whose products interact to generate observed behavior, and that Pavlovian CSs acquire motivational properties that modulate instrumental performance. This file documents the framework itself rather than any particular procedure; it is the theoretical core that admits CER, PIT, autoshaping, and omission as composed constituents.
+> Part of the contingency-dsl composed layer. Two-process theory is the theoretical account under which the composed procedures in this layer are unified. It posits that Pavlovian and instrumental learning are distinct processes whose products interact to generate observed behavior, and that Pavlovian CSs acquire motivational properties that modulate instrumental performance. This file documents the framework itself rather than any particular procedure; it is the theoretical core that admits CER, PIT, autoshaping, and omission as composed constituents.
 
 **Companion documents:**
 - [Conditioned Suppression (CER)](conditioned-suppression.md)

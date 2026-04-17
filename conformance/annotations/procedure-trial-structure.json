@@ -1,7 +1,7 @@
 [
   {
     "id": "trial_structure_peak_eckard_kyonka_2018",
-    "description": "@trial_mix for Eckard & Kyonka (2018) peak procedure: FI18s LH3s baseline, 45 FI trials + 15 probe trials (54s, unreinforced) per session. Uses structured components array (RFC 2026-04-17).",
+    "description": "@trial_mix for Eckard & Kyonka (2018) peak procedure: FI18s LH3s baseline, 45 FI trials + 15 probe trials (54s, unreinforced) per session. Uses structured components array.",
     "input": "@trial_mix(\n  type=\"peak\",\n  components=[\n    {role=\"reinforced\", ref=0, count=45},\n    {role=\"probe\",      ref=1, count=15, duration=54s}\n  ],\n  ordering_spec=\"random\"\n)\nMix(FI18s LH3s, EXT)",
     "expected": {
       "type": "Program",
@@ -327,7 +327,7 @@
     "description": "@trial_mix applied to MTS triggers TRIAL_MIX_WRONG_PRIMITIVE",
     "input": "@trial_mix(type=\"peak\", components=[{role=\"reinforced\", ref=0, count=45}, {role=\"probe\", ref=1, count=15, duration=54s}])\n\nMTS(samples=3, comparisons=3)",
     "expected_error": "TRIAL_MIX_WRONG_PRIMITIVE",
-    "_note": "MTS is Core-TrialBased (discrete-trial). For MTS probe testing, use @testing (procedure-stimulus) instead."
+    "_note": "MTS is Operant.TrialBased (discrete-trial). For MTS probe testing, use @testing (procedure-stimulus) instead."
   },
   {
     "id": "trial_structure_error_probe_out_of_anchor_range",

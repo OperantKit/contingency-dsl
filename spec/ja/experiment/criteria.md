@@ -1,6 +1,6 @@
 # 相変化基準
 
-> contingency-dsl 実験層（Ψ）の一部。相変化基準のカタログ — あるフェーズが終了し次のフェーズが開始する宣言的条件 — を規定する。基準集合は列挙された非 TC ファミリである: `Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`。このカタログを越えるランタイム条件付き基準（例: 反応率ベースのスケジュール切替）は実験層ではなく `contingency-core` に属する。
+> contingency-dsl 実験層の一部。相変化基準のカタログ — あるフェーズが終了し次のフェーズが開始する宣言的条件 — を規定する。基準集合は列挙された非 TC ファミリである: `Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`。このカタログを越えるランタイム条件付き基準（例: 反応率ベースのスケジュール切替）は実験層ではなく `contingency-core` に属する。
 
 **関連文書:**
 - [実験 / フェーズ列](phase-sequence.md) — 基準が付与される場所。

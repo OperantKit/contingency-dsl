@@ -1,6 +1,6 @@
 # Time Scales — Trial, Session, Phase, ITI; Molar vs Molecular
 
-> Part of the contingency-dsl foundations layer (Ψ). Fixes the canonical time-scale vocabulary used throughout the spec. Paradigm layers reuse these definitions; no layer redefines them.
+> Part of the contingency-dsl foundations layer. Fixes the canonical time-scale vocabulary used throughout the spec. Paradigm layers reuse these definitions; no layer redefines them.
 
 ---
 

@@ -19,7 +19,7 @@ schema/*/grammar.ebnf          (source of truth — tracked in git)
 ```
 
 The `schema/` directory contains the normative EBNF grammars arranged to
-mirror the Ψ spec layout:
+mirror the spec layout:
 
 | File | Scope |
 |---|---|

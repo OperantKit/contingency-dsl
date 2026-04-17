@@ -3,11 +3,11 @@
 > contingency-dsl の構文を段階的に解説する。基本スケジュールから高度な構成まで。
 > 形式文法（BNF）は [foundations/grammar.md](../../spec/ja/foundations/grammar.md)、[operant/grammar.md](../../spec/ja/operant/grammar.md)、[respondent/grammar.md](../../spec/ja/respondent/grammar.md) を参照。
 >
-> ## Ψ 層構造マップ
+> ## 層構造マップ
 >
 > DSL は科学的カテゴリで階層化される。本ガイドもこの階層に沿って構成する:
 >
-> | Ψ 層 | 解説位置 |
+> | 層 | 解説位置 |
 > |---|---|
 > | **基盤 (Foundations)** — パラダイム中立な形式基盤 | 原子構文・リテラル型を通じて暗黙的に全体で扱う |
 > | **オペラント (Operant)** — 三項随伴性 SD-R-SR | レベル 1〜4（原子、複合、修飾、二次スケジュール） |
@@ -17,8 +17,6 @@
 > | **合成手続き (Composed)** — オペラント × レスポンデント | レベル 4.6 の合成手続き |
 > | **実験層 (Experiment)** — 宣言的フェーズ構造 | レベル 6 の実験層 |
 > | **注釈 (Annotation)** — プログラム境域メタデータ | [annotations.md](annotations.md) 参照 |
->
-> 旧案で用いられた Core / Core-Stateful / Core-TrialBased の層名は廃止された。追跡対象文書はすべて Ψ 設計チェックポイントに合わせ Foundations / Operant / Operant.Stateful / Operant.TrialBased / Respondent / Composed / Experiment の語彙を用いる。
 
 ---
 

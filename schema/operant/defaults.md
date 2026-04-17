@@ -11,7 +11,7 @@ When a parameter is omitted, the following values apply.
 | `VR20` | Fleshler-Hoffman (1962) | Same rationale |
 | `VT60s` | Fleshler-Hoffman (1962) | Same rationale |
 
-Explicit override (future syntax, not in v1.0 BNF):
+Explicit override (future syntax, not in current BNF):
 ```
 VI60s:arith       -- arithmetic progression
 VI60s:exp         -- exponential (constant-probability)
@@ -54,16 +54,16 @@ series before recycling.
 | `VI60s` | 12 | Default; sufficient for all standard use |
 | `@algorithm("fleshler-hoffman", n=20)` | 20 | Explicit N override |
 
-**Future inline syntax (reserved, not in v1.0 BNF):**
+**Future inline syntax (reserved, not in current BNF):**
 
 ```
 VI60s:fh          -- explicit FH, default parameters (N=12, seed=auto)
 VI60s:fh(N=20)    -- FH with N=20
 ```
 
-The `:fh(...)` suffix is reserved for future versions. v1.0 parsers that
-encounter this syntax MUST reject it with a clear error message indicating
-the syntax is reserved. The `@algorithm(...)` annotation remains the v1.0
+The `:fh(...)` suffix is reserved for future versions. Parsers that
+encounter this syntax must reject it with a clear error message indicating
+the syntax is reserved. The `@algorithm(...)` annotation is the current
 mechanism for specifying FH parameters.
 
 Reference: Fleshler, M., & Hoffman, H. S. (1962). A progression for generating
@@ -80,7 +80,7 @@ variable-interval schedules. *JEAB*, 5(4), 529-530.
 The `time_unit` field in the AST is `null` when not explicitly declared.
 Conversion to canonical seconds occurs at the runtime bridge, not in the DSL.
 
-**v1.0:** Interval and Time domain schedules (FI, VI, RI, FT, VT, RT) without
+Interval and Time domain schedules (FI, VI, RI, FT, VT, RT) without
 an explicit time unit emit a linter WARNING (code `MISSING_TIME_UNIT`). The
 expression remains valid and parseable, but the omission is flagged for
 procedural clarity. Ratio domain schedules (FR, VR, RR) are dimensionless and
@@ -96,7 +96,7 @@ omit for conceptual or pedagogical use, but flagged to encourage explicitness.
 
 | Written | Expansion | Notes |
 |---------|-----------|-------|
-| ~~`PR`~~ | — | **Removed in v1.0.** Bare `PR` (no number, no parens) is a ParseError. |
+| ~~`PR`~~ | — | **Not supported.** Bare `PR` (no number, no parens) is a ParseError. |
 | `PR n` | `PR(linear, start=n, increment=n)` | Jarmolowicz & Lattal (2010) notation. `PR 5` → FR 5, FR 10, FR 15, ... |
 | `PR(linear)` | `start=1, increment=5` | Linear default parameters |
 | `PR(geometric)` | `start=1, ratio=2` | Geometric default parameters (doubling: 1, 2, 4, 8, ...) |
@@ -112,7 +112,7 @@ omit for conceptual or pedagogical use, but flagged to encourage explicitness.
 
 ## Reinforcement Delay (RD)
 
-**v1.x:** RD is a **program-level param_decl only** (no expression-level
+RD is a **program-level param_decl only** (no expression-level
 suffix). It specifies the session-wide temporal interval between any
 schedule satisfaction event and the delivery of the consequence — typically
 representing apparatus-imposed delay (e.g., feeder actuation time).
@@ -168,7 +168,7 @@ References:
 
 ## Concurrent changeover delay (COD) and fixed-ratio changeover (FRCO)
 
-**v1.0:** COD is optional for `Conc`. Omitting COD emits a linter WARNING
+COD is optional for `Conc`. Omitting COD emits a linter WARNING
 (code `MISSING_COD`), recommending explicit specification per Herrnstein (1961).
 The runtime default is `COD=0s` (no changeover delay), applied at the runtime
 bridge layer — the AST does not contain an implicit COD.

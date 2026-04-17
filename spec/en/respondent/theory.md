@@ -1,6 +1,6 @@
 # Respondent Theory — The Two-Term Contingency (CS–US)
 
-> Part of the contingency-dsl respondent layer (Ψ). Defines the two-term contingency as a distinct formal object from the three-term (operant) contingency, introduces the Rescorla (1967, 1968) contingency space as the semantic target of the respondent grammar, discusses acquisition and extinction without appealing to response strengthening, and situates the intertrial interval (ITI) as a structural determinant of conditioned-response (CR) acquisition.
+> Part of the contingency-dsl respondent layer. Defines the two-term contingency as a distinct formal object from the three-term (operant) contingency, introduces the Rescorla (1967, 1968) contingency space as the semantic target of the respondent grammar, discusses acquisition and extinction without appealing to response strengthening, and situates the intertrial interval (ITI) as a structural determinant of conditioned-response (CR) acquisition.
 
 **Companion documents:**
 - [Respondent Grammar](grammar.md) — EBNF productions and extension point.

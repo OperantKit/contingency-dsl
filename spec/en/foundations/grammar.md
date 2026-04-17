@@ -1,6 +1,6 @@
 # Foundations Grammar — Paradigm-Neutral Formal Skeleton
 
-> Part of the contingency-dsl foundations layer (Ψ). Defines the paradigm-neutral CFG / LL(2) structure, meta-grammar, token types, parse-tree conventions, and identifier conventions. Operant-specific schedule productions live in `operant/grammar.md`; respondent-specific productions in `respondent/grammar.md`.
+> Part of the contingency-dsl foundations layer. Defines the paradigm-neutral CFG / LL(2) structure, meta-grammar, token types, parse-tree conventions, and identifier conventions. Operant-specific schedule productions live in `operant/grammar.md`; respondent-specific productions in `respondent/grammar.md`.
 
 **Companion document:** [LL(2) Formal Proof](ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ sets, LL(2) parse table, unambiguity proof, and paradigm-preservation proofs. The grammar has exactly one LL(2) decision point (`PosTail` in compound `arg_list`); all other decision points are LL(1).
 

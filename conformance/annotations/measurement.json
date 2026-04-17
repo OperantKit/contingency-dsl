@@ -116,7 +116,7 @@
   },
   {
     "id": "measurement_full_preamble",
-    "description": "Full measurement preamble: all three v1.x keywords as program-level defaults",
+    "description": "Full measurement preamble: all three keywords as program-level defaults",
     "input": "@session_end(rule=\"first\", time=60min, reinforcers=60)\n@baseline(pre_training_sessions=3)\n@steady_state(window_sessions=5, max_change_pct=10)\n\nFR5",
     "expected": {
       "type": "Program",

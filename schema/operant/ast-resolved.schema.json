@@ -42,7 +42,7 @@
         },
         "params": {
           "type": "object",
-          "description": "Named parameters (key=value pairs). Time values normalized to seconds. Values may be strings, numbers, arrays, or objects (v0.1 structured values, RFC 2026-04-17).",
+          "description": "Named parameters (key=value pairs). Time values normalized to seconds. Values may be strings, numbers, arrays, or objects.",
           "additionalProperties": { "$ref": "#/$defs/AnnotationValue" }
         }
       },
@@ -51,7 +51,7 @@
     },
 
     "AnnotationValue": {
-      "description": "Value of an annotation argument. Recursive: string | number | array<AnnotationValue> | object<ident, AnnotationValue>. Grammar: annotation_val (grammar.ebnf §4.7). Structured values added v0.1 (RFC 2026-04-17).",
+      "description": "Value of an annotation argument. Recursive: string | number | array<AnnotationValue> | object<ident, AnnotationValue>. Grammar: annotation_val (grammar.ebnf §4.7).",
       "oneOf": [
         { "type": "string" },
         { "type": "number" },

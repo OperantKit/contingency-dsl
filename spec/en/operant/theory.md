@@ -12,7 +12,7 @@ Paradigm-neutral material (CFG/LL(2) skeleton, the general definition of conting
 - [foundations/ll2-proof.md](../foundations/ll2-proof.md) — LL(2) parse table and proof
 - [grammar.md](grammar.md) — Operant-specific EBNF productions
 - [implementation.md](implementation.md) — Python type mapping, legacy assessment
-- [../architecture.md](../architecture.md) — Ψ six-layer architecture, computability, annotation system
+- [../architecture.md](../architecture.md) — six-layer architecture, computability, annotation system
 - [../representations/overview.md](../representations/overview.md) — Alternative coordinate systems (T-tau)
 
 ---

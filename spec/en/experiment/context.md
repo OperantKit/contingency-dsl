@@ -1,6 +1,6 @@
 # Context in the Experiment Layer
 
-> Part of the contingency-dsl experiment layer (Ψ). Elaborates context as a phase-level construct: temporal, spatial, and stimulus contexts are named and attached to phases so that renewal, reinstatement, and context-driven respondent procedures can be expressed in the companion package `contingency-respondent-dsl`. The foundations-level definition of context lives in `foundations/context.md`; this file specifies the experiment-layer syntax.
+> Part of the contingency-dsl experiment layer. Elaborates context as a phase-level construct: temporal, spatial, and stimulus contexts are named and attached to phases so that renewal, reinstatement, and context-driven respondent procedures can be expressed in the companion package `contingency-respondent-dsl`. The foundations-level definition of context lives in `foundations/context.md`; this file specifies the experiment-layer syntax.
 
 **Companion documents:**
 - [Foundations / Context](../foundations/context.md) — paradigm-neutral context typing (temporal, spatial, stimulus).

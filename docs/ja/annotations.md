@@ -5,7 +5,7 @@
 
 ---
 
-## Ψ 設計チェックポイントにおける annotator の層
+## 設計チェックポイントにおける annotator の層
 
 注釈システムは 2 階層構成:
 
@@ -101,9 +101,6 @@ interpreter）は自由に採用・拡張・置換できる（詳細は
 | `@reinforcer` | 強化子の宣言（基本形） | `@reinforcer("food", type="unconditioned", access_duration=3)` |
 | `@sd` | 弁別刺激の同定 | `@sd("red_light", component=1)` |
 | `@brief` | 二次スケジュールの短時間刺激 | `@brief("light", duration=2)` |
-
-注: `@operandum`（反応装置の同定）は以前ここに列挙されていたが、2026-04-12 に
-**apparatus-annotator** へ移管された。下記の Apparatus セクションを参照。
 
 **`@reinforcer` の別名:** `@punisher` と `@consequentStimulus` は `@reinforcer` の
 等価な alias。実験者の意図を source に明示したい場合に使用する（例:

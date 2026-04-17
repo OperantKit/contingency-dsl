@@ -1,6 +1,6 @@
 # contingency-dsl Design Rationale
 
-> **Status:** Informative (2026-04-14)
+> **Status:** Informative
 >
 > This document records the alternatives considered for the annotation
 > architecture and explains why the current design was chosen. It is
@@ -158,24 +158,16 @@ strength on a different axis.
 
 ---
 
-## 5. Ψ Restructure Rationale (2026-04-17)
+## 5. Six-Layer Structure Rationale
 
-The earlier version of this document (§§1–4 above) evaluated
-annotation-architecture alternatives at the point when the DSL was
-organized in a five-layer structure (Core / Core-Stateful /
-Core-TrialBased / Schedule Extension / Annotation). On 2026-04-17 the
-directory structure was restructured to the Ψ six-layer architecture
-(Foundations / Operant / Respondent / Composed / Experiment /
-Annotation); see [versioning.md §0](versioning.md) for the design
-checkpoint record and [design-philosophy.md §2](design-philosophy.md)
-for the canonical layer definitions.
-
-This section records why the Ψ structure was chosen over the two other
-architectures considered at that decision point.
+The six-layer architecture (Foundations / Operant / Respondent /
+Composed / Experiment / Annotation) is defined in
+[design-philosophy.md §2](design-philosophy.md). This section records
+why that structure was chosen over the two alternatives considered.
 
 ### 5.1 Alternatives Considered
 
-**Case ρ (rejected)** — abstract axes at the top-level directory:
+**Case A (rejected)** — abstract axes at the top-level directory:
 `core-paradigm/`, `core-execution/`, `core-composition/`,
 `core-cross-paradigm/`. Each top-level directory was named by an
 abstract engineering axis (paradigm, execution mode, composition,
@@ -193,7 +185,7 @@ cross-paradigm), independent of the scientific categories it covered.
   respondent procedures represented only at the minimum necessary level
   in the main package and depth delegated to a companion package.
 
-**Case Ω (rejected)** — respondent primitives as annotations only: the
+**Case B (rejected)** — respondent primitives as annotations only: the
 respondent layer is collapsed into an annotation package (`@cs`, `@us`,
 `@pair`, `@contingency`, etc.) attached to schedule expressions or to
 `no_schedule` phases. No first-class respondent grammar exists.
@@ -206,11 +198,11 @@ respondent layer is collapsed into an annotation package (`@cs`, `@us`,
   procedure defines a structural relationship between stimulus events;
   changing that structure changes what the procedure is, not just how
   it is described. This is the same boundary test that separates
-  schedule variants from annotations (design-philosophy §5.5). Case Ω
+  schedule variants from annotations (design-philosophy §5.5). Case B
   fails the test: it would place grammatically load-bearing constructs
   in a layer whose contract guarantees they do not affect evaluation.
 
-**Case Ψ (chosen)** — scientific-category naming with an extension point
+**Case C (chosen)** — scientific-category naming with an extension point
 for respondent depth: the top-level directories are named by the
 scientific categories they cover (foundations / operant / respondent /
 composed / experiment / annotations). The Operant layer carries the
@@ -231,7 +223,7 @@ supplies Tier B primitives.
 
 ### 5.2 EAB-Centric Weighting
 
-The Ψ volume distribution reflects the primary coverage target:
+The six-layer volume distribution reflects the primary coverage target:
 
 - **Operant layer — largest volume.** Six schedule files
   (`operant/schedules/{ratio,interval,time,differential,compound,progressive}.md`)
@@ -249,7 +241,7 @@ The Ψ volume distribution reflects the primary coverage target:
 
 ### 5.3 Scientific Grounding
 
-The Ψ layer names and distinctions derive from primary sources:
+The layer names and distinctions derive from primary sources:
 
 - Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century. — operant three-term contingency
 - Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press. — respondent two-term contingency
@@ -265,4 +257,3 @@ The Ψ layer names and distinctions derive from primary sources:
 - [design-philosophy.md](design-philosophy.md) — Canonical design intent (superordinate)
 - [evaluation-criteria.md](evaluation-criteria.md) — Axis definitions used in §3
 - [architecture.md](architecture.md) — Structural overview of the current design
-- [versioning.md §0](versioning.md) — Design-change log including the 2026-04-17 Ψ checkpoint

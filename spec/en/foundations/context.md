@@ -1,6 +1,6 @@
 # Context — Temporal, Spatial, and Stimulus Contexts as First-Class Objects
 
-> Part of the contingency-dsl foundations layer (Ψ). Defines context as a foundational construct to support renewal, reinstatement, and context-driven respondent procedures that are anticipated in Phase Ψ-10 and in the `contingency-respondent-dsl` extension package.
+> Part of the contingency-dsl foundations layer. Defines context as a foundational construct to support renewal, reinstatement, and context-driven respondent procedures that are anticipated in a later phase and in the `contingency-respondent-dsl` extension package.
 
 ---
 
@@ -40,7 +40,7 @@ A context and a discriminative stimulus (SD) are formally distinguishable:
 
 This distinction is operationally subtle — a discriminative stimulus, sustained continuously, can function as a context. The DSL's convention: label a stimulus SD (`@sd`) when it differentially controls response rate within a contingency; label it context (`@context`) when it modulates which contingency is retrieved. Linters may emit advisory warnings when the distinction is unclear, but no hard grammatical constraint enforces it.
 
-## 5. Scope in Phase Ψ (Current)
+## 5. Scope in Current Phase
 
 At the current design checkpoint, the foundations layer fixes only the **type** of context. Concrete grammar for context-dependent respondent procedures (renewal, reinstatement, occasion setting) lives in `contingency-respondent-dsl` (Tier B extension package) and relies on this foundational definition.
 

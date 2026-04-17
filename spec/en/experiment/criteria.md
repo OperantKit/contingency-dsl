@@ -1,6 +1,6 @@
 # Phase-Change Criteria
 
-> Part of the contingency-dsl experiment layer (Ψ). Specifies the catalog of phase-change criteria — declarative conditions under which one phase ends and the next begins. The criterion set is an enumerated, non-TC family: `Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`. Runtime-conditioned criteria beyond this catalog (e.g., rate-based schedule switching) belong in `contingency-core`, not in the experiment layer.
+> Part of the contingency-dsl experiment layer. Specifies the catalog of phase-change criteria — declarative conditions under which one phase ends and the next begins. The criterion set is an enumerated, non-TC family: `Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`. Runtime-conditioned criteria beyond this catalog (e.g., rate-based schedule switching) belong in `contingency-core`, not in the experiment layer.
 
 **Companion documents:**
 - [Experiment / Phase Sequence](phase-sequence.md) — where criteria attach.

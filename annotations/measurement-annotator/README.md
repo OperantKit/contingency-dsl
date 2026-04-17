@@ -22,13 +22,7 @@ annotator. This README documents the DSL project's recommended set.
 
 ## Status
 
-`Stable` (v1.0, 2026-04-17)
-
-Lifecycle history (all R-series additions tracked as v1.0 features pre-freeze):
-- 2026-04-12 — Minimal set: `@session_end`, `@baseline`, `@steady_state`
-- 2026-04-13 — Extended: `@dependent_measure`, `@training_volume`, `@microstructure`
-- 2026-04-13 — Complete: `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude`. `future_keywords` emptied.
-- 2026-04-17 — Trial-based session structure and equivalence-probe policy (R-7 Phase 2): `@session`, `@probe_policy`.
+`Stable`
 
 ---
 
@@ -65,7 +59,7 @@ The canonical machine-readable schema is
 [`schema/annotations/measurement.schema.json`](../../schema/annotations/measurement.schema.json).
 Below is a human-readable summary of each keyword's parameters.
 
-### `@session_end` (v1.0)
+### `@session_end`
 
 Session termination rule. Declares when a session ends.
 
@@ -81,7 +75,7 @@ Session termination rule. Declares when a session ends.
 
 **Reference:** Baron, A., & Perone, M. (1998). Experimental design and analysis in the laboratory study of human operant behavior. In K. A. Lattal & M. Perone (Eds.), *Handbook of research methods in human operant behavior* (pp. 45-91). Plenum.
 
-### `@baseline` (v1.0)
+### `@baseline`
 
 Baseline measurement declaration. Captures the operant level of the target
 response before experimental training.
@@ -93,7 +87,7 @@ response before experimental training.
 
 **Reference:** Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century-Crofts.
 
-### `@steady_state` (v1.0)
+### `@steady_state`
 
 Steady-state criterion for phase termination. Declares when responding is
 considered stable enough to end a phase.
@@ -237,7 +231,7 @@ on whichever occurs first (OR semantics). Triggers WARNING
 ### `@probe_policy` (R-7 Phase 2)
 
 Probe/baseline trial-mixing policy for stimulus-equivalence testing.
-Supersedes the weakly-defined `@test_criterion.baseline_reinforced` from v1.0
+Supersedes the weakly-defined `@test_criterion.baseline_reinforced`
 (alias retained for backward compatibility).
 
 | Parameter | Type | Required | Default | Description |

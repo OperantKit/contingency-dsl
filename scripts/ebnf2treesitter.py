@@ -236,7 +236,7 @@ _LOAD_ORDER = (
 
 
 def _load_grammars(schema_dir: Path) -> Grammar:
-    """Load and merge all EBNF grammar files under Ψ layout.
+    """Load and merge all EBNF grammar files under layout.
 
     Foundations first, then Operant and its sublayers, then Respondent.
     Remaining grammar.ebnf files are appended in sorted order.

@@ -1,6 +1,6 @@
 # Respondent Grammar — Two-Term Contingency (CS–US)
 
-> Part of the contingency-dsl respondent layer (Ψ). Defines the respondent-specific EBNF productions for the two-term contingency (CS–US), the Tier A Pavlovian primitives (R1–R14), and the grammar-level extension point through which third-party packages (primarily `contingency-respondent-dsl`) contribute Tier B procedures without modifying the respondent grammar. Paradigm-neutral meta-grammar is defined in `foundations/grammar.md`; operant-specific productions in `operant/grammar.md`; per-primitive operational specifications in `respondent/primitives.md`.
+> Part of the contingency-dsl respondent layer. Defines the respondent-specific EBNF productions for the two-term contingency (CS–US), the Tier A Pavlovian primitives (R1–R14), and the grammar-level extension point through which third-party packages (primarily `contingency-respondent-dsl`) contribute Tier B procedures without modifying the respondent grammar. Paradigm-neutral meta-grammar is defined in `foundations/grammar.md`; operant-specific productions in `operant/grammar.md`; per-primitive operational specifications in `respondent/primitives.md`.
 
 **Companion documents:**
 - [Respondent Theory](theory.md) — two-term contingency as a formal object, Rescorla contingency space, acquisition / extinction, I/T ratio.

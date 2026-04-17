@@ -1,6 +1,6 @@
 # Conditioned Suppression (CER)
 
-> Part of the contingency-dsl composed layer (Ψ). The Conditioned Emotional Response (CER) procedure combines an operant appetitive baseline with a Pavlovian aversive overlay; conditioned suppression of the operant baseline during CS presentation is the principal dependent measure.
+> Part of the contingency-dsl composed layer. The Conditioned Emotional Response (CER) procedure combines an operant appetitive baseline with a Pavlovian aversive overlay; conditioned suppression of the operant baseline during CS presentation is the principal dependent measure.
 
 **Companion documents:**
 - [Two-Process Theory](two-process-theory.md) — the Rescorla–Solomon (1967) framework that motivates composed procedures.

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/procedure-trial-structure.schema.json",
   "title": "procedure-trial-structure",
-  "description": "JEAB Procedure category, trial-structure sub-annotator. Declares session-level trial composition for free-operant schedules with mixed trial types: peak procedure (Catania & Reynolds, 1968), reinstatement tests (Baker et al., 1991), and free-operant temporal bisection (Fetterman & Killeen, 1995). Complements procedure-stimulus @testing (which applies to discrete-trial MTS only). Uses the structured-values annotation syntax (grammar.ebnf annotation_array / annotation_object, RFC 2026-04-17) for components.",
+  "description": "JEAB Procedure category, trial-structure sub-annotator. Declares session-level trial composition for free-operant schedules with mixed trial types: peak procedure (Catania & Reynolds, 1968), reinstatement tests (Baker et al., 1991), and free-operant temporal bisection (Fetterman & Killeen, 1995). Complements procedure-stimulus @testing (which applies to discrete-trial MTS only). Uses the structured-values annotation syntax (grammar.ebnf annotation_array / annotation_object) for components.",
   "category": "Procedure",
   "sub_annotator": "trial-structure",
   "version": "0.1",

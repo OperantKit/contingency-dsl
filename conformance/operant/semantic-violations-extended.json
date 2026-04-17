@@ -254,7 +254,7 @@
   },
   {
     "id": "error_overlay_verbose_bo",
-    "description": "Overlay does not accept Blackout (verbose alias doesn't bypass v1.x restriction)",
+    "description": "Overlay does not accept Blackout (verbose alias doesn't bypass the restriction)",
     "input": "Overlay(VI60s, FR1, Blackout=5s)",
     "error": {
       "type": "SemanticError",
@@ -333,7 +333,7 @@
     }
   },
 
-  { "_comment": "=== Timeout (TO) semantic violations (v2.0, constraints §75–§83) ===" },
+  { "_comment": "=== Timeout (TO) semantic violations (constraints §75–§83) ===" },
 
   {
     "id": "error_to_on_conc",

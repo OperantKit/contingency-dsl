@@ -1,12 +1,12 @@
 # 計算可能性・表現力・アーキテクチャ境界
 
-> [contingency-dsl 理論文書](theory.md)の一部。Ψ 六層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
+> [contingency-dsl 理論文書](theory.md)の一部。六層アーキテクチャ、計算可能性の性質、アノテーションシステムを記述する。
 
 ---
 
 ## Part IV: 計算可能性・表現力・アーキテクチャ境界
 
-### 4.1 Ψ 六層アーキテクチャ
+### 4.1 六層アーキテクチャ
 
 強化スケジュールは本質的に**無限過程**を記述する。VI 60 は理論上永遠に走り続けられるし、FR 10 も反応が続く限り強化を提示し続ける。これは欠陥ではなく、行動随伴性の本質的性質である。Pavlov 型（respondent）手続きは直交する構造軸を導入する: 二項の CS–US 関係はオペラント反応を必要としない。
 
@@ -101,7 +101,7 @@ Respondent 層はこの解像度では一様である: design-philosophy §2 に
 
 ### 4.1.1 操作的境界定義: contingency-dsl vs. contingency-core
 
-上記の Ψ 層図では「静的」「動的」を非形式的に用いている。本節では、任意の手続きがどの層に属するかを判定する**操作的定義**（リトマス試験）を与える。この試験の意味内容は従前のアーキテクチャから変更しない; DSL 側のラベルだけが名称変更される（`Core` → `Operant.Literal`、`Core-Stateful` → `Operant.Stateful`、`Core-TrialBased` → `Operant.TrialBased`、そして Respondent 層は同じ SEI 推論が適用される追加の CFG 非TC 姉妹層）。
+上記の層図では「静的」「動的」を非形式的に用いている。本節では、任意の手続きがどの層に属するかを判定する**操作的定義**（リトマス試験）を与える。この試験は Operant.Literal、Operant.Stateful、Operant.TrialBased、および Respondent 層（追加の CFG 非TC 姉妹層）に対して一律に適用される。
 
 #### 一文要約
 
@@ -576,7 +576,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 ### スキーマパス規約
 
-`schema/` ツリーは Ψ ディレクトリ構造を反映する:
+`schema/` ツリーは ディレクトリ構造を反映する:
 
 - `schema/foundations/` — meta-grammar、contingency 型定義、時間スケール、刺激型付け、valence、context 型
 - `schema/operant/grammar.ebnf`、`schema/operant/ast.schema.json` — Operant 層の文法と AST
