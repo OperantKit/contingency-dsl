@@ -444,19 +444,37 @@ def _find_schema_dir() -> Path:
     return repo_root / 'schema'
 
 
+_LOAD_ORDER = (
+    'foundations',
+    'operant',
+    'operant/stateful',
+    'operant/trial-based',
+    'respondent',
+)
+
+
 def _load_grammars(schema_dir: Path) -> Grammar:
-    """Load and merge all EBNF grammar files."""
-    grammars = []
+    """Load and merge all EBNF grammar files under Ψ layout.
 
-    core = schema_dir / 'core' / 'grammar.ebnf'
-    if core.exists():
-        grammars.append(parse_ebnf_file(core))
+    Foundations is loaded first (paradigm-neutral lexical rules), then
+    Operant (three-term contingency), then Operant.Stateful,
+    Operant.TrialBased, and Respondent. Any additional grammar.ebnf
+    files encountered elsewhere are appended in sorted order so new
+    extension layers can be added without editing this script.
+    """
+    grammars: list[Grammar] = []
+    loaded: set[Path] = set()
 
-    for ext_dir in sorted(schema_dir.iterdir()):
-        if ext_dir.is_dir() and ext_dir.name != 'core':
-            ebnf = ext_dir / 'grammar.ebnf'
-            if ebnf.exists():
-                grammars.append(parse_ebnf_file(ebnf))
+    for rel in _LOAD_ORDER:
+        ebnf = schema_dir / rel / 'grammar.ebnf'
+        if ebnf.exists():
+            grammars.append(parse_ebnf_file(ebnf))
+            loaded.add(ebnf.resolve())
+
+    for ebnf in sorted(schema_dir.rglob('grammar.ebnf')):
+        if ebnf.resolve() in loaded:
+            continue
+        grammars.append(parse_ebnf_file(ebnf))
 
     if not grammars:
         print(f"ERROR: No grammar.ebnf files found in {schema_dir}",
