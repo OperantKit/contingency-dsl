@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://operantkit.dev/contingency-dsl/ast-parsed-schema.json",
-  "title": "contingency-dsl AST (Phase 1: Pre-expansion)",
-  "description": "Phase 1 (Pre-expansion) AST schema. Validates parser output before semantic analysis. Includes IdentifierRef (let-bound references) and RepeatModifier (syntactic sugar for Tand). See also: ast-resolved.schema.json for Phase 2/3 post-expansion validation.",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/operant/ast-parsed.schema.json",
+  "title": "contingency-dsl Operant AST (Phase 1: Pre-expansion)",
+  "description": "Phase 1 (Pre-expansion) AST schema for the operant layer. Validates parser output before semantic analysis. Includes IdentifierRef (let-bound references) and RepeatModifier (syntactic sugar for Tand). See also: ast-resolved.schema.json for Phase 2/3 post-expansion validation.",
 
   "$defs": {
     "Program": {

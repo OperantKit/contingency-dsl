@@ -1,14 +1,28 @@
-; contingency-dsl v1.0 — Formal Grammar
+; contingency-dsl — Operant Grammar
 ;
-; A context-free grammar (CFG) for declaring reinforcement contingencies.
-; Non-Turing-complete. Parseable by recursive descent in O(n).
+; A context-free grammar (CFG) for declaring operant (three-term)
+; reinforcement contingencies. Non-Turing-complete. Parseable by
+; recursive descent in O(n).
 ;
-; LL(2) formal proof: spec/en/core/ll2-proof.md (spec/ja/core/ll2-proof.md)
+; Paradigm-neutral lexical rules (ident, number, time_unit, annotation
+; attachment, top-level file/program dispatch) live in
+; schema/foundations/grammar.ebnf; this file defines only the productions
+; specific to the operant paradigm (schedule atoms, combinators,
+; modifiers, aversive schedules, experiment-layer sugar for operant
+; phases).
+;
+; Related files:
+;   schema/operant/stateful/grammar.ebnf      — Pctl, Adj, Interlock
+;   schema/operant/trial-based/grammar.ebnf   — MTS, Go/NoGo
+;   schema/respondent/grammar.ebnf            — respondent layer
+;
+; LL(2) formal proof: spec/en/foundations/ll2-proof.md
+;                    (spec/ja/foundations/ll2-proof.md)
 ;   — FIRST₁/FIRST₂/FOLLOW₂ sets, LL(2) parse table, unambiguity proof,
-;     Core-Stateful preservation proof. The grammar has exactly one LL(2)
+;     stateful-layer preservation proof. The grammar has exactly one LL(2)
 ;     decision point (PosTail in compound arg_list); all others are LL(1).
 ;
-; Reference: theory.md (Ferster & Skinner, 1957; Catania, 2013)
+; Reference: spec/en/operant/theory.md (Ferster & Skinner, 1957; Catania, 2013)
 ;
 ; Notation:
 ;   ::=    definition
@@ -197,14 +211,14 @@ reserved      ::= "let" | "def"
                 | "PUNISH"                    -- response-class-specific punishment (Conc kw_arg)
                 | "Interpolate" | "Interp"   -- v1.x: interpolated schedule (Ferster & Skinner, 1957)
                 | "count" | "onset"          -- interpolate keyword argument names
-                | "Pctl"                      -- Core-Stateful: percentile schedule (Platt, 1973)
+                | "Pctl"                      -- Stateful: percentile schedule (Platt, 1973)
                 | "IRT" | "latency" | "duration" | "force" | "rate"  -- pctl_target values
                 | "window" | "dir"            -- pctl keyword argument names
                 | "below" | "above"           -- pctl_dir values
-                | "Adj" | "Adjusting"         -- Core-Stateful: adjusting schedule (Blough, 1958; Mazur, 1987)
+                | "Adj" | "Adjusting"         -- Stateful: adjusting schedule (Blough, 1958; Mazur, 1987)
                 | "delay" | "ratio" | "amount"  -- adj_target values
                 | "step" | "min" | "max"      -- adj keyword argument names (note: "start" already reserved by PR)
-                | "Interlock" | "Interlocking"  -- Core-Stateful: interlocking schedule (Ferster & Skinner, 1957)
+                | "Interlock" | "Interlocking"  -- Stateful: interlocking schedule (Ferster & Skinner, 1957)
                 | "R0"                          -- interlock initial ratio (note: "T" is already domain; context-dependent reserved)
 
 ; === Compound schedules ===
@@ -296,10 +310,10 @@ interp_kw_arg ::= "count" "=" number
 ; === Modifiers ===
 
 modifier      ::= dr_mod | pr_mod | repeat | lag_mod
-                | pctl_mod                    -- Core-Stateful: see schema/core-stateful/grammar.ebnf
+                | pctl_mod                    -- Stateful: see schema/operant/stateful/grammar.ebnf
 
-; Note: adj_schedule (Core-Stateful) extends base_schedule, not modifier.
-; See schema/core-stateful/grammar.ebnf §2.
+; Note: adj_schedule (Stateful) extends base_schedule, not modifier.
+; See schema/operant/stateful/grammar.ebnf §2.
 
 dr_mod        ::= ("DRL" | "DRH" | "DRO") ws? value
 
@@ -326,7 +340,7 @@ repeat        ::= "Repeat" "(" number "," schedule ")"
 ;   429-452. https://doi.org/10.1037/0097-7403.11.3.429
 ;
 ; LL(1) after LAG_KW: peek NUM → shorthand, LPAREN → parenthesized.
-; Proof: spec/en/core/ll2-proof.md §5.6 (D7).
+; Proof: spec/en/foundations/ll2-proof.md §5.6 (D7).
 
 lag_mod       ::= "Lag" ws? number                              -- shorthand: Lag 5
                 | "Lag" "(" number ("," lag_kw_arg)* ")"        -- parenthesized: Lag(5, length=8)
@@ -985,7 +999,7 @@ method_decl         ::= "method" "=" ("artful" | "percentile" | "staged")
 approximations_decl ::= "approximations" "=" "[" string_literal_list "]"
 
 ; Required when method=percentile.
-; Reuses pctl_target enum from core-stateful/grammar.ebnf §1.
+; Reuses pctl_target enum from schema/operant/stateful/grammar.ebnf §1.
 dimension_decl      ::= "dimension" "=" pctl_target
 
 ; Required when method=percentile. Integer in [0, 100].
@@ -1030,10 +1044,10 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ;     ExperimenterJudgment.
 ;
 ; 88. percentile_rank range: must be integer in [0, 100]. Out of range →
-;     SemanticError (PCTL_INVALID_RANK; same code as core-stateful §P1).
+;     SemanticError (PCTL_INVALID_RANK; same code as operant/stateful §P1).
 ;
 ; 89. percentile_window positivity: must be integer ≥ 1. Zero or negative
-;     → SemanticError (PCTL_INVALID_WINDOW; same code as core-stateful §P2).
+;     → SemanticError (PCTL_INVALID_WINDOW; same code as operant/stateful §P2).
 ;
 ; 90. duplicate shaping_meta: each shaping_meta kind (target, method,
 ;     approximations, dimension, percentile_*, stages) may appear at most

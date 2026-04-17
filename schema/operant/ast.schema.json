@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://operantkit.dev/contingency-dsl/ast-schema.json",
-  "title": "contingency-dsl AST (Universal)",
-  "description": "Universal AST schema for contingency-dsl v1.0. Accepts ASTs from all compilation phases (1-3). For phase-specific validation, use: ast-parsed.schema.json (Phase 1: pre-expansion, includes IdentifierRef and RepeatModifier) or ast-resolved.schema.json (Phase 2/3: post-expansion, IdentifierRef and RepeatModifier removed). Execution engines SHOULD validate against ast-resolved.schema.json to reject unresolved ASTs.",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/operant/ast.schema.json",
+  "title": "contingency-dsl Operant AST (Universal)",
+  "description": "Universal AST schema for the operant (three-term contingency) layer. Accepts ASTs from all compilation phases (1-3). For phase-specific validation, use: ast-parsed.schema.json (Phase 1: pre-expansion, includes IdentifierRef and RepeatModifier) or ast-resolved.schema.json (Phase 2/3: post-expansion, IdentifierRef and RepeatModifier removed). Execution engines SHOULD validate against ast-resolved.schema.json to reject unresolved ASTs.",
 
   "$defs": {
     "Program": {

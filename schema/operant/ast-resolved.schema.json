@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://operantkit.dev/contingency-dsl/ast-resolved-schema.json",
-  "title": "contingency-dsl AST (Phase 2/3: Post-expansion / Resolved)",
-  "description": "Post-expansion AST schema. Validates ASTs after semantic analysis: all IdentifierRef nodes have been substituted and RepeatModifier nodes desugared to Compound(Tand). Phase 3 (Resolved) additionally applies LH default propagation (section 1.6.1). Execution engines SHOULD validate against this schema to reject unresolved ASTs. See also: ast-parsed.schema.json for Phase 1 pre-expansion validation.",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/operant/ast-resolved.schema.json",
+  "title": "contingency-dsl Operant AST (Phase 2/3: Post-expansion / Resolved)",
+  "description": "Post-expansion AST schema for the operant layer. Validates ASTs after semantic analysis: all IdentifierRef nodes have been substituted and RepeatModifier nodes desugared to Compound(Tand). Phase 3 (Resolved) additionally applies LH default propagation (section 1.6.1). Execution engines SHOULD validate against this schema to reject unresolved ASTs. See also: ast-parsed.schema.json for Phase 1 pre-expansion validation.",
 
   "$defs": {
     "Program": {
