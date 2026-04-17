@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "contingency-dsl-core-trial-based-ast",
-  "title": "contingency-dsl Core-TrialBased AST",
-  "description": "AST node definitions for Core-TrialBased layer schedules. Additive to schema/core/ast.schema.json — ScheduleExpr.oneOf gains TrialBased.",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/operant/trial-based/ast.schema.json",
+  "title": "contingency-dsl Operant Trial-Based AST",
+  "description": "AST node definitions for the operant trial-based sub-layer. Additive to schema/operant/ast.schema.json — ScheduleExpr.oneOf gains TrialBased.",
 
   "$defs": {
     "TrialBased": {
       "type": "object",
-      "description": "A discrete-trial schedule. Response opportunities are structured as trials (stimulus presentation → response → consequence → ITI), unlike free-operant Core/Core-Stateful schedules.",
+      "description": "A discrete-trial schedule. Response opportunities are structured as trials (stimulus presentation → response → consequence → ITI), unlike free-operant base/stateful operant schedules.",
       "oneOf": [
         { "$ref": "#/$defs/MTS" },
         { "$ref": "#/$defs/GoNoGo" }

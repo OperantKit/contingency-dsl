@@ -1,14 +1,15 @@
-; contingency-dsl v1.x — Core-TrialBased Grammar
+; contingency-dsl — Operant Trial-Based Grammar
 ;
-; Additive grammar extension for the Core-TrialBased layer.
-; Core-TrialBased schedules have discrete trial response opportunities,
-; as opposed to Core/Core-Stateful schedules whose response opportunities
-; are free-operant (continuous).
+; Additive grammar extension for the operant trial-based sub-layer.
+; Trial-based operant schedules have discrete trial response
+; opportunities, as opposed to base / stateful operant schedules whose
+; response opportunities are free-operant (continuous).
 ;
-; This file defines production rules to be appended to schema/core/grammar.ebnf.
-; No existing Core production rules are modified.
+; This file defines production rules to be appended to
+; schema/operant/grammar.ebnf. No existing operant production rules are
+; modified.
 ;
-; Integration point (additive to Core grammar):
+; Integration point (additive to the operant grammar):
 ;   base_schedule ::= ... | trial_based_schedule
 
 trial_based_schedule ::= mts_schedule | gonogo_schedule

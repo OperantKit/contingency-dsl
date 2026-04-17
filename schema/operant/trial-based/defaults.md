@@ -1,6 +1,6 @@
-# contingency-dsl Core-TrialBased Defaults
+# contingency-dsl — Operant Trial-Based Defaults
 
-Explicit documentation of all implicit defaults in the Core-TrialBased layer.
+Explicit documentation of all implicit defaults in the operant trial-based layer.
 When a parameter is omitted, the following values apply.
 
 ## Matching-to-Sample (MTS)
