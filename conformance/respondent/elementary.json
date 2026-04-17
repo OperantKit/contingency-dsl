@@ -1,0 +1,135 @@
+[
+  {
+    "id": "extinction_simple",
+    "description": "R5. Extinction(cs) — CS-alone presentation after acquisition history.",
+    "input": "Extinction(tone)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Extinction",
+        "cs": "tone"
+      }
+    }
+  },
+  {
+    "id": "extinction_kwarg_spelling",
+    "description": "R5. Extinction accepts the cs= keyword form for consistency with other primitives.",
+    "input": "Extinction(cs=tone)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Extinction",
+        "cs": "tone"
+      }
+    }
+  },
+  {
+    "id": "cs_only_trials_kwarg",
+    "description": "R6. CSOnly(cs, trials=N) — CS-alone pre-exposure primitive (Lubow & Moore, 1959).",
+    "input": "CSOnly(tone, trials=40)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "CSOnly",
+        "cs": "tone",
+        "trials": 40
+      }
+    }
+  },
+  {
+    "id": "cs_only_positional",
+    "description": "R6. CSOnly(cs, N) — positional trials form permitted by the grammar.",
+    "input": "CSOnly(tone, 20)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "CSOnly",
+        "cs": "tone",
+        "trials": 20
+      }
+    }
+  },
+  {
+    "id": "us_only_trials_kwarg",
+    "description": "R7. USOnly(us, trials=N) — US habituation / pre-exposure (Randich & LoLordo, 1979).",
+    "input": "USOnly(shock, trials=20)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "USOnly",
+        "us": "shock",
+        "trials": 20
+      }
+    }
+  },
+  {
+    "id": "us_only_positional",
+    "description": "R7. USOnly positional trials form.",
+    "input": "USOnly(shock, 15)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "USOnly",
+        "us": "shock",
+        "trials": 15
+      }
+    }
+  },
+  {
+    "id": "iti_exponential",
+    "description": "R13. ITI with exponential distribution in seconds.",
+    "input": "ITI(exponential, mean=60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "ITI",
+        "distribution": "exponential",
+        "mean": { "value": 60.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "iti_fixed_seconds",
+    "description": "R13. ITI with fixed distribution.",
+    "input": "ITI(fixed, mean=30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "ITI",
+        "distribution": "fixed",
+        "mean": { "value": 30.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "iti_uniform_minutes",
+    "description": "R13. ITI with uniform distribution, mean expressed in minutes.",
+    "input": "ITI(uniform, mean=2min)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "ITI",
+        "distribution": "uniform",
+        "mean": { "value": 2.0, "unit": "min" }
+      }
+    }
+  }
+]
