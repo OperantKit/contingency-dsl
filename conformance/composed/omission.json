@@ -1,0 +1,57 @@
+[
+  {
+    "id": "omission_williams_williams_1969",
+    "description": "Omission / Negative Automaintenance (Williams & Williams, 1969): CS-US pairing is the baseline arrangement, and a key-peck during CS cancels the US for that trial. The @omission annotation on the pair expression records the cancellation rule (response→US cancellation), making the response-contingent execution semantics explicit on the AST.",
+    "input": "@cs(label=\"key_light\", duration=6s, modality=\"visual\")\n@us(label=\"grain\", delivery=\"cancelled_on_cs_response\")\n\nphase omission_training:\n  sessions = 20\n  Pair.ForwardDelay(key_light, grain, isi=6s, cs_duration=6s) @omission(response=\"key_peck\", during=\"cs\")",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "key_light",
+            "duration": { "value": 6, "time_unit": "s" },
+            "modality": "visual"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "grain",
+            "delivery": "cancelled_on_cs_response"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "omission_training",
+          "criterion": { "type": "FixedSessions", "count": 20 },
+          "schedule": {
+            "type": "AnnotatedSchedule",
+            "expr": {
+              "type": "PairForwardDelay",
+              "cs": "key_light",
+              "us": "grain",
+              "isi": { "value": 6.0, "unit": "s" },
+              "cs_duration": { "value": 6.0, "unit": "s" }
+            },
+            "annotations": [
+              {
+                "type": "Annotation",
+                "keyword": "omission",
+                "params": {
+                  "response": "key_peck",
+                  "during": "cs"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_note": "The @omission annotation is the declarative form of the response-contingent US cancellation rule. An analyzer/executor pass interprets it: when a `response` occurs `during` the CS presentation, the scheduled US is cancelled for that trial. Fully expresses Williams & Williams (1969) negative automaintenance."
+  }
+]

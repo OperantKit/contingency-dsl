@@ -14,7 +14,18 @@ Tests here validate parsing, semantic analysis, and canonicalization of composed
 
 ## Current status
 
-Empty (fixtures are forthcoming). Phase-extras / a later phase will populate this directory once respondent primitives are implemented in the parser.
+Initial fixtures populated for all five procedures listed above. Each
+fixture encodes the procedure as an experiment-layer `PhaseSequence`: a
+sequence of `phase Name:` blocks hosting operant baselines
+(`VI`/`VR`/`FR`/etc.) and Pavlovian overlays (`Pair.ForwardDelay(...)`,
+`Compound(...)`, etc.), with `@cs`/`@us` program-level annotations
+declaring stimulus metadata.
+
+Response-contingent US cancellation (omission; avoidance) is currently
+represented structurally — the surface DSL captures the Pavlovian
+arrangement, and the execution-time cancellation rule is encoded in the
+analyzer pass. A future composed-layer annotation will express the
+cancellation rule explicitly on the enclosing phase.
 
 ## Schema references
 

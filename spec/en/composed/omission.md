@@ -33,20 +33,23 @@ The response–US relationship in omission is **negative-contingent**: the respo
 
 ## 4. DSL Encoding
 
-The omission contingency is expressed by adding the `PUNISH(...)` directive or by using an operant constraint that cancels the scheduled US on response. A minimal encoding:
+The omission contingency is expressed as an `@omission` annotation attached to the underlying Pavlovian pair, recording the response identity and the temporal window in which responses cancel the US. A minimal encoding:
 
 ```
-Phase(
-  name = "omission_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-  criterion = FixedSessions(n=10)
-)
-@cs(label="key_light", duration=8-s, modality="visual")
-@us(label="food", intensity="3s_access", delivery="cancelled_on_cs_response")
+@cs(label="key_light", duration=6-s, modality="visual")
+@us(label="grain", delivery="cancelled_on_cs_response")
+
+phase omission_training:
+  sessions = 20
+  Pair.ForwardDelay(key_light, grain, isi=6-s, cs_duration=6-s) @omission(response="key_peck", during="cs")
 ```
 
-The `operant_constraint` field (part of the experiment-layer phase specification) expresses the contingency that a response during CS cancels the scheduled US. Programs may encode this via specific operant combinators or via a dedicated omission directive; the DSL's grammar admits both encodings as long as the semantic outcome (CS-response → US omission for that trial) is clear.
+The `@omission` annotation parameters:
+
+- `response` — the observable response class whose emission cancels the scheduled US on that trial.
+- `during` — the presentation window in which the cancellation rule applies; `"cs"` (during CS presentation, the canonical case) is the default.
+
+An analyzer / executor pass interprets the annotation: whenever a matching response is emitted during the specified window, US delivery is suppressed for that trial. The Pavlovian arrangement itself is unchanged, so the AST composes cleanly with Tier A respondent primitives and other composed-layer annotations.
 
 ## 5. Classification within the Taxonomy
 

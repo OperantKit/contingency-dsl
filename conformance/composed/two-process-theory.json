@@ -1,0 +1,69 @@
+[
+  {
+    "id": "two_process_solomon_wynne_1954",
+    "description": "Two-process theory / discriminated avoidance (Solomon & Wynne, 1954): a warning CS precedes an aversive US; an operant response during the CS prevents (avoids) the US. The @avoidance annotation on the pair expression records the avoidance rule (response mode = cancel: response during CS cancels US for that trial).",
+    "input": "@cs(label=\"tone\", duration=5s, modality=\"auditory\")\n@us(label=\"shock\", intensity=\"0.8mA\")\n\nphase warm_up:\n  sessions = 2\n  VI30s\n\nphase avoidance_training:\n  sessions = 20\n  Pair.ForwardDelay(tone, shock, isi=5s, cs_duration=5s) @avoidance(response=\"lever_press\", mode=\"cancel\")",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "tone",
+            "duration": { "value": 5, "time_unit": "s" },
+            "modality": "auditory"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "shock",
+            "intensity": "0.8mA"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "warm_up",
+          "criterion": { "type": "FixedSessions", "count": 2 },
+          "schedule": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "avoidance_training",
+          "criterion": { "type": "FixedSessions", "count": 20 },
+          "schedule": {
+            "type": "AnnotatedSchedule",
+            "expr": {
+              "type": "PairForwardDelay",
+              "cs": "tone",
+              "us": "shock",
+              "isi": { "value": 5.0, "unit": "s" },
+              "cs_duration": { "value": 5.0, "unit": "s" }
+            },
+            "annotations": [
+              {
+                "type": "Annotation",
+                "keyword": "avoidance",
+                "params": {
+                  "response": "lever_press",
+                  "mode": "cancel"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_note": "The @avoidance annotation is the declarative form of the response-contingent avoidance rule. An analyzer/executor pass interprets it: when a `response` occurs during the CS, the scheduled US is cancelled (mode=cancel) or its onset is postponed (mode=postpone; future). Fully expresses Solomon & Wynne (1954) discriminated avoidance."
+  }
+]

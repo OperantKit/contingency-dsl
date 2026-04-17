@@ -1,0 +1,44 @@
+[
+  {
+    "id": "autoshape_brown_jenkins_1968",
+    "description": "Autoshaping (sign-tracking): forward-delay CS-US pairing with localized CS (Brown & Jenkins, 1968). The emergent key-peck is Pavlovian, not operant — no response contingency is programmed; US delivery is contingent on CS offset alone.",
+    "input": "@cs(label=\"key_light\", duration=8s, modality=\"visual\")\n@us(label=\"food\", delivery=\"unsignaled\")\n\nphase autoshaping_training:\n  sessions = 10\n  Pair.ForwardDelay(key_light, food, isi=8s, cs_duration=8s)",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "key_light",
+            "duration": { "value": 8, "time_unit": "s" },
+            "modality": "visual"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "food",
+            "delivery": "unsignaled"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "autoshaping_training",
+          "criterion": { "type": "FixedSessions", "count": 10 },
+          "schedule": {
+            "type": "PairForwardDelay",
+            "cs": "key_light",
+            "us": "food",
+            "isi": { "value": 8.0, "unit": "s" },
+            "cs_duration": { "value": 8.0, "unit": "s" }
+          }
+        }
+      ]
+    },
+    "_note": "Composed procedure: CS-US pairing hosted inside an experiment phase. No operant response is required; the emergent key-peck would be recorded as an observable rather than a programmed response class."
+  }
+]

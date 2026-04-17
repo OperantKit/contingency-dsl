@@ -1,0 +1,68 @@
+[
+  {
+    "id": "pit_rescorla_solomon_1967",
+    "description": "Pavlovian-Instrumental Transfer (Rescorla & Solomon, 1967): instrumental training (operant baseline), Pavlovian CS-US training (off-baseline), transfer test (CS probes superimposed on operant baseline). Specific or general transfer is inferred from the rate modulation at test.",
+    "input": "@cs(label=\"tone\", duration=30s, modality=\"auditory\")\n@us(label=\"pellet\", delivery=\"unsignaled\")\n\nphase instrumental:\n  sessions = 10\n  VI30s\n\nphase pavlovian:\n  sessions = 5\n  Pair.ForwardDelay(tone, pellet, isi=30s, cs_duration=30s)\n\nphase transfer_test:\n  sessions = 2\n  use instrumental",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "tone",
+            "duration": { "value": 30, "time_unit": "s" },
+            "modality": "auditory"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "pellet",
+            "delivery": "unsignaled"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "instrumental",
+          "criterion": { "type": "FixedSessions", "count": 10 },
+          "schedule": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "pavlovian",
+          "criterion": { "type": "FixedSessions", "count": 5 },
+          "schedule": {
+            "type": "PairForwardDelay",
+            "cs": "tone",
+            "us": "pellet",
+            "isi": { "value": 30.0, "unit": "s" },
+            "cs_duration": { "value": 30.0, "unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "transfer_test",
+          "criterion": { "type": "FixedSessions", "count": 2 },
+          "schedule": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 30.0,
+            "time_unit": "s"
+          }
+        }
+      ]
+    },
+    "_note": "Specific vs. general transfer is discriminated by whether the test uses the same US identity as the Pavlovian pairing (specific) or a different reinforcer class (general). This fixture expresses the canonical same-US variant."
+  }
+]

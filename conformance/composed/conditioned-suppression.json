@@ -1,0 +1,69 @@
+[
+  {
+    "id": "cer_estes_skinner_1941",
+    "description": "CER / Conditioned Suppression (Estes & Skinner, 1941): operant baseline (VI60s) in phase 1, CS-US pairing in phase 2, baseline reinstatement in phase 3 to measure suppression by reference schedule. Three-phase ABA-style composed procedure.",
+    "input": "@cs(label=\"tone\", duration=60s, modality=\"auditory\")\n@us(label=\"shock\", intensity=\"0.5mA\", delivery=\"unsignaled\")\n\nphase baseline:\n  sessions = 10\n  VI60s\n\nphase pairing:\n  sessions = 5\n  Pair.ForwardDelay(tone, shock, isi=60s, cs_duration=60s)\n\nphase test:\n  sessions = 3\n  use baseline",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "tone",
+            "duration": { "value": 60, "time_unit": "s" },
+            "modality": "auditory"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "shock",
+            "intensity": "0.5mA",
+            "delivery": "unsignaled"
+          }
+        }
+      ],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "baseline",
+          "criterion": { "type": "FixedSessions", "count": 10 },
+          "schedule": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "pairing",
+          "criterion": { "type": "FixedSessions", "count": 5 },
+          "schedule": {
+            "type": "PairForwardDelay",
+            "cs": "tone",
+            "us": "shock",
+            "isi": { "value": 60.0, "unit": "s" },
+            "cs_duration": { "value": 60.0, "unit": "s" }
+          }
+        },
+        {
+          "type": "Phase",
+          "label": "test",
+          "criterion": { "type": "FixedSessions", "count": 3 },
+          "schedule": {
+            "type": "Atomic",
+            "dist": "V",
+            "domain": "I",
+            "value": 60.0,
+            "time_unit": "s"
+          }
+        }
+      ]
+    },
+    "_note": "Suppression ratio computation is an analysis-pass concern. The DSL represents the procedure structurally; response rates during CS vs. baseline are derived from the recorded session data."
+  }
+]
