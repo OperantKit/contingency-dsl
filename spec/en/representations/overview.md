@@ -1,6 +1,6 @@
 # Alternative Representations
 
-> Part of the [contingency-dsl theory documentation](theory.md). See also the formal specification at [`representations/t-tau/README.md`](../../representations/t-tau/README.md).
+> Part of the [contingency-dsl theory documentation](../operant/theory.md). See also the formal specification at [`t-tau.md`](t-tau.md).
 
 ---
 
@@ -38,11 +38,11 @@ Reverse conversion requires explicit disambiguation: `domain` (Interval vs. Time
 
 ### 1.3 Sub-unity Duty Cycle (τ < T)
 
-When `duty_cycle < 1.0`, the schedule has a temporal window shorter than the cycle — structurally analogous to a Limited Hold ([theory.md §1.6](theory.md)). The reverse mapping produces `Schedule LH τ`. Note that Schoenfeld & Cole place τ at the cycle start, while LH in the Ferster-Skinner tradition opens after criterion satisfaction; this positional difference means the mapping is a structural approximation.
+When `duty_cycle < 1.0`, the schedule has a temporal window shorter than the cycle — structurally analogous to a Limited Hold ([operant/theory.md §1.6](../operant/theory.md)). The reverse mapping produces `Schedule LH τ`. Note that Schoenfeld & Cole place τ at the cycle start, while LH in the Ferster-Skinner tradition opens after criterion satisfaction; this positional difference means the mapping is a structural approximation.
 
 ### 1.4 Relationship to LH
 
-Despite the surface similarity, T-tau and LH are fundamentally distinct (as noted in [theory.md §1.6](theory.md)): T-tau cycles are clock-driven and recurring; LH windows are event-triggered. T-tau with `duty_cycle = 1.0` has no LH analogue — the entire cycle is available.
+Despite the surface similarity, T-tau and LH are fundamentally distinct (as noted in [operant/theory.md §1.6](../operant/theory.md)): T-tau cycles are clock-driven and recurring; LH windows are event-triggered. T-tau with `duty_cycle = 1.0` has no LH analogue — the entire cycle is available.
 
 ### 1.5 Approximate Conversion for Ratio Schedules
 

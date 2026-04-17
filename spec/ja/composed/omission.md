@@ -33,20 +33,23 @@ Williams and Williams (1969) が観察した持続性は、自動形成のパヴ
 
 ## 4. DSL 符号化
 
-省略随伴性は `PUNISH(...)` 指示子を加える、あるいは反応時に予定 US をキャンセルするオペラント制約を用いることで表現される。最小の符号化:
+省略随伴性は、根底にあるパヴロフ型対提示に付与される `@omission` アノテーションとして表現される。当該アノテーションには、反応の同定情報と、反応が US をキャンセルする時間窓を記録する。最小の符号化:
 
 ```
-Phase(
-  name = "omission_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-  criterion = FixedSessions(n=10)
-)
-@cs(label="key_light", duration=8-s, modality="visual")
-@us(label="food", intensity="3s_access", delivery="cancelled_on_cs_response")
+@cs(label="key_light", duration=6-s, modality="visual")
+@us(label="grain", delivery="cancelled_on_cs_response")
+
+phase omission_training:
+  sessions = 20
+  Pair.ForwardDelay(key_light, grain, isi=6-s, cs_duration=6-s) @omission(response="key_peck", during="cs")
 ```
 
-`operant_constraint` フィールド（実験層フェーズ仕様の一部）は、CS 中の反応が予定 US をキャンセルする随伴性を表現する。プログラムは特定のオペラント・コンビネータや専用の省略指示子を介してこれを符号化してよい。DSL 文法は、意味論的結果（CS-反応 → その試行の US 省略）が明確であれば、いずれの符号化も許容する。
+`@omission` アノテーションのパラメータ:
+
+- `response` — その試行で予定された US をキャンセルする、観察可能な反応クラス。
+- `during` — キャンセル規則が適用される呈示窓。`"cs"`（CS 呈示中、標準的な事例）がデフォルト。
+
+アナライザ／実行器のパスがアノテーションを解釈する。指定された窓内で該当反応が出現するたびに、その試行の US 呈示が抑制される。パヴロフ型配置自体は変更されない。したがって AST は Tier A レスポンデント・プリミティブおよびその他の合成層アノテーションと整合的に合成される。
 
 ## 5. 分類体系内の位置づけ
 
