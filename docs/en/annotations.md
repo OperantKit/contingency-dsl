@@ -1,7 +1,20 @@
 # Annotations Guide
 
 > How to enrich schedule expressions with experimental metadata.
-> For the annotation system design, see [annotation-design.md](../../spec/en/annotation-design.md).
+> For the annotation system design, see [annotations/design.md](../../spec/en/annotations/design.md).
+
+---
+
+## Annotator layers in the Ψ design checkpoint
+
+The annotation system has two tiers:
+
+1. **Four recommended JEAB-aligned annotators** — `procedure-annotator`, `subjects-annotator`, `apparatus-annotator`, `measurement-annotator`. These map 1:1 to JEAB Method section headings.
+2. **Extensions** (under `annotations/extensions/`) — annotators that fall outside the four JEAB categories. Two are shipped with this project:
+   - `respondent-annotator` — `@cs`, `@us`, `@iti`, `@cs_interval` for CS/US metadata on respondent primitives and composed procedures.
+   - `learning-models-annotator` — `@model(RW)`, `@model(PH)`, `@model(TD)` for associating an expression with an associative-learning model.
+
+All annotators compose via Cartesian product (Operant layer rules); their annotation keywords are disjoint.
 
 ---
 
@@ -88,7 +101,7 @@ established term in EAB literature). `@punisher` and `@consequentStimulus`
 are equivalent aliases — use them when you want to make the experimenter's
 intent explicit in source (e.g., `FR 3 @punisher("shock")`). All three collapse
 to the same AST node and do not affect equivalence judgment. See
-[annotation-design.md §3.5](../../spec/en/annotation-design.md) for details.
+[annotations/design.md §3.5](../../spec/en/annotations/design.md) for details.
 
 | Keyword | Purpose | Example |
 |---------|---------|---------|
@@ -286,7 +299,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
   @interface("serial", port="/dev/ttyACM0", baud=115200)
 ```
 
-`@hw` is an abbreviation alias for `@hardware` — both produce the same AST node. See [annotation-design.md §3.5](../../spec/en/annotation-design.md).
+`@hw` is an abbreviation alias for `@hardware` — both produce the same AST node. See [annotations/design.md §3.5](../../spec/en/annotations/design.md).
 
 **What this enables:**
 - Target selection for experiment-io / contingency-bench
@@ -299,6 +312,82 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - Logical names for response devices ("left_lever") → apparatus-annotator (`@operandum`)
 - Measured response latency / jitter → contingency-bench output, not a declaration
 - Software configuration (log paths, output directories) → outside DSL scope
+
+---
+
+## Extension Annotators
+
+Extensions under `annotations/extensions/` are annotators that fall outside the four JEAB-aligned categories. They are shipped with this project but do not occupy one of the recommended-annotator slots; programs (runtime / interpreter) adopt or omit them freely.
+
+### E1. respondent-annotator — CS/US/ITI/cs_interval Metadata
+
+Declares **respondent-procedure metadata** that cross-cuts the Procedure / Apparatus / Measurement categories. Used on Tier A respondent primitives (see [syntax-guide.md](syntax-guide.md) Level 4.5) and on composed procedures (CER, PIT, autoshaping, omission).
+
+| Keyword | Purpose | Example |
+|---------|---------|---------|
+| `@cs` | CS (conditional stimulus) metadata | `@cs(label="tone", duration=10-s, modality="auditory")` |
+| `@us` | US (unconditional stimulus) metadata | `@us(label="shock", intensity="0.5mA", delivery="unsignaled")` |
+| `@iti` | ITI distribution + jitter | `@iti(distribution="exponential", mean=60-s, jitter=10-s)` |
+| `@cs_interval` | CS presentation time window | `@cs_interval(cs_onset=0-s, cs_offset=10-s)` |
+
+**`@cs(label, duration, modality)`** attaches metadata to the `cs` argument of any respondent primitive that carries a CS reference (`Pair.*`, `Extinction`, `CSOnly`, `Compound`, `Serial`, `Differential`). The `label` must match the `cs` reference in the enclosed primitive. `modality` enumerates the sensory modality (`"auditory"`, `"visual"`, `"olfactory"`, `"tactile"`).
+
+**`@us(label, intensity, delivery)`** attaches metadata to the `us` argument. `delivery` enumerated values include `"unsignaled"`, `"signaled"`, `"response_contingent"`, `"cancelled_on_cs_response"` — the last form is used in the omission procedure.
+
+**`@iti(distribution, mean, jitter)`** is **metadata** distinct from the `ITI(distribution, mean)` primitive (which is a structural declaration). The annotation carries jitter information; the primitive declares the structural ITI. When jitter is irrelevant, the primitive alone suffices.
+
+**`@cs_interval(cs_onset, cs_offset)`** makes the CS presentation window explicit. Redundant with `Pair.ForwardDelay`'s `cs_duration` parameter; used as a reader-friendly aid and for apparatus verification.
+
+**Example: CER full encoding**
+
+```
+Phase(
+  name = "cer_training",
+  operant = VI 60-s,
+  respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s)
+)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+  @iti(distribution="exponential", mean=120-s, jitter=30-s)
+  @cs_interval(cs_onset=0-s, cs_offset=60-s)
+```
+
+**Boundary-decision rationale.** All four annotations fail the Q1-Q3 core-vs-annotation test: the respondent primitive's theoretical properties are independent of modality / intensity / jitter / reader-friendly windows; changing these values does not change the parse tree; and different programs may treat the attributes as optional or mandatory. Therefore they are annotations, not grammar-level constructs. See the [respondent-annotator specification](../../spec/en/annotations/extensions/respondent-annotator.md) for the full boundary analysis.
+
+**What does NOT belong here:**
+- Structural CS-US relationships (forward-delay, forward-trace, backward, simultaneous, contingency space) → respondent primitives (Tier A)
+- New respondent procedures that introduce structural relationships (blocking, overshadowing, latent inhibition, etc.) → respondent extension point (`contingency-respondent-dsl`), not this annotator
+
+**References:**
+- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, *74*(1), 71–80. https://doi.org/10.1037/h0024109
+
+---
+
+### E2. learning-models-annotator — Associative-Learning Model Specification
+
+Declares the **associative-learning model** associated with a schedule expression or phase. Intended for use in (a) reviews, tutorials, and teaching materials that want to label a procedure with the model used to interpret it, and (b) simulation pipelines that select a concrete model implementation at runtime.
+
+| Keyword | Purpose | Example |
+|---------|---------|---------|
+| `@model(RW)` | Rescorla-Wagner (1972) error-correction model | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(RW)` |
+| `@model(PH)` | Pearce-Hall (1980) attention-modulated model | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(PH)` |
+| `@model(TD)` | Temporal-difference learning (Sutton & Barto, 1998) | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(TD)` |
+
+**Model summaries:**
+
+- **RW (Rescorla & Wagner, 1972).** Error-correction learning: ΔV = αβ(λ − ΣV). Associative strength updates are proportional to the discrepancy between predicted and obtained US. Foundational model for blocking, overshadowing, conditioned inhibition.
+- **PH (Pearce & Hall, 1980).** Attention-modulated variant: the associability α of a CS increases when the US is surprising and decreases when the US is well-predicted. Explains latent inhibition and extinction phenomena that RW does not.
+- **TD (Sutton & Barto, 1998).** Temporal-difference learning: treats each time step as a state and learns from the difference between successive predictions. Serves as the model-theoretic bridge between behavioral and neuroscience accounts of reward-prediction error.
+
+**Current status.** The `learning-models-annotator` is **documented here as design intent**; the corresponding spec document (`spec/en/annotations/extensions/learning-models-annotator.md`) and JSON Schema are scheduled for a subsequent phase. The annotation keyword set and semantics described above are the authoritative design until those files exist.
+
+**Boundary-decision rationale.** Q1: Is the model required to discuss theoretical properties of the respondent primitive? **No** — the primitive's operational definition is model-agnostic. Q2: Does `@model(...)` change the parse tree or evaluation result? **No**. Q3: Is the model mandatory at grammar level? **No** — most programs use the DSL without selecting a model. All three answers are No, confirming annotation classification.
+
+**References:**
+- Pearce, J. M., & Hall, G. (1980). A model for Pavlovian learning: Variations in the effectiveness of conditioned but not of unconditioned stimuli. *Psychological Review*, *87*(6), 532–552. https://doi.org/10.1037/0033-295X.87.6.532
+- Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian conditioning: Variations in the effectiveness of reinforcement and nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), *Classical conditioning II: Current research and theory* (pp. 64–99). Appleton-Century-Crofts.
+- Sutton, R. S., & Barto, A. G. (1998). *Reinforcement learning: An introduction*. MIT Press.
 
 ---
 
@@ -369,7 +458,7 @@ via two routes:
 
 1. **Propose addition to the DSL project's recommended set**
    - Copy `spec/en/annotation-template.md`
-   - Answer the boundary test questions (see [annotation-design.md](../../spec/en/annotation-design.md) §2)
+   - Answer the boundary test questions (see [annotations/design.md](../../spec/en/annotations/design.md) §2)
    - Go through project review to land in the recommended registry
 
 2. **Build your program's own registry**
