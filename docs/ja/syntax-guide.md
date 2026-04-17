@@ -1,7 +1,24 @@
 # 構文ガイド
 
 > contingency-dsl の構文を段階的に解説する。基本スケジュールから高度な構成まで。
-> 形式文法（BNF）は [grammar.md](../../spec/ja/grammar.md) を参照。
+> 形式文法（BNF）は [foundations/grammar.md](../../spec/ja/foundations/grammar.md)、[operant/grammar.md](../../spec/ja/operant/grammar.md)、[respondent/grammar.md](../../spec/ja/respondent/grammar.md) を参照。
+>
+> ## Ψ 層構造マップ
+>
+> DSL は科学的カテゴリで階層化される。本ガイドもこの階層に沿って構成する:
+>
+> | Ψ 層 | 解説位置 |
+> |---|---|
+> | **基盤 (Foundations)** — パラダイム中立な形式基盤 | 原子構文・リテラル型を通じて暗黙的に全体で扱う |
+> | **オペラント (Operant)** — 三項随伴性 SD-R-SR | レベル 1〜4（原子、複合、修飾、二次スケジュール） |
+> | **Operant.Stateful** — 実行時計算基準 | レベル 3 の Percentile Schedule |
+> | **Operant.TrialBased** — 離散試行スケジュール | `spec/ja/operant/trial-based/` 参照 |
+> | **レスポンデント (Respondent)** — 二項随伴性 CS-US（Tier A） | レベル 4.5 のレスポンデント primitives |
+> | **合成手続き (Composed)** — オペラント × レスポンデント | レベル 4.6 の合成手続き |
+> | **実験層 (Experiment)** — 宣言的フェーズ構造 | レベル 6 の実験層 |
+> | **注釈 (Annotation)** — プログラム境域メタデータ | [annotations.md](annotations.md) 参照 |
+>
+> 旧案で用いられた Core / Core-Stateful / Core-TrialBased の層名は廃止された。追跡対象文書はすべて Ψ 設計チェックポイントに合わせ Foundations / Operant / Operant.Stateful / Operant.TrialBased / Respondent / Composed / Experiment の語彙を用いる。
 
 ---
 
@@ -157,7 +174,7 @@ PR(exponential)                 -- 指数関数: Richardson & Roberts (1996)
 PR(geometric, start=1, ratio=2) -- 幾何級数: 1, 2, 4, 8, 16, ...
 ```
 
-### Percentile Schedule（Core-Stateful）
+### Percentile Schedule（Operant.Stateful）
 
 被験体の行動に基準が適応する分化強化手続き:
 
@@ -262,6 +279,138 @@ FR 10(FR 5)        -- FR 5 unit を10回完了で強化
 - **行動薬理学**: 疎な強化下での薬物自己投与（Kelleher, 1966）
 - **条件性強化研究**: どの刺激が行動を維持するかの検証（Malagodi et al., 1973）
 - **長時間セッション実験**: 低頻度の一次強化で数時間にわたる安定した行動維持
+
+---
+
+## レベル 4.5: レスポンデント primitives（Tier A）
+
+> 二項随伴性 (CS-US)。**レスポンデント**層に属し、オペラント・スケジュールと並置される。Rescorla (1967) の随伴性空間 (contingency space) が直接指定する手続きとその統制手続きのみを Tier A として収録する。Tier B（ブロッキング、オーバーシャドーイング、潜在制止、更新、復元など）は拡張パッケージ `contingency-respondent-dsl` に委任する。正式な操作的定義は [respondent/primitives.md](../../spec/ja/respondent/primitives.md) を参照。
+
+### Pair primitives（R1〜R4）
+
+```
+Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)
+                                       -- CS 点灯 → CS 継続 → US 点灯（オーバーラップ）
+                                       --   Pavlov (1927)
+Pair.ForwardTrace(tone, food, trace_interval=5-s)
+                                       -- CS 消灯 → 痕跡間隔 → US 点灯
+Pair.Simultaneous(light, airpuff)      -- CS 点灯 = US 点灯（isi = 0）
+Pair.Backward(shock, tone, isi=2-s)    -- US 先行、続いて CS
+                                       --   しばしば条件性制止子として機能
+```
+
+### Extinction、CS 単独、US 単独（R5〜R7）
+
+```
+Extinction(tone)                 -- 獲得後、CS 単独（文脈感受性; Bouton, 2004）
+CSOnly(tone, trials=40)           -- フェーズ非依存な CS 単独提示
+USOnly(shock, trials=20)          -- US 単独（馴化／前曝露）
+```
+
+### 随伴性空間（R8〜R10）
+
+```
+Contingency(p_us_given_cs=0.9, p_us_given_no_cs=0.1)
+                                  -- Rescorla (1967) 随伴性空間の任意点
+Contingency(0.0, 0.3)             -- 負の随伴性（CS 非提示時のみ US）
+TrulyRandom(tone, shock)          -- 対角線上: P(US|CS) = P(US|¬CS)
+TrulyRandom(tone, shock, p=0.2)   -- 共有確率を明示
+ExplicitlyUnpaired(tone, shock, min_separation=30-s)
+                                  -- Contingency(0, p) + 時間分離制約
+                                  --   （Ayres, Benedict, & Witcher, 1975）
+```
+
+### Compound、Serial、ITI（R11〜R13）
+
+```
+Compound([tone, light])                       -- 同時提示複合 CS
+Compound([tone, light], mode=Simultaneous)    -- mode 明示
+Serial([light, tone], isi=3-s)                -- 系列複合（時間順序）
+ITI(exponential, mean=60-s)                   -- 構造的試行間間隔
+ITI(fixed, mean=30-s)
+```
+
+`ITI(distribution, mean)` primitive は構造的宣言であり、別途 `@iti(distribution, mean, jitter)` 注釈でジッター情報を付与できる（[annotations.md](annotations.md) 参照）。
+
+### 差別条件づけ（R14）
+
+```
+Differential(tone_plus, tone_minus, shock)   -- A+/B−（完全形）
+Differential(tone_plus, tone_minus)          -- 短縮形（US は @us 注釈から推論）
+```
+
+`Differential` は CS+ / CS− の対比訓練のための Tier A primitive（Pavlov, 1927; Mackintosh, 1974）。条件性制止手続きや feature-positive / feature-negative の変種（Rescorla, 1969）は Tier B に留まる。
+
+### 引数順序の規約
+
+- `Pair.ForwardDelay`、`Pair.ForwardTrace`、`Pair.Simultaneous` では CS が US に先行する。
+- `Pair.Backward(us, cs, isi)` では US が CS に先行し、引数順序は開始時刻順に従う。
+- `Contingency(p_us_given_cs, p_us_given_no_cs)` では CS 条件つき確率が常に先頭。この順序は文法レベルで固定され、可換にできない。
+
+---
+
+## レベル 4.6: 合成手続き
+
+> **合成手続き (Composed)** はオペラント・ベースラインとレスポンデント（パヴロフ型）成分を組み合わせる。単独の Operant / Respondent 文法では表現できない構造を持つため、独立した最上位層（`composed/`）に置かれる。正式仕様は [composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md)、[composed/pit.md](../../spec/ja/composed/pit.md)、[composed/autoshaping.md](../../spec/ja/composed/autoshaping.md)、[composed/omission.md](../../spec/ja/composed/omission.md) を参照。
+
+### 条件性抑制 (CER)
+
+```
+Phase(
+  name = "cer_training",
+  operant = VI 60-s,
+  respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s),
+  criterion = Stability(window=5, tolerance=0.10)
+)
+@cs(label="tone", duration=60-s, modality="auditory")
+@us(label="shock", intensity="0.5mA", delivery="unsignaled")
+```
+
+食物系オペラント・ベースライン (VI 60-s) とパヴロフ型オーバーレイが同一フェーズに共存する。US 提示は反応非依存（パヴロフ型）であり、これが CER を罰から構造的に区別する。Estes & Skinner (1941); Annau & Kamin (1961)。
+
+### パヴロフ-道具的転移 (PIT)
+
+```
+PhaseSequence(
+  Phase(name="pavlovian_training",
+        respondent=Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s)),
+  Phase(name="instrumental_training",
+        operant=VI 60-s),
+  Phase(name="transfer_test",
+        operant=EXT,
+        respondent=CSOnly(tone, trials=8))
+)
+```
+
+パヴロフ訓練と道具的訓練は明示的に**独立**に行われる。転移テストではオペラント・スケジュールを消去下に置き、CS 効果のみを測定する。Estes (1948); Rescorla & Solomon (1967); Lovibond (1983)。
+
+### オートシェイピング／サイン・トラッキング
+
+```
+Phase(
+  name = "autoshaping_training",
+  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
+  criterion = FixedSessions(n=10)
+)
+@cs(label="key_light", duration=8-s, modality="visual")
+@us(label="food", intensity="3s_access", delivery="unsignaled")
+```
+
+オペラント随伴性は一切設定されないが、出現するキーつつきはパヴロフ型である（Brown & Jenkins, 1968）。
+
+### 省略（ネガティブ自動維持）
+
+```
+Phase(
+  name = "omission_training",
+  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
+  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
+  criterion = FixedSessions(n=10)
+)
+@us(label="food", delivery="cancelled_on_cs_response")
+```
+
+CS 提示中の反応が当該試行の予定 US をキャンセルする。この負の反応-結果随伴性にもかかわらず反応が維持されることが、オートシェイピングに対するパヴロフ型（非オペラント）制御の実証的根拠となる（Williams & Williams, 1969）。
 
 ---
 
