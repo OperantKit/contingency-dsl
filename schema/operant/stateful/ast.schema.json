@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://operantkit.dev/contingency-dsl/core-stateful-ast-schema.json",
-  "title": "contingency-dsl Core-Stateful AST",
-  "description": "AST schema extension for the Core-Stateful layer. Schedules whose criteria are computed from runtime state. Additive to schema/core/ast.schema.json — does not modify existing Core definitions.",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/operant/stateful/ast.schema.json",
+  "title": "contingency-dsl Operant Stateful AST",
+  "description": "AST schema extension for the operant stateful sub-layer. Schedules whose criteria are computed from runtime state. Additive to schema/operant/ast.schema.json — does not modify existing operant-layer definitions.",
 
   "$defs": {
     "PercentileSchedule": {
@@ -99,7 +99,7 @@
 
     "InterlockingSchedule": {
       "type": "object",
-      "description": "Interlocking schedule (Ferster & Skinner, 1957). A compound schedule in which the ratio requirement decreases linearly as time elapses since the last reinforcement. At each reinforcement, the ratio resets to its initial value. R(t) = max(1, ⌈R0 × (1 − t/T)⌉). Standalone schedule expression (not a modifier). Deterministic time function — the only Core-Stateful schedule that does not depend on the subject's behavior history.",
+      "description": "Interlocking schedule (Ferster & Skinner, 1957). A compound schedule in which the ratio requirement decreases linearly as time elapses since the last reinforcement. At each reinforcement, the ratio resets to its initial value. R(t) = max(1, ⌈R0 × (1 − t/T)⌉). Standalone schedule expression (not a modifier). Deterministic time function — the only operant stateful schedule that does not depend on the subject's behavior history.",
       "properties": {
         "type": { "const": "InterlockingSchedule" },
         "interlock_R0": {
@@ -131,7 +131,7 @@
     },
 
     "CoreStatefulScheduleExpr": {
-      "description": "Union of all Core-Stateful schedule expressions. Additive to Core's ScheduleExpr oneOf.",
+      "description": "Union of all operant stateful schedule expressions. Additive to the operant layer's ScheduleExpr oneOf.",
       "oneOf": [
         { "$ref": "#/$defs/PercentileSchedule" },
         { "$ref": "#/$defs/AdjustingSchedule" },

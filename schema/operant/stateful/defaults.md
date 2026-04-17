@@ -1,6 +1,6 @@
-# contingency-dsl Core-Stateful Defaults
+# contingency-dsl — Operant Stateful Defaults
 
-Explicit documentation of all implicit defaults in the Core-Stateful layer.
+Explicit documentation of all implicit defaults in the operant stateful layer.
 When a parameter is omitted, the following values apply.
 
 ## Percentile schedule (Pctl)
@@ -34,7 +34,7 @@ References:
 ## Adjusting schedule (Adj)
 
 **v1.x:** `Adj` (verbose alias: `Adjusting`) is a standalone schedule expression
-in the Core-Stateful layer. It declares a contingency in which a schedule
+in the operant stateful layer. It declares a contingency in which a schedule
 parameter (delay, ratio, or amount) is systematically adjusted based on the
 subject's recent performance, converging toward an indifference point or
 threshold.
@@ -98,7 +98,7 @@ References:
 ## Interlocking schedule (Interlock)
 
 **v1.x:** `Interlock` (verbose alias: `Interlocking`) is a standalone schedule
-expression in the Core-Stateful layer. It declares a compound schedule in which
+expression in the operant stateful layer. It declares a compound schedule in which
 the ratio requirement decreases linearly as time elapses since the last
 reinforcement. At each reinforcement, the ratio resets to its initial value.
 

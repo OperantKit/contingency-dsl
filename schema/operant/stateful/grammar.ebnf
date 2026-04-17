@@ -1,21 +1,22 @@
-; contingency-dsl v1.x — Core-Stateful Grammar
+; contingency-dsl — Operant Stateful Grammar
 ;
-; Additive grammar extension for the Core-Stateful layer.
-; Core-Stateful schedules have criteria computed from runtime state
+; Additive grammar extension for the operant stateful sub-layer.
+; Stateful operant schedules have criteria computed from runtime state
 ; (response history, trial outcomes, elapsed time as continuous function),
-; as opposed to Core schedules whose criteria are literal values.
+; as opposed to base operant schedules whose criteria are literal values.
 ;
 ; All parameters are declarative (determined at parse time).
 ; Evaluation of criteria is delegated to the runtime (contingency-core).
 ;
-; This file defines production rules to be appended to schema/core/grammar.ebnf.
-; No existing Core production rules are modified.
+; This file defines production rules to be appended to
+; schema/operant/grammar.ebnf. No existing operant production rules are
+; modified.
 ;
-; Integration point (additive to Core grammar):
+; Integration point (additive to the operant grammar):
 ;   modifier ::= dr_mod | pr_mod | repeat | lag_mod | pctl_mod
 ;
-; Reference: RFC_CORE_STATEFUL_2026-04-13.md
-;            .local/percentile/RFC.md
+; Reference: spec/en/operant/stateful/ (percentile, adjusting, interlocking)
+;            spec/en/operant/schedules/adjusting.md, interlocking.md
 
 ; =====================================================================
 ; §1. Percentile Schedule — Platt (1973); Galbicka (1994)
