@@ -302,7 +302,7 @@ correspond to the DSL grammar's `annotation_val` production
 Added by RFC 2026-04-17 as an additive grammar extension
 (design-philosophy §8.1). The corresponding grammar productions
 `annotation_array` and `annotation_object` are defined in
-[grammar.ebnf §4.7](../../../schema/core/grammar.ebnf).
+[grammar.ebnf](../../../schema/foundations/grammar.ebnf) (annotation attachment section).
 
 **`array<T>`** — ordered sequence of homogeneous values of type T.
 T may be any type identifier in this vocabulary, including `object`:

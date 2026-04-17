@@ -2,7 +2,7 @@
 
 ## 1. Theorem Statement
 
-**Theorem.** The contingency-dsl v1.0 core grammar (as defined in `schema/core/grammar.ebnf`) is:
+**Theorem.** The contingency-dsl v1.0 core grammar (as defined in `schema/operant/grammar.ebnf`) is:
 
 1. **LL(2)** — deterministically parseable by a top-down predictive parser with at most 2-token lookahead.
 2. **Not LL(1)** — there exists at least one decision point requiring 2-token lookahead.
@@ -10,7 +10,7 @@
 
 **Caveat (§9).** The annotation system introduces a narrow LL(2)/LL(3) boundary case for program-level annotations. The core schedule grammar (excluding annotations) is strictly LL(2). With annotations, LL(2) holds under standard greedy disambiguation; strict LL(3) applies to one specific token triple. See §9 for analysis.
 
-**Extension (§10).** The Core-Stateful layer (`Pctl`, `Adj`, `Interlock` as defined in `schema/core-stateful/grammar.ebnf`) preserves the LL(2) classification. All new decision points are LL(1); no existing decision points are invalidated. See §10 for the complete FIRST/FOLLOW analysis.
+**Extension (§10).** The Core-Stateful layer (`Pctl`, `Adj`, `Interlock` as defined in `schema/operant/stateful/grammar.ebnf`) preserves the LL(2) classification. All new decision points are LL(1); no existing decision points are invalidated. See §10 for the complete FIRST/FOLLOW analysis.
 
 ---
 
@@ -767,7 +767,7 @@ This is an extremely narrow pattern. In practice:
 
 ### 10.1 Theorem Statement
 
-**Theorem (Core-Stateful LL(2) Preservation).** The contingency-dsl grammar augmented with Core-Stateful productions (`Pctl`, `Adj`, `Interlock` as defined in `schema/core-stateful/grammar.ebnf`) preserves the LL(2) classification established in §1–§8. Specifically:
+**Theorem (Core-Stateful LL(2) Preservation).** The contingency-dsl grammar augmented with Core-Stateful productions (`Pctl`, `Adj`, `Interlock` as defined in `schema/operant/stateful/grammar.ebnf`) preserves the LL(2) classification established in §1–§8. Specifically:
 
 1. All new decision points introduced by Core-Stateful productions are **LL(1)**.
 2. All existing LL(1) decision points remain LL(1) after the extension.
@@ -1012,7 +1012,7 @@ All other decision points — including all Core-Stateful internal decisions (§
 
 ### Formal Statement
 
-**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl v1.0 grammar as defined in `schema/core/grammar.ebnf` augmented with `schema/core-stateful/grammar.ebnf`. Then:
+**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl v1.0 grammar as defined in `schema/operant/grammar.ebnf` augmented with `schema/operant/stateful/grammar.ebnf`. Then:
 
 1. *G* is LL(2): for every non-terminal *A* with productions *A → α* and *A → β* (α ≠ β), `FIRST₂(α · FOLLOW₂(A)) ∩ FIRST₂(β · FOLLOW₂(A)) = ∅`.
 2. *G* is not LL(1): there exist productions `PosTail → COMMA Schedule PosTail` and `PosTail → ε` such that `FIRST₁(COMMA Schedule PosTail) ∩ FOLLOW₁(PosTail) = {COMMA} ≠ ∅`.
