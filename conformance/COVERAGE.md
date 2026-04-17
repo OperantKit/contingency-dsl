@@ -17,15 +17,15 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | Layer | Files | Test Cases | Status |
 |---|---|---|---|
 | **Foundations** | 0 | 0 | Forthcoming (paradigm-neutral lexical fixtures) |
-| **Operant** | 19 | 526 | ✅ Primary coverage |
+| **Operant** | 19 | 552 | ✅ Primary coverage |
 | **Operant-Stateful** | 4 | 92 | ✅ Full coverage |
 | **Operant-Trial-Based** | 3 | 121 | ✅ Full coverage |
-| **Respondent** | 4 | 30 | ✅ Full coverage |
-| **Composed** | 0 | 0 | Forthcoming (CER / PIT / autoshape / omission / two-process) |
-| **Experiment** | 4 | 63 | ✅ Full coverage |
-| **Annotations** | 9 | 197 | ✅ Full coverage (incl. respondent-annotator extension stub) |
+| **Respondent** | 5 | 32 | ✅ Full coverage |
+| **Composed** | 5 | 5 | ✅ Full coverage |
+| **Experiment** | 5 | 70 | ✅ Full coverage |
+| **Annotations** | 10 | 203 | ✅ Full coverage (incl. respondent-annotator extension stub) |
 | **Representations (T-τ)** | 5 | 42 | ✅ Full coverage |
-| **Total** | **48** | **1071** | |
+| **Total** | **56** | **1117** | |
 
 ---
 
