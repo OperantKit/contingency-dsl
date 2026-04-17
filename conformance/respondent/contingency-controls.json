@@ -1,0 +1,124 @@
+[
+  {
+    "id": "contingency_positive",
+    "description": "R8. Positive contingency (Rescorla, 1967): P(US|CS) >> P(US|\u00acCS).",
+    "input": "Contingency(0.9, 0.1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Contingency",
+        "p_us_given_cs": 0.9,
+        "p_us_given_no_cs": 0.1
+      }
+    }
+  },
+  {
+    "id": "contingency_diagonal",
+    "description": "R8. Diagonal point: equal conditional probabilities (Rescorla, 1967).",
+    "input": "Contingency(0.5, 0.5)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Contingency",
+        "p_us_given_cs": 0.5,
+        "p_us_given_no_cs": 0.5
+      }
+    }
+  },
+  {
+    "id": "contingency_kwargs",
+    "description": "R8. Kwargs form: p_us_given_cs / p_us_given_no_cs.",
+    "input": "Contingency(p_us_given_cs=0.8, p_us_given_no_cs=0.2)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Contingency",
+        "p_us_given_cs": 0.8,
+        "p_us_given_no_cs": 0.2
+      }
+    }
+  },
+  {
+    "id": "contingency_negative",
+    "description": "R8. Negative contingency (US occurs only without CS).",
+    "input": "Contingency(0.0, 0.3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Contingency",
+        "p_us_given_cs": 0.0,
+        "p_us_given_no_cs": 0.3
+      }
+    }
+  },
+  {
+    "id": "truly_random_no_p",
+    "description": "R9. TrulyRandom without explicit p — diagonal point with program-defined default.",
+    "input": "TrulyRandom(tone, shock)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrulyRandom",
+        "cs": "tone",
+        "us": "shock"
+      }
+    }
+  },
+  {
+    "id": "truly_random_with_p",
+    "description": "R9. TrulyRandom with explicit diagonal probability p=0.3.",
+    "input": "TrulyRandom(tone, shock, p=0.3)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "TrulyRandom",
+        "cs": "tone",
+        "us": "shock",
+        "p": 0.3
+      }
+    }
+  },
+  {
+    "id": "explicitly_unpaired_no_min_sep",
+    "description": "R10. ExplicitlyUnpaired without min_separation — grammar-optional form.",
+    "input": "ExplicitlyUnpaired(tone, shock)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "ExplicitlyUnpaired",
+        "cs": "tone",
+        "us": "shock"
+      }
+    }
+  },
+  {
+    "id": "explicitly_unpaired_with_min_sep",
+    "description": "R10. ExplicitlyUnpaired with temporal-separation constraint (Ayres, Benedict, & Witcher, 1975).",
+    "input": "ExplicitlyUnpaired(tone, shock, min_separation=30s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "ExplicitlyUnpaired",
+        "cs": "tone",
+        "us": "shock",
+        "min_separation": { "value": 30.0, "unit": "s" }
+      }
+    }
+  }
+]
