@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/composed/pit.schema.json",
+  "title": "contingency-dsl Composed — Pavlovian-to-Instrumental Transfer (PIT)",
+  "description": "Composed procedure schema for PIT (Estes, 1948; Rescorla & Solomon, 1967; Lovibond, 1983). Three phases: (1) Pavlovian training with a CS-US pairing, (2) Instrumental training with an operant schedule producing the same (or same-class) US, (3) Transfer test presenting the CS while the operant is available under extinction. General-versus-specific PIT is distinguished by whether the Pavlovian and instrumental training share the same US label.",
+
+  "$defs": {
+    "PITProcedure": {
+      "type": "object",
+      "description": "Three-phase PIT procedure. Phase ordering is fixed; the phases must be executed as pavlovian_training → instrumental_training → transfer_test. The mode field carries the general vs outcome-specific distinction.",
+      "properties": {
+        "type": { "const": "PIT" },
+        "mode": {
+          "type": "string",
+          "enum": ["general", "outcome_specific"],
+          "description": "'general' — Pavlovian and instrumental training use outcomes of the same motivational class but not necessarily identical outcomes (CS facilitates instrumental responding via shared motivational state). 'outcome_specific' — Pavlovian CS and instrumental response share the identical outcome (CS selectively enhances responding for that outcome when multiple outcome-specific responses are tested)."
+        },
+        "pavlovian_training": {
+          "type": "object",
+          "description": "Phase 1. Pavlovian CS-US pairing without operant response requirement.",
+          "properties": {
+            "cs": { "$ref": "../respondent/ast.schema.json#/$defs/StimulusRef" },
+            "us": { "$ref": "../respondent/ast.schema.json#/$defs/StimulusRef" },
+            "pairing": { "$ref": "../respondent/ast.schema.json#/$defs/RespondentExpr" }
+          },
+          "required": ["cs", "us", "pairing"],
+          "additionalProperties": false
+        },
+        "instrumental_training": {
+          "type": "object",
+          "description": "Phase 2. Operant schedule producing the same US (or same-class US for general PIT), without CS exposure.",
+          "properties": {
+            "us": {
+              "$ref": "../respondent/ast.schema.json#/$defs/StimulusRef",
+              "description": "US label. For outcome-specific PIT, MUST equal pavlovian_training.us. For general PIT, typically differs in label but matches motivational class (validation is a Phase 2 program-level concern, not a schema-level constraint)."
+            },
+            "schedule": { "$ref": "../operant/ast.schema.json#/$defs/ScheduleExpr" }
+          },
+          "required": ["us", "schedule"],
+          "additionalProperties": false
+        },
+        "transfer_test": {
+          "type": "object",
+          "description": "Phase 3. CS presented while the operant is available under extinction (or maintained baseline, per program). The transfer measure is the change in operant response rate during CS presentations versus no-CS intervals.",
+          "properties": {
+            "operant": {
+              "$ref": "../operant/ast.schema.json#/$defs/ScheduleExpr",
+              "description": "Operant during test. Typically EXT to isolate the CS's motivational influence from ongoing reinforcement."
+            },
+            "respondent": {
+              "$ref": "../respondent/ast.schema.json#/$defs/RespondentExpr",
+              "description": "Typically CSOnly(cs, trials=n) — CS presentations without US during the test."
+            }
+          },
+          "required": ["operant", "respondent"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type", "mode", "pavlovian_training", "instrumental_training", "transfer_test"],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/composed/autoshape.schema.json",
+  "title": "contingency-dsl Composed — Autoshaping / Sign-Tracking",
+  "description": "Composed procedure schema for autoshaping (Brown & Jenkins, 1968). A localized CS (key light, inserted lever) is paired with a US via forward Pavlovian contingency; no operant response is programmed, yet subjects emit directed CS-engagement responses (sign-tracking) and/or US-location-approach responses (goal-tracking). Classified as composed rather than operant because the diagnostic omission procedure (schema/composed/omission.schema.json) shows the response is under Pavlovian control.",
+
+  "$defs": {
+    "AutoshapeProcedure": {
+      "type": "object",
+      "description": "Pavlovian forward-delay pairing with a localized CS. The emergent response topography (sign-tracking vs goal-tracking) is an observed outcome, not a grammar-level distinction.",
+      "properties": {
+        "type": { "const": "Autoshape" },
+        "cs": {
+          "$ref": "../respondent/ast.schema.json#/$defs/StimulusRef",
+          "description": "Localized CS (e.g., 'key_light', 'inserted_lever'). The linter SHOULD verify via @cs annotation modality that the CS is localized in the chamber; non-localized CSs (e.g., diffuse tone) do not reliably produce autoshaping."
+        },
+        "us": {
+          "$ref": "../respondent/ast.schema.json#/$defs/StimulusRef",
+          "description": "US delivered at CS offset. Typically appetitive (food, sucrose). US delivery is response-independent."
+        },
+        "pairing": {
+          "$ref": "../respondent/ast.schema.json#/$defs/RespondentExpr",
+          "description": "Respondent primitive. Standard autoshaping uses Pair.ForwardDelay; trace variants are admitted to preserve the composed structure across procedural variations."
+        },
+        "topography": {
+          "type": "string",
+          "enum": ["sign_tracking", "goal_tracking", "mixed", "observed"],
+          "default": "observed",
+          "description": "Advisory field documenting the expected or observed response topography. 'observed' (default) indicates the program does not commit to a topography ex ante; measurement annotations record what actually occurred."
+        }
+      },
+      "required": ["type", "cs", "us", "pairing"],
+      "additionalProperties": false
+    }
+  }
+}
