@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "contingency-dsl-phase-sequence",
   "title": "contingency-dsl Phase Sequence",
-  "description": "Multi-phase experimental design (resolved form). Additive to Core — does not modify existing Core definitions. Phase Sequences represent ordered phase transitions common in JEAB experimental procedures (e.g., acquisition-extinction-test in renewal paradigms). In pre-expansion AST, Shaping / ProgressiveTraining / PhaseRef nodes may appear; in resolved AST, Shaping is desugared per its method (artful→CRF+@procedure Phase; percentile→Pctl Phase; staged→ProgressiveTraining→Phase list), ProgressiveTraining is expanded to a Phase list, and PhaseRef is resolved to ScheduleExpr. See experiment.schema.json for pre-expansion types.",
+  "description": "Multi-phase experimental design (resolved form). Additive to the Operant layer — does not modify existing Operant definitions. Phase Sequences represent ordered phase transitions common in JEAB experimental procedures (e.g., acquisition-extinction-test in renewal paradigms). In pre-expansion AST, Shaping / ProgressiveTraining / PhaseRef nodes may appear; in resolved AST, Shaping is desugared per its method (artful→CRF+@procedure Phase; percentile→Pctl Phase; staged→ProgressiveTraining→Phase list), ProgressiveTraining is expanded to a Phase list, and PhaseRef is resolved to ScheduleExpr. See experiment.schema.json for pre-expansion types.",
 
   "$defs": {
 
@@ -13,12 +13,12 @@
         "type": { "const": "PhaseSequence" },
         "shared_annotations": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/Annotation" },
           "description": "Experiment-level annotation defaults (species, strain, n, chamber, operandum, reinforcer, session_end, context, etc.). All Phases inherit these unless a Phase provides a phase_annotation with the same keyword."
         },
         "shared_param_decls": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/ParamDecl" },
           "description": "Experiment-level parameter defaults (LH, COD, BO, etc.). Phase-level param_decls override by name."
         },
         "phases": {
@@ -43,19 +43,19 @@
         },
         "schedule": {
           "oneOf": [
-            { "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr" },
+            { "$ref": "../operant/ast.schema.json#/$defs/ScheduleExpr" },
             { "type": "null" }
           ],
           "description": "The reinforcement schedule active during this phase. Any valid contingency-dsl ScheduleExpr (Atomic, Compound, Special, Modifier, etc.). null indicates a no_schedule phase — a phase with no operant contingency (e.g., Pavlovian revaluation, context exposure, habituation). Annotations may still describe stimulus presentations."
         },
         "phase_annotations": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/Annotation" },
           "description": "Phase-specific annotation overrides or additions. Resolution: same keyword as shared_annotations → override; new keyword → add for this phase only. Typical overrides: context (renewal), session_end (extinction phases often change termination rules)."
         },
         "phase_param_decls": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/ParamDecl" },
           "description": "Phase-specific parameter overrides. Same name as shared_param_decls → override."
         },
         "criterion": {

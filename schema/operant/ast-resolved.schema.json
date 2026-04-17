@@ -356,7 +356,7 @@
 
     "PctlModifier": {
       "type": "object",
-      "description": "Percentile schedule (Core-Stateful: Platt, 1973; Galbicka, 1994).",
+      "description": "Percentile schedule (Operant.Stateful: Platt, 1973; Galbicka, 1994).",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Pctl" },

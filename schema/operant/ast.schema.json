@@ -414,7 +414,7 @@
 
     "PctlModifier": {
       "type": "object",
-      "description": "Percentile schedule (Core-Stateful: Platt, 1973; Galbicka, 1994). Reinforces responses whose measured dimension falls at or beyond a percentile threshold of recent responses.",
+      "description": "Percentile schedule (Operant.Stateful: Platt, 1973; Galbicka, 1994). Reinforces responses whose measured dimension falls at or beyond a percentile threshold of recent responses.",
       "properties": {
         "type": { "const": "Modifier" },
         "modifier": { "const": "Pctl" },
@@ -451,7 +451,7 @@
       "properties": {
         "type": { "const": "SecondOrder" },
         "overall": {
-          "description": "The outer schedule that arranges reinforcement contingent on unit completions. Its value field is always interpreted as a unit completion count, not an individual response count (see spec/en/core/theory.md §2.11).",
+          "description": "The outer schedule that arranges reinforcement contingent on unit completions. Its value field is always interpreted as a unit completion count, not an individual response count (see spec/en/operant/theory.md §2.11).",
           "$ref": "#/$defs/Atomic"
         },
         "unit": {

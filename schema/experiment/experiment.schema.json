@@ -17,7 +17,7 @@
         },
         "body": {
           "oneOf": [
-            { "$ref": "../core/ast.schema.json#/$defs/Program" },
+            { "$ref": "../operant/ast.schema.json#/$defs/Program" },
             { "$ref": "phase-sequence.schema.json#/$defs/PhaseSequence" }
           ],
           "description": "Single-schedule (Program) or multi-phase (PhaseSequence) experimental design."
@@ -87,11 +87,11 @@
           "type": "string",
           "enum": ["below", "above"],
           "default": "below",
-          "description": "Direction for method=percentile. See Pctl modifier in core-stateful/grammar.ebnf §1."
+          "description": "Direction for method=percentile. See Pctl modifier in operant/stateful/grammar.ebnf §1."
         },
         "stages": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/ScheduleExpr" },
           "minItems": 2,
           "description": "Ordered list of schedules for method=staged. Required when method=staged; desugars to ProgressiveTraining with one step per stage."
         },
@@ -101,12 +101,12 @@
         },
         "phase_annotations": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/Annotation" },
           "description": "Additional annotations. The desugaring automatically injects @procedure(\"shape\", target=..., method=..., approximations=[...]). User-supplied annotations are merged."
         },
         "phase_param_decls": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" }
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/ParamDecl" }
         }
       },
       "required": ["type", "label", "target"],
@@ -143,17 +143,17 @@
           "description": "Shared phase-change criterion applied to every generated phase."
         },
         "schedule_template": {
-          "$ref": "../core/ast.schema.json#/$defs/ScheduleExpr",
+          "$ref": "../operant/ast.schema.json#/$defs/ScheduleExpr",
           "description": "Schedule expression with {ident} placeholders referencing steps variables."
         },
         "phase_annotations": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/Annotation" },
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/Annotation" },
           "description": "Annotations shared across all generated phases. May contain {ident} placeholders."
         },
         "phase_param_decls": {
           "type": "array",
-          "items": { "$ref": "../core/ast.schema.json#/$defs/ParamDecl" }
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/ParamDecl" }
         },
         "interleave": {
           "type": "array",
