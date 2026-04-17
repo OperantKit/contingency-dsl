@@ -193,7 +193,7 @@ distinct from the nominal schedule parameter.
 
 **Report enum:** `distribution`, `mean`, `median`, `cv`, `sequential`
 
-**Reference:** Catania, A. C., & Reynolds, G. S. (1968). A quantitative analysis of the responding maintained by interval schedules of reinforcement. Journal of the Experimental Analysis of Behavior, 11(S3), 327-383. https://doi.org/10.1901/jeab.1968.11-s327
+**Reference:** Catania, A. C., & Reynolds, G. S. (1968). A quantitative analysis of the responding maintained by interval schedules of reinforcement. *Journal of the Experimental Analysis of Behavior*, *11*(S3), 327-383. https://doi.org/10.1901/jeab.1968.11-s327
 
 ### `@warmup_exclude`
 
