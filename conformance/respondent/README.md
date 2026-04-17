@@ -14,7 +14,16 @@ Tests here validate parsing and semantic analysis of respondent primitives defin
 
 ## Current status
 
-Empty (fixtures are forthcoming). a later phase introduces the `contingency-respondent-dsl` package and will populate this directory with Tier A primitive fixtures covering the full extension point surface.
+Tier A primitive fixtures are populated:
+
+| File | Scope |
+|------|-------|
+| `pair.json` | Pair.ForwardDelay / ForwardTrace / Simultaneous / Backward |
+| `elementary.json` | Extinction, CSOnly, USOnly, ITI, Compound, Serial, Differential |
+| `contingency-controls.json` | Contingency(p_us_given_cs, p_us_given_no_cs), TrulyRandom, ExplicitlyUnpaired |
+| `compound-stimulus.json` | Compound and Serial CS lists with mode variants |
+
+(Case counts intentionally omitted — see the fixture file for the current count, or run `jq length <file>.json`.)
 
 ## Extension point
 
