@@ -868,7 +868,7 @@ Baron, 1979).
 **Stimulus annotation.** Sidman procedures are aversive by definition. The
 recommended practice is to use `@punisher` to make the experimenter's intent
 explicit in source, though `@reinforcer` is accepted as an equivalent alias
-(see annotation-design.md §3.5):
+(see annotations/design.md §3.5):
 
 ```
 Sidman(SSI=20-s, RSI=5-s) @punisher("shock", intensity="0.5mA")

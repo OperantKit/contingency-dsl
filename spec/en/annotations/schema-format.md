@@ -7,7 +7,7 @@
 > keywords, their parameters, types, constraints, and scoping.
 >
 > It resolves the "メタDSL 未定義" issue identified in
-> annotation-design.md §1 and §7.1.
+> design.md §1 and §7.1.
 
 ---
 
@@ -397,7 +397,7 @@ the same AST node.
 - The primary keyword is the one listed as the key in `keywords`.
   Aliases are listed in the `aliases` array.
 
-See annotation-design.md §3.5 for the theoretical justification.
+See design.md §3.5 for the theoretical justification.
 
 ---
 

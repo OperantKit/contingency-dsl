@@ -5,7 +5,7 @@
 This is a template for proposing a new annotator for the **DSL project's
 recommended registry**. Copy this directory and fill in each section.
 
-Per [design-philosophy.md §4.2](design-philosophy.md), third-party
+Per [design-philosophy.md §4.2](../design-philosophy.md), third-party
 programs are free to build their own registries without following this
 template. This template is for annotators that aim to be adopted into
 the DSL project's recommended set.

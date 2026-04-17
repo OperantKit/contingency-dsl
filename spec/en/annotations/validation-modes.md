@@ -2,7 +2,7 @@
 
 ## Status: Revised
 
-This document presupposes [design-philosophy.md](design-philosophy.md) §4.
+This document presupposes [design-philosophy.md](../design-philosophy.md) §4.
 Where the two conflict, **design-philosophy.md takes precedence as the canonical source**.
 
 The Tier × Mode model described herein is **one exemplar** of the validation
@@ -13,10 +13,10 @@ In accordance with the program-scoped closure principle of design-philosophy
 this model. The provisions of this document are **recommended, not mandatory**.
 
 Related documents:
-- [ja/design-philosophy.md](design-philosophy.md) §4 — Annotation layer structure and categories (canonical)
-- [annotation-design.md](annotation-design.md) — Recommended annotators and their boundary principles
-- [architecture.md](architecture.md) §4.7 — Annotation architecture
-- [grammar.ebnf](../../grammar.ebnf) — Formal grammar
+- [design-philosophy.md](../design-philosophy.md) §4 — Annotation layer structure and categories (canonical)
+- [design.md](design.md) — Recommended annotators and their boundary principles
+- [architecture.md](../architecture.md) §4.7 — Annotation architecture
+- [grammar.ebnf](../../../schema/foundations/grammar.ebnf) — Formal grammar
 
 ---
 
@@ -106,7 +106,7 @@ lint(src, mode="publication")     → publishable?           (Tier 0-3)
 | `LH = 10-s` | program-level parameter declaration |
 
 **Behavior on omission**: parse error. This is enforced by the grammar.
-**Governing document**: BNF production rules in [grammar.ebnf](../../grammar.ebnf)
+**Governing document**: BNF production rules in [grammar.ebnf](../../../schema/foundations/grammar.ebnf)
 
 ### Tier 1 — Defaulted Execution Parameters
 
@@ -261,7 +261,7 @@ modes. A program that passes a lower mode may fail at a higher mode.
 ### 5.2 Formalization of Progressive Enrichment
 
 The "progressive enrichment" currently described informally in
-[docs/en/annotations.md](../../docs/en/annotations.md) is here formalized
+[docs/en/annotations.md](../../../docs/en/annotations.md) is here formalized
 from the perspective of validation modes:
 
 | Stage | DSL source | Passing modes |
@@ -320,7 +320,7 @@ Step 6: Manuscript preparation
 
 ---
 
-## 6. Alignment with annotation-design.md
+## 6. Alignment with design.md
 
 ### 6.1 Boundary Tests and Their Relationship to Tiers
 
@@ -339,9 +339,9 @@ element. The two mechanisms have distinct scopes of responsibility.
 See [boundary-decision.md](boundary-decision.md) for the authoritative
 decision flow and examples.
 
-### 6.2 Reclassification of Existing Proposals from annotation-design.md §8
+### 6.2 Reclassification of Existing Proposals from design.md §8
 
-The program-level extensions enumerated in annotation-design.md §8 are
+The program-level extensions enumerated in design.md §8 are
 reclassified by tier as follows:
 
 | Current §8 proposal | Reclassified Tier |
@@ -424,7 +424,7 @@ Restated in terms of tiers:
 
 ### 7.4 Why `experiment_id` / `subject_id` Do Not Belong in the DSL
 
-The classification proposed in annotation-design.md §8.4 —
+The classification proposed in design.md §8.4 —
 "`subject_id`, `experiment_id` belong in the DSL" — is **revised by this
 document to relocate them to the manifest layer**:
 
@@ -537,7 +537,7 @@ investigated:
 - Should the tier classification be declared by the annotation itself (self-describing)?
 - Or should an external tier registry be created?
 
-This decision will be made when the meta-DSL (annotation-design.md §7) is introduced.
+This decision will be made when the meta-DSL (design.md §7) is introduced.
 
 ### 9.3 Flexibility of the Mode Hierarchy
 
@@ -561,6 +561,6 @@ user-configurable. Whether ESLint-style rule-set enable/disable is permitted.
 - Sidman, M. (1960). *Tactics of scientific research*. Basic Books.
 - Baron, A., & Perone, M. (1998). Experimental design and analysis in the laboratory study of human operant behavior. In K. A. Lattal & M. Perone (Eds.), *Handbook of research methods in human operant behavior* (pp. 45-91). Plenum.
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *JEAB*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
-- annotation-design.md §2 (boundary tests), §6 (two-tier scoping), §8 (program-level extensions)
+- design.md §2 (boundary tests), §6 (two-tier scoping), §8 (program-level extensions)
 - architecture.md §4.7 (annotation architecture)
 - docs/en/annotations.md / docs/ja/annotations.md (informal description of Progressive Enrichment)

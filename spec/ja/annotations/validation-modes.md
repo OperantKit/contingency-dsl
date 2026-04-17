@@ -2,7 +2,7 @@
 
 ## Status: Revised
 
-本文書は [design-philosophy.md](design-philosophy.md) §4 を前提とする。
+本文書は [design-philosophy.md](../design-philosophy.md) §4 を前提とする。
 両者が矛盾する場合は **design-philosophy.md が正典として優先する**。
 
 本文書に記載する Tier × Mode モデルは、**DSL プロジェクトが提示する検証体系の
@@ -12,10 +12,10 @@
 置換する自由を持つ。本文書の記述は **強制ではなく推奨** である。
 
 関連文書:
-- [ja/design-philosophy.md](design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
-- [annotation-design.md](annotation-design.md) — 推奨 annotator とその境界原則
-- [en/architecture.md](../en/architecture.md) §4.7 — annotation architecture
-- [grammar.ebnf](../../grammar.ebnf) — 形式文法
+- [design-philosophy.md](../design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
+- [design.md](design.md) — 推奨 annotator とその境界原則
+- [architecture.md](../architecture.md) §4.7 — annotation architecture
+- [grammar.ebnf](../../../schema/foundations/grammar.ebnf) — 形式文法
 
 ---
 
@@ -99,7 +99,7 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 | `LH = 10-s` | program-level parameter declaration |
 
 **省略時の挙動**: parse error。これは文法で強制される。
-**該当文書**: [grammar.ebnf](../../grammar.ebnf) の BNF 生成規則
+**該当文書**: [grammar.ebnf](../../../schema/foundations/grammar.ebnf) の BNF 生成規則
 
 ### Tier 1 — Defaulted Execution Parameters
 
@@ -252,7 +252,7 @@ parse ⊆ dev ⊆ production ⊆ publication
 
 ### 5.2 Progressive Enrichment の形式化
 
-現在 [docs/en/annotations.md](../../docs/en/annotations.md) に非形式的に記述されている
+現在 [docs/en/annotations.md](../../../docs/en/annotations.md) に非形式的に記述されている
 "progressive enrichment" を validation mode の観点から形式化する:
 
 | 段階 | DSL ソース | 通るモード |
@@ -311,11 +311,11 @@ parse ⊆ dev ⊆ production ⊆ publication
 
 ---
 
-## 6. annotation-design.md との整合
+## 6. design.md との整合
 
 ### 6.1 境界テストと Tier の関係
 
-annotation-design.md §2 の境界テスト（Q1-Q3）が **Core vs Annotation** を判定する。
+design.md §2 の境界テスト（Q1-Q3）が **Core vs Annotation** を判定する。
 3 問の具体的な内容は §2 の唯一の定義に従い、本文書では再掲しない。
 本節の Tier 分類は、§2 が「annotation 候補」と判定した後に
 **特定プログラム（この Python リファレンス実装）内で** どのモードで
@@ -324,7 +324,7 @@ annotation-design.md §2 の境界テスト（Q1-Q3）が **Core vs Annotation**
 本 Python リファレンス実装が採用する意思決定フロー:
 
 ```
-前提: annotation-design.md §2 の境界テスト (Q1-Q3) で
+前提: design.md §2 の境界テスト (Q1-Q3) で
 「Core 昇格を検討」ではなく「Annotation 候補」と判定済み
 （YES → grammar.ebnf を design-philosophy §8 の制約下で改訂）
   ↓
@@ -344,9 +344,9 @@ Tier 分類 (本文書)
 ルールである。別のプログラムが別の tier 分類を採用することは
 design-philosophy §4.2 により許容される。
 
-### 6.2 annotation-design.md §8 既存提案の再分類
+### 6.2 design.md §8 既存提案の再分類
 
-annotation-design.md §8 で列挙されたプログラムレベル拡張を tier で再分類する:
+design.md §8 で列挙されたプログラムレベル拡張を tier で再分類する:
 
 | 現 §8 提案 | 再分類後の Tier |
 |---|---|
@@ -425,7 +425,7 @@ validation mode 導入後も**維持される**。変わるのは、
 
 ### 7.4 `experiment_id` / `subject_id` を DSL に置かない理由
 
-annotation-design.md §8.4 で提案された
+design.md §8.4 で提案された
 「`subject_id`, `experiment_id` は DSL」という分類は、
 この document で **manifest 層へ移す**ことを提案する:
 
@@ -535,7 +535,7 @@ tier, mode, 回避方法をエラーメッセージに明示する（Rust の di
 - Tier 分類は annotation 自身が宣言する（自己記述）のか?
 - それとも external tier registry を作るのか?
 
-メタDSL（annotation-design.md §7）導入時にこの決定を行う。
+メタDSL（design.md §7）導入時にこの決定を行う。
 
 ### 9.3 mode の階層の柔軟性
 
@@ -558,6 +558,6 @@ ESLint のような rule set の有効化/無効化を許すか。
 - Sidman, M. (1960). *Tactics of scientific research*. Basic Books.
 - Baron, A., & Perone, M. (1998). Experimental design and analysis in the laboratory study of human operant behavior. In K. A. Lattal & M. Perone (Eds.), *Handbook of research methods in human operant behavior* (pp. 45-91). Plenum.
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *JEAB*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
-- annotation-design.md §2（境界テスト）, §6（二層スコーピング）, §8（プログラムレベル拡張）
+- design.md §2（境界テスト）, §6（二層スコーピング）, §8（プログラムレベル拡張）
 - en/architecture.md §4.7（annotation architecture）
 - docs/en/annotations.md / docs/ja/annotations.md（Progressive Enrichment の非形式的記述）

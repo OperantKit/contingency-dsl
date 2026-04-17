@@ -208,7 +208,7 @@ category to ensure the independence of measurement criteria.
 | **Measurement** | `measurement-annotator` | Measurement criteria | Steady-state criteria, baseline rates, phase-termination conditions, dependent measures, and other information that specifies *when and how* to read the effects of contingencies expressed in the Core. |
 
 Annotator names and JEAB categories have a **1:1 correspondence**
-(see [annotation-design.md §3.7](annotation-design.md)). The category to
+(see [annotations/design.md §3.7](annotations/design.md)). The category to
 which an annotator belongs is immediately apparent from the annotator name.
 Annotators that do not fit the four JEAB categories are placed under
 `annotations/extensions/`.
@@ -585,11 +585,11 @@ design and sits above the following spec documents:
 
 - [evaluation-criteria.md](evaluation-criteria.md) — Six axes for evaluating design decisions (derived from this document)
 - [design-rationale.md](design-rationale.md) — Alternatives considered and why the current design was chosen
-- [grammar.ebnf](../../grammar.ebnf) — DSL grammar
-- [ast-schema.json](../../ast-schema.json) — Abstract syntax tree schema
-- [annotation-design.md](annotation-design.md) — Annotation boundary principles and the AnnotationModule Protocol
-- [validation-modes.md](validation-modes.md) — Verification system organized by Tier × Mode
-- [representations/DESIGN.md](../../representations/DESIGN.md) — Design of alternative coordinate systems
+- [schema/foundations/grammar.ebnf](../../schema/foundations/grammar.ebnf) — DSL grammar (paradigm-neutral entry; paradigm layers under `schema/{operant,respondent}/`)
+- [schema/foundations/types.schema.json](../../schema/foundations/types.schema.json) — Shared AST type definitions (paradigm-specific AST schemas under `schema/{operant,respondent,composed,experiment}/`)
+- [annotations/design.md](annotations/design.md) — Annotation boundary principles and the AnnotationModule Protocol
+- [annotations/validation-modes.md](annotations/validation-modes.md) — Verification system organized by Tier × Mode
+- [representations/DESIGN.md](representations/DESIGN.md) — Design of alternative coordinate systems
 
 If any spec contradicts this document, **this document takes precedence as
 the canon**. When a contradiction is discovered, the relevant spec should be

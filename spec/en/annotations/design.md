@@ -2,14 +2,14 @@
 
 ## Status: Revised
 
-This document presupposes [design-philosophy.md](design-philosophy.md) §4.
+This document presupposes [design-philosophy.md](../design-philosophy.md) §4.
 Where the two documents conflict, **design-philosophy.md takes precedence as the canonical reference**.
 
 Related documents:
-- [en/design-philosophy.md](design-philosophy.md) §4 — Annotation layer structure and categories (canonical)
+- [design-philosophy.md](../design-philosophy.md) §4 — Annotation layer structure and categories (canonical)
 - [schema-format.md](schema-format.md) — Annotation Schema Format (language-independent meta-DSL)
 - [validation-modes.md](validation-modes.md) — Design examples of tier × mode validation for each program
-- [grammar.ebnf](../../grammar.ebnf) §4.7 — Annotation syntax and program-scope closure
+- [grammar.ebnf](../../../schema/foundations/grammar.ebnf) §4.7 — Annotation syntax and program-scope closure
 
 ---
 
@@ -93,7 +93,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 | **Procedure** | procedure-annotator (stimulus + temporal + context sub-annotators) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@context` |
 | **Subjects** | subjects-annotator | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | **Apparatus** | apparatus-annotator | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
-| **Measurement** | measurement-annotator | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
+| **Measurement** | measurement-annotator | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
 
 **Extensions** (recommended annotators that do not fit the four categories, located under `annotations/extensions/`):
 
@@ -102,7 +102,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 | extensions/social-annotator | `@subject`, `@ibc` | Multi-subject contingencies, cooperative tasks. `@ibc` = Interlocking Behavioral Contingencies (Glenn, 2004); renamed from `@interlocking` to avoid collision with `Interlock(...)` schedule (Ferster & Skinner, 1957) |
 | extensions/clinical-annotator | `@function`, `@target`, `@replacement` | ABA clinical metadata |
 
-Category classification conforms to [design-philosophy.md](design-philosophy.md#41-推奨カテゴリ体系jeab-method-節に準拠) §4.1.
+Category classification conforms to [design-philosophy.md](../design-philosophy.md#41-推奨カテゴリ体系jeab-method-節に準拠) §4.1.
 For the 1:1 correspondence principle between annotator names and JEAB categories, see §3.7.
 
 ### What Third Parties Are Free to Do
@@ -129,7 +129,7 @@ Each layer is **optional and additive**. `FI 10` is valid in any program's regis
 
 ### How to Define a New Annotation
 
-1. Copy [annotation-template.md](annotation-template.md) as a template
+1. Copy [template.md](template.md) as a template
 2. Answer the boundary test in §2 to demonstrate that it is appropriate as an annotation rather than Core
 3. Select the corresponding category (Procedure / Subjects / Apparatus / Measurement / Extension)
 4. Add it to the appropriate package or independent registry through the review mechanism in §4
@@ -168,7 +168,7 @@ FR 3 @consequentStimulus("shock") @operandum("lever")
 
 The above three are all treated as **the same procedure**.
 
-For details, see [annotations/procedure-annotator/stimulus/README.md](../../annotations/procedure-annotator/stimulus/README.md) §Keyword Aliases.
+For details, see [schema/annotations/procedure-stimulus.schema.json](../../../schema/annotations/procedure-stimulus.schema.json) (`@reinforcer` keyword `aliases` and `alias_note` fields).
 
 ### General Principles
 
@@ -247,7 +247,7 @@ The naming convention is that **recommended annotator names correspond 1:1 with 
 
 1. **Classification is self-evident**: The JEAB category is immediately apparent from the annotator name
 2. **Easy to freeze**: "4 categories = 4 annotators" serves as the invariant base rule
-3. **Clear boundary determination**: Items that do not fit the four categories are explicitly directed to either `extensions/` or the [Schedule Extension layer](design-philosophy.md#5-schedule-extension-%E5%B1%A4--%E5%8B%95%E7%9A%84tc-%E8%BF%91%E5%82%8D%E3%81%AE-schedule-%E6%A7%8B%E6%88%90%E7%B4%A0)
+3. **Clear boundary determination**: Items that do not fit the four categories are explicitly directed to either `extensions/` or the [Schedule Extension layer](../design-philosophy.md#5-schedule-extension-%E5%B1%A4--%E5%8B%95%E7%9A%84tc-%E8%BF%91%E5%82%8D%E3%81%AE-schedule-%E6%A7%8B%E6%88%90%E7%B4%A0)
 4. **Measurement gap becomes visible**: It is immediately apparent when `measurement-annotator` does not exist
 
 ### Internal Structure of the Procedure Category
@@ -322,7 +322,7 @@ When a proposal is made to add a new annotation keyword `@X` to annotator `A`, t
 ## Boundary Review: @X → A
 
 ### 1. Core independence (§2 boundary test)
-The following correspond to Q1-Q3 in annotation-design.md §2.
+The following correspond to Q1-Q3 in design.md §2.
 §2 is the authoritative description; if this checklist diverges, follow §2.
 - [ ] Q1: Can the theoretical properties of the schedule (e.g., FI scallop) be discussed without `@X`? → YES means annotation OK
 - [ ] Q2: Does `@X` alter the evaluation semantics of the schedule expression? → NO means annotation OK
@@ -547,7 +547,7 @@ This section lists candidate annotations for addition to the DSL project's **rec
 > The terms "mandatory" and "should be made mandatory" in this section denote **the degree of recommendation for inclusion in the DSL project's recommended set**. Nothing becomes "mandatory" at the DSL grammar level.
 > Each program's registry determines what is mandatory vs. optional according to its own rules. For concrete examples, see the tier × mode model in [validation-modes.md](validation-modes.md).
 >
-> The same annotation may be mandatory (tier 2) in one program, optional in another, and unused in yet another. This is a necessary consequence of [design-philosophy.md §4.2](design-philosophy.md#42-カテゴリは-推奨分類であって強制ではない).
+> The same annotation may be mandatory (tier 2) in one program, optional in another, and unused in yet another. This is a necessary consequence of [design-philosophy.md §4.2](../design-philosophy.md#42-カテゴリは-推奨分類であって強制ではない).
 
 ### 8.1 Unanimously Agreed Addition Proposals (Core EAB Extensions)
 
@@ -556,7 +556,7 @@ Extensions considered essential for basic EAB research:
 #### 8.1.1 `@session_end` — Session Termination Criteria **[Implemented]** `Tier 2 (production)`
 
 > **Implemented:** measurement-annotator.
-> See [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
+> See [annotations/measurement-annotator/README.md](../../../annotations/measurement-annotator/README.md)
 > §Parameter Schemas for the formal parameter schema.
 
 ```
