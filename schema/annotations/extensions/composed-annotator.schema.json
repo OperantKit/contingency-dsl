@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/extensions/composed-annotator.schema.json",
+  "title": "composed-annotator",
+  "description": "Annotation extension for the composed layer. Documents the two response-contingent US-modulation annotations — @omission and @avoidance — that express the execution-time rules by which a recorded response alters scheduled US delivery for a given trial. Attaches to respondent primitives hosted inside experiment-layer phase blocks (CER, PIT, autoshape, omission, two-process-theory).",
+  "category": "Extension",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "omission": {
+      "description": "Response-contingent US cancellation rule for negative-automaintenance / omission procedures (Williams & Williams, 1969). When the specified response class is emitted during the specified temporal window, the scheduled US is cancelled for that trial; the Pavlovian CS-US pairing otherwise proceeds unchanged.",
+      "scope": ["schedule"],
+      "positional": null,
+      "params": {
+        "response": {
+          "type": "string",
+          "required": true,
+          "description": "Identifier of the observable response class whose emission cancels the scheduled US on that trial."
+        },
+        "during": {
+          "type": "string",
+          "required": false,
+          "enum": ["cs", "iti", "trial"],
+          "default": "cs",
+          "description": "Temporal window in which the cancellation rule applies. 'cs' (default) limits cancellation to responses emitted while the CS is on. 'iti' applies only during the inter-trial interval. 'trial' spans the full trial including both windows."
+        }
+      },
+      "errors": {
+        "OMISSION_RESPONSE_REQUIRED": "response is required and must be a non-empty string",
+        "OMISSION_DURING_UNKNOWN": "during must be one of {cs, iti, trial} when provided",
+        "OMISSION_UNKNOWN_PARAM": "only response and during are admissible parameters"
+      },
+      "reference": "Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. Journal of the Experimental Analysis of Behavior, 12(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511"
+    },
+
+    "avoidance": {
+      "description": "Response-contingent avoidance rule for discriminated-avoidance procedures (Solomon & Wynne, 1954). When the specified response class is emitted during the CS, the scheduled US is cancelled (mode=cancel) or the CS offset / US onset is postponed (mode=postpone).",
+      "scope": ["schedule"],
+      "positional": null,
+      "params": {
+        "response": {
+          "type": "string",
+          "required": true,
+          "description": "Identifier of the observable response class that prevents the US on a given trial."
+        },
+        "mode": {
+          "type": "string",
+          "required": false,
+          "enum": ["cancel", "postpone"],
+          "default": "cancel",
+          "description": "Avoidance modality. 'cancel' (default): the response during CS cancels the scheduled US for that trial. 'postpone': the response postpones CS offset / US onset (e.g. Sidman-style free-operant avoidance on a discriminated schedule)."
+        }
+      },
+      "errors": {
+        "AVOIDANCE_RESPONSE_REQUIRED": "response is required and must be a non-empty string",
+        "AVOIDANCE_MODE_UNKNOWN": "mode must be one of {cancel, postpone} when provided",
+        "AVOIDANCE_UNKNOWN_PARAM": "only response and mode are admissible parameters"
+      },
+      "reference": "Solomon, R. L., & Wynne, L. C. (1954). Traumatic avoidance learning: The principles of anxiety conservation and partial irreversibility. Psychological Review, 61(6), 353-385. https://doi.org/10.1037/h0054540"
+    }
+  },
+
+  "composition_rules": {
+    "attachment": "Both @omission and @avoidance attach at schedule level (postfix on a respondent primitive) and are parsed into the AnnotatedSchedule node enclosing the primitive. Attaching them elsewhere is not an error at parse time but has no execution-time effect.",
+    "disjointness": "At most one of @omission or @avoidance may be attached to a single respondent primitive; their execution-time semantics conflict (omission cancels, avoidance cancels-or-postpones). Programs that need both simultaneously must decompose into separate phases."
+  },
+
+  "reference_implementation": "contingency_annotator.composed_ext.ComposedExtension (Python)"
+}

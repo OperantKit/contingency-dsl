@@ -1,0 +1,92 @@
+[
+  {
+    "_comment": "=== @omission — response-contingent US cancellation ==="
+  },
+  {
+    "id": "composed_annot_omission_minimal",
+    "description": "@omission with only the required response parameter (defaults during='cs').",
+    "input": "@omission(response=\"key_peck\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "omission",
+          "params": { "response": "key_peck" }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    }
+  },
+  {
+    "id": "composed_annot_omission_with_during",
+    "description": "@omission with explicit during=cs.",
+    "input": "@omission(response=\"key_peck\", during=\"cs\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "omission",
+          "params": { "response": "key_peck", "during": "cs" }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+  {
+    "_comment": "=== @avoidance — response-contingent avoidance rule ==="
+  },
+  {
+    "id": "composed_annot_avoidance_minimal",
+    "description": "@avoidance with only the required response parameter (defaults mode='cancel').",
+    "input": "@avoidance(response=\"lever_press\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "avoidance",
+          "params": { "response": "lever_press" }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": { "type": "Atomic", "dist": "F", "domain": "R", "value": 5.0 }
+    }
+  },
+  {
+    "id": "composed_annot_avoidance_postpone_mode",
+    "description": "@avoidance with explicit mode='postpone'.",
+    "input": "@avoidance(response=\"lever_press\", mode=\"postpone\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "avoidance",
+          "params": { "response": "lever_press", "mode": "postpone" }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  }
+]
