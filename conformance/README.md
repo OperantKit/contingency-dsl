@@ -94,9 +94,6 @@ LH default propagation should validate against `expected` only.
 
 ## Test files
 
-Each fixture file is the source of truth for case counts. Run `jq length <file>.json` to
-get the current count. Tables below list scope only.
-
 ### foundations/
 
 Empty (placeholder). See `foundations/README.md` for the dividing principle and qualifying topics.

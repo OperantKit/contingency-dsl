@@ -23,8 +23,6 @@ Tier A primitive fixtures are populated:
 | `contingency-controls.json` | Contingency(p_us_given_cs, p_us_given_no_cs), TrulyRandom, ExplicitlyUnpaired |
 | `compound-stimulus.json` | Compound and Serial CS lists with mode variants |
 
-(Case counts intentionally omitted — see the fixture file for the current count, or run `jq length <file>.json`.)
-
 ## Extension point
 
 The respondent layer is extensible: Tier B primitives (conditioned inhibition, occasion-setting, higher-order conditioning, sensory preconditioning, latent inhibition, overshadowing, blocking, etc.) register into the extension registry defined in `schema/respondent/`. Conformance fixtures for Tier B primitives belong here under a subdirectory (planned: `conformance/respondent/extensions/`).
