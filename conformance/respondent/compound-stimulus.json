@@ -1,0 +1,108 @@
+[
+  {
+    "id": "compound_default_mode",
+    "description": "R11. Compound with implicit mode=Simultaneous (default).",
+    "input": "Compound(cs_list=[tone, light])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "cs_list": ["tone", "light"],
+        "mode": "Simultaneous"
+      }
+    }
+  },
+  {
+    "id": "compound_explicit_mode",
+    "description": "R11. Compound with explicit mode=Simultaneous.",
+    "input": "Compound(cs_list=[tone, light], mode=Simultaneous)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "cs_list": ["tone", "light"],
+        "mode": "Simultaneous"
+      }
+    }
+  },
+  {
+    "id": "compound_three_stimuli",
+    "description": "R11. Compound with three CSs.",
+    "input": "Compound(cs_list=[tone, light, clicker])",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "cs_list": ["tone", "light", "clicker"],
+        "mode": "Simultaneous"
+      }
+    }
+  },
+  {
+    "id": "serial_two_stimuli",
+    "description": "R12. Serial CS sequence with ISI (Rescorla, 1972).",
+    "input": "Serial(cs_list=[light, tone], isi=3s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Serial",
+        "cs_list": ["light", "tone"],
+        "isi": { "value": 3.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "serial_three_stimuli",
+    "description": "R12. Serial with three CSs in presentation order.",
+    "input": "Serial(cs_list=[light, tone, clicker], isi=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Serial",
+        "cs_list": ["light", "tone", "clicker"],
+        "isi": { "value": 2.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "differential_full",
+    "description": "R14. Differential conditioning with explicit US (Pavlov, 1927; Mackintosh, 1974).",
+    "input": "Differential(cs_positive=tone_plus, cs_negative=tone_minus, us=shock)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Differential",
+        "cs_positive": "tone_plus",
+        "cs_negative": "tone_minus",
+        "us": "shock"
+      }
+    }
+  },
+  {
+    "id": "differential_short_form",
+    "description": "R14. Differential short form — US inferred from enclosing @us annotation (Phase 2 resolution).",
+    "input": "Differential(cs_positive=tone_plus, cs_negative=tone_minus)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Differential",
+        "cs_positive": "tone_plus",
+        "cs_negative": "tone_minus"
+      }
+    }
+  }
+]
