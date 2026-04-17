@@ -480,6 +480,270 @@ PhaseSequence(
 
 ---
 
+## 10. 二次スケジュールによるコカイン自己投与の用量反応掃引
+
+**論文:** John, W. S., & Nader, M. A. (2016). Dose-response procedures for cocaine self-administration in rhesus monkeys（Method スタイル参照。二次スケジュールの標準形式については Goldberg, 1973 も参照）.
+
+**デザイン:** 各テスト用量の後にベースライン復帰期間を挟む行動薬理学的な用量反応掃引。強化スケジュールは二次スケジュールで、FR 30 反応単位の達成で短時間の刺激が提示され、FI 600-s 経過後に最初に完了する FR 30 でコカイン注入が生じる。6 つの単位用量を順次テストし、各ペアの間に被験体は固定参照用量に 3 セッション以上安定するまで戻る。
+
+**主要 DSL 機能:** 二次スケジュール記法 `FI(FR)`、`progressive` と `interleave`、テンプレートフェーズ、`@reinforcer` プレースホルダ置換
+
+```
+-- John & Nader (2016) — コカイン用量反応と recovery 交互配置
+@species("rhesus monkey") @n(4)
+@apparatus(chamber="primate-test", operandum="lever")
+@reinforcer("cocaine", delivery="IV")
+
+phase Recovery:
+  sessions >= 3
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="0.1mg/kg")
+
+progressive DoseResponse:
+  steps dose = [0.003, 0.01, 0.03, 0.1, 0.3, 0.56]
+  interleave Recovery
+  sessions >= 5
+  stable(visual)
+  FI 600-s(FR 30)
+  @reinforcer("cocaine", dose="{dose}mg/kg")
+```
+
+**注記:**
+- `FI 600-s(FR 30)` は二次スケジュール: 強化スケジュールは FI 600-s だが、各反応単位が FR 30。区間中に FR 30 を完了すると短時間刺激、600-s 経過後の最初の FR 30 完了で注入。
+- `phase Recovery` は `progressive` ブロックの**前**に宣言される。`interleave` が参照するため、**template** となり timeline に standalone で現れない。
+- `interleave Recovery` は 12 phase（6 用量 + 6 recovery）に展開され、Method の「*each dose was followed by a return to baseline*」と 1:1 で一致する。
+- Clone された recovery はリテラル `@reinforcer("cocaine", dose="0.1mg/kg")` を保持する。`{dose}` プレースホルダは clone に漏出しない（annotation locality）。
+
+---
+
+## 11. 強化子再評価を伴う自由オペラント回避
+
+**論文:** Fernando, A. B. P., Urcelay, G. P., Mar, A. C., Dickinson, A., & Robbins, T. W. (2014). Free-operant avoidance behavior by rats after reinforcer revaluation using opioid agonists and d-amphetamine. *Journal of Neuroscience*, *34*(18), 6286-6293. https://doi.org/10.1523/JNEUROSCI.4146-13.2014
+
+**デザイン:** 自由オペラント回避のための三相強化子再評価パラダイム。(1) 反応随伴のフィードバック刺激を伴う Sidman スケジュール下での獲得。(2) 再評価: レバー非存在下で、全身性薬物処置とペア（または非ペア）された非随伴ショック提示。(3) 元の回避スケジュールでの消去テスト（強化子送達なし）。回避が目標指向的であれば、再評価操作はテスト期の反応を変調させるはずである。
+
+**主要 DSL 機能:** `Sidman`, `no_schedule`, `advance when manual`, manual gating による `progressive` shaping
+
+```
+-- Fernando et al. (2014) — 強化子再評価を伴う Sidman 回避
+@species("rat") @strain("Lister-hooded") @n(32)
+@deprivation("free-feeding")
+@chamber("operant-conditioning", dimensions="25x25x25cm")
+@punisher("shock", intensity="0.5mA", duration=0.5-s)
+
+-- 反応-ショック間隔を段階的に密にする回避反応の shaping。
+-- 進行は実験者判断（論文は固定基準なしの段階的短縮を記述）。
+progressive ShapingAcquisition:
+  steps rsi = [120, 60, 30]
+  advance when manual
+  Sidman(SSI=5-s, RSI={rsi}-s)
+  @feedback_stimulus(duration=5-s)
+
+phase AvoidanceTraining:
+  sessions = 30
+  Sidman(SSI=5-s, RSI=5-s)
+  @feedback_stimulus(duration=5-s)
+
+phase Revaluation:
+  sessions = 4
+  no_schedule
+  @punisher("shock", intensity="0.5mA", delivery="unsignaled")
+  @pharmacology(treatment="morphine_or_d-amphetamine", schedule="paired_vs_unpaired")
+
+phase ExtinctionTest:
+  sessions = 1
+  Sidman(SSI=5-s, RSI=5-s)
+  @punisher("none")
+  @feedback_stimulus(duration=5-s)
+```
+
+**注記:**
+- `Sidman(SSI=5-s, RSI=5-s)` は最終的な自由オペラント回避スケジュール: 反応はショックを RSI だけ先送りし、無反応時はショックが SSI ごとに再発する。
+- Revaluation phase の `no_schedule` はオペラント随伴性を停止しつつパヴロフ US 曝露を許す — これが再評価を消去から構造的に区別する特徴。
+- `advance when manual` は `sessions = N` や `sessions >= N` と併用可能で、論文の「RSI was reduced incrementally」という数値基準のない記述に対応する。
+- 薬理操作（morphine または d-amphetamine、ショックとのペア／非ペア）は `@pharmacology` アノテーションに載せる。スケジュール層の構文は薬物非依存のまま。
+
+---
+
+## 12. DRL + Peak 手続き（タイミング精度）
+
+**論文:** Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.03.018
+
+**デザイン:** 三相のタイミング精度研究。(1) FI shaping: 反応率基準で強化区間を 2-s から 18-s まで段階的に延長。(2) Peak 手続きベースライン: 1 セッションあたり 45 試行の強化 FI 18-s 試行 + 15 試行の非強化 54-s probe 試行をランダム順序で呈示。(3) DRL 介入: FI の反応を DRL（9-s、18-s、27-s のいずれか）で置き換え。タイミング正確性と精度を probe 試行の反応分布から測定する。
+
+**主要 DSL 機能:** `advance when criterion(...)` を伴う `progressive`、`@trial_mix` 構造化アノテーション、自由オペラント試行構成のための `Mix`、`LH`（limited hold）
+
+```
+-- Eckard & Kyonka (2018) — DRL が peak 手続きのタイミングに与える効果
+@species("mouse") @n(32)
+@deprivation("85% free-feeding weight")
+@reinforcer("food", type="evaporated-milk", duration=3-s)
+
+-- Phase 1: 反応率基準の FI shaping
+progressive FI_Shaping:
+  steps v = [2, 4, 8, 12, 18]
+  advance when criterion(metric="rate", threshold=>=10, window=3 sessions)
+  sessions >= 5
+  FI {v}-s LH 3-s
+
+-- Phase 2: Peak 手続きベースライン（セッションあたり 45 FI + 15 probe）
+phase PeakBaseline:
+  sessions = 15
+
+  @trial_mix(
+    type="peak",
+    components=[
+      {role="reinforced", ref=0, count=45},
+      {role="probe",      ref=1, count=15, duration=54-s}
+    ],
+    ordering_spec="random"
+  )
+  Mix(FI 18-s LH 3-s, EXT)
+
+-- Phase 3: DRL 介入（被験体ごとに 3 パラメータのいずれか）
+phase DRL_Intervention:
+  sessions = 10
+  DRL 18-s
+  -- 群割当（9, 18, 27）はプログラムレベルの @group アノテーションで処理
+```
+
+**注記:**
+- `Mix(FI 18-s LH 3-s, EXT)` は peak 手続きの 2 試行型を構成する: 強化 FI 成分と非強化 probe 成分（EXT）。`@trial_mix` がセッション内の構成比と順序を指定する。
+- probe role の `duration=54-s` は probe 試行長を指定する（FI の 3 倍、peak 手続きの標準的パラメータ）。
+- `progressive` + `advance when criterion(metric="rate", ...)` は timing 研究に典型的な反応率基準 shaping を表現する: 3 セッション窓で反応率が ≥10/min を維持したら進行。
+- 群間の DRL パラメータ変動（9-s / 18-s / 27-s）はプログラムレベルで `@group` により扱うか、別 DSL ファイルに分割する。
+
+---
+
+## 13. 並立 VI スケジュール下のトークン刺激
+
+**論文:** Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *100*(2), 233-252. https://doi.org/10.1002/jeab.37
+
+**デザイン:** ハトが、一次強化ではなくトークン刺激を送達する 2 つの並立 VI 60-s スケジュール間で選択する。両キーいずれかで獲得した固定数のトークンが交換期を惹起し、交換期では各トークンが FR 1 で食餌と引き換えられる。交換までに必要なトークン数を条件間でパラメトリックに変動させ、一次強化までの遅延が配分をどう変調するかを検証する。
+
+**主要 DSL 機能:** 交換要件パラメータ横断の `step` による `progressive`、トークン経済メタデータを保持する構造化 `@reinforcer` を伴う `Conc`
+
+```
+-- Mazur & Biondi (2013) — 交換要件パラメトリック変動のトークン並立 VI VI
+@species("pigeon") @n(12)
+@deprivation("85% free-feeding weight")
+@chamber("two-key", dimensions="32x32x32cm")
+@reinforcer("token",
+            exchange_terminal="grain",
+            exchange_schedule="FR 1")
+
+progressive ExchangeRequirement:
+  steps tokens_per_exchange = [2, 4, 8, 16]
+  sessions >= 25
+  stable(visual, window=5)
+
+  Conc(
+    VI 60-s @operandum("left-key") @sd("left-light"),
+    VI 60-s @operandum("right-key") @sd("right-light"),
+    COD=2-s
+  )
+  @reinforcer("token",
+              tokens_per_exchange={tokens_per_exchange},
+              exchange_terminal="grain",
+              exchange_schedule="FR 1")
+```
+
+**注記:**
+- オペラントスケジュール（`Conc(VI 60-s, VI 60-s)`）は条件間で変化せず、交換要件のみが操作される。これが一次強化までの遅延という変数を単離する。
+- トークン経済は専用結合子ではなく強化子のアノテーションとして表現される: トークン自体が近位強化子で、交換端は解析パイプライン（マッチング則フィッティング、双曲遅延フィッティング）のためのメタデータとして保持される。
+- progressive phase 数（本例示では 4）は論文 Method のパラメトリック掃引を反映する。被験体あたりの正確な条件数はカウンターバランスされ、DSL の対象外。
+
+---
+
+## 14. 強化子容量掃引を伴う累進比
+
+**論文:** Rickard, J. F., Body, S., Zhang, Z., Bradshaw, C. M., & Szabadi, E. (2009). Effect of reinforcer magnitude on performance maintained by progressive-ratio schedules. *Journal of the Experimental Analysis of Behavior*, *91*(1), 75-87. https://doi.org/10.1901/jeab.2009.91-75
+
+**デザイン:** ラットが累進比（指数）スケジュール下で反応し、0.6-M スクロース溶液の強化子容量が 6–300 μL の範囲で条件間にパラメトリックに変動する。従属測度は最高達成比（break point）、比を通じた反応率、強化後休止。Killeen (1994) の MPR が予測する反応率-比の bitonic 関数を評価する。
+
+**主要 DSL 機能:** `PR(exponential)`、大きさパラメータ横断の `step` による `progressive`、`@reinforcer` プレースホルダ置換
+
+```
+-- Rickard et al. (2009) — PR スケジュールとスクロース容量掃引
+@species("rat") @strain("Wistar") @n(15)
+@deprivation("80% free-feeding weight")
+@chamber("standard-operant", dimensions="25x25x25cm")
+@reinforcer("sucrose-solution", concentration="0.6M")
+
+progressive MagnitudeAssay:
+  steps volume_ul = [6, 12, 25, 50, 100, 200, 300]
+  sessions = 30
+  PR(exponential)
+  @reinforcer("sucrose-solution",
+              concentration="0.6M",
+              volume="{volume_ul}uL",
+              delivery="dipper")
+  @dependent_measure(variables=["break_point",
+                                "rate_by_ratio",
+                                "post_reinforcement_pause"])
+```
+
+**注記:**
+- `PR(exponential)` は指数進行形式 `a·e^(bn) − 1` を選ぶ（Roberts & Richardson, 1992）。固定ステップ進行は `PR(fixed, step=N)` で表現可能。
+- 7 段階の容量掃引は論文 Method と `conformance/experiment/progressive-training.json` の conformance fixture に一致する。
+- `@dependent_measure` は MPR 関連の測定セットを宣言し、下流解析パイプラインが Method を再解析せずに正しい派生変数を発行できるようにする。
+
+---
+
+## 15. ABA リニューアルにおける省略 vs 消去
+
+**論文:** Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 274-287. https://doi.org/10.1002/jeab.568
+
+**デザイン:** 反応除去手続きとして消去と省略（DRO）を比較する ABA リニューアル。(1) Context A での VI スケジュール下の獲得。(2) Context B での除去: 消去、または標的行動非出現区間を最終値まで段階的に上げた DRO のいずれか。(3) Context A と B でのテスト（反応非依存強化子送達の有無を問う）。省略が ABA リニューアルを消去に比べて減弱するかを問う。
+
+**主要 DSL 機能:** `@context`、`advance when manual` + `sessions = N` を伴う `progressive`、`DRO` スケジュール、文脈切替デザインのアノテーション合成
+
+```
+-- Rey et al. (2020) — ABA リニューアルにおける省略 vs 消去
+@species("rat") @strain("Wistar") @n(32)
+@deprivation("80% free-feeding weight")
+@reinforcer("food", type="pellet", magnitude="45mg")
+
+phase Acquisition:
+  sessions = 10
+  VI 30-s @operandum("lever")
+  @context("A")
+
+-- 省略群: 全面省略 phase に入る前に DRO 区間を 3 つの実験者判断ステップで
+-- 最終値まで漸増する。
+progressive OmissionShaping:
+  steps t = [10, 15, 20, 25, 30]
+  advance when manual
+  sessions = 3
+  DRO {t}-s @operandum("lever")
+  @context("B")
+
+phase OmissionElimination:
+  sessions = 10
+  DRO 30-s @operandum("lever")
+  @context("B")
+
+phase ExtinctionElimination:
+  sessions = 10
+  EXT @operandum("lever")
+  @context("B")
+  @group("extinction-comparison")
+
+phase RenewalTest:
+  sessions = 1
+  EXT @operandum("lever")
+  -- Context A と Context B 両方でテスト（順序はカウンターバランス）。
+  @session_end(rule="time", time=30min)
+```
+
+**注記:**
+- `advance when manual` と `sessions = N` の組み合わせは、各ステップに固定セッション数を持つパラメータ漸増を実験者判断で進行させる合法構文（Constraint 79 例外）。
+- 省略群と消去群は並列 phase として表現される。群割当はスケジュール文法の外で、プログラムレベルの `@group` で持たせる。
+- `@context("A")` / `@context("B")` は環境文脈をラベルする — リニューアルデザインにおける決定的独立変数。文脈固有の弁別刺激は随伴性自体の一部ではない。
+
+---
+
 ## まとめ
 
 | 例 | 主要構文 | 研究領域 |
@@ -493,6 +757,12 @@ PhaseSequence(
 | Brown & Jenkins (1968) | `Pair.ForwardDelay`, オペラントなし, composed | オートシェイピング / サイン・トラッキング |
 | Williams & Williams (1969) | operant_constraint, 省略, composed | ネガティブ自動維持 |
 | Estes (1948) / Lovibond (1983) | `PhaseSequence`, `CSOnly`, composed | パヴロフ-道具的転移 |
+| John & Nader (2016) | `FI(FR)`, `progressive`, `interleave` | 行動薬理 / 二次スケジュール |
+| Fernando et al. (2014) | `Sidman`, `no_schedule`, `advance when manual` | 自由オペラント回避 / 再評価 |
+| Eckard & Kyonka (2018) | `@trial_mix`, `Mix`, `advance when criterion(...)` | タイミング / DRL + peak |
+| Mazur & Biondi (2013) | `Conc`, `progressive`, トークン `@reinforcer` | トークン経済 / 選択 |
+| Rickard et al. (2009) | `PR(exponential)`, `progressive` 容量掃引 | 累進比 / 大きさ |
+| Rey et al. (2020) | `DRO`, `EXT`, `@context`, `advance when manual` | 省略 / リニューアル |
 
 ---
 
@@ -504,10 +774,17 @@ PhaseSequence(
 - Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, *11*(1), 1-8. https://doi.org/10.1901/jeab.1968.11-1
 - Brown, T. L., Greer, B. D., Craig, A. R., Roane, H. S., & Shahan, T. A. (2020). Resurgence following differential reinforcement of alternative behavior implemented with and without extinction. *JEAB*, *113*(2), 449-467. https://doi.org/10.1002/jeab.590
 - Craig, A. R., Cunningham, P. E., & Shahan, T. A. (2015). Behavioral momentum and accumulation of behavioral mass. *JEAB*, *103*(3), 437-449. https://doi.org/10.1002/jeab.145
+- Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.03.018
 - Estes, W. K. (1948). Discriminative conditioning. II. Effects of a Pavlovian conditioned stimulus upon a subsequently established operant response. *Journal of Experimental Psychology*, *38*(2), 173-177. https://doi.org/10.1037/h0057525
 - Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, *29*(5), 390-400. https://doi.org/10.1037/h0062283
+- Fernando, A. B. P., Urcelay, G. P., Mar, A. C., Dickinson, A., & Robbins, T. W. (2014). Free-operant avoidance behavior by rats after reinforcer revaluation using opioid agonists and d-amphetamine. *Journal of Neuroscience*, *34*(18), 6286-6293. https://doi.org/10.1523/JNEUROSCI.4146-13.2014
+- Goldberg, S. R. (1973). Comparable behavior maintained under fixed-ratio and second-order schedules of food presentation, cocaine injection, or d-amphetamine injection in the squirrel monkey. *Journal of Pharmacology and Experimental Therapeutics*, *186*(1), 18-30.
+- Killeen, P. R. (1994). Mathematical principles of reinforcement. *Behavioral and Brain Sciences*, *17*(1), 105-135. https://doi.org/10.1017/S0140525X00033628
 - Lovibond, P. F. (1983). Facilitation of instrumental behavior by a Pavlovian appetitive conditioned stimulus. *Journal of Experimental Psychology: Animal Behavior Processes*, *9*(3), 225-247. https://doi.org/10.1037/0097-7403.9.3.225
+- Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *100*(2), 233-252. https://doi.org/10.1002/jeab.37
 - McLean, A. P., Grace, R. C., & Nevin, J. A. (2012). Response strength in extreme multiple schedules. *JEAB*, *97*(1), 51-70. https://doi.org/10.1901/jeab.2012.97-51
 - Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, *74*(3), 151-182. https://doi.org/10.1037/h0024475
+- Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 274-287. https://doi.org/10.1002/jeab.568
+- Rickard, J. F., Body, S., Zhang, Z., Bradshaw, C. M., & Szabadi, E. (2009). Effect of reinforcer magnitude on performance maintained by progressive-ratio schedules. *Journal of the Experimental Analysis of Behavior*, *91*(1), 75-87. https://doi.org/10.1901/jeab.2009.91-75
+- Roberts, S., & Richardson, N. R. (1992). Self-administration of cocaine on a progressive ratio schedule in rats: Dose-response relationship and effect of haloperidol pretreatment. *Psychopharmacology*, *106*(2), 251-255.
 - Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, *12*(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511
-- McLean, A. P., Grace, R. C., & Nevin, J. A. (2012). Response strength in extreme multiple schedules. *JEAB*, *97*(1), 51-70. https://doi.org/10.1901/jeab.2012.97-51
