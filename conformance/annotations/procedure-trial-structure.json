@@ -22,7 +22,7 @@
           },
           {
             "type": "Special",
-            "name": "EXT"
+            "kind": "EXT"
           }
         ],
         "annotations": [
@@ -33,7 +33,7 @@
               "type": "peak",
               "components": [
                 { "role": "reinforced", "ref": 0, "count": 45 },
-                { "role": "probe",      "ref": 1, "count": 15, "duration": 54 }
+                { "role": "probe",      "ref": 1, "count": 15, "duration": { "value": 54, "time_unit": "s" } }
               ],
               "ordering_spec": "random"
             }
@@ -65,7 +65,7 @@
           },
           {
             "type": "Special",
-            "name": "EXT"
+            "kind": "EXT"
           }
         ],
         "annotations": [
@@ -76,7 +76,7 @@
               "type": "peak",
               "components": [
                 { "role": "reinforced", "ref": 0, "count": 30 },
-                { "role": "probe",      "ref": 1, "count": 10, "duration": 90 }
+                { "role": "probe",      "ref": 1, "count": 10, "duration": { "value": 90, "time_unit": "s" } }
               ]
             }
           }
@@ -107,7 +107,7 @@
           },
           {
             "type": "Special",
-            "name": "EXT"
+            "kind": "EXT"
           }
         ],
         "annotations": [
@@ -118,7 +118,7 @@
               "type": "peak",
               "components": [
                 { "role": "reinforced", "ref": 0, "count": 40 },
-                { "role": "probe",      "ref": 1, "count": 20, "duration": 60 }
+                { "role": "probe",      "ref": 1, "count": 20, "duration": { "value": 60, "time_unit": "s" } }
               ],
               "ordering_spec": "random"
             }
@@ -144,7 +144,7 @@
         "components": [
           {
             "type": "Special",
-            "name": "EXT"
+            "kind": "EXT"
           },
           {
             "type": "Atomic",
@@ -162,7 +162,7 @@
               "type": "reinstatement",
               "components": [
                 { "role": "extinction",    "ref": 0 },
-                { "role": "reinstatement", "ref": 1, "count": 4, "interval": 60 }
+                { "role": "reinstatement", "ref": 1, "count": 4, "interval": { "value": 60, "time_unit": "s" } }
               ],
               "ordering_spec": "fixed_sequence"
             }
@@ -185,7 +185,7 @@
         "type": "Compound",
         "combinator": "Mix",
         "components": [
-          { "type": "Special", "name": "EXT" },
+          { "type": "Special", "kind": "EXT" },
           {
             "type": "Atomic",
             "dist": "F",
@@ -233,7 +233,7 @@
             "type": "Atomic", "dist": "F", "domain": "I",
             "value": 8.0, "time_unit": "s"
           },
-          { "type": "Special", "name": "EXT" }
+          { "type": "Special", "kind": "EXT" }
         ],
         "annotations": [
           {
@@ -242,8 +242,8 @@
             "params": {
               "type": "temporal_bisection",
               "components": [
-                { "role": "short_anchor", "ref": 0, "duration": 2, "count": 20 },
-                { "role": "long_anchor",  "ref": 1, "duration": 8, "count": 20 },
+                { "role": "short_anchor", "ref": 0, "duration": { "value": 2, "time_unit": "s" }, "count": 20 },
+                { "role": "long_anchor",  "ref": 1, "duration": { "value": 8, "time_unit": "s" }, "count": 20 },
                 {
                   "role": "probe", "ref": 2, "count": 10,
                   "durations": ["2.52s", "3.17s", "4s", "5.04s", "6.35s"]

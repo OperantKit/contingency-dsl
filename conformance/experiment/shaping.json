@@ -100,8 +100,8 @@
             "modifier": "Pctl",
             "pctl_target": "force",
             "pctl_rank": 50,
-            "window": 20,
-            "dir": "below"
+            "pctl_window": 20,
+            "pctl_dir": "below"
           },
           "phase_annotations": [
             {

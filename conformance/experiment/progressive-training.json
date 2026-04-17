@@ -67,43 +67,43 @@
           "type": "Phase",
           "label": "DoseResponse_1",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_2",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_3",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_4",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_5",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_6",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         },
         {
           "type": "Phase",
           "label": "DoseResponse_7",
           "criterion": { "type": "FixedSessions", "count": 30 },
-          "schedule": { "type": "Modifier", "kind": "PR", "step_function": "exponential" }
+          "schedule": { "type": "Modifier", "modifier": "PR", "pr_step": "exponential" }
         }
       ]
     }

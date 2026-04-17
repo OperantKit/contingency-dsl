@@ -375,7 +375,8 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "Concurrent",
+        "type": "Compound",
+        "combinator": "Conc",
         "components": [
           {
             "type": "Atomic",
@@ -501,7 +502,7 @@
   {
     "id": "measurement_dependent_measure_behavioral_economics",
     "description": "@dependent_measure for demand curve / behavioral economics",
-    "input": "@dependent_measure(variables=[\"rate\", \"breakpoint\", \"demand_elasticity\", \"consumption\"])\n\nPR(start=1, step=2)",
+    "input": "@dependent_measure(variables=[\"rate\", \"breakpoint\", \"demand_elasticity\", \"consumption\"])\n\nPR(linear, start=1, increment=2)",
     "expected": {
       "type": "Program",
       "program_annotations": [
@@ -516,11 +517,11 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "Progressive",
-        "params": {
-          "start": 1,
-          "step": 2
-        }
+        "type": "Modifier",
+        "modifier": "PR",
+        "pr_step": "linear",
+        "pr_start": 1,
+        "pr_increment": 2
       }
     },
     "_note": "Behavioral economics DV set. Distinguishes breakpoint (Hodos, 1961) from demand_elasticity (Hursh & Silberberg, 2008)."
@@ -571,7 +572,8 @@
       "param_decls": [],
       "bindings": [],
       "schedule": {
-        "type": "Concurrent",
+        "type": "Compound",
+        "combinator": "Conc",
         "components": [
           {
             "type": "Atomic",
@@ -1246,7 +1248,7 @@
   {
     "id": "measurement_session_probe_policy_combined",
     "description": "@session + @probe_policy together — canonical equivalence-testing preamble",
-    "input": "@session(blocks=6, block_size=12)\n@probe_policy(baseline_reinforced=true, probe_ratio=0.5)\n\nMTS(comparisons=3, consequence=EXT, ITI=5s)",
+    "input": "@session(blocks=6, block_size=12)\n@probe_policy(baseline_reinforced=true, probe_ratio=0.5)\n\nMTS(comparisons=3, consequence=CRF, ITI=5s)",
     "expected": {
       "type": "Program",
       "program_annotations": [

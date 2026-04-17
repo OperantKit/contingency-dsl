@@ -955,8 +955,8 @@
         "type": "Compound",
         "combinator": "Conc",
         "components": [
-          { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" },
-          { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          { "type": "IdentifierRef", "name": "rich" },
+          { "type": "IdentifierRef", "name": "lean" }
         ],
         "params": {
           "COD": { "value": 2.0, "time_unit": "s" },

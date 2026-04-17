@@ -325,7 +325,7 @@
         "adj_max": { "value": 120.0, "time_unit": "s" }
       },
       "annotations": [
-        { "type": "Annotation", "keyword": "reinforcer", "positional": "mixed grain", "params": { "access": 6.0 } }
+        { "type": "Annotation", "keyword": "reinforcer", "positional": "mixed grain", "params": { "access": { "value": 6, "time_unit": "s" } } }
       ]
     }
   },

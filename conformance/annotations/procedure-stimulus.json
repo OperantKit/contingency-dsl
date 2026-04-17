@@ -187,11 +187,8 @@
             "time_unit": "s"
           },
           {
-            "type": "Atomic",
-            "dist": null,
-            "domain": null,
-            "value": null,
-            "schedule_type": "EXT"
+            "type": "Special",
+            "kind": "EXT"
           }
         ]
       }
@@ -219,11 +216,8 @@
             "time_unit": "s"
           },
           {
-            "type": "Atomic",
-            "dist": null,
-            "domain": null,
-            "value": null,
-            "schedule_type": "EXT"
+            "type": "Special",
+            "kind": "EXT"
           }
         ]
       }
