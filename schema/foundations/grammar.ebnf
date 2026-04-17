@@ -156,6 +156,32 @@ time_value         ::= number time_unit
 ;   stored as a bare number; the original unit is not preserved. Programs
 ;   MAY choose a different normalization convention.
 
+; === Cross-layer distribution-name lexemes ===
+;
+; Certain lowercase keywords name probability distributions and are consumed
+; by multiple paradigm layers under distinct keyword-argument positions:
+;
+;   - "hodos", "linear"            — progressive-ratio step types (operant,
+;                                    `PR(step_type, start=..., increment=...)`)
+;   - "exponential"                — PR step type (operant) AND ITI
+;                                    distribution (respondent)
+;   - "uniform", "fixed"           — ITI distribution (respondent,
+;                                    `ITI(distribution=..., mean=...)`)
+;
+; These tokens are defined once here as a single distribution_name lexeme
+; to prevent drift between layers. Paradigm layers MAY restrict which
+; values are admissible at a given syntactic position (e.g. operant PR
+; does not accept "fixed" / "uniform" as step types, and respondent ITI
+; does not accept "hodos" / "linear" as distributions); those restrictions
+; are enforced semantically by each paradigm's analyzer, not lexically.
+;
+; Implementation note: Reference parsers emit a single DISTRIBUTION_NAME
+; token class that carries the literal string ("hodos", "linear",
+; "exponential", "uniform", "fixed"). Paradigm parsers then restrict the
+; admissible subset at each keyword-argument position.
+
+distribution_name  ::= "hodos" | "linear" | "exponential" | "uniform" | "fixed"
+
 ; === Paradigm dispatch (forward reference) ===
 ;
 ; The paradigm-specific <expr> production is supplied by the active
