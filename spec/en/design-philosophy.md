@@ -1,6 +1,6 @@
 # contingency-dsl Design Philosophy
 
-> **Status:** Authoritative design intent (2026-04-12)
+> **Status:** Authoritative design intent
 >
 > This document captures the design intent as directly stated by the project
 > owner, preserving the original utterances as faithfully as possible. All
@@ -600,6 +600,6 @@ revised or its relationship to this document annotated.
 ## Provenance
 
 This document was produced by directly transcribing the design intent stated
-by the project owner on 2026-04-12. The wording has been edited with the
-policy of preserving the original utterances as faithfully as possible;
-interpretive additions have been kept to a minimum.
+by the project owner. The wording has been edited with the policy of
+preserving the original utterances as faithfully as possible; interpretive
+additions have been kept to a minimum.

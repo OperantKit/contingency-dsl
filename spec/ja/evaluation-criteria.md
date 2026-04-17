@@ -1,6 +1,6 @@
 # contingency-dsl 評価基準
 
-> **Status:** Normative (2026-04-14)
+> **Status:** Normative
 >
 > 本文書は contingency-dsl の設計判断を評価する軸を定義する。
 > [design-philosophy.md](design-philosophy.md) に従属し、

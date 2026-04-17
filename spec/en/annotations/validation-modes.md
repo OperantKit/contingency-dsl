@@ -1,6 +1,6 @@
 # contingency-dsl Validation Modes — Design Document
 
-## Status: Revised (2026-04-12)
+## Status: Revised
 
 This document presupposes [design-philosophy.md](design-philosophy.md) §4.
 Where the two conflict, **design-philosophy.md takes precedence as the canonical source**.

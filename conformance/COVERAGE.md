@@ -540,18 +540,6 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | G-4 | Annotation inheritance across binding expansion | Let-bindings referencing annotated schedules; propagation not thoroughly tested | LOW |
 | G-5 | Experiment layer | Declared in README (`conformance/experiment/`) but no test files on disk; PhaseSequence, Phase, Criterion types have zero coverage | BLOCKED (spec pending) |
 
-### Resolved Gaps
-
-| # | Description | Resolution Date |
-|---|---|---|
-| R-1 | Measurement annotator coverage | 2026-04-14 — 29 parsing + 36 error + 4 program-level cases |
-| R-2 | Multi-error recovery | 2026-04-14 — 8 multi-error cases (parse + lex + semantic + mixed) |
-| R-3 | Reinforcement Delay error codes | 2026-04-14 — `RD_TIME_UNIT_REQUIRED`, `RD_NEGATIVE_VALUE`, `RD_LARGE_DELAY` |
-| R-4 | Operant-Stateful error codes (Pctl/Adj/Interlock) | 2026-04-14 — 54 error/warning cases |
-| R-5 | Operant-Trial-Based error codes (MTS) | 2026-04-14 — 39 error/warning cases |
-| R-6 | T-τ representation errors | 2026-04-14 — 7 error cases + 3 ratio-domain errors |
-| R-7 | Operant-Trial-Based GoNoGo coverage | 2026-04-15 — 22 conformance cases (14 valid + 8 error + 2 warning); Langium + Tree-sitter grammar regenerated |
-
 ---
 
 ## §8. Error Code Summary

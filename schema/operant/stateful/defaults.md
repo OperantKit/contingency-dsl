@@ -33,7 +33,7 @@ References:
 
 ## Adjusting schedule (Adj)
 
-**v1.x:** `Adj` (verbose alias: `Adjusting`) is a standalone schedule expression
+`Adj` (verbose alias: `Adjusting`) is a standalone schedule expression
 in the operant stateful layer. It declares a contingency in which a schedule
 parameter (delay, ratio, or amount) is systematically adjusted based on the
 subject's recent performance, converging toward an indifference point or
@@ -97,7 +97,7 @@ References:
 
 ## Interlocking schedule (Interlock)
 
-**v1.x:** `Interlock` (verbose alias: `Interlocking`) is a standalone schedule
+`Interlock` (verbose alias: `Interlocking`) is a standalone schedule
 expression in the operant stateful layer. It declares a compound schedule in which
 the ratio requirement decreases linearly as time elapses since the last
 reinforcement. At each reinforcement, the ratio resets to its initial value.

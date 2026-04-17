@@ -1,6 +1,6 @@
 # contingency-dsl Evaluation Criteria
 
-> **Status:** Normative (2026-04-14)
+> **Status:** Normative
 >
 > This document defines the axes by which design decisions in contingency-dsl
 > are evaluated. It is subordinate to [design-philosophy.md](design-philosophy.md)

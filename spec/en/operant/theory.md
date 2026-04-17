@@ -104,7 +104,7 @@ DRConstraint ::= DRL(irt_min : ℝ⁺)       -- IRT ≥ threshold
                | DRO(omission_time : ℝ⁺)  -- no response for duration
 ```
 
-**Note on the name "DRO."** The abbreviation stands for "Differential Reinforcement of Other behavior," but this name is historically misleading. Component analyses demonstrate that DRO's effectiveness depends primarily on its *omission/extinction* contingency, not on reinforcing "other" behavior (Mazaleski et al., 1993; Rey et al., 2020; Hronek & Kestner, 2025). The current DSL represents fixed whole-interval DRO; Lindberg et al. (1999) 2×2 taxonomy is deferred to v1.x. See [design-rationale.md §1](../../../docs/en/design-rationale.md#1-dro-why-other-behavior-is-a-misnomer) for the full evidence review.
+**Note on the name "DRO."** The abbreviation stands for "Differential Reinforcement of Other behavior," but this name is historically misleading. Component analyses demonstrate that DRO's effectiveness depends primarily on its *omission/extinction* contingency, not on reinforcing "other" behavior (Mazaleski et al., 1993; Rey et al., 2020; Hronek & Kestner, 2025). The current DSL represents fixed whole-interval DRO; Lindberg et al. (1999) 2×2 taxonomy is deferred to a future extension. See [design-rationale.md §1](../../../docs/en/design-rationale.md#1-dro-why-other-behavior-is-a-misnomer) for the full evidence review.
 
 DR schedules sit orthogonally to the grid and are best understood as **filters** or **modifiers** that can be composed with grid schedules via tandem or conjunctive composition. For example, `Tand(VR 20, DRL 5-s)` requires a variable-ratio response count *and* an inter-response time ≥ 5 seconds.
 
@@ -207,7 +207,7 @@ This effectively requires **two sequential responses** within specified time win
 - Time schedules (FT, VT): converts response-independent delivery into a response-dependent window.
 - DRL + LH: documented in Kramer & Rilling (1970) — response must occur after IRT ≥ t and before t + d.
 - DRO + LH: used clinically — the hold window opens after the omission interval elapses.
-- Ratio schedules (FR, VR, RR): semantically vacuous — the satisfying response *is* the response within the window; ratio schedules are satisfied on the response itself. The v1.0 parser emits a warning for `FR n LH d`.
+- Ratio schedules (FR, VR, RR): semantically vacuous — the satisfying response *is* the response within the window; ratio schedules are satisfied on the response itself. Parsers emit a warning for `FR n LH d`.
 
 **Design note: qualifier, not modifier.** LH is classified as a **temporal availability qualifier** — an optional parameter *of* the schedule — not a modifier that wraps the schedule from outside. In the behavioral literature, LH is always written as an attribute of a schedule ("FI 30-s LH 10-s", "VI 1-min with limited hold"), never as a function applied to a schedule. The schedule is the grammatical and conceptual subject; LH constrains an aspect of it.
 
@@ -875,8 +875,8 @@ Sidman(SSI=20-s, RSI=5-s) @punisher("shock", intensity="0.5mA")
 Sidman(SSI=20-s, RSI=5-s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
-**Scope of v1.x aversive schedules.** The `aversive_schedule` production is
-additive. v1.x includes `Sidman` (free-operant avoidance) and
+**Scope of aversive schedules.** The `aversive_schedule` production is
+additive. It includes `Sidman` (free-operant avoidance) and
 `DiscriminatedAvoidance` (trial-based avoidance). Punishment overlay is
 expressed via the `Overlay` combinator (§2.10). Simple escape (response
 terminates ongoing aversive stimulus without a predictive CS) can be
@@ -1178,10 +1178,10 @@ A **second-order schedule** composes two atomic schedules into two hierarchical 
 ```
 SecondOrder = Overall(Unit)
 Overall     = AtomicSchedule          -- parametric only (no EXT, CRF)
-Unit        = AtomicSchedule          -- simple schedules only (v1.0, frozen)
+Unit        = AtomicSchedule          -- simple schedules only
 ```
 
-**Unit constraint (v1.0 frozen).** The unit position accepts only simple (atomic) schedules. Compound schedules such as `Chain(FR3, FI10)` or `Conc(FR5, FI30)` are rejected with `INVALID_SECOND_ORDER_UNIT`. This constraint is frozen for v1.x based on a survey of the historical literature: Kelleher (1966), Malagodi, DeWeese & Johnston (1973), and Jwaideh (1973) all employ simple-inside-simple arrangements exclusively. No published second-order schedule experiment uses a compound inner schedule. Future extension, if warranted by new experimental procedures, would be additive (design-philosophy §7.1) and eligible for a minor version bump.
+**Unit constraint.** The unit position accepts only simple (atomic) schedules. Compound schedules such as `Chain(FR3, FI10)` or `Conc(FR5, FI30)` are rejected with `INVALID_SECOND_ORDER_UNIT`. This constraint is based on a survey of the historical literature: Kelleher (1966), Malagodi, DeWeese & Johnston (1973), and Jwaideh (1973) all employ simple-inside-simple arrangements exclusively. No published second-order schedule experiment uses a compound inner schedule. Future extension, if warranted by new experimental procedures, would be additive (design-philosophy §7.1).
 
 **Syntax example.** `FR5(FI30)` means: treat each completion of FI 30-s as one unit; reinforce after 5 such unit completions.
 
@@ -1714,7 +1714,7 @@ This is a fundamental constraint from the experimental analysis of behavior: the
 
 ### 3.3 Progressive Training as Syntactic Sugar
 
-> **Terminology note.** The primitive described in this section corresponds to the Sidman (1960) / Zeiler (1977) sense of "shaping" — across-session parametric progression. In contingency-dsl v2.x, this primitive is spelled `progressive` in the surface syntax and `ProgressiveTraining` in the AST. The keyword `shaping` is reserved for the distinct Skinner (1953) / Catania (2013) sense of within-session response shaping; see `grammar.md` §3.8.4 for that primitive.
+> **Terminology note.** The primitive described in this section corresponds to the Sidman (1960) / Zeiler (1977) sense of "shaping" — across-session parametric progression. In contingency-dsl, this primitive is spelled `progressive` in the surface syntax and `ProgressiveTraining` in the AST. The keyword `shaping` is reserved for the distinct Skinner (1953) / Catania (2013) sense of within-session response shaping; see `grammar.md` §3.8.4 for that primitive.
 
 **Definition 15 (Progressive Training Expansion).** A `progressive` declaration with steps variable `x = [v₁, ..., vₙ]`, phase metadata `M`, and schedule template `T(x)` expands to:
 

@@ -1,6 +1,6 @@
 # T-tau Representation — Formal Definition
 
-## Status: Draft (2026-04-11)
+## Status: Draft
 
 ---
 

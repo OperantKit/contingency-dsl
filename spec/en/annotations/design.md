@@ -1,6 +1,6 @@
 # contingency-dsl Annotations — Design Document
 
-## Status: Revised (2026-04-12)
+## Status: Revised
 
 This document presupposes [design-philosophy.md](design-philosophy.md) §4.
 Where the two documents conflict, **design-philosophy.md takes precedence as the canonical reference**.
@@ -40,7 +40,7 @@ The language-agnostic schema format is now formally specified in
 It is based on JSON Schema 2020-12 with DSL-specific extensions
 (`keywords`, `scope`, `positional`, `required_if`/`forbidden_if`,
 `aliases`, `errors`). All 5 recommended annotator schemas conform
-to this format as of 2026-04-13.
+to this format.
 
 This spec positions the existing `contingency-dsl-py` `AnnotationModule` Protocol as the **"Python reference implementation provided by the DSL project."**
 Other language implementations may be freely constructed as long as they follow the schema format; conformance with the Python implementation is guaranteed through the schema description.
@@ -93,7 +93,7 @@ This DSL project provides a **recommended** set of annotations. Each program has
 | **Procedure** | procedure-annotator (stimulus + temporal + context sub-annotators) | `@reinforcer`, `@sd`, `@brief`, `@clock`, `@warmup`, `@algorithm`, `@context` |
 | **Subjects** | subjects-annotator | `@species`, `@strain`, `@deprivation`, `@history`, `@n` |
 | **Apparatus** | apparatus-annotator | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) |
-| **Measurement** | measurement-annotator (v1.x formal set) | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
+| **Measurement** | measurement-annotator | `@session_end`, `@baseline`, `@steady_state` (for detailed parameter schemas, see [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md) §Parameter Schemas) |
 
 **Extensions** (recommended annotators that do not fit the four categories, located under `annotations/extensions/`):
 
@@ -198,17 +198,13 @@ All of these follow the principle of design-philosophy §4.2 (program-scoped clo
 
 ## 3.6 Annotation Category Audit — Alignment with JEAB Method Sections
 
-This section documents the current state based on the annotation category audit conducted on 2026-04-12 (performed via PROCEDURE_INVENTORY), and explicitly identifies items requiring future adjustment.
+This section documents the current state of the annotation category alignment and explicitly identifies items requiring future adjustment.
 
-### 3.6.1 Resolved: Migration of `@operandum` to Apparatus
-
-**Change:** `@operandum` was migrated from `stimulus-annotator` to `apparatus-annotator` on 2026-04-12.
+### 3.6.1 `@operandum` Belongs to Apparatus
 
 **Rationale:**
 - In JEAB Method sections, operanda (levers, keys, etc.) are traditionally described in the **Apparatus** section (e.g., "Two retractable levers (ENV-112CM, Med Associates) were mounted on the front wall")
 - Even when the current DSL uses `@operandum("left_lever", component=1)` in a procedural manner to assign to schedule components, this is fundamentally an identification of physical equipment and naturally belongs to the Apparatus category
-
-**Scope of impact:** stimulus-annotator/README, apparatus-annotator/README, architecture.md §4.7.2 / §4.7.3 / §4.7.7 / §4.7.10, docs/annotations.md, grammar.ebnf §4.7 comments, this document §3 (recommended annotator list).
 
 ### 3.6.2 Design Decisions
 
@@ -219,27 +215,26 @@ places algorithm notes in the Procedure section.
 **`@hardware`** — Physical hardware only (Apparatus category). Omission means
 virtual/simulation mode (see validation-modes §4.2).
 
-**`@session_end` / `@baseline` / `@steady_state`** — Measurement category (v1.0).
-**`@dependent_measure` / `@training_volume` / `@microstructure`** — Measurement category
-(v1.0, added 2026-04-13). `@dependent_measure` declares primary dependent variables
+**`@session_end` / `@baseline` / `@steady_state`** — Measurement category.
+**`@dependent_measure` / `@training_volume` / `@microstructure`** — Measurement category.
+`@dependent_measure` declares primary dependent variables
 (including timing indices, behavioral economics measures, and CER suppression ratios);
 `@training_volume` tracks cumulative training exposure for overtraining/habit formation
 paradigms; `@microstructure` configures IRT distribution, bout analysis, log-survivor
 analysis, and post-reinforcement pause measurement parameters.
-**`@phase_end` / `@logging` / `@iri_window` / `@warmup_exclude`** — Measurement category
-(v1.0, added 2026-04-13). `@phase_end` declares compound phase termination criteria
+**`@phase_end` / `@logging` / `@iri_window` / `@warmup_exclude`** — Measurement category.
+`@phase_end` declares compound phase termination criteria
 (conjunction/disjunction of session count, stability, and CV thresholds);
 `@logging` specifies event-level data recording (event types, format, precision);
 `@iri_window` configures inter-reinforcement interval analysis (binning, normalization,
 sequential dependency tracking); `@warmup_exclude` declares session-onset exclusion
-periods for analysis. `future_keywords` is now empty — all planned measurement keywords
-have been promoted to full schema definitions.
+periods for analysis.
 
 ## 3.7 Annotator Naming Convention — 1:1 Correspondence with JEAB Categories
 
 ### Principle
 
-With the annotator reorganization of 2026-04-12, the naming convention was adopted that **recommended annotator names correspond 1:1 with JEAB Method section headings**:
+The naming convention is that **recommended annotator names correspond 1:1 with JEAB Method section headings**:
 
 | Annotator name | JEAB category (Method section heading) |
 |---|---|
@@ -253,7 +248,7 @@ With the annotator reorganization of 2026-04-12, the naming convention was adopt
 1. **Classification is self-evident**: The JEAB category is immediately apparent from the annotator name
 2. **Easy to freeze**: "4 categories = 4 annotators" serves as the invariant base rule
 3. **Clear boundary determination**: Items that do not fit the four categories are explicitly directed to either `extensions/` or the [Schedule Extension layer](design-philosophy.md#5-schedule-extension-%E5%B1%A4--%E5%8B%95%E7%9A%84tc-%E8%BF%91%E5%82%8D%E3%81%AE-schedule-%E6%A7%8B%E6%88%90%E7%B4%A0)
-4. **Measurement gap becomes visible**: It is immediately apparent when `measurement-annotator` does not exist (the state prior to 2026-04-12)
+4. **Measurement gap becomes visible**: It is immediately apparent when `measurement-annotator` does not exist
 
 ### Internal Structure of the Procedure Category
 
@@ -289,14 +284,6 @@ Per the program-scoped closure principle (§4.2 in design-philosophy), third par
 - Add their own annotators
 
 All of these are permitted. The 1:1 correspondence in this section is a **recommendation** from the DSL project, not a mandate.
-
-### Change History
-
-- 2026-04-12: Initial version. The following reorganization was performed:
-  - `stimulus-annotator` + `temporal-annotator` → `procedure-annotator/` (stimulus + temporal sub-annotators; context sub-annotator added later in v2.0)
-  - `subject-annotator` → `subjects-annotator` (singular → plural)
-  - `measurement-annotator` established (v1.x minimal set)
-  - `social-annotator` / `clinical-annotator` → moved under `extensions/`
 
 ---
 
@@ -555,7 +542,7 @@ class ExtensionModule(Protocol):
 
 This section lists candidate annotations for addition to the DSL project's **recommended** annotators. Candidates independently raised from multiple domain perspectives (basic EAB, behavioral pharmacology, ABA practice, reproducibility design) are consolidated here.
 
-> **Important reinterpretation (after design-philosophy finalization on 2026-04-12):**
+> **Important reinterpretation (after design-philosophy finalization):**
 >
 > The terms "mandatory" and "should be made mandatory" in this section denote **the degree of recommendation for inclusion in the DSL project's recommended set**. Nothing becomes "mandatory" at the DSL grammar level.
 > Each program's registry determines what is mandatory vs. optional according to its own rules. For concrete examples, see the tier × mode model in [validation-modes.md](validation-modes.md).
@@ -568,7 +555,7 @@ Extensions considered essential for basic EAB research:
 
 #### 8.1.1 `@session_end` — Session Termination Criteria **[Implemented]** `Tier 2 (production)`
 
-> **Implemented:** measurement-annotator v1.x (2026-04-12).
+> **Implemented:** measurement-annotator.
 > See [annotations/measurement-annotator/README.md](../../annotations/measurement-annotator/README.md)
 > §Parameter Schemas for the formal parameter schema.
 
@@ -810,7 +797,7 @@ sessions:
 
 ### 8.6 Items Agreed to Be Outside DSL Scope
 
-- **Automatic steady-state judgment**: Responsibility of the data analysis layer. Judging within the DSL would "confuse procedure with effect." However, **declaring** the steady-state criterion (when to consider responding stable) is implemented as `@steady_state` in measurement-annotator (2026-04-12). What is "outside DSL scope" here is the **automatic execution** of judgment based on the criterion.
+- **Automatic steady-state judgment**: Responsibility of the data analysis layer. Judging within the DSL would "confuse procedure with effect." However, **declaring** the steady-state criterion (when to consider responding stable) is implemented as `@steady_state` in measurement-annotator. What is "outside DSL scope" here is the **automatic execution** of judgment based on the criterion.
 - **Institution, grant number, preregistration ID**: Not part of the experimental design. Separated into an external `study.yaml`.
 - **Microdialysis / photometry raw data** (behavioral pharmacology perspective): Only a hook such as `@coregister(stream="photometry")`.
 - **IRB/IACUC approval number**: Retained as an opaque field (does not affect DSL semantics).
@@ -818,7 +805,7 @@ sessions:
 ### 8.7 Implementation Priority (Reviewer Recommendations)
 
 **Phase 1 (Highest priority — essential for basic EAB research):**
-1. ~~`@session_end`~~ — **Implemented** (measurement-annotator v1.x, 2026-04-12)
+1. ~~`@session_end`~~ — **Implemented** (measurement-annotator)
 2. `@response` — Should be made mandatory
 3. `@pretraining` — Separation from `@history`
 4. `@context` — Prerequisite for renewal research

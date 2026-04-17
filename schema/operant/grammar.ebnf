@@ -174,30 +174,30 @@ number        ::= [0-9]+ ("." [0-9]+)?
 ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
 
 reserved      ::= "let" | "def"
-                | "phase" | "progressive" | "shaping" | "steps" | "use"  -- experiment layer (v2.0)
-                | "target" | "approximations" | "method"   -- shaping_decl metadata (v2.x)
-                | "dimension" | "stages"                   -- shaping_decl metadata (v2.x)
-                | "percentile_rank" | "percentile_window" | "percentile_dir"  -- shaping_decl metadata (v2.x)
-                | "artful" | "percentile" | "staged"       -- shaping method enum (context-sensitive, v2.x)
-                | "sessions" | "stable"                   -- phase metadata (v2.0)
-                | "no_schedule"                            -- experiment layer: Pavlovian/exposure phase (v2.0)
-                | "interleave" | "no_trailing"             -- experiment layer: progressive interleave (v2.x)
+                | "phase" | "progressive" | "shaping" | "steps" | "use"  -- experiment layer
+                | "target" | "approximations" | "method"   -- shaping_decl metadata
+                | "dimension" | "stages"                   -- shaping_decl metadata
+                | "percentile_rank" | "percentile_window" | "percentile_dir"  -- shaping_decl metadata
+                | "artful" | "percentile" | "staged"       -- shaping method enum (context-sensitive)
+                | "sessions" | "stable"                   -- phase metadata
+                | "no_schedule"                            -- experiment layer: Pavlovian/exposure phase
+                | "interleave" | "no_trailing"             -- experiment layer: progressive interleave
                 | dist domain              -- FR, VR, RR, FI, VI, RI, FT, VT, RT
                 | "EXT" | "CRF"
                 | combinator               -- Conc, Alt, Conj, Chain, Tand, Mult, Mix
                 | "DRL" | "DRH" | "DRO" | "LH" | "LimitedHold"
-                | "RD"  | "ReinforcementDelay"   -- v1.x: reinforcement delay (Lattal, 2010)
+                | "RD"  | "ReinforcementDelay"   -- reinforcement delay (Lattal, 2010)
                 | "COD" | "ChangeoverDelay"    -- changeover delay (Herrnstein, 1961)
                 | "FRCO" | "FixedRatioChangeover" -- fixed-ratio changeover (Hunter & Davison, 1985)
                 | "BO"  | "Blackout"           -- blackout (Mult/Mix; Reynolds, 1961)
                 | "PR" | "Repeat"
                 | "hodos" | "exponential" | "linear" | "geometric"
                 | "start" | "increment"
-                | "Sidman" | "SidmanAvoidance" -- v1.x: Sidman free-operant avoidance (Sidman, 1953)
+                | "Sidman" | "SidmanAvoidance" -- Sidman free-operant avoidance (Sidman, 1953)
                 | "SSI" | "ShockShockInterval"
                 | "RSI" | "ResponseShockInterval"
-                | "Lag" | "length"            -- v1.x: Lag schedule (Page & Neuringer, 1985)
-                | "DiscriminatedAvoidance" | "DiscrimAv" -- v1.x: discriminated avoidance (Solomon & Wynne, 1953)
+                | "Lag" | "length"            -- Lag schedule (Page & Neuringer, 1985)
+                | "DiscriminatedAvoidance" | "DiscrimAv" -- discriminated avoidance (Solomon & Wynne, 1953)
                 | "CSUSInterval" | "ITI" | "mode"
                 | "ShockDuration" | "MaxShock"
                 | "fixed" | "escape"          -- da_mode values
@@ -206,10 +206,10 @@ reserved      ::= "let" | "def"
                 | "true" | "false"             -- boolean literals (TO reset_on_response)
                 | "ResponseCost"               -- response cost (Weiner, 1962; Kazdin, 1972)
                 | "amount" | "unit"            -- ResponseCost keyword args (note: "amount" also in adj_target)
-                | "Overlay"                   -- v1.x: punishment overlay combinator
+                | "Overlay"                   -- punishment overlay combinator
                 | "target" | "changeover" | "all"  -- Overlay target kw_arg
                 | "PUNISH"                    -- response-class-specific punishment (Conc kw_arg)
-                | "Interpolate" | "Interp"   -- v1.x: interpolated schedule (Ferster & Skinner, 1957)
+                | "Interpolate" | "Interp"   -- interpolated schedule (Ferster & Skinner, 1957)
                 | "count" | "onset"          -- interpolate keyword argument names
                 | "Pctl"                      -- Stateful: percentile schedule (Platt, 1973)
                 | "IRT" | "latency" | "duration" | "force" | "rate"  -- pctl_target values
@@ -347,7 +347,7 @@ lag_mod       ::= "Lag" ws? number                              -- shorthand: La
 
 lag_kw_arg    ::= "length" "=" number
 
-; === Timeout (v2.0) ===
+; === Timeout ===
 ;
 ; Timeout: response-contingent removal of reinforcement availability
 ; (negative punishment; Leitenberg, 1965). Postfix on schedule expressions.
@@ -405,12 +405,12 @@ response_cost_args  ::= rc_kwarg ("," rc_kwarg)*
 rc_kwarg            ::= "amount" "=" number
                       | "unit" "=" string_literal
 
-; === Aversive schedules (v1.x) ===
+; === Aversive schedules ===
 ;
 ; Schedules in which the consequent stimulus is aversive and the contingency
 ; structure differs from the F/V/R × R/I/T reinforcement matrix.
 ;
-; v1.x introduces two aversive primitives:
+; Two aversive primitives:
 ;   1. Sidman free-operant avoidance (Sidman, 1953)
 ;   2. Discriminated avoidance (Solomon & Wynne, 1953)
 ;
@@ -514,8 +514,8 @@ positional_form    ::= annotation_val ("," annotation_kv)*
 keyword_only_form  ::= annotation_kv ("," annotation_kv)*
 annotation_kv      ::= ident "=" annotation_val
 annotation_val     ::= string_literal | time_value | number
-                     | annotation_array     ; v0.1: structured values (RFC 2026-04-17)
-                     | annotation_object    ; v0.1: structured values (RFC 2026-04-17)
+                     | annotation_array     ; structured values
+                     | annotation_object    ; structured values
 annotation_array   ::= "[" (annotation_val ("," annotation_val)*)? "]"
 annotation_object  ::= "{" (annotation_kv ("," annotation_kv)*)? "}"
 time_value         ::= number time_unit
@@ -539,7 +539,7 @@ string_literal     ::= '"' [^"]* '"'
 ;   Programs MAY choose a different normalization convention.
 ;
 ; Structured values (annotation_array / annotation_object) — additive
-; extension per design-philosophy §8.1 (RFC 2026-04-17):
+; extension per design-philosophy §8.1:
 ;   - annotation_array:  [v1, v2, ...]          array literal
 ;   - annotation_object: {k1=v1, k2=v2, ...}    object literal (uses "=" not ":")
 ;   Both productions are recursive via annotation_val, allowing arbitrary
@@ -578,7 +578,7 @@ string_literal     ::= '"' [^"]* '"'
 ;     ├── stimulus        : "reinforcer" (aliases: "punisher",
 ;     │                     "consequentStimulus") | "sd" | "brief"
 ;     ├── temporal        : "clock" | "warmup" | "algorithm"
-;     └── context         : "context"    (v2.0: environmental context for renewal/ABA designs; Bouton, 2002)
+;     └── context         : "context"    (environmental context for renewal/ABA designs; Bouton, 2002)
 ;
 ;   subjects-annotator    → Subjects    : "species" | "strain" | "deprivation"
 ;                                        | "history" | "n"
@@ -603,7 +603,7 @@ string_literal     ::= '"' [^"]* '"'
 ; annotator module and do not affect equivalence judgment. See
 ; spec/ja/annotation-design.md §3.5 for the general principle.
 
-; === Experiment layer (v2.0 — multi-phase experiment description) ===
+; === Experiment layer (multi-phase experiment description) ===
 ;
 ; A file is either a single-phase program (backward compatible) or a
 ; multi-phase experiment. The parser disambiguates at LL(1): if the first
@@ -909,7 +909,7 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ;     the DSL itself does not loop or branch on any behavioral measure.
 
 ; =====================================================================
-; --- Shaping declaration (Skinner response shaping, v2.x) ---
+; --- Shaping declaration (Skinner response shaping) ---
 ; =====================================================================
 ;
 ; Within-session response shaping via differential reinforcement of
@@ -1075,11 +1075,11 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ; 2. Repeat(n, S) expands to Tand(S, ..., S) [n copies].
 ; 3. Program-level LH default applies to all leaf base_schedules.
 ; 4. second-order overall: parametric atomics only (no EXT, CRF).
-; 5. second-order unit (v1.0, frozen): simple schedules only (no compounds).
+; 5. second-order unit: simple schedules only (no compounds).
 ;    Compound inner → INVALID_SECOND_ORDER_UNIT (SemanticError).
 ;    Rationale: Kelleher (1966), Malagodi et al. (1973), Jwaideh (1973)
 ;    all use simple-inside-simple; no published compound-inner exists.
-; 6. def: reserved keyword, not implemented in v1.0.
+; 6. def: reserved keyword, not implemented.
 ; 7. Conc combinator: COD specification is optional (implicit default: COD=0s).
 ;    Conc without COD (neither expression-level keyword arg nor program-level
 ;    param_decl) → Linter WARNING (MISSING_COD). Not a SemanticError.
@@ -1353,7 +1353,7 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ;         Second-order schedules of drug injection. Federation Proceedings,
 ;         34(9), 1771-1776.
 ;
-; --- Timeout (TO) constraints (v2.0) ---
+; --- Timeout (TO) constraints ---
 ;
 ; 75. TO: duration keyword arg is REQUIRED.
 ;     Missing duration → SemanticError (MISSING_TO_DURATION).

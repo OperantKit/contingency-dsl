@@ -251,7 +251,7 @@ let reversal = baseline
 
 > **`def` の整形式条件。** G = (V, E) を有向グラフとする。V は `def` 名の集合、(f, g) ∈ E は f の本体が g の呼び出しを含む場合に成立する。G は有向非巡回グラフ（DAG）でなければならない。パーサは G に閉路（自己ループおよび相互再帰を含む）が存在する定義集合を拒否しなければならない（SHALL）。これにより `def` の展開は常に停止し、出力は基底 CFG の範囲内に留まる。
 
-`def` は将来バージョンに延期される（v1.0 BNF には含まれない）。キーワードは識別子の衝突を防ぐために予約されている（§3.2）。
+`def` は将来バージョンに延期される（現行 BNF には含まれない）。キーワードは識別子の衝突を防ぐために予約されている（§3.2）。
 
 ### 4.5 Chomsky 階層上の位置と静的検証
 
@@ -296,16 +296,15 @@ contingency-dsl は**文脈自由文法（CFG）**である:
 
 推奨 annotator 名は JEAB Method 節の見出しと 1:1 で一致する
 （[annotation-design.md §3.7](annotation-design.md) 参照）。
-2026-04-12 の annotator 再編でこの対応関係が確立された。
 
 | Annotator | JEAB カテゴリ | アノテーションキーワード | 用途 |
 |-----------|-------------|----------------------|------|
 | `procedure-annotator` | **Procedure** | (sub-annotator 参照) | Procedure 層の情報。stimulus と temporal の 2 sub-annotator に分割 |
 | &nbsp;&nbsp;└ `procedure-annotator/stimulus` | Procedure | `@reinforcer`, `@sd`, `@brief` | 刺激同一性: 強化子・弁別刺激・二次スケジュールの brief stimulus |
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | セッションレベル時間パラメータ |
-| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（2026-04-12 に `subject-annotator` から改名、JEAB 複数形見出しに整合） |
-| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | 物理的チャンバー、反応装置、HW インターフェース。`@operandum` は 2026-04-12 に `stimulus-annotator` から移管 |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | セッション終了規則、ベースライン条件、安定性基準、従属変数宣言、訓練量追跡、反応微細構造分析、Phase 終了条件、イベントログ、IRI 分析、ウォームアップ除外。2026-04-12 新設; 2026-04-14 完了。 |
+| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | 被験体条件（JEAB 複数形見出しに整合） |
+| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | 物理的チャンバー、反応装置、HW インターフェース。 |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | セッション終了規則、ベースライン条件、安定性基準、従属変数宣言、訓練量追跡、反応微細構造分析、Phase 終了条件、イベントログ、IRI 分析、ウォームアップ除外。 |
 
 **Extensions**（JEAB 4 カテゴリ外、`annotations/extensions/` 配下）:
 
@@ -339,21 +338,20 @@ contingency-dsl（基底 CFG）
         │     ├── stimulus/（sub-annotator）
         │     │     + @reinforcer, @sd, @brief 注釈
         │     │     + 強化子同一性、S-S / S-R 連合の形式的記述
-        │     │     + 注: @operandum は 2026-04-12 に apparatus_annotator に移管
         │     │
         │     └── temporal/（sub-annotator）
         │           + @clock, @warmup, @algorithm 注釈
         │           + セッションレベルの時間パラメータ宣言
         │           + 注: BO, COD はコア文法に昇格済み
         │
-        ├── subjects_annotator/ （JEAB カテゴリ: Subjects; 2026-04-12 に subject_annotator から改名）
+        ├── subjects_annotator/ （JEAB カテゴリ: Subjects）
         │     + @species, @strain, @deprivation, @history, @n 注釈
         │
         ├── apparatus_annotator/ （JEAB カテゴリ: Apparatus）
         │     + @chamber, @operandum, @interface, @hardware 注釈
         │     + 物理チャンバー・反応装置・HW インターフェースの同定
         │
-        ├── measurement_annotator/ （JEAB カテゴリ: Measurement; 2026-04-12 新設, 2026-04-14 完了）
+        ├── measurement_annotator/ （JEAB カテゴリ: Measurement）
         │     + @session_end, @baseline, @steady_state
         │     + @dependent_measure, @training_volume, @microstructure
         │     + @phase_end, @logging, @iri_window, @warmup_exclude
@@ -426,7 +424,7 @@ class AnnotationModule(Protocol):
 class AnnotatedSchedule(Generic[T]):
     """ゼロ個以上のアノテーション次元を持つスケジュール式。
 
-    T は ScheduleExpr（v1.0 ADT）または ScheduleConfig（v0.1 Pydantic）。
+    T は ScheduleExpr（ADT）または ScheduleConfig（Pydantic）。
     annotations マッピングはデカルト積: expr × dim_1 × ... × dim_n
     各次元は省略可能（不在 = その軸でアノテーションなし）。
     """
@@ -470,8 +468,8 @@ class AnnotationRegistry:
 <keyword_only_form>  ::= <annotation_kv> ("," <annotation_kv>)*
 <annotation_kv>      ::= <ident> "=" <annotation_val>
 <annotation_val>     ::= <string_literal> | <number>
-                       | <annotation_array>   -- v0.1: 構造化値 (RFC 2026-04-17)
-                       | <annotation_object>  -- v0.1: 構造化値 (RFC 2026-04-17)
+                       | <annotation_array>   -- 構造化値
+                       | <annotation_object>  -- 構造化値
 <annotation_array>   ::= "[" (<annotation_val> ("," <annotation_val>)*)? "]"
 <annotation_object>  ::= "{" (<annotation_kv> ("," <annotation_kv>)*)? "}"
 

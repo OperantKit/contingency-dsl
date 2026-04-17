@@ -68,8 +68,8 @@ class LimitedHoldSchedule:
 
 @dataclass(frozen=True)
 class AversiveSchedule:
-    kind: str  # "Sidman" (v1.x); future: "DiscrimAv", "Escape", ...
-    params: dict[str, Any]  # v1.x Sidman: {"SSI": {"value": 20.0, "time_unit": "s"}, "RSI": {"value": 5.0, "time_unit": "s"}}
+    kind: str  # "Sidman"; future: "DiscrimAv", "Escape", ...
+    params: dict[str, Any]  # Sidman: {"SSI": {"value": 20.0, "time_unit": "s"}, "RSI": {"value": 5.0, "time_unit": "s"}}
 
 ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule, AversiveSchedule]
 ```
@@ -145,7 +145,7 @@ The Random schedules follow the Swift pattern: `RR(n)` generates `random.randint
 
 2. **Flat ScheduleConfig → algebraic ADT.** The current `ScheduleConfig` (a single Pydantic model with 12 optional fields) does not scale. The ADT approach eliminates irrelevant fields.
 
-3. **Concurrent-only → all 7 combinators.** contingency-py already implements all 7, but the DSL v0.1 only exposes Concurrent.
+3. **Concurrent-only → all 7 combinators.** contingency-py already implements all 7, but the DSL currently only exposes Concurrent.
 
 4. **DR formalization.** DR schedules should be explicitly modeled as modifiers/filters orthogonal to the 3×3 grid, not as additional grid entries.
 

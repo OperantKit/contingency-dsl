@@ -1,8 +1,8 @@
-# LL(2) Formal Proof — contingency-dsl v1.0 Core Grammar
+# LL(2) Formal Proof — contingency-dsl Core Grammar
 
 ## 1. Theorem Statement
 
-**Theorem.** The contingency-dsl v1.0 core grammar (as defined in `schema/operant/grammar.ebnf`) is:
+**Theorem.** The contingency-dsl core grammar (as defined in `schema/operant/grammar.ebnf`) is:
 
 1. **LL(2)** — deterministically parseable by a top-down predictive parser with at most 2-token lookahead.
 2. **Not LL(1)** — there exists at least one decision point requiring 2-token lookahead.
@@ -70,8 +70,8 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `PCTL_DIR_VAL` | below, above | percentile direction values (Operant.Stateful) |
 | `ADJ_ARG_KW` | start, step, min, max | adjusting keyword arg names (Operant.Stateful) |
 | `INTERLOCK_ARG_KW` | R0, T | interlocking keyword arg names (Operant.Stateful) |
-| `KW_INTERLEAVE` | interleave | progressive_decl interleave keyword (Experiment v2.x) |
-| `KW_NO_TRAILING` | no_trailing | progressive_decl interleave trailing-suppression modifier (Experiment v2.x) |
+| `KW_INTERLEAVE` | interleave | progressive_decl interleave keyword (Experiment layer) |
+| `KW_NO_TRAILING` | no_trailing | progressive_decl interleave trailing-suppression modifier (Experiment layer) |
 
 **Lexer assumptions:**
 
@@ -1012,7 +1012,7 @@ All other decision points — including all Operant.Stateful internal decisions 
 
 ### Formal Statement
 
-**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl v1.0 grammar as defined in `schema/operant/grammar.ebnf` augmented with `schema/operant/stateful/grammar.ebnf`. Then:
+**Theorem (LL(2) Classification).** Let *G* be the contingency-dsl grammar as defined in `schema/operant/grammar.ebnf` augmented with `schema/operant/stateful/grammar.ebnf`. Then:
 
 1. *G* is LL(2): for every non-terminal *A* with productions *A → α* and *A → β* (α ≠ β), `FIRST₂(α · FOLLOW₂(A)) ∩ FIRST₂(β · FOLLOW₂(A)) = ∅`.
 2. *G* is not LL(1): there exist productions `PosTail → COMMA Schedule PosTail` and `PosTail → ε` such that `FIRST₁(COMMA Schedule PosTail) ∩ FOLLOW₁(PosTail) = {COMMA} ≠ ∅`.
@@ -1031,7 +1031,7 @@ Any future extension to the grammar (e.g., `def` keyword, new combinators, new m
 
 ---
 
-## §11 Experiment Layer Decision Points (v2.0)
+## §11 Experiment Layer Decision Points
 
 The Experiment Layer (grammar.ebnf, `file`, `experiment`, `phase_decl`, `progressive_decl`) introduces the following decision points. All are LL(1) — no new LL(2) points arise.
 
@@ -1127,7 +1127,7 @@ All three alternatives have pairwise disjoint FIRST₁ sets.
 
 **Result:** LL(1). ∎
 
-### §11.6 Progressive Body Continuation (with interleave_decl, v2.x)
+### §11.6 Progressive Body Continuation (with interleave_decl)
 
 The `progressive_body` production introduces a sequence of optional `interleave_decl` items between `progressive_steps+` and `phase_meta*`:
 
@@ -1167,7 +1167,7 @@ KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
 
 ### §11.7 Summary
 
-The Experiment Layer adds **7 new decision points** (5 from v2.0 + 2 from v2.x interleave), all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
+The Experiment Layer adds **7 new decision points** (5 base phase/progressive + 2 from interleave), all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
 
 **Updated theorem (extends §8):**
 
@@ -1178,7 +1178,7 @@ The extended grammar *G'* = Core ∪ Operant.Stateful ∪ Experiment satisfies:
 3. *G'* is unambiguous (corollary of 1).
 4. The progressive_decl expansion rule (E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE) operates at the semantic phase and does not affect parsing.
 5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
-6. The `interleave` clause (v2.x) introduces template-consumption semantics (constraint 76) and clone-label generation (constraint 63b) at the post-parse semantic phase — these do not affect grammar classification.
+6. The `interleave` clause introduces template-consumption semantics (constraint 76) and clone-label generation (constraint 63b) at the post-parse semantic phase — these do not affect grammar classification.
 
 ---
 

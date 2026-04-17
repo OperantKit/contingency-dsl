@@ -1,6 +1,6 @@
 # contingency-dsl Representations — Design Document
 
-## Status: Draft (2026-04-11)
+## Status: Draft
 
 ---
 

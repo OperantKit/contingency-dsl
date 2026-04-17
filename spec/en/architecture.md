@@ -295,7 +295,7 @@ None of these raise the position in the Chomsky hierarchy, provided the followin
 
 > **Well-formedness condition for `def`.** Let G = (V, E) be the directed graph where V is the set of `def` names and (f, g) ∈ E iff the body of f contains a call to g. G must be a directed acyclic graph (DAG). The parser SHALL reject any definition set where G contains a cycle (including self-loops and mutual recursion). This ensures that `def` expansion always terminates and the output remains within the base CFG.
 
-`def` is deferred to a future version (not included in the v1.0 BNF). The keyword is reserved ([grammar.md §3.2](grammar.md)) to prevent identifier collisions.
+`def` is deferred to a future version (not included in the current BNF). The keyword is reserved ([grammar.md §3.2](grammar.md)) to prevent identifier collisions.
 
 ## 4.5 Position in the Chomsky Hierarchy and Static Verification
 
@@ -352,17 +352,16 @@ See [annotation-design.md](annotation-design.md) §6 for full specification.
 Each annotator is named with the `-annotator` suffix, meaning: *an annotation module that adds an orthogonal dimension to the base DSL*.
 
 Recommended annotator names match JEAB Method section headings 1:1 (see
-[annotation-design.md §3.7](annotation-design.md)). The 2026-04-12
-annotator reorganization established this correspondence.
+[annotation-design.md §3.7](annotation-design.md)).
 
 | Annotator | JEAB Category | Annotation Keywords | Purpose |
 |-----------|---------------|---------------------|---------|
 | `procedure-annotator` | **Procedure** | (see sub-annotators below) | Procedure-level information, split into stimulus and temporal sub-annotators |
 | &nbsp;&nbsp;└ `procedure-annotator/stimulus` | Procedure | `@reinforcer`, `@sd`, `@brief` | Stimulus identity: reinforcers, discriminative stimuli, second-order brief stimuli |
 | &nbsp;&nbsp;└ `procedure-annotator/temporal` | Procedure | `@clock`, `@warmup`, `@algorithm` | Session-level temporal parameters |
-| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (renamed from `subject-annotator` on 2026-04-12 to match JEAB plural heading) |
-| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | Physical chambers, response devices, hardware interfaces. `@operandum` moved from `stimulus-annotator` on 2026-04-12 to align with JEAB Method section conventions. |
-| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | Session termination rules, baseline conditions, steady-state criteria, dependent variables, training volume, response microstructure, phase termination, event logging, IRI analysis, warmup exclusion. Introduced 2026-04-12; completed 2026-04-14. |
+| `subjects-annotator` | **Subjects** | `@species`, `@strain`, `@deprivation`, `@history`, `@n` | Subject conditions (matches JEAB plural heading) |
+| `apparatus-annotator` | **Apparatus** | `@chamber`, `@operandum`, `@interface`, `@hardware` (alias: `@hw`) | Physical chambers, response devices, hardware interfaces. |
+| `measurement-annotator` | **Measurement** | `@session_end`, `@baseline`, `@steady_state`, `@dependent_measure`, `@training_volume`, `@microstructure`, `@phase_end`, `@logging`, `@iri_window`, `@warmup_exclude` | Session termination rules, baseline conditions, steady-state criteria, dependent variables, training volume, response microstructure, phase termination, event logging, IRI analysis, warmup exclusion. |
 
 **Extensions** (outside the four JEAB categories, under `annotations/extensions/`):
 
@@ -396,21 +395,20 @@ contingency-dsl (base CFG)
         │     ├── stimulus/ (sub-annotator)
         │     │     + @reinforcer, @sd, @brief annotations
         │     │     + Reinforcer identity, S-S / S-R formal descriptions
-        │     │     + Note: @operandum moved to apparatus_annotator on 2026-04-12
         │     │
         │     └── temporal/ (sub-annotator)
         │           + @clock, @warmup, @algorithm annotations
         │           + Session-level temporal parameter declaration
         │           + Note: BO and COD promoted to core grammar
         │
-        ├── subjects_annotator/ (JEAB category: Subjects; renamed from subject_annotator on 2026-04-12)
+        ├── subjects_annotator/ (JEAB category: Subjects)
         │     + @species, @strain, @deprivation, @history, @n annotations
         │
         ├── apparatus_annotator/ (JEAB category: Apparatus)
         │     + @chamber, @operandum, @interface, @hardware annotations
         │     + Physical chamber, response device, HW interface identity
         │
-        ├── measurement_annotator/ (JEAB category: Measurement; introduced 2026-04-12, completed 2026-04-14)
+        ├── measurement_annotator/ (JEAB category: Measurement)
         │     + @session_end, @baseline, @steady_state
         │     + @dependent_measure, @training_volume, @microstructure
         │     + @phase_end, @logging, @iri_window, @warmup_exclude
@@ -484,7 +482,7 @@ class AnnotationModule(Protocol):
 class AnnotatedSchedule(Generic[T]):
     """A schedule expression with zero or more annotation dimensions.
 
-    T is ScheduleExpr (v1.0 ADT) or ScheduleConfig (v0.1 Pydantic).
+    T is ScheduleExpr (ADT) or ScheduleConfig (Pydantic).
     The annotations mapping is the Cartesian product: expr × dim_1 × ... × dim_n
     where each dimension is optional (absent = not annotated on that axis).
     """
@@ -532,8 +530,8 @@ Annotations appear at two scoping levels: **program-level** (session-wide defaul
 <keyword_only_form>    ::= <annotation_kv> ("," <annotation_kv>)*
 <annotation_kv>        ::= <ident> "=" <annotation_val>
 <annotation_val>       ::= <string_literal> | <number>
-                         | <annotation_array>   -- v0.1: structured values (RFC 2026-04-17)
-                         | <annotation_object>  -- v0.1: structured values (RFC 2026-04-17)
+                         | <annotation_array>   -- structured values
+                         | <annotation_object>  -- structured values
 <annotation_array>     ::= "[" (<annotation_val> ("," <annotation_val>)*)? "]"
 <annotation_object>    ::= "{" (<annotation_kv> ("," <annotation_kv>)*)? "}"
 

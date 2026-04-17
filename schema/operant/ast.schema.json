@@ -447,7 +447,7 @@
 
     "SecondOrder": {
       "type": "object",
-      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple (atomic) schedule (v1.0, frozen — compound inner rejected as INVALID_SECOND_ORDER_UNIT). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
+      "description": "Second-order schedule (Kelleher & Fry, 1962). FR5(FI30) = 5 completions of FI30 produce reinforcement. Overall must be Atomic (no EXT/CRF). Unit must be simple (atomic) schedule (compound inner rejected as INVALID_SECOND_ORDER_UNIT). The overall schedule operates on unit completions, not individual responses: its value field counts the number of times the unit schedule must be completed.",
       "properties": {
         "type": { "const": "SecondOrder" },
         "overall": {
@@ -469,7 +469,7 @@
     },
 
     "AversiveSchedule": {
-      "description": "Aversive schedule primitive. v1.x introduces Sidman free-operant avoidance (Sidman, 1953) and discriminated avoidance (Solomon & Wynne, 1953). The contingency structure differs from the F/V/R × R/I/T reinforcement matrix and requires a dedicated node type.",
+      "description": "Aversive schedule primitive. Includes Sidman free-operant avoidance (Sidman, 1953) and discriminated avoidance (Solomon & Wynne, 1953). The contingency structure differs from the F/V/R × R/I/T reinforcement matrix and requires a dedicated node type.",
       "oneOf": [
         {
           "type": "object",

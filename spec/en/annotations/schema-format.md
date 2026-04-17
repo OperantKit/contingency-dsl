@@ -1,6 +1,6 @@
 # Annotation Schema Format — Language-Independent Meta-DSL
 
-> **Status:** Stable (2026-04-13)
+> **Status:** Stable
 >
 > This document defines the **Annotation Schema Format**: the
 > language-independent schema language used to describe annotation
@@ -128,8 +128,7 @@ Every schema file MUST contain the following top-level properties:
 | `Schema Design` | Parameter schemas defined; boundary justification documented |
 | `Stable` | Schema frozen; breaking changes avoided in principle |
 
-Provenance may be noted in parentheses:
-`"Schema Design (restructured 2026-04-12)"`.
+Provenance may be noted in parentheses.
 
 ---
 
@@ -294,15 +293,15 @@ correspond to the DSL grammar's `annotation_val` production
 | `"number"` | `3.14` | JSON number | `number` |
 | `"integer"` | `42` | JSON integer | `number` (semantic: no decimal point) |
 | `"time_value"` | `60min`, `30s`, `2000ms` | JSON number (normalized to seconds) | `time_value` → `number time_unit` |
-| `"object"` | `{key1=val1, key2=val2}` | JSON object | `annotation_object` (v0.1, RFC 2026-04-17) |
-| `"array<T>"` | `[val1, val2, ...]` | JSON array | `annotation_array` (v0.1, RFC 2026-04-17) |
+| `"object"` | `{key1=val1, key2=val2}` | JSON object | `annotation_object` |
+| `"array<T>"` | `[val1, val2, ...]` | JSON array | `annotation_array` |
 
-### 7.0 `array<T>` and `object` (structured values, v0.1)
+### 7.0 `array<T>` and `object` (structured values)
 
-Added by RFC 2026-04-17 as an additive grammar extension
-(design-philosophy §8.1). The corresponding grammar productions
-`annotation_array` and `annotation_object` are defined in
-[grammar.ebnf](../../../schema/foundations/grammar.ebnf) (annotation attachment section).
+An additive grammar extension (design-philosophy §8.1). The corresponding
+grammar productions `annotation_array` and `annotation_object` are defined
+in [grammar.ebnf](../../../schema/foundations/grammar.ebnf) (annotation
+attachment section).
 
 **`array<T>`** — ordered sequence of homogeneous values of type T.
 T may be any type identifier in this vocabulary, including `object`:
@@ -354,7 +353,7 @@ The type vocabulary matches the DSL grammar's `annotation_val`
 production. Further extensions require additive revision of this
 specification in lockstep with `grammar.ebnf`.
 
-**Supported** (post RFC 2026-04-17, v0.1):
+**Supported:**
 - Arrays of any type via `array<T>` (§7.0)
 - Nested objects via `object` (§7.0)
 
@@ -553,8 +552,7 @@ An implementation is **conformant** if it:
 
 ## 14. Existing conformant schemas
 
-The following schema files conform to this specification as of
-2026-04-13:
+The following schema files conform to this specification:
 
 | Schema file | Category | Keywords | Status |
 |---|---|---|---|
@@ -590,6 +588,5 @@ This document is a peer of:
 ## Provenance
 
 This specification formalizes the de facto schema format that emerged
-from the 5 annotator schema files created during 2026-04-12. Among
-the considered alternatives, Option (b) — JSON Schema extension — was
-adopted.
+from the 5 annotator schema files. Among the considered alternatives,
+Option (b) — JSON Schema extension — was adopted.

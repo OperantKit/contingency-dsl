@@ -152,9 +152,9 @@ that decomposes DRO along two orthogonal dimensions:
 | **Momentary**  | Check only at the interval endpoint | VM-DRO: check at variable timepoints |
 
 The current DSL implements fixed whole-interval DRO. The full 2x2
-taxonomy is deferred to v1.x, where `DRO` may accept optional keyword
-arguments for `mode` (whole-interval vs. momentary) and `timing` (fixed
-vs. variable).
+taxonomy is deferred to a future extension, where `DRO` may accept
+optional keyword arguments for `mode` (whole-interval vs. momentary)
+and `timing` (fixed vs. variable).
 
 ### References
 

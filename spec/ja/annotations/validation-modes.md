@@ -1,6 +1,6 @@
 # contingency-dsl Validation Modes — Design Document
 
-## Status: Revised (2026-04-12)
+## Status: Revised
 
 本文書は [design-philosophy.md](design-philosophy.md) §4 を前提とする。
 両者が矛盾する場合は **design-philosophy.md が正典として優先する**。

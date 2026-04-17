@@ -1,6 +1,6 @@
 # Boundary Decision Tree
 
-> **Status:** Stable (2026-04-13)
+> **Status:** Stable
 >
 > Single source of truth for the **Core vs. Annotation** boundary test
 > and the subsequent **Tier classification**. All other documents

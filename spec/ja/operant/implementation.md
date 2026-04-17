@@ -146,7 +146,7 @@ Random スケジュールは Swift パターンに従う。`RR(n)` は `next()` 
 
 2. **フラットな ScheduleConfig → 代数的 ADT.** 現行の `ScheduleConfig`（12 個のオプショナルフィールドを持つ単一 Pydantic モデル）はスケールしない。ADT アプローチは無関係なフィールドを排除する。
 
-3. **Concurrent のみ → 7 コンビネータ全体.** contingency-py は 7 つすべてを既に実装しているが、DSL v0.1 は Concurrent のみを露出している。
+3. **Concurrent のみ → 7 コンビネータ全体.** contingency-py は 7 つすべてを既に実装しているが、DSL は現状 Concurrent のみを露出している。
 
 4. **DR の形式化.** DR スケジュールは、3×3 格子への追加エントリとしてではなく、格子と直交する修飾子／フィルタとして明示的にモデル化すべきである。
 

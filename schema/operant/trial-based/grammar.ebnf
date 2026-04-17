@@ -54,7 +54,7 @@ trial_based_schedule ::= mts_schedule | gonogo_schedule
 ;   expression (not a simple value), requiring the parser to enter
 ;   schedule parsing mode for these two parameters.
 ;
-; Note: v1.0 restricts consequence/incorrect to atomic_or_second | "CRF" | "EXT"
+; Note: consequence/incorrect must be atomic_or_second | "CRF" | "EXT"
 ; via semantic constraints, fully avoiding LL(2) ambiguity with compound arg lists.
 ;
 ; Cumming, W. W., & Berryman, R. (1965). The complex discriminated operant:
@@ -106,11 +106,11 @@ correction_spec ::= boolean | number | '"repeat_until_correct"'
 ;
 ; A canonical AST form is defined so that semantically-equivalent
 ; surface programs produce identical AST. Implementations MUST follow
-; these rules to preserve backward-compatibility with v1.0 AST.
+; these rules to preserve backward-compatibility with the canonical AST.
 ;
 ; N1. delay omission is AST-distinguishable from explicit delay=0s.
 ;     - omitted `delay` → no `delay` / `delay_unit` fields in AST
-;                         (canonical v1.0 shape; simultaneous MTS by default)
+;                         (canonical shape; simultaneous MTS by default)
 ;     - `delay=0s`      → `delay: 0.0, delay_unit: "s"` in AST
 ;                         (explicit intent marker; semantically equivalent)
 ;     Both forms produce identical runtime behavior. The distinction is
@@ -119,7 +119,7 @@ correction_spec ::= boolean | number | '"repeat_until_correct"'
 ;     behaviorally equivalent.
 ;
 ; N2. correction omission is AST-distinguishable from explicit correction=false.
-;     - omitted `correction`   → no `correction` field in AST (v1.0 shape)
+;     - omitted `correction`   → no `correction` field in AST (canonical shape)
 ;     - `correction=false`     → `correction: { mode: "disabled" }` in AST
 ;     - `correction=true`      → `correction: { mode: "unlimited" }` in AST
 ;     - `correction="repeat_until_correct"`
