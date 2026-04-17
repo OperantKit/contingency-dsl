@@ -359,7 +359,7 @@ Resolved: Conc(VI 30s, VI 60s)
 ```
 Trace: R1 (`lh_default = ⊥`). No propagation occurs.
 
-**Conformance test suite.** `conformance/core/lh_propagation.json` provides test vectors for all propagation rules. Each test specifies both the parser output (`expected`, pre-propagation) and the resolved AST (`resolved`, post-propagation).
+**Conformance test suite.** `conformance/operant/lh_propagation.json` provides test vectors for all propagation rules. Each test specifies both the parser output (`expected`, pre-propagation) and the resolved AST (`resolved`, post-propagation).
 
 **References.**
 - Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, Techniques, and Tools* (2nd ed.). Addison-Wesley. (§5.2: Inherited Attributes)
