@@ -413,7 +413,7 @@ punishment against competing suppression models in conc VI VI.
 
 ---
 
-## 12. Shaping with Percentile Schedule (Core-Stateful)
+## 12. Shaping with Percentile Schedule (Operant.Stateful)
 
 **Scenario:** Shaping lever-press IRT using a percentile schedule — the quantitative basis for automated shaping (Galbicka, 1994).
 
@@ -539,6 +539,191 @@ Mult(choice_component, chain_component)
 
 ---
 
+## 15. Respondent-Only Procedure (Standalone Pavlovian Conditioning)
+
+**Scenario:** A purely Pavlovian procedure with no operant response — a rare but representative case in EAB (e.g., fear-conditioning preparations, salivary-conditioning studies, taste-aversion baselines).
+
+```
+Phase(
+  name = "pavlovian_acquisition",
+  respondent = Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=10-s),
+  criterion = FixedSessions(n=8)
+)
+  @species("rat") @n(8)
+  @cs(label="tone", duration=10-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+  @iti(distribution="exponential", mean=120-s)
+```
+
+**What this does:** Eight sessions of forward-delay Pavlovian conditioning. Conditioned responding (e.g., freezing) is measured via apparatus-specific video-analysis pipelines; the DSL records the contingency and the CS/US/ITI metadata.
+
+**Why it exists:** Respondent-only procedures are the simplest expression of two-term CS-US contingencies. They establish the baseline associations that composed procedures (CER, PIT, autoshaping) subsequently exploit. Even when EAB papers use operant baselines as measurement platforms, respondent conditioning principles inform the interpretation.
+
+**Alternative respondent primitives for specific research questions:**
+
+```
+TrulyRandom(tone, shock, p=0.2)              -- Rescorla (1967) control
+ExplicitlyUnpaired(tone, shock, min_separation=30-s)
+                                              -- Ayres et al. (1975) refined control
+Contingency(p_us_given_cs=0.6, p_us_given_no_cs=0.4)
+                                              -- arbitrary point in contingency space
+Differential(tone_plus, tone_minus, shock)   -- A+/B− discrimination
+```
+
+**References:**
+- Pavlov, I. P. (1927). *Conditioned reflexes* (G. V. Anrep, Trans.). Oxford University Press.
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, *74*(1), 71-80. https://doi.org/10.1037/h0024109
+
+---
+
+## 16. Composed Procedure: CER with Operant Baseline
+
+**Scenario:** Conditioned suppression (CER) — the canonical composed procedure combining an appetitive operant baseline with a Pavlovian aversive overlay. Suppression of operant responding during CS relative to the pre-CS baseline quantifies the Pavlovian association.
+
+```
+PhaseSequence(
+  Phase(
+    name = "baseline",
+    operant = VI 60-s,
+    criterion = Stability(window=5, tolerance=0.10)
+  ),
+  Phase(
+    name = "cer_training",
+    operant = VI 60-s,
+    respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s),
+    criterion = FixedSessions(n=10)
+  )
+)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+```
+
+**What this does:** A VI 60-s baseline is brought to stability; a Pavlovian overlay is then superimposed. The operant schedule continues during CS — what changes is the aversive CS-shock contingency.
+
+**Why composed rather than punishment?** The US is delivered **independently of the operant response** (Pavlovian, two-term) rather than **contingent on the response** (operant punishment, three-term). The structural distinction determines classification: CER lives in `composed/`; punishment lives in `operant/` (see `Overlay` and `PUNISH`).
+
+**PIT variant** — Pavlovian and instrumental training are independent, with a transfer test:
+
+```
+PhaseSequence(
+  Phase(name="pavlovian_training",
+        respondent=Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s)),
+  Phase(name="instrumental_training",
+        operant=VI 60-s),
+  Phase(name="transfer_test",
+        operant=EXT,
+        respondent=CSOnly(tone, trials=8))
+)
+  @cs(label="tone", duration=10-s, modality="auditory")
+  @us(label="food", intensity="45mg_pellet", delivery="signaled")
+```
+
+**References:**
+- Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, *29*(5), 390-400. https://doi.org/10.1037/h0062283
+- Annau, Z., & Kamin, L. J. (1961). The conditioned emotional response as a function of intensity of the US. *Journal of Comparative and Physiological Psychology*, *54*(4), 428-432. https://doi.org/10.1037/h0042199
+- Estes, W. K. (1948). Discriminative conditioning. II. Effects of a Pavlovian conditioned stimulus upon a subsequently established operant response. *Journal of Experimental Psychology*, *38*(2), 173-177. https://doi.org/10.1037/h0057525
+
+---
+
+## 17. Augmenting a Schedule Expression with `@cs` / `@us` Annotations
+
+**Scenario:** Use the respondent-annotator to attach CS/US metadata to an existing operant schedule that shares a stimulus with a Pavlovian procedure elsewhere in the session. The annotations make implicit information — the CS label, its modality, the US intensity — explicit for reproducibility and apparatus verification without changing the operant schedule's grammar.
+
+```
+Mult(VI 30-s, EXT, BO=5-s)
+  @sd("tone", component=1)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="food", intensity="45mg_pellet", delivery="signaled")
+  @iti(distribution="fixed", mean=30-s, jitter=0)
+```
+
+**What this does:** A multiple schedule where a tone signals the VI 30-s component is augmented with `@cs` / `@us` / `@iti` metadata. The `@sd` and `@cs` annotations describe the **same physical stimulus** from two different perspectives — the operant annotation labels it as a discriminative stimulus; the respondent annotation labels it as a CS with modality and duration.
+
+**Why both annotations?** A single tone stimulus can function as an S^D for operant responding **and** as a CS for Pavlovian associations; the DSL does not privilege one interpretation. Making both labels explicit in source supports (a) apparatus-verification pipelines that need the stimulus's physical parameters, and (b) compilation to Methods sections that describe the same stimulus from the operant and respondent perspectives.
+
+**When to use:**
+- The schedule has stimulus labeling that is also relevant to a Pavlovian interpretation
+- Apparatus verification pipelines need CS duration / modality / US intensity
+- Publication pipelines need a reader-friendly CS/US window specification
+
+**When not to use:**
+- Pure operant procedures with no respondent interpretation — use only `@sd`
+- Pure respondent procedures — use only `@cs` / `@us`; `@sd` is not needed
+
+**References:**
+- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, *74*(3), 151-182. https://doi.org/10.1037/h0024475
+
+---
+
+## 18. Respondent Extension Point — Adding Tier B Primitives Without Modifying the Core
+
+**Scenario:** A research program needs to express blocking (Kamin, 1969), latent inhibition (Lubow & Moore, 1959), renewal (Bouton & Bolles, 1979), or another Tier B respondent procedure that the Core DSL does not provide. The respondent extension point allows the companion package `contingency-respondent-dsl` — or any third-party registry — to add these primitives **without modifying the contingency-dsl grammar**.
+
+**How the extension point works.** `respondent/grammar.md` declares:
+
+```ebnf
+RespondentExpr ::=
+      CoreRespondentPrimitive        -- Tier A (Pair.*, Extinction, CSOnly, etc.)
+    | ExtensionRespondentPrimitive    -- third-party, program-scoped
+
+ExtensionRespondentPrimitive ::=
+      Identifier "(" ArgList? ")"     -- resolved via respondent registry
+```
+
+A program loads a registry that maps identifiers to extension primitives; the parser accepts those identifiers as respondent expressions; unregistered identifiers produce a parse error within that program's scope.
+
+**Example — loading Tier B primitives from `contingency-respondent-dsl`:**
+
+```
+-- Program declares that it loads the contingency-respondent-dsl registry
+-- (this declaration lives in a program-configuration file or CLI flag,
+--  not in the DSL source)
+
+PhaseSequence(
+  Phase(name="phase_1",
+        respondent = Pair.ForwardDelay(noise, shock, isi=10-s, cs_duration=10-s)),
+  Phase(name="phase_2_blocking",
+        respondent = Blocking(added_cs=tone,
+                              established_cs=noise,
+                              us=shock))
+)
+```
+
+Here `Blocking(...)` is an **extension primitive** provided by `contingency-respondent-dsl`; it is not part of the Tier A respondent grammar. The Core grammar does not need to change; the program's registry resolves `Blocking` to its structural semantics.
+
+**Similarly for latent inhibition, renewal, and other Tier B procedures:**
+
+```
+LatentInhibition(cs=tone, pre_exposure_trials=40)
+Renewal(training_context=A, extinction_context=B, test_context=A)
+Reinstatement(cs=tone, us=shock)
+SpontaneousRecovery(cs=tone, recovery_interval=24h)
+```
+
+**Why the extension point matters.**
+- **Core grammar remains immutable.** Adding Tier B procedures does not require editing the contingency-dsl grammar, schema, or conformance fixtures.
+- **Program-scoped closure.** Different laboratories can provide different extension registries without conflicts; a program loading only Tier A is still fully parseable.
+- **Static verification boundary.** Tier A primitives are fully statically verifiable by the Core; extension primitives supply their own verification rules.
+
+**When to use the Respondent layer vs. the extension point:**
+
+| Situation | Use |
+|---|---|
+| Forward/trace/simultaneous/backward pairing, contingency space, differential conditioning | **Tier A primitives** (Core) |
+| ITI structure, extinction, CS-only or US-only presentations | **Tier A primitives** (Core) |
+| Blocking, overshadowing, latent inhibition, conditioned inhibition | **Respondent extension** (via `contingency-respondent-dsl`) |
+| Renewal, reinstatement, spontaneous recovery, counterconditioning | **Respondent extension** (via `contingency-respondent-dsl`) |
+| New structural CS-US relationships not yet in either tier | **Respondent extension** (custom registry) |
+
+**Distinction from respondent-annotator.** The respondent-annotator (`@cs`, `@us`, `@iti`, `@cs_interval`) adds **metadata** to existing primitives. The respondent extension point adds **new primitives** with their own grammar. These are orthogonal mechanisms: annotations do not change the parse tree; extensions do.
+
+**References:**
+- Kamin, L. J. (1969). Predictability, surprise, attention, and conditioning. In B. A. Campbell & R. M. Church (Eds.), *Punishment and aversive behavior* (pp. 279-296). Appleton-Century-Crofts.
+- Lubow, R. E., & Moore, A. U. (1959). Latent inhibition: The effect of nonreinforced pre-exposure to the conditional stimulus. *Journal of Comparative and Physiological Psychology*, *52*(4), 415-419. https://doi.org/10.1037/h0046700
+- Bouton, M. E., & Bolles, R. C. (1979). Contextual control of the extinction of conditioned fear. *Learning and Motivation*, *10*(4), 445-466. https://doi.org/10.1016/0023-9690(79)90057-2
+
+---
+
 ## Summary: What Each Construct Enables
 
 | Construct | Enables | Without It |
@@ -559,6 +744,12 @@ Mult(choice_component, chain_component)
 | `let` | Readable complex programs | Unreadable nested expressions |
 | `phase` / `progressive` / `shaping` | Multi-phase experimental designs (A-B-A reversal, parametric studies, Skinner response shaping) | Cannot express across-session structure declaratively |
 | `interleave` | Dose-response, reinforcer-magnitude, intervening-baseline designs (1:1 with paper Method) | Hand-write 2N phases with mostly identical bodies |
+| `Pair.ForwardDelay` / `Pair.Backward` / ... | Pavlovian (two-term) procedures, fear / appetitive conditioning | Cannot express respondent contingencies |
+| `Contingency(p, q)` / `TrulyRandom` / `ExplicitlyUnpaired` | Rescorla (1967) contingency-space controls | Cannot express the contingency-space formalism |
+| `Differential(cs+, cs−, us)` | A+/B− Pavlovian discrimination | Cannot express contrastive CS training |
+| Composed `Phase(operant=..., respondent=...)` | CER / PIT / autoshaping / omission | Cannot express operant × respondent composites |
+| `@cs` / `@us` / `@iti` / `@cs_interval` | CS/US metadata on any primitive; cross-cuts Procedure/Apparatus/Measurement | Cannot record reader-friendly CS/US windows |
+| Respondent extension point | Tier B procedures (blocking, overshadowing, renewal, ...) via `contingency-respondent-dsl` | Tier B procedures require Core grammar changes |
 
 ---
 
