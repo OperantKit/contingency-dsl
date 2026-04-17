@@ -1,7 +1,20 @@
 # アノテーション・ガイド
 
 > スケジュール式に実験メタデータを付加する方法。
-> アノテーションシステムの設計については [annotation-design.md](../../spec/ja/annotation-design.md) を参照。
+> アノテーションシステムの設計については [annotations/design.md](../../spec/ja/annotations/design.md) を参照。
+
+---
+
+## Ψ 設計チェックポイントにおける annotator の層
+
+注釈システムは 2 階層構成:
+
+1. **JEAB 準拠の 4 推奨 annotator** — `procedure-annotator`、`subjects-annotator`、`apparatus-annotator`、`measurement-annotator`。いずれも JEAB Method 節の見出しと 1:1 対応する。
+2. **拡張 annotator**（`annotations/extensions/` 配下）— 4 カテゴリに属さない annotator。本プロジェクトは 2 つを同梱する:
+   - `respondent-annotator` — `@cs`、`@us`、`@iti`、`@cs_interval`。レスポンデント primitive および合成手続きの CS/US メタデータを記述する。
+   - `learning-models-annotator` — `@model(RW)`、`@model(PH)`、`@model(TD)`。スケジュール式を連合学習モデルと関連づける。
+
+すべての annotator は直積（Cartesian product）で合成可能（Operant 層の規則）。注釈キーワードは互いに素である。
 
 ---
 
@@ -96,7 +109,7 @@ interpreter）は自由に採用・拡張・置換できる（詳細は
 等価な alias。実験者の意図を source に明示したい場合に使用する（例:
 `FR 3 @punisher("shock")`）。AST レベルでは 3 者とも同一ノードに collapse され、
 等価性判定に影響しない。詳細は
-[annotation-design.md §3.5](../../spec/ja/annotation-design.md) を参照。
+[annotations/design.md §3.5](../../spec/ja/annotations/design.md) を参照。
 
 **例: 成分を同定した並立スケジュール**
 
@@ -283,7 +296,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
   @interface("serial", port="/dev/ttyACM0", baud=115200)
 ```
 
-`@hw` は `@hardware` の省略形 alias であり、AST レベルでは同一ノードに変換される。詳細は [annotation-design.md §3.5](../../spec/ja/annotation-design.md) を参照。
+`@hw` は `@hardware` の省略形 alias であり、AST レベルでは同一ノードに変換される。詳細は [annotations/design.md §3.5](../../spec/ja/annotations/design.md) を参照。
 
 **これにより可能になること:**
 - experiment-io / contingency-bench のターゲット選択
@@ -296,6 +309,82 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 - 反応装置の論理名（"left_lever"）→ apparatus-annotator（`@operandum`）
 - 測定された応答遅延/ジッタ → contingency-bench の出力であり宣言ではない
 - ソフトウェアの設定（ログパス、出力ディレクトリ）→ DSL の範囲外
+
+---
+
+## 拡張 annotator
+
+`annotations/extensions/` 配下の拡張 annotator は JEAB 4 カテゴリに属さない annotator。本プロジェクトは同梱するが推奨集合には含まれず、プログラム（runtime / interpreter）が自由に採用・省略できる。
+
+### E1. respondent-annotator — CS/US/ITI/cs_interval メタデータ
+
+Procedure / Apparatus / Measurement の各カテゴリをまたいで付加される**レスポンデント手続きのメタデータ**を宣言する。Tier A レスポンデント primitive（[syntax-guide.md](syntax-guide.md) レベル 4.5 参照）および合成手続き（CER、PIT、オートシェイピング、省略）に用いる。
+
+| キーワード | 目的 | 例 |
+|-----------|------|-----|
+| `@cs` | 条件刺激 (CS) のメタデータ | `@cs(label="tone", duration=10-s, modality="auditory")` |
+| `@us` | 無条件刺激 (US) のメタデータ | `@us(label="shock", intensity="0.5mA", delivery="unsignaled")` |
+| `@iti` | ITI 分布 + ジッター | `@iti(distribution="exponential", mean=60-s, jitter=10-s)` |
+| `@cs_interval` | CS 提示時間窓 | `@cs_interval(cs_onset=0-s, cs_offset=10-s)` |
+
+**`@cs(label, duration, modality)`** は CS 引数を持つ任意のレスポンデント primitive（`Pair.*`、`Extinction`、`CSOnly`、`Compound`、`Serial`、`Differential`）に付加する。`label` は内包する primitive の `cs` 参照と一致させる必要がある。`modality` は感覚モダリティを列挙する（`"auditory"`、`"visual"`、`"olfactory"`、`"tactile"`）。
+
+**`@us(label, intensity, delivery)`** は US 引数にメタデータを付加する。`delivery` の推奨列挙値: `"unsignaled"`、`"signaled"`、`"response_contingent"`、`"cancelled_on_cs_response"`。最後の値は省略手続きで用いる。
+
+**`@iti(distribution, mean, jitter)`** は、`ITI(distribution, mean)` primitive とは**別の**メタデータ注釈である（primitive は構造的宣言）。注釈はジッター情報を付加し、primitive は構造的 ITI を宣言する。ジッターが不要なら primitive 単独で十分。
+
+**`@cs_interval(cs_onset, cs_offset)`** は CS 提示窓を明示する。`Pair.ForwardDelay` の `cs_duration` と重複するが、読者向けの可読化と装置検証のための補助情報として用いる。
+
+**例: CER の完全記述**
+
+```
+Phase(
+  name = "cer_training",
+  operant = VI 60-s,
+  respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s)
+)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+  @iti(distribution="exponential", mean=120-s, jitter=30-s)
+  @cs_interval(cs_onset=0-s, cs_offset=60-s)
+```
+
+**境界テストの根拠.** いずれも Q1-Q3 コア対注釈テストをすべて No でパスする: レスポンデント primitive の理論的性質はモダリティ／強度／ジッター／可読化窓と独立；これらの値を変えても parse tree は変化しない；プログラムごとに必須扱いか任意扱いかを決められる。したがって注釈であり文法構成要素ではない。詳細は [respondent-annotator 仕様](../../spec/ja/annotations/extensions/respondent-annotator.md) を参照。
+
+**ここに属さないもの:**
+- 構造的な CS-US 関係（forward-delay、forward-trace、backward、simultaneous、contingency space）→ レスポンデント primitive（Tier A）
+- 新しいレスポンデント手続きで構造関係を導入するもの（ブロッキング、オーバーシャドーイング、潜在制止 等）→ レスポンデント拡張ポイント（`contingency-respondent-dsl`）、この annotator には属さない
+
+**引用:**
+- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, *74*(1), 71–80. https://doi.org/10.1037/h0024109
+
+---
+
+### E2. learning-models-annotator — 連合学習モデルの指定
+
+スケジュール式またはフェーズに関連づける**連合学習モデル**を宣言する。(a) 手続きを解釈するモデルを明示したい解説・チュートリアル・教材、および (b) 実行時に具体的モデル実装を選択するシミュレーション・パイプラインで用いる。
+
+| キーワード | 目的 | 例 |
+|-----------|------|-----|
+| `@model(RW)` | Rescorla-Wagner (1972) 誤差修正モデル | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(RW)` |
+| `@model(PH)` | Pearce-Hall (1980) 注意変調モデル | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(PH)` |
+| `@model(TD)` | Temporal-difference 学習（Sutton & Barto, 1998） | `Pair.ForwardDelay(tone, shock, isi=10-s) @model(TD)` |
+
+**モデル概要:**
+
+- **RW（Rescorla & Wagner, 1972）**. 誤差修正学習: ΔV = αβ(λ − ΣV)。連合強度の更新は予測と得られた US との差分に比例する。ブロッキング、オーバーシャドーイング、条件性制止の基盤モデル。
+- **PH（Pearce & Hall, 1980）**. 注意変調変種: CS の連合可能性 α は US が驚きである時に増加し、予測が的中する時に減少する。潜在制止や消去現象のうち RW が説明できないものを説明する。
+- **TD（Sutton & Barto, 1998）**. 時間差分学習: 各時間ステップを状態として扱い、連続する予測の差分から学習する。報酬予測誤差の行動的記述と神経科学的記述を橋渡しするモデル。
+
+**現状.** `learning-models-annotator` は**設計意図**としてここに記録する。対応する仕様書（`spec/ja/annotations/extensions/learning-models-annotator.md`）と JSON Schema は後続フェーズでの整備を予定。当該ファイルが整備されるまでは、本節に記載したキーワード集と意味論が正典として機能する。
+
+**境界テストの根拠.** Q1: レスポンデント primitive の理論的性質議論にモデルが必須か? **No** — primitive の操作的定義はモデル非依存。Q2: `@model(...)` が parse tree または評価結果を変えるか? **No**。Q3: モデルは文法レベルで必須か? **No** — ほとんどのプログラムはモデルを選択せず DSL を利用する。全て No、注釈として分類される。
+
+**引用:**
+- Pearce, J. M., & Hall, G. (1980). A model for Pavlovian learning: Variations in the effectiveness of conditioned but not of unconditioned stimuli. *Psychological Review*, *87*(6), 532–552. https://doi.org/10.1037/0033-295X.87.6.532
+- Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian conditioning: Variations in the effectiveness of reinforcement and nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), *Classical conditioning II: Current research and theory* (pp. 64–99). Appleton-Century-Crofts.
+- Sutton, R. S., & Barto, A. G. (1998). *Reinforcement learning: An introduction*. MIT Press.
 
 ---
 
@@ -354,7 +443,7 @@ DSL プロジェクトの推奨集合には含まれない。これらは次の 
 
 1. **DSL プロジェクトの推奨集合への追加を提案する**
    - `spec/ja/annotation-template.md` をコピー
-   - 境界テストに回答（[annotation-design.md](../../spec/ja/annotation-design.md) §2 参照）
+   - 境界テストに回答（[annotations/design.md](../../spec/ja/annotations/design.md) §2 参照）
    - プロジェクトのレビューを経て推奨 registry に追加
 
 2. **プログラム独自の registry として構築する**
