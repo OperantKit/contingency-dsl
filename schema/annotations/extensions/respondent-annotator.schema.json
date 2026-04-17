@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/annotations/extensions/respondent-annotator.schema.json",
+  "title": "respondent-annotator",
+  "description": "Annotation extension for respondent procedures. Documents the four respondent-related annotations — @cs, @us, @iti, @cs_interval — that attach metadata to respondent primitives and to phases that host composed operant × respondent procedures. The extension lives under annotations/extensions/ because respondent stimulus and timing metadata cross-cut the four JEAB-aligned categories (Subjects / Apparatus / Procedure / Measurement).",
+  "category": "Extension",
+  "version": "1.0",
+  "status": "Schema Design",
+
+  "keywords": {
+    "cs": {
+      "description": "CS (conditional stimulus) metadata. Attachable to any Phase or respondent expression; inherited from PhaseSequence.shared_annotations through the standard keyword-override rule. Adds metadata to the cs parameter of Pair.*, Extinction, CSOnly, Compound, Serial, and Differential.",
+      "scope": ["program", "schedule", "phase"],
+      "positional": null,
+      "params": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "description": "CS identifier used in the respondent primitive (e.g. 'tone', 'light'). Must match the cs reference used in the corresponding Pair.*, Extinction, CSOnly, Compound, Serial, or Differential primitive."
+        },
+        "duration": {
+          "type": "time_value",
+          "required": false,
+          "description": "Nominal CS duration. Reproduces (redundantly, for readability) the cs_duration argument of Pair.ForwardDelay when present; required for respondent primitives that do not themselves carry a cs_duration argument."
+        },
+        "modality": {
+          "type": "string",
+          "required": false,
+          "description": "Sensory modality of the CS. Enumerated recommendations: 'auditory', 'visual', 'olfactory', 'tactile'. The enumeration is not enforced by the grammar; programs may extend it."
+        }
+      },
+      "errors": {
+        "CS_LABEL_REQUIRED": "label is required for apparatus-verification and for matching against the primitive's cs reference",
+        "CS_DURATION_NONPOSITIVE": "duration, if specified, must be strictly positive",
+        "CS_LABEL_UNMATCHED": "label does not match any cs reference in the enclosing respondent primitive"
+      },
+      "reference": "Pavlov, I. P. (1927). Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex (G. V. Anrep, Trans.). Oxford University Press."
+    },
+
+    "us": {
+      "description": "US (unconditional stimulus) metadata. Attachable to any Phase or respondent expression; inherited through the standard override rule. Adds metadata to the us parameter of any respondent primitive that carries a US reference (Pair.*, USOnly, Differential). Also useful on composed-layer procedures (CER, PIT) where the US is specified in the operant context but drives Pavlovian learning.",
+      "scope": ["program", "schedule", "phase"],
+      "positional": null,
+      "params": {
+        "label": {
+          "type": "string",
+          "required": true,
+          "description": "US identifier matching the us reference in the corresponding primitive (e.g. 'shock', 'food')."
+        },
+        "intensity": {
+          "type": "string",
+          "required": false,
+          "description": "US intensity specification. Free-form string to accommodate heterogeneous units (e.g. '0.5mA', '45mg_pellet', '3s_access'). Production programs parse this string per apparatus configuration."
+        },
+        "delivery": {
+          "type": "string",
+          "required": false,
+          "description": "US delivery mode. Enumerated recommendations: 'unsignaled', 'signaled', 'response_contingent', 'cancelled_on_cs_response'. The enumeration is not enforced by the grammar; programs may extend it."
+        }
+      },
+      "errors": {
+        "US_LABEL_REQUIRED": "label is required for matching against the primitive's us reference",
+        "US_LABEL_UNMATCHED": "label does not match any us reference in the enclosing respondent primitive"
+      },
+      "reference": "Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. Psychological Review, 74(1), 71-80. https://doi.org/10.1037/h0024109"
+    },
+
+    "iti": {
+      "description": "Intertrial-interval metadata with jitter. Attachable to Phase or PhaseSequence (shared inheritance); also to trial-based respondent blocks. Distinct from the ITI(distribution, mean) primitive (respondent R13): the primitive is a structural declaration, the annotation carries jitter information (additional detail not required by the primitive's operational definition).",
+      "scope": ["program", "schedule", "phase"],
+      "positional": null,
+      "params": {
+        "distribution": {
+          "type": "string",
+          "enum": ["fixed", "uniform", "exponential"],
+          "required": false,
+          "description": "ITI distribution family. Matches the ITI primitive's distribution enum."
+        },
+        "mean": {
+          "type": "time_value",
+          "required": false,
+          "description": "Mean ITI duration."
+        },
+        "jitter": {
+          "type": "time_value",
+          "required": false,
+          "description": "Range or standard deviation of ITI variability around the mean. jitter=0 denotes no jitter."
+        }
+      },
+      "errors": {
+        "ITI_JITTER_NEGATIVE": "jitter, if specified, must be non-negative",
+        "ITI_MEAN_NONPOSITIVE": "mean, if specified, must be strictly positive"
+      },
+      "reference": "Gallistel, C. R., & Gibbon, J. (2000). Time, rate, and conditioning. Psychological Review, 107(2), 289-344. https://doi.org/10.1037/0033-295X.107.2.289"
+    },
+
+    "cs_interval": {
+      "description": "CS presentation time window. Attachable to Pair primitives (Pair.ForwardDelay, Pair.ForwardTrace, Pair.Simultaneous, Pair.Backward) and to phases hosting these primitives. Makes the CS presentation window explicit for apparatus-verification and for compilation into natural-language Method / Procedure sections. The temporal window is already encoded in the primitive's parameters; cs_interval records it in a reader-friendly form.",
+      "scope": ["schedule", "phase"],
+      "positional": null,
+      "params": {
+        "cs_onset": {
+          "type": "time_value",
+          "required": true,
+          "description": "Time of CS onset relative to trial start (typically 0-s)."
+        },
+        "cs_offset": {
+          "type": "time_value",
+          "required": true,
+          "description": "Time of CS offset relative to trial start."
+        }
+      },
+      "errors": {
+        "CS_INTERVAL_ONSET_NEGATIVE": "cs_onset must be non-negative",
+        "CS_INTERVAL_OFFSET_NOT_AFTER_ONSET": "cs_offset must be strictly greater than cs_onset",
+        "CS_INTERVAL_INCONSISTENT_WITH_PRIMITIVE": "cs_offset - cs_onset does not match the enclosing primitive's cs_duration"
+      },
+      "reference": "Ellison, G. D. (1964). Differential salivary conditioning to traces. Journal of Comparative and Physiological Psychology, 57(3), 373-380. https://doi.org/10.1037/h0043484"
+    }
+  }
+}
