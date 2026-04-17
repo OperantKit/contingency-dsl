@@ -1,0 +1,267 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/respondent/ast.schema.json",
+  "title": "contingency-dsl Respondent AST",
+  "description": "AST schema for the respondent (two-term, CS-US) layer. Defines the Tier A primitives (R1-R14) plus the extension-primitive discriminator used by third-party respondent registries (primarily contingency-respondent-dsl). Paradigm-neutral shared types (Identifier, Number, Duration, Probability) are $ref'd from schema/foundations/types.schema.json.",
+
+  "$defs": {
+    "RespondentExpr": {
+      "description": "Root discriminator across Tier A primitives and extension primitives.",
+      "oneOf": [
+        { "$ref": "#/$defs/PairForwardDelay" },
+        { "$ref": "#/$defs/PairForwardTrace" },
+        { "$ref": "#/$defs/PairSimultaneous" },
+        { "$ref": "#/$defs/PairBackward" },
+        { "$ref": "#/$defs/Extinction" },
+        { "$ref": "#/$defs/CSOnly" },
+        { "$ref": "#/$defs/USOnly" },
+        { "$ref": "#/$defs/Contingency" },
+        { "$ref": "#/$defs/TrulyRandom" },
+        { "$ref": "#/$defs/ExplicitlyUnpaired" },
+        { "$ref": "#/$defs/Compound" },
+        { "$ref": "#/$defs/Serial" },
+        { "$ref": "#/$defs/ITI" },
+        { "$ref": "#/$defs/Differential" },
+        { "$ref": "#/$defs/ExtensionPrimitive" }
+      ]
+    },
+
+    "StimulusRef": {
+      "description": "Reference to a CS or US. Either a let-bound identifier or a string label (e.g. \"tone\", \"shock\").",
+      "oneOf": [
+        { "type": "string", "pattern": "^[a-z_][a-zA-Z0-9_]*$" },
+        { "type": "string" }
+      ]
+    },
+
+    "Duration": {
+      "description": "Time-valued quantity with an explicit unit. Mirrors schema/foundations/types.schema.json#/$defs/Duration.",
+      "type": "object",
+      "properties": {
+        "value": { "type": "number", "exclusiveMinimum": 0 },
+        "unit": { "type": "string", "enum": ["s", "ms", "min"] }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
+
+    "Probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Probability in [0, 1]. Rescorla (1967) contingency axes."
+    },
+
+    "PairForwardDelay": {
+      "type": "object",
+      "description": "R1. CS onset precedes US onset; CS continues through US onset (temporal overlap). Pavlov (1927).",
+      "properties": {
+        "type": { "const": "PairForwardDelay" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "isi": { "$ref": "#/$defs/Duration" },
+        "cs_duration": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "cs", "us", "isi", "cs_duration"],
+      "additionalProperties": false
+    },
+
+    "PairForwardTrace": {
+      "type": "object",
+      "description": "R2. CS offset precedes US onset; a trace gap separates them. Ellison (1964).",
+      "properties": {
+        "type": { "const": "PairForwardTrace" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "trace_interval": { "$ref": "#/$defs/Duration" },
+        "cs_duration": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "cs", "us", "trace_interval"],
+      "additionalProperties": false
+    },
+
+    "PairSimultaneous": {
+      "type": "object",
+      "description": "R3. CS onset equals US onset. Rescorla (1980).",
+      "properties": {
+        "type": { "const": "PairSimultaneous" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" }
+      },
+      "required": ["type", "cs", "us"],
+      "additionalProperties": false
+    },
+
+    "PairBackward": {
+      "type": "object",
+      "description": "R4. US onset precedes CS onset. Spetch, Wilkie, & Pinel (1981). Argument order in source text is (us, cs, isi) to match the temporal order of the canonical procedure.",
+      "properties": {
+        "type": { "const": "PairBackward" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "isi": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "us", "cs", "isi"],
+      "additionalProperties": false
+    },
+
+    "Extinction": {
+      "type": "object",
+      "description": "R5. CS-alone presentations after an acquisition history. Pavlov (1927); Bouton (2004). The prior history is a property of the enclosing PhaseSequence; a bare Extinction outside a phase context is a Phase 2 semantic error unless the program assigns a default history.",
+      "properties": {
+        "type": { "const": "Extinction" },
+        "cs": { "$ref": "#/$defs/StimulusRef" }
+      },
+      "required": ["type", "cs"],
+      "additionalProperties": false
+    },
+
+    "CSOnly": {
+      "type": "object",
+      "description": "R6. CS presentations without US. Phase-independent (no prior acquisition required). Lubow & Moore (1959).",
+      "properties": {
+        "type": { "const": "CSOnly" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "trials": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["type", "cs", "trials"],
+      "additionalProperties": false
+    },
+
+    "USOnly": {
+      "type": "object",
+      "description": "R7. US presentations without CS. Phase-independent. Randich & LoLordo (1979).",
+      "properties": {
+        "type": { "const": "USOnly" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "trials": { "type": "integer", "minimum": 1 }
+      },
+      "required": ["type", "us", "trials"],
+      "additionalProperties": false
+    },
+
+    "Contingency": {
+      "type": "object",
+      "description": "R8. A point in the Rescorla (1967) contingency space. p_us_given_cs is the probability of US given CS; p_us_given_no_cs is the probability of US given the absence of CS. Argument order (CS-conditional first) is fixed and NOT permutable.",
+      "properties": {
+        "type": { "const": "Contingency" },
+        "p_us_given_cs": { "$ref": "#/$defs/Probability" },
+        "p_us_given_no_cs": { "$ref": "#/$defs/Probability" }
+      },
+      "required": ["type", "p_us_given_cs", "p_us_given_no_cs"],
+      "additionalProperties": false
+    },
+
+    "TrulyRandom": {
+      "type": "object",
+      "description": "R9. Syntactic sugar for a point on the diagonal Contingency(p, p) of the Rescorla contingency space. The optional p parameter fixes the shared probability; when omitted, the program may leave p unresolved or provide a default (Rescorla, 1967; Ayres, Benedict, & Witcher, 1975).",
+      "properties": {
+        "type": { "const": "TrulyRandom" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "p": { "$ref": "#/$defs/Probability" }
+      },
+      "required": ["type", "cs", "us"],
+      "additionalProperties": false
+    },
+
+    "ExplicitlyUnpaired": {
+      "type": "object",
+      "description": "R10. Contingency(0, p) with an additional temporal-separation constraint on US placement (Ayres, Benedict, & Witcher, 1975).",
+      "properties": {
+        "type": { "const": "ExplicitlyUnpaired" },
+        "cs": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" },
+        "min_separation": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "cs", "us"],
+      "additionalProperties": false
+    },
+
+    "Compound": {
+      "type": "object",
+      "description": "R11. Presents multiple CSs. Default mode is Simultaneous; additional modes are deferred to extension primitives.",
+      "properties": {
+        "type": { "const": "Compound" },
+        "cs_list": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/StimulusRef" }
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["Simultaneous"],
+          "default": "Simultaneous"
+        }
+      },
+      "required": ["type", "cs_list"],
+      "additionalProperties": false
+    },
+
+    "Serial": {
+      "type": "object",
+      "description": "R12. Presents CSs in temporal order. Does NOT accept a mode argument — seriality already implies temporal ordering.",
+      "properties": {
+        "type": { "const": "Serial" },
+        "cs_list": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/StimulusRef" }
+        },
+        "isi": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "cs_list", "isi"],
+      "additionalProperties": false
+    },
+
+    "ITI": {
+      "type": "object",
+      "description": "R13. Intertrial-interval structural element. Jitter is a separate concern handled by the @iti annotation (schema/annotations/extensions/respondent-annotator.schema.json).",
+      "properties": {
+        "type": { "const": "ITI" },
+        "distribution": {
+          "type": "string",
+          "enum": ["fixed", "uniform", "exponential"]
+        },
+        "mean": { "$ref": "#/$defs/Duration" }
+      },
+      "required": ["type", "distribution", "mean"],
+      "additionalProperties": false
+    },
+
+    "Differential": {
+      "type": "object",
+      "description": "R14. Differential conditioning: contrastive training of CS+ versus CS-. Explicit form names all three of (cs_positive, cs_negative, us); short form omits us and relies on the enclosing @us annotation. Pavlov (1927); Mackintosh (1974).",
+      "properties": {
+        "type": { "const": "Differential" },
+        "cs_positive": { "$ref": "#/$defs/StimulusRef" },
+        "cs_negative": { "$ref": "#/$defs/StimulusRef" },
+        "us": { "$ref": "#/$defs/StimulusRef" }
+      },
+      "required": ["type", "cs_positive", "cs_negative"],
+      "additionalProperties": false
+    },
+
+    "ExtensionPrimitive": {
+      "type": "object",
+      "description": "Respondent extension point. Third-party packages register Tier B primitives (blocking, overshadowing, renewal, etc.) whose names are resolved against the program's respondent registry at Phase 2. The grammar admits any UpperIdentifier-named constructor with a bracket-balanced argument list; registry resolution and per-primitive schema validation are the extension's responsibility.",
+      "properties": {
+        "type": { "const": "ExtensionPrimitive" },
+        "name": { "type": "string", "pattern": "^[A-Z][a-zA-Z0-9_]*$" },
+        "positional": {
+          "type": "array",
+          "items": {
+            "description": "Positional argument. Accepts any AnnotationValue-style scalar or structured value."
+          }
+        },
+        "params": {
+          "type": "object",
+          "description": "Keyword arguments; each value may be a scalar or a structured value.",
+          "additionalProperties": true
+        }
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    }
+  }
+}
