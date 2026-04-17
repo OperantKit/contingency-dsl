@@ -60,7 +60,15 @@
 
 ### 詳細
 
-各コンビネータの操作的定義、代数的性質（交換性、結合性、単位元、零元）、強化後休止の挙動、切り替え遅延（COD, FRCO）の取扱い、罰のオーバーレイ、Sidman 回避、弁別回避、Progressive Ratio の統合、表示意味論（Mealy 機械）、adequacy 定理 — 完全版は英語版 §2.1〜§2.13 を参照。
+各コンビネータの操作的定義、代数的性質（交換性、結合性、単位元、零元）、強化後休止の挙動、切り替え遅延（COD, FRCO）の取扱い、罰のオーバーレイ、Sidman 回避、弁別回避、自由オペラント逃避（Escape）、Progressive Ratio の統合、表示意味論（Mealy 機械）、adequacy 定理 — 完全版は英語版 §2.1〜§2.13 を参照。
+
+**嫌悪スケジュール（§2.7／§2.7b／§2.9）の要約:**
+
+- **Sidman 自由オペラント回避** (`Sidman`, §2.7): SSI（Shock-Shock Interval）と RSI（Response-Shock Interval）の 2 温度パラメータ。`next_shock(t) = max(last_shock + SSI, last_response + RSI)`。反応が*将来*のショックを延期する（Sidman, 1953）。
+- **自由オペラント逃避** (`Escape`, §2.7b): 連続嫌悪刺激が基線で提示され、各反応が刺激を SafeDuration だけ停止させる。任意の `MaxShock` が無反応時の安全カットオフを与える。Sidman の reset-delay 論理とは質的に異なるため、first-class primitive として独立 AST ノードを持つ（Dinsmoor, 1977; Dinsmoor & Hughes, 1956）。
+- **弁別回避** (`DiscrimAv`, §2.9): CS（警告刺激）が CSUSInterval 後に US を予告する試行ベース手続き。`mode=fixed` は固定 `ShockDuration`、`mode=response_terminated` は反応が進行中の US を終了させる（Solomon & Wynne, 1953）。
+
+**命名規約:** AST 中の文字列値は 2 つの lexically 交わらない規約に従う。`kind`（ノード型判別子）は PascalCase のプリミティブ名を取る（`"Sidman"`, `"DiscrimAv"`, `"Escape"`）。パラメータ enum 値は snake_case を取る（DiscrimAv mode の `"fixed"`, `"response_terminated"`、TimeUnit の `"s"`, `"ms"`, `"min"` 等）。両者の文字列はケース変異下でも共有しないため、`ast.kind == "Escape"`（自由オペラント Escape プリミティブ）と `ast.params.mode == "response_terminated"`（DiscrimAv の response-terminated モード）は混同し得ない。初期仕様では `mode="escape"`（小文字）を用いていたが、`kind="Escape"` との大文字小文字違いの衝突を避けるため `"response_terminated"` にリネームした。
 
 ### 2.13 表示意味論（重要）
 

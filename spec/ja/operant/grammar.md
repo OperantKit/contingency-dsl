@@ -61,7 +61,7 @@
                   | "DiscriminatedAvoidance" | "DiscrimAv"
                   | "CSUSInterval" | "ITI" | "mode"
                   | "ShockDuration" | "MaxShock"
-                  | "fixed" | "escape"
+                  | "fixed" | "response_terminated"
                   | "TO" | "Timeout"
                   | "duration" | "reset_on_response" | "contingent_response"
                   | "true" | "false"
@@ -142,6 +142,7 @@ DR 修飾子は `operant/schedules/differential.md` で詳述される。PR は 
 
 <aversive_schedule> ::= <sidman_avoidance>
                       | <discriminated_avoidance>
+                      | <escape_schedule>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
 <sidman_arg>        ::= <sidman_kw> "=" <value>
 <sidman_kw>         ::= "SSI" | "ShockShockInterval"
@@ -151,10 +152,13 @@ DR 修飾子は `operant/schedules/differential.md` で詳述される。PR は 
 <da_arg>            ::= <da_temporal_kw> "=" <value>
                       | "mode" "=" <da_mode>
 <da_temporal_kw>    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
-<da_mode>           ::= "fixed" | "escape"
+<da_mode>           ::= "fixed" | "response_terminated"
+<escape_schedule>   ::= "Escape" "(" <escape_arg> ("," <escape_arg>)* ")"
+<escape_arg>        ::= <escape_kw> "=" <value>
+<escape_kw>         ::= "SafeDuration" | "MaxShock"
 ```
 
-Sidman 自由オペラント回避および DiscriminatedAvoidance は、嫌悪的統制の一級プリミティブである（`operant/theory.md §2.7–§2.9` 参照）。
+Sidman 自由オペラント回避・DiscriminatedAvoidance・自由オペラント Escape は、嫌悪的統制の一級プリミティブである（`operant/theory.md §2.7–§2.9` 参照、Escape は §2.7b）。
 
 ## 2. 表記の柔軟性
 
@@ -244,7 +248,7 @@ Conc(VI 30-s, VI 60-s, FRCO=5)         -- 固定比切り替え 5（Hunter & Dav
 Sidman(SSI=20-s, RSI=5-s)              -- Sidman (1953)
 
 -- 弁別回避
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)       -- Solomon & Wynne (1953)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated)       -- Solomon & Wynne (1953)
 
 -- 罰のオーバーレイ
 Overlay(VI 60-s, FR 1)                 -- VI 60 ベースライン上の全反応を罰

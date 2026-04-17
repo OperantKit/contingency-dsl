@@ -12,6 +12,8 @@
 
 **Extension (§10).** The Operant.Stateful layer (`Pctl`, `Adj`, `Interlock` as defined in `schema/operant/stateful/grammar.ebnf`) preserves the LL(2) classification. All new decision points are LL(1); no existing decision points are invalidated. See §10 for the complete FIRST/FOLLOW analysis.
 
+**Extension (§11).** The Experiment Layer (`phase_decl`, `progressive_decl`, `shaping_decl`) and the Paper Layer (`paper`, `experiment_decl`) preserve the LL(2) classification. The file production becomes a 3-way dispatch (`paper | experiment_body | program`) resolved at LL(1) by the first non-annotation token (`KW_EXPERIMENT` / `KW_PHASE`·`KW_PROGRESSIVE`·`KW_SHAPING` / schedule-or-param token). Phase names and experiment labels admit a digit-initial form (`digit_ident`), lexically disjoint from `upper_ident` and `ident`. See §11 for the complete decision-point analysis.
+
 ---
 
 ## 2. Token Vocabulary
@@ -42,10 +44,13 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 | `DA_KW` | DiscriminatedAvoidance, DiscrimAv | discriminated avoidance keyword |
 | `SSI_KW` | SSI, ShockShockInterval | Sidman SSI parameter |
 | `RSI_KW` | RSI, ResponseShockInterval | Sidman RSI parameter |
-| `DA_TEMP_KW` | CSUSInterval, ITI, ShockDuration, MaxShock | DA temporal keywords |
+| `DA_TEMP_KW` | CSUSInterval, ITI, ShockDuration | DA-only temporal keywords |
 | `MODE_KW` | mode | DA mode keyword |
-| `DA_MODE` | fixed, escape | DA mode values |
-| `PR_STEP` | hodos, exponential, linear, geometric | PR step function keywords |
+| `DA_MODE` | fixed, response_terminated | DA mode values |
+| `ESCAPE_KW` | Escape | free-operant escape head keyword |
+| `ESCAPE_PARAM_KW` | SafeDuration | Escape-only parameter name |
+| `MAXSHOCK_KW` | MaxShock | safety-cutoff parameter shared by DiscrimAv (mode=response_terminated) and Escape. Parser context (inside `DiscrimAv(...)` vs `Escape(...)`) determines which enclosing production consumes it. See L8 below. |
+| `DISTRIBUTION_NAME` | hodos, linear, exponential, uniform, fixed | cross-layer distribution-name lexemes (PR step keywords are the operant-admissible subset hodos/linear/exponential; respondent ITI distribution is the subset fixed/uniform/exponential) |
 | `PR_PARAM_KW` | start, increment, ratio | PR parameter keywords |
 | `LENGTH_KW` | length | Lag length keyword |
 | `INTERP_KW` | count, onset | interpolate keyword argument names |
@@ -82,6 +87,7 @@ The proof assumes a **keyword-aware lexer** that produces the following terminal
 - **L5 (Operant.Stateful contextual reservation):** `PCTL_TARGET` values (IRT, latency, ...), `ADJ_TARGET` values (delay, ratio, amount), `PCTL_DIR_VAL` (below, above), and keyword argument names (window, dir, step, min, max, R0) appear only inside function-call parentheses. Parser context disambiguates from `IDENT`.
 - **L6 (Shared keyword: start):** `start` is reserved by both PR (`PR_PARAM_KW`) and Adj (`ADJ_ARG_KW`). Inside `PR(...)` parentheses it is parsed as `PR_PARAM_KW`; inside `Adj(...)` / `Adjusting(...)` parentheses it is parsed as `ADJ_ARG_KW`. Parser state determines which production is active; no lexer conflict.
 - **L7 (Shared keyword: T):** `T` is reserved as `domain ::= "T"` (for FT/VT/RT) and as `INTERLOCK_ARG_KW` (inside `Interlock(...)`). Parser context (inside Interlock parentheses, expecting keyword args) disambiguates from the domain production (which follows dist in `atomic_or_second`). No syntactic ambiguity.
+- **L8 (Shared keyword: MaxShock):** `MaxShock` is reserved as a keyword argument in both `DiscrimAv(...)` (mode=response_terminated safety cutoff) and `Escape(...)` (free-operant safety cutoff). The lexer emits a single `MAXSHOCK_KW` token. Parser state (inside `DiscrimAv(...)` selected by `DA_KW` head vs inside `Escape(...)` selected by `ESCAPE_KW` head) determines which enclosing production consumes it. The head keyword is consumed before any parameter token, so there is no ambiguity at the argument position.
 
 ---
 
@@ -148,7 +154,7 @@ Modifier          → DR_KW Value
                   | REPEAT_KW LPAREN NUM COMMA Schedule RPAREN
                   | LagMod
 PrOpts_opt        → LPAREN PrStep PrParams RPAREN | ε
-PrStep            → PR_STEP
+PrStep            → DISTRIBUTION_NAME   -- restricted to {hodos, linear, exponential} semantically
 PrParams          → COMMA PR_PARAM_KW EQ NUM PrParams | ε
 LagMod            → LAG_KW NUM
                   | LAG_KW LPAREN NUM LagKwArgs RPAREN
@@ -160,12 +166,30 @@ LagKwArgs         → COMMA LENGTH_KW EQ NUM LagKwArgs | ε
 ```
 AversiveSchedule  → SIDMAN_KW LPAREN SidmanArg SidmanTail RPAREN
                   | DA_KW LPAREN DaArg DaTail RPAREN
+                  | ESCAPE_KW LPAREN EscapeArg EscapeTail RPAREN
 SidmanArg         → SidmanParam EQ Value
 SidmanParam       → SSI_KW | RSI_KW
 SidmanTail        → COMMA SidmanArg SidmanTail | ε
-DaArg             → DA_TEMP_KW EQ Value | MODE_KW EQ DA_MODE
+DaArg             → DaTemporalArg | MODE_KW EQ DA_MODE
+DaTemporalArg     → DA_TEMP_KW EQ Value | MAXSHOCK_KW EQ Value
 DaTail            → COMMA DaArg DaTail | ε
+EscapeArg         → EscapeParam EQ Value
+EscapeParam       → ESCAPE_PARAM_KW | MAXSHOCK_KW
+EscapeTail        → COMMA EscapeArg EscapeTail | ε
 ```
+
+Notes on `MAXSHOCK_KW` (shared between DiscrimAv and Escape):
+
+- `ESCAPE_PARAM_KW` covers `SafeDuration` only. `DA_TEMP_KW` covers
+  `CSUSInterval`, `ITI`, `ShockDuration`. `MAXSHOCK_KW` is a distinct token
+  class that may appear as a keyword argument in either `DiscrimAv(...)`
+  (mode=response_terminated safety cutoff) or `Escape(...)` (free-operant safety cutoff).
+- No syntactic ambiguity: `AversiveSchedule` selects the branch on its head
+  keyword (`SIDMAN_KW` / `DA_KW` / `ESCAPE_KW`) before any argument is
+  parsed. Inside each branch, the allowed argument alternatives are fixed
+  (`DaArg` in DA, `EscapeArg` in Escape); `MAXSHOCK_KW` is admitted in both
+  via distinct productions. This is analogous to the shared keywords in L6
+  (`start`) and L7 (`T`).
 
 ### 3.6 Operant.Stateful Schedules
 
@@ -207,11 +231,11 @@ We compute FIRST₁ for every non-terminal that appears as an alternative in a p
 | `AtomicOrSecond` | {`SCHED_TYPE`, `EXT`, `CRF`} | from ParametricAtomic, EXT, CRF |
 | `Compound` | {`COMB`, `INTERP`} | from COMB and INTERP keywords |
 | `Modifier` | {`DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`} | from modifier keywords |
-| `AversiveSchedule` | {`SIDMAN_KW`, `DA_KW`} | from aversive keywords |
+| `AversiveSchedule` | {`SIDMAN_KW`, `DA_KW`, `ESCAPE_KW`} | from aversive keywords |
 | `IDENT` (as BaseSchedule alt) | {`IDENT`} | terminal |
 | `LPAREN Schedule RPAREN` | {`LPAREN`} | terminal |
 | `Schedule` | FIRST₁(BaseSchedule) | through BaseSchedule → ... |
-| `BaseSchedule` | {`SCHED_TYPE`, `EXT`, `CRF`, `COMB`, `INTERP`, `DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`, `SIDMAN_KW`, `DA_KW`, `IDENT`, `LPAREN`} | union of all alternatives |
+| `BaseSchedule` | {`SCHED_TYPE`, `EXT`, `CRF`, `COMB`, `INTERP`, `DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`, `SIDMAN_KW`, `DA_KW`, `ESCAPE_KW`, `IDENT`, `LPAREN`} | union of all alternatives |
 
 ### 4.2 Optional Suffixes
 
@@ -235,6 +259,7 @@ We compute FIRST₁ for every non-terminal that appears as an alternative in a p
 | `KwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `SidmanTail` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `DaTail` | {`COMMA`} | {`RPAREN`} | ✓ |
+| `EscapeTail` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `PrParams` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `LagKwArgs` | {`COMMA`} | {`RPAREN`} | ✓ |
 | `InterpKwTail` | {`COMMA`} | {`RPAREN`} | ✓ |
@@ -363,7 +388,7 @@ From the FOLLOW₁(Schedule) table in §5.2:
 
 FOLLOW₁(Schedule) = {`LET_KW`, `COMMA`, `RPAREN`, `AT`, `EOF`} ∪ FIRST₁(Schedule)
 
-FIRST₁(Schedule) = {`SCHED_TYPE`, `EXT`, `CRF`, `COMB`, `INTERP`, `DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`, `SIDMAN_KW`, `DA_KW`, `IDENT`, `LPAREN`}
+FIRST₁(Schedule) = {`SCHED_TYPE`, `EXT`, `CRF`, `COMB`, `INTERP`, `DR_KW`, `PR_KW`, `REPEAT_KW`, `LAG_KW`, `SIDMAN_KW`, `DA_KW`, `ESCAPE_KW`, `IDENT`, `LPAREN`}
 
 `LH_KW` is not in this set. `LH` as a `PARAM_NAME` appears only at the program level (before bindings), and `PARAM_NAME` is not in FOLLOW₁(Schedule) in any context where `LH_opt` is relevant.
 
@@ -383,6 +408,7 @@ We need `{DASH, TIME_UNIT} ∩ FOLLOW₁(Value) = ∅`.
 - `KeywordArg`: `KW_NAME EQ Value` → FOLLOW = {`COMMA`, `RPAREN`}
 - `SidmanArg`: `SidmanParam EQ Value` → FOLLOW = {`COMMA`, `RPAREN`}
 - `DaArg`: `DA_TEMP_KW EQ Value` → FOLLOW = {`COMMA`, `RPAREN`}
+- `EscapeArg`: `EscapeParam EQ Value` → FOLLOW = {`COMMA`, `RPAREN`}
 - `InterpKwArg`: `INTERP_KW EQ Value` → FOLLOW = {`COMMA`, `RPAREN`}
 - `DR_KW Value` (Modifier): FOLLOW = FOLLOW₁(BaseSchedule) = {`LH_KW`} ∪ FOLLOW₁(Schedule)
 - `ParametricAtomic`: `SCHED_TYPE Value` → FOLLOW = FIRST₁(SecondOrder_opt) ∪ FOLLOW₁(AtomicOrSecond) = {`LPAREN`} ∪ FOLLOW₁(BaseSchedule)
@@ -393,7 +419,7 @@ Union of all FOLLOW₁(Value):
 ∪ FIRST₁(Schedule)
 = { PARAM_NAME, LET_KW, COMMA, RPAREN, AT, EOF, LH_KW, LPAREN,
     SCHED_TYPE, EXT, CRF, COMB, INTERP, DR_KW, PR_KW, REPEAT_KW,
-    LAG_KW, SIDMAN_KW, DA_KW, IDENT }
+    LAG_KW, SIDMAN_KW, DA_KW, ESCAPE_KW, IDENT }
 ```
 
 **Verification:**
@@ -444,7 +470,7 @@ Bindings:            continue = { LET_KW },  stop = FIRST₁(Schedule)
 
 ### 5.8 Remaining Repetitions
 
-All `*`-repetitions in `KwTail`, `SidmanTail`, `DaTail`, `PrParams`, `LagKwArgs`, `InterpKwTail` have:
+All `*`-repetitions in `KwTail`, `SidmanTail`, `DaTail`, `EscapeTail`, `PrParams`, `LagKwArgs`, `InterpKwTail` have:
 - Continue: {`COMMA`}
 - Stop: {`RPAREN`}
 - `{COMMA} ∩ {RPAREN} = ∅`
@@ -615,11 +641,11 @@ At the `PosTail` decision point, after consuming a positional schedule:
 | D3 | `SecondOrder_opt` (optional) | ✓* | — | Greedy LL(1); LL(2) for PR variant (§5.2, §5.5) |
 | D4 | `LH_opt` (optional) | ✓ | — | LH_KW ∉ FOLLOW₁(Schedule) (§5.3) |
 | D5 | `TimeSuffix_opt` (optional) | ✓ | — | DASH, TIME_UNIT ∉ FOLLOW₁(Value) (§5.4) |
-| D6 | `PrOpts_opt` (optional) | — | ✓ | PR_STEP ∉ FIRST₁(Schedule) (§5.5) |
+| D6 | `PrOpts_opt` (optional) | — | ✓ | DISTRIBUTION_NAME ∉ FIRST₁(Schedule) (§5.5) |
 | D7 | `LagMod` (2 alternatives) | ✓ | — | NUM vs LPAREN after LAG_KW (§5.6) |
 | D8 | Program transitions | ✓ | — | AT / PARAM_NAME / LET / FIRST(Schedule) disjoint (§5.7) |
 | D9 | `PosTail` (arg_list continuation) | ✗ | ✓ | **The LL(2) point** (§6) |
-| D10 | `KwTail`, `SidmanTail`, `DaTail`, etc. | ✓ | — | COMMA vs RPAREN (§5.8) |
+| D10 | `KwTail`, `SidmanTail`, `DaTail`, `EscapeTail`, etc. | ✓ | — | COMMA vs RPAREN (§5.8) |
 | D11 | `Modifier` (5 alternatives†) | ✓ | — | DR_KW / PR_KW / REPEAT_KW / LAG_KW / PCTL_KW disjoint (§10.3) |
 | D12 | `AversiveSchedule` (2 alternatives) | ✓ | — | SIDMAN_KW / DA_KW disjoint |
 | D13 | `Compound` (2 alternatives) | ✓ | — | COMB / INTERP disjoint |
@@ -1001,6 +1027,7 @@ The Operant.Stateful layer is a **conservative grammar extension**: it adds new 
 | **O(n) parseable** | **Proved** | Corollary of LL(2) |
 | **Annotation boundary: LL(2) or LL(3)** | **Characterized** | §9 |
 | **Operant.Stateful LL(2) preservation** | **Proved** | §10 |
+| **Experiment + Paper Layer LL(1) verification** | **Proved** | §11 |
 
 ### The LL(2) Decision Point
 
@@ -1019,6 +1046,7 @@ All other decision points — including all Operant.Stateful internal decisions 
 3. *G* is unambiguous (corollary of 1, by Aho et al. 2006, Theorem 4.28).
 4. With the annotation system, *G* is LL(2) under greedy optional disambiguation, or strictly LL(3) without disambiguation conventions (§9).
 5. The Operant.Stateful layer (Pctl, Adj, Interlock) preserves all of 1–4 without introducing new LL(2) decision points (§10).
+6. The Experiment Layer (phase/progressive/shaping decls) and the Paper Layer (experiment_decl, paper-level annotation inheritance) preserve all of 1–4 without introducing new LL(2) decision points. All 11 layer-internal decision points are LL(1), including the 3-way file-level dispatch and the `upper_ident | digit_ident` label form (§11).
 
 ### Implications for Future Grammar Extensions
 
@@ -1033,36 +1061,44 @@ Any future extension to the grammar (e.g., `def` keyword, new combinators, new m
 
 ## §11 Experiment Layer Decision Points
 
-The Experiment Layer (grammar.ebnf, `file`, `experiment`, `phase_decl`, `progressive_decl`) introduces the following decision points. All are LL(1) — no new LL(2) points arise.
+The Experiment Layer (grammar.ebnf, `file`, `experiment_body`, `phase_decl`, `progressive_decl`, `shaping_decl`) and Paper Layer (`paper`, `experiment_decl`) introduce the following decision points. All are LL(1) — no new LL(2) points arise.
 
 ### §11.1 File-Level Disambiguation
 
-**Decision:** `file → experiment | program`
+**Decision:** `file → paper | experiment_body | program`
 
-The parser must decide at the first non-annotation token whether the file is an experiment or a single-phase program.
+The parser must decide at the first non-annotation token whether the file is a multi-experiment paper, a single-experiment phase sequence, or a bare single-schedule program.
 
 **FIRST₁ analysis:**
 
 ```
-FIRST₁(experiment after annotations) = { KW_PHASE, KW_PROGRESSIVE }
-FIRST₁(program after annotations)    = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
-                                      = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
-                                          KW_LET, DIST, KW_EXT, KW_CRF, COMB,
-                                          KW_DRL, KW_DRH, KW_DRO, KW_PR, KW_REPEAT,
-                                          KW_SIDMAN, KW_DISCRIMAV, KW_LAG,
-                                          KW_INTERPOLATE, KW_INTERP,
-                                          IDENT, LPAREN, ... }
+FIRST₁(paper after annotations)           = { KW_EXPERIMENT }
+FIRST₁(experiment_body after annotations) = { KW_PHASE, KW_PROGRESSIVE, KW_SHAPING }
+FIRST₁(program after annotations)         = FIRST₁(param_decl) ∪ FIRST₁(binding) ∪ FIRST₁(schedule)
+                                           = { KW_LH, KW_COD, KW_FRCO, KW_BO, KW_RD,
+                                               KW_LET, DIST, KW_EXT, KW_CRF, COMB,
+                                               KW_DRL, KW_DRH, KW_DRO, KW_PR, KW_REPEAT,
+                                               KW_SIDMAN, KW_DISCRIMAV, KW_LAG,
+                                               KW_INTERPOLATE, KW_INTERP,
+                                               IDENT, LPAREN, ... }
 ```
 
-Since `KW_PHASE` and `KW_PROGRESSIVE` are new reserved tokens not in any existing FIRST₁ set:
+The three reserved tokens `KW_EXPERIMENT`, `KW_PHASE`, `KW_PROGRESSIVE`, `KW_SHAPING` are pairwise disjoint as strings, and none overlap with any member of `FIRST₁(program after annotations)`:
 
 ```
-{ KW_PHASE, KW_PROGRESSIVE } ∩ FIRST₁(program after annotations) = ∅
+{ KW_EXPERIMENT } ∩ { KW_PHASE, KW_PROGRESSIVE, KW_SHAPING } = ∅
+{ KW_EXPERIMENT } ∩ FIRST₁(program after annotations) = ∅
+{ KW_PHASE, KW_PROGRESSIVE, KW_SHAPING } ∩ FIRST₁(program after annotations) = ∅
 ```
 
 **Result:** LL(1). ∎
 
-**Note on annotations:** Both `experiment` and `program` may begin with `program_annotation` (token `@`). The parser consumes all leading `@` annotations, then checks the next token. If `KW_PHASE` or `KW_PROGRESSIVE`, it is an experiment; otherwise a program. The annotations are valid for either production.
+**Note on annotations:** All three forms may begin with `program_annotation*` (token `@`). The parser consumes all leading `@` annotations, then checks the next token:
+- `KW_EXPERIMENT` → paper (the annotations become paper-level shared annotations).
+- `KW_PHASE` / `KW_PROGRESSIVE` / `KW_SHAPING` → experiment_body (the annotations become experiment-body-level defaults).
+- Any other FIRST₁ member above → program (the annotations become program-level defaults).
+
+The leading `@` annotations are valid for all three productions; semantic scope is determined by the branch taken.
 
 ### §11.2 Phase vs. Progressive
 
@@ -1165,20 +1201,80 @@ KW_NO_TRAILING ∉ FOLLOW₁(interleave_decl tail)
 
 **Result:** Both new decision points are LL(1). No new LL(2) points arise. ∎
 
-### §11.7 Summary
+### §11.7 Phase / Experiment Label Disambiguation (upper_ident | digit_ident)
 
-The Experiment Layer adds **7 new decision points** (5 base phase/progressive + 2 from interleave), all LL(1). The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
+**Decision:** `phase_name → upper_ident | digit_ident` and `experiment_label → upper_ident | digit_ident`
+
+Both phase labels (after `KW_PHASE`) and experiment labels (after `KW_EXPERIMENT`) admit two forms: an upper-initial identifier (`Baseline`, `Experiment1`) or a digit-initial identifier (`1`, `2a`, `3_pilot`).
+
+**FIRST₁ analysis:**
+
+```
+FIRST₁(upper_ident) = { UPPER_LETTER }       ; [A-Z]
+FIRST₁(digit_ident) = { DIGIT }              ; [0-9]
+
+{ UPPER_LETTER } ∩ { DIGIT } = ∅
+```
+
+Lexically the two classes are disjoint because `upper_ident ::= [A-Z] [a-zA-Z0-9_]*` requires an uppercase letter as the first character, while `digit_ident ::= [0-9]+ ([a-zA-Z_] [a-zA-Z0-9_]*)?` requires a digit. Neither overlaps with `ident` (lowercase-initial, `[a-z_]`) used for runtime identifiers.
+
+**Result:** LL(1). ∎
+
+### §11.8 Paper Layer Decision Points
+
+#### §11.8.1 Paper Continuation — Repetition over `experiment_decl`
+
+**Decision:** `paper → program_annotation* experiment_decl+` — specifically, whether to consume another `experiment_decl` or terminate.
+
+```
+FIRST₁(experiment_decl continuation) = { KW_EXPERIMENT }
+FOLLOW₁(paper)                       = { EOF }
+
+{ KW_EXPERIMENT } ∩ { EOF } = ∅
+```
+
+**Result:** LL(1). ∎
+
+#### §11.8.2 Paper-level Annotation Scope Assignment
+
+Paper-level annotations (`program_annotation*` before the first `experiment_decl`) are lexically identical to experiment-body-level annotations (`program_annotation*` inside an `experiment_body`). Scope assignment is resolved at §11.1 by the first non-annotation token:
+
+- Next token is `KW_EXPERIMENT` → preceding annotations bind to the Paper.
+- Next token is `KW_PHASE` / `KW_PROGRESSIVE` / `KW_SHAPING` → preceding annotations bind to the experiment body.
+- Otherwise → preceding annotations bind to the program.
+
+No additional decision point is introduced; this is a scope-assignment consequence of §11.1, not a separate grammar decision.
+
+**Result:** LL(1) (inherited from §11.1). ∎
+
+#### §11.8.3 experiment_decl Body
+
+**Decision:** `experiment_decl → KW_EXPERIMENT experiment_label COLON experiment_body`
+
+After consuming `KW_EXPERIMENT`, the parser expects an `experiment_label` (dispatched by §11.7), then `COLON`, then an `experiment_body`. Each step is deterministic:
+
+```
+FIRST₁(experiment_label) = { UPPER_LETTER, DIGIT }     ; per §11.7
+FIRST₁(experiment_body after annotations) = { KW_PHASE, KW_PROGRESSIVE, KW_SHAPING }
+```
+
+No alternatives at this level; sequential tokens. **Result:** LL(1). ∎
+
+### §11.9 Summary
+
+The Experiment Layer adds **7 decision points** (5 base phase/progressive + 2 from interleave), the phase/experiment label extension adds **1** (§11.7), and the Paper Layer adds **3** (§11.8), totaling **11 new decision points, all LL(1)**. The Core grammar's single LL(2) decision point (PosTail in compound arg_list, §6) is unaffected because experiment- and paper-layer productions are structurally disjoint from schedule-expression parsing — they operate at the file level, above `program`.
 
 **Updated theorem (extends §8):**
 
-The extended grammar *G'* = Core ∪ Operant.Stateful ∪ Experiment satisfies:
+The extended grammar *G'* = Core ∪ Operant.Stateful ∪ Experiment ∪ Paper satisfies:
 
-1. *G'* is LL(2): all Core and Operant.Stateful properties preserved; Experiment Layer is LL(1).
+1. *G'* is LL(2): all Core and Operant.Stateful properties preserved; Experiment and Paper Layers are LL(1).
 2. *G'* is not LL(1): the Core PosTail LL(2) point remains.
 3. *G'* is unambiguous (corollary of 1).
 4. The progressive_decl expansion rule (E-PROGRESSIVE / E-PROGRESSIVE-MULTI / E-PROGRESSIVE-INTERLEAVE) operates at the semantic phase and does not affect parsing.
-5. Phase names (upper_ident) are lexically disjoint from identifiers (lowercase) and schedule keywords (uppercase but multi-char combinations like FR, VI), preventing token ambiguity.
+5. Phase names and experiment labels admit `upper_ident | digit_ident`; the two classes are lexically disjoint (uppercase-initial vs digit-initial) and disjoint from `ident` (lowercase-initial). No token ambiguity.
 6. The `interleave` clause introduces template-consumption semantics (constraint 76) and clone-label generation (constraint 63b) at the post-parse semantic phase — these do not affect grammar classification.
+7. Paper-level annotation inheritance (paper's `shared_annotations` → each `experiment_decl`'s body) is a post-parse scope-resolution rule; the grammar itself places the annotations at paper level unconditionally when `KW_EXPERIMENT` follows.
 
 ---
 

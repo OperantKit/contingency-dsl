@@ -68,8 +68,10 @@ class LimitedHoldSchedule:
 
 @dataclass(frozen=True)
 class AversiveSchedule:
-    kind: str  # "Sidman"; future: "DiscrimAv", "Escape", ...
-    params: dict[str, Any]  # Sidman: {"SSI": {"value": 20.0, "time_unit": "s"}, "RSI": {"value": 5.0, "time_unit": "s"}}
+    kind: str  # "Sidman" | "DiscrimAv" | "Escape"
+    params: dict[str, Any]  # Sidman: {"SSI": {...}, "RSI": {...}}
+                            # DiscrimAv: {"CSUSInterval": {...}, "ITI": {...}, "mode": "fixed"|"response_terminated", ...}
+                            # Escape: {"SafeDuration": {...}, "MaxShock"?: {...}}
 
 ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, LimitedHoldSchedule, AversiveSchedule]
 ```

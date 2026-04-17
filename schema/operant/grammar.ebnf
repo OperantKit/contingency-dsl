@@ -174,6 +174,7 @@ number        ::= [0-9]+ ("." [0-9]+)?
 ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match reserved
 
 reserved      ::= "let" | "def"
+                | "experiment"                             -- paper layer: per-experiment block
                 | "phase" | "progressive" | "shaping" | "steps" | "use"  -- experiment layer
                 | "target" | "approximations" | "method"   -- shaping_decl metadata
                 | "dimension" | "stages"                   -- shaping_decl metadata
@@ -200,7 +201,9 @@ reserved      ::= "let" | "def"
                 | "DiscriminatedAvoidance" | "DiscrimAv" -- discriminated avoidance (Solomon & Wynne, 1953)
                 | "CSUSInterval" | "ITI" | "mode"
                 | "ShockDuration" | "MaxShock"
-                | "fixed" | "escape"          -- da_mode values
+                | "fixed" | "response_terminated"  -- da_mode values
+                | "Escape"                    -- free-operant escape (Dinsmoor, 1977)
+                | "SafeDuration"              -- Escape keyword arg
                 | "TO" | "Timeout"             -- timeout (Leitenberg, 1965)
                 | "duration" | "reset_on_response" | "contingent_response"  -- TO keyword args
                 | "true" | "false"             -- boolean literals (TO reset_on_response)
@@ -410,12 +413,12 @@ rc_kwarg            ::= "amount" "=" number
 ; Schedules in which the consequent stimulus is aversive and the contingency
 ; structure differs from the F/V/R × R/I/T reinforcement matrix.
 ;
-; Two aversive primitives:
+; Three aversive primitives:
 ;   1. Sidman free-operant avoidance (Sidman, 1953)
 ;   2. Discriminated avoidance (Solomon & Wynne, 1953)
+;   3. Free-operant escape (Dinsmoor, 1977; Dinsmoor & Hughes, 1956)
 ;
 ; Punishment overlay is handled via the Overlay combinator (compound section).
-; Future extensions (additive): escape as standalone primitive.
 ;
 ; Sidman free-operant avoidance (Sidman, 1953):
 ;   Two temporal parameters with distinct semantics:
@@ -429,6 +432,7 @@ rc_kwarg            ::= "amount" "=" number
 
 aversive_schedule ::= sidman_avoidance
                     | discriminated_avoidance
+                    | escape_schedule
 
 sidman_avoidance  ::= ("Sidman" | "SidmanAvoidance") "(" sidman_arg ("," sidman_arg)* ")"
 
@@ -442,7 +446,7 @@ sidman_kw         ::= "SSI" | "ShockShockInterval"
 ;   interval (CSUSInterval). A response during the CS prevents the US
 ;   (avoidance trial). On failure, the US is either:
 ;     mode=fixed:  presented for a fixed ShockDuration
-;     mode=escape: terminated by a response (optional MaxShock safety cutoff)
+;     mode=response_terminated: terminated by a response (optional MaxShock safety cutoff)
 ;   ITI is measured CS-onset → next-CS-onset.
 ;
 ; Reference: Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance
@@ -457,7 +461,52 @@ da_arg            ::= da_temporal_kw "=" value
 
 da_temporal_kw    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
 
-da_mode           ::= "fixed" | "escape"
+da_mode           ::= "fixed" | "response_terminated"
+
+; Free-operant escape (Dinsmoor, 1977; Dinsmoor & Hughes, 1956):
+;   A continuous aversive stimulus (e.g., shock) is presented. Each response
+;   terminates the stimulus for `SafeDuration`, after which the stimulus
+;   resumes. Unlike Sidman avoidance, the reset-delay logic does not apply —
+;   the stimulus is always active in the absence of a recent response.
+;   Unlike DiscrimAv(mode=response_terminated), there is no CS and no trial structure.
+;
+; Operational semantics (in the absence of MaxShock):
+;     shock_on(t) = true   iff t - last_response_time > SafeDuration
+;                          (or no response has occurred yet)
+;     shock_on(t) = false  otherwise
+;
+; Optional MaxShock provides an IACUC-style safety cutoff on uninterrupted
+; shock exposure since the last response (or session start). When reached,
+; the session terminates (or the shock is forcibly removed) — the exact
+; behavior is a runtime-layer decision; the DSL declares only the parameter.
+;
+; References:
+;   Dinsmoor, J. A. (1977). Escape, avoidance, punishment: Where do we stand?
+;     Journal of the Experimental Analysis of Behavior, 28(1), 83-95.
+;     https://doi.org/10.1901/jeab.1977.28-83
+;   Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to
+;     turn off shock. Journal of Comparative and Physiological Psychology,
+;     49(3), 235-238. https://doi.org/10.1037/h0047811
+;   Hineline, P. N. (1977). Negative reinforcement and avoidance. In
+;     W. K. Honig & J. E. R. Staddon (Eds.), Handbook of operant behavior
+;     (pp. 364-414). Prentice-Hall.
+
+escape_schedule   ::= "Escape" "(" escape_arg ("," escape_arg)* ")"
+
+escape_arg        ::= escape_kw "=" value
+
+escape_kw         ::= "SafeDuration"
+                    | "MaxShock"
+
+; Semantic constraints (Escape):
+;   MISSING_ESCAPE_PARAM         : SafeDuration missing → Error
+;   ESCAPE_TIME_UNIT_REQUIRED    : dimensionless value (e.g. SafeDuration=5) → Error
+;   ESCAPE_NONPOSITIVE_PARAM     : SafeDuration <= 0 or MaxShock <= 0 → Error
+;   DUPLICATE_ESCAPE_PARAM       : same keyword specified twice → Error
+;   ESCAPE_MAX_TOO_SHORT         : MaxShock <= SafeDuration → Warning
+;     Rationale: if MaxShock does not exceed SafeDuration, the cutoff
+;     triggers before a single SafeDuration window can elapse, making
+;     the free-operant structure degenerate.
 
 ; === Comments (line-level, not in BNF productions) ===
 ;
@@ -603,28 +652,53 @@ string_literal     ::= '"' [^"]* '"'
 ; annotator module and do not affect equivalence judgment. See
 ; spec/ja/annotation-design.md §3.5 for the general principle.
 
-; === Experiment layer (multi-phase experiment description) ===
+; === Experiment and Paper layers (multi-phase and multi-experiment description) ===
 ;
-; A file is either a single-phase program (backward compatible) or a
-; multi-phase experiment. The parser disambiguates at LL(1): if the first
-; non-annotation token is "phase", "progressive", or "shaping", the file is an experiment.
+; A file is one of three forms, disambiguated at LL(1) after factoring out
+; the shared program_annotation* prefix. The first non-annotation token
+; selects the branch:
+;   1. paper          — token `experiment` (keyword).
+;   2. experiment_body — token `phase` / `progressive` / `shaping`.
+;   3. program        — any FIRST₁(Schedule) / FIRST₁(ParamDecl) /
+;                        FIRST₁(Binding) token (SCHED_TYPE, EXT, CRF, COMB,
+;                        PARAM_NAME, LET_KW, IDENT, LPAREN, ...).
+; The three FIRST₁ sets are pairwise disjoint because `experiment`, `phase`,
+; `progressive`, `shaping` are all reserved words outside the schedule /
+; param / binding token classes. Consequently this layer preserves the
+; grammar's overall LL(2) classification (the LL(2) reason is the PosTail
+; conflict in ArgList; see ll2-proof.md §6), and does not introduce any new
+; LL(2) decision point.
 ;
 ; Design rationale:
 ;   JEAB Method sections describe experiments as sequences of named phases
 ;   (Baseline → Treatment → Reversal), each with its own schedule, session
-;   count, and stability criterion. No existing formal notation unifies
-;   within-session contingency description with across-session design
-;   structure. The experiment layer fills this gap.
+;   count, and stability criterion. Multi-experiment papers (e.g., Catania &
+;   Reynolds 1968 with 6 experiments) further group such experiments under
+;   labels. The paper and experiment layers fill these two gaps.
 ;
-; Two output modes:
-;   1. Single file, multiple phases: experiment with phase dropdown at runtime
-;   2. Multiple files, one phase each: each file is a standard program
+; Paper-level annotations (program_annotation* before the first experiment_decl)
+; are inherited by every experiment. Per-experiment-body annotations override
+; paper-level annotations keyword-by-keyword (same scoping rule as
+; PhaseSequence shared_annotations vs per-Phase annotations).
+;
+; Output modes:
+;   1. Single file, single schedule:                → program
+;   2. Single file, multiple phases:                → experiment_body
+;   3. Single file, multiple experiments:           → paper
+;   4. Multiple files, one experiment each + tool:  → tool assembles Paper AST
 ;
 ; Reference: Sidman, M. (1960). Tactics of scientific research. Basic Books.
 
-file          ::= experiment | program     -- backward compatible
+file            ::= paper | experiment_body | program
 
-experiment    ::= program_annotation* (phase_decl | progressive_decl | shaping_decl)+
+paper           ::= program_annotation* experiment_decl+
+
+experiment_decl ::= "experiment" experiment_label ":" experiment_body
+
+experiment_label ::= upper_ident | digit_ident
+                    -- "Experiment1", "1", "2a", "3_pilot" (JEAB convention)
+
+experiment_body ::= program_annotation* (phase_decl | progressive_decl | shaping_decl)+
 
 ; --- Phase declaration ---
 ;
@@ -633,7 +707,13 @@ experiment    ::= program_annotation* (phase_decl | progressive_decl | shaping_d
 
 phase_decl    ::= "phase" phase_name ":" phase_body
 
-phase_name    ::= upper_ident              -- Baseline, Treatment, DRA
+phase_name    ::= upper_ident | digit_ident
+                  -- "Baseline", "Treatment", "DRA", "1", "2a", "3_baseline"
+
+digit_ident   ::= [0-9]+ ([a-zA-Z_] [a-zA-Z0-9_]*)?
+                  -- pure digits ("1", "42"), digits+alpha ("2a", "3b"),
+                  -- or digits+underscore+alpha ("3_baseline"). Disjoint from
+                  -- upper_ident and from ident (lower_ident).
 
 phase_body    ::= phase_meta* (phase_content | phase_ref | "no_schedule") annotation*
 
@@ -825,10 +905,19 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ; 67. progressive placeholders: every {ident} in the schedule expression or
 ;     annotation values must match a declared steps variable. Undefined
 ;     placeholder → SemanticError (PROGRESSIVE_UNDEFINED_VARIABLE).
-; 68. experiment-level annotations (program_annotation before the first
-;     phase/progressive/shaping decl) establish defaults for all phases. Phase-level
-;     annotations override experiment-level defaults for that phase only.
-;     Same scoping semantics as program-level vs schedule-level annotations.
+; 68. experiment-body-level annotations (program_annotation before the first
+;     phase/progressive/shaping decl) establish defaults for all phases in
+;     that experiment body. Phase-level annotations override body-level
+;     defaults for that phase only. Same scoping semantics as program-level
+;     vs schedule-level annotations.
+;
+;     Paper-level annotations (program_annotation before the first
+;     experiment_decl) establish defaults for every experiment in the paper.
+;     Per-experiment-body annotations override paper-level defaults by
+;     keyword for that experiment only. When a paper-level and a
+;     body-level annotation share the same keyword, the body-level one wins
+;     for that experiment; other experiments still inherit the paper-level
+;     default. Conflict resolution is purely keyword-based (no ordering rule).
 ; 69. session_spec: at most one session_spec per phase. Duplicate →
 ;     SemanticError (DUPLICATE_SESSION_SPEC).
 ; 70. stability_spec: at most one stability_spec per phase. Duplicate →
@@ -1069,6 +1158,28 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ;     (a single stage is a regular phase, not a shaping). Fewer than 2 →
 ;     SemanticError (SHAPING_INSUFFICIENT_STAGES).
 
+; --- Paper / experiment_decl semantic constraints ---
+;
+; 94. experiment labels: no shadowing. Duplicate experiment_label within a
+;     single paper → SemanticError (DUPLICATE_EXPERIMENT_LABEL). Labels are
+;     compared as strings (case-sensitive). "1" ≠ "01" because they do not
+;     share the canonical string form.
+;
+; 95. paper with single experiment: a paper with exactly one experiment_decl
+;     is semantically equivalent to the bare experiment_body form (the
+;     wrapper is syntactic sugar). Paper-level annotations still propagate
+;     into that single experiment, as if hoisted. Writers MAY omit the
+;     `experiment <label>:` wrapper when only one experiment is present;
+;     the grammar accepts both forms.
+;
+; 96. paper-level annotation conflict with experiment-body annotation:
+;     when the same annotation keyword appears at both paper level and
+;     within one experiment_body's program_annotation*, the body-level
+;     value wins for that experiment only. Other experiments continue to
+;     inherit the paper-level default. No warning is emitted for overrides
+;     (this is the intended mechanism, mirroring PhaseSequence shared vs
+;     per-phase scoping).
+
 ; === Semantic constraints (enforced post-parse) ===
 ;
 ; 1. let bindings: no shadowing, no forward references, top-level only.
@@ -1155,9 +1266,9 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ;     mode=fixed without ShockDuration → SemanticError (MISSING_SHOCK_DURATION).
 ; 31. DiscriminatedAvoidance: mode-dependent parameter exclusion.
 ;     mode=fixed with MaxShock → SemanticError (INVALID_PARAM_FOR_MODE).
-;     mode=escape with ShockDuration → SemanticError (INVALID_PARAM_FOR_MODE).
+;     mode=response_terminated with ShockDuration → SemanticError (INVALID_PARAM_FOR_MODE).
 ; 32. DiscriminatedAvoidance: unknown mode value → SemanticError (DA_INVALID_MODE).
-;     Only "fixed" and "escape" are valid.
+;     Only "fixed" and "response_terminated" are valid.
 ; 33. DiscriminatedAvoidance: ITI must be > CSUSInterval.
 ;     ITI <= CSUSInterval → SemanticError (DA_ITI_TOO_SHORT).
 ;     Rationale: ITI is CS-onset → next-CS-onset; if ITI <= CSUSInterval the
@@ -1469,3 +1580,39 @@ schedule_expr_list  ::= annotated_schedule ("," annotated_schedule)*
 ;     using ResponseCost will not trigger the warning, even though "food"
 ;     is not a token being removed. Refining this requires a reinforcer-type
 ;     annotation extension beyond the core DSL.
+; 97. Escape primitive: SafeDuration is a REQUIRED parameter.
+;     Missing → SemanticError (MISSING_ESCAPE_PARAM).
+;     There is no default value — the procedure is undefined without
+;     specifying how long the stimulus is terminated by a response.
+; 98. Escape primitive: SafeDuration and MaxShock values MUST include a
+;     time unit (s/ms/min). Dimensionless → SemanticError
+;     (ESCAPE_TIME_UNIT_REQUIRED). Rationale parallels SIDMAN_TIME_UNIT_REQUIRED
+;     (§18): the procedure is intrinsically temporal.
+; 99. Escape primitive: SafeDuration > 0 and MaxShock > 0 (both strictly
+;     positive when present). Zero or negative → SemanticError
+;     (ESCAPE_NONPOSITIVE_PARAM).
+; 100. Escape primitive: MaxShock is OPTIONAL. Omission means no safety
+;      cutoff on uninterrupted shock exposure; the runtime layer decides
+;      how to handle fully-unresponsive sessions.
+; 101. Escape primitive: MaxShock <= SafeDuration → Linter WARNING
+;      (ESCAPE_MAX_TOO_SHORT). Not a SemanticError.
+;      Rationale: If MaxShock does not exceed SafeDuration, the safety
+;      cutoff triggers before a single response-initiated safe period can
+;      elapse, making the free-operant structure degenerate.
+;      Comparison is performed after normalization to seconds. A parser
+;      seeing `SafeDuration=5min, MaxShock=200s` must compare 300s vs 200s
+;      (MaxShock < SafeDuration → WARNING). Unit normalization uses the
+;      canonical conversions (1min=60s, 1ms=0.001s).
+; 102. Duplicate Escape parameter keywords → SemanticError
+;      (DUPLICATE_ESCAPE_PARAM).
+;      E.g., `Escape(SafeDuration=5s, SafeDuration=10s)` → error.
+; 103. Escape primitive: omitting MaxShock → Linter WARNING
+;      (MISSING_ESCAPE_MAXSHOCK). Not a SemanticError.
+;      Rationale: Free-operant escape presents a continuous aversive stimulus.
+;      Without a safety cutoff on uninterrupted shock exposure, a fully
+;      unresponsive subject is exposed to shock for the entire session.
+;      This follows the same design philosophy as MISSING_COD (constraint §7)
+;      and MISSING_BRIEF: procedurally essential information that is
+;      permitted to omit for pedagogical use, but flagged to encourage
+;      explicit safety specification. Adding any `MaxShock=<value>`
+;      suppresses the warning.

@@ -144,7 +144,7 @@
   {
     "id": "da_basic_escape",
     "description": "Discriminated avoidance with escape mode (Solomon & Wynne, 1953)",
-    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=response_terminated)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -155,7 +155,7 @@
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape"
+          "mode": "response_terminated"
         }
       }
     }
@@ -163,7 +163,7 @@
   {
     "id": "da_escape_with_max_shock",
     "description": "Discriminated avoidance with escape mode and MaxShock safety cutoff",
-    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=escape, MaxShock=2min)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=3min, mode=response_terminated, MaxShock=2min)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -174,7 +174,7 @@
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape",
+          "mode": "response_terminated",
           "MaxShock": { "value": 2.0, "time_unit": "min" }
         }
       }
@@ -203,7 +203,7 @@
   {
     "id": "da_short_alias",
     "description": "DiscrimAv short alias produces identical AST",
-    "input": "DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)",
+    "input": "DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -214,7 +214,7 @@
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape"
+          "mode": "response_terminated"
         }
       }
     }
@@ -222,7 +222,7 @@
   {
     "id": "da_in_chain",
     "description": "Discriminated avoidance as a link in a chained schedule",
-    "input": "Chain(FR10, DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape))",
+    "input": "Chain(FR10, DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated))",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -238,7 +238,7 @@
             "params": {
               "CSUSInterval": { "value": 10.0, "time_unit": "s" },
               "ITI": { "value": 3.0, "time_unit": "min" },
-              "mode": "escape"
+              "mode": "response_terminated"
             }
           }
         ]
@@ -248,7 +248,7 @@
   {
     "id": "da_let_binding",
     "description": "Discriminated avoidance bound to an identifier via let",
-    "input": "let trial = DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)\ntrial",
+    "input": "let trial = DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)\ntrial",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -262,7 +262,7 @@
             "params": {
               "CSUSInterval": { "value": 10.0, "time_unit": "s" },
               "ITI": { "value": 3.0, "time_unit": "min" },
-              "mode": "escape"
+              "mode": "response_terminated"
             }
           }
         }
@@ -276,7 +276,7 @@
   {
     "id": "da_param_order_swapped",
     "description": "DA parameter order does not matter (keyword arguments)",
-    "input": "DiscrimAv(mode=escape, ITI=3min, CSUSInterval=10s)",
+    "input": "DiscrimAv(mode=response_terminated, ITI=3min, CSUSInterval=10s)",
     "expected": {
       "type": "Program",
       "param_decls": [],
@@ -287,8 +287,172 @@
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape"
+          "mode": "response_terminated"
         }
+      }
+    }
+  },
+  {
+    "id": "escape_basic",
+    "description": "Free-operant escape with SafeDuration=5s (Dinsmoor, 1977)",
+    "input": "Escape(SafeDuration=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 5.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "escape_with_max_shock",
+    "description": "Free-operant escape with IACUC-style safety cutoff",
+    "input": "Escape(SafeDuration=5s, MaxShock=60s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 5.0, "time_unit": "s" },
+          "MaxShock": { "value": 60.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "escape_param_order_swapped",
+    "description": "Escape parameter order does not matter (keyword arguments)",
+    "input": "Escape(MaxShock=60s, SafeDuration=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 5.0, "time_unit": "s" },
+          "MaxShock": { "value": 60.0, "time_unit": "s" }
+        }
+      }
+    }
+  },
+  {
+    "id": "escape_millisecond_unit",
+    "description": "Escape with millisecond time unit (fine-grained safe period)",
+    "input": "Escape(SafeDuration=500ms)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 500.0, "time_unit": "ms" }
+        }
+      }
+    }
+  },
+  {
+    "id": "escape_in_chain",
+    "description": "Escape as a link in a chained schedule",
+    "input": "Chain(FR10, Escape(SafeDuration=5s))",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Compound",
+        "combinator": "Chain",
+        "components": [
+          { "type": "Atomic", "dist": "F", "domain": "R", "value": 10 },
+          {
+            "type": "AversiveSchedule",
+            "kind": "Escape",
+            "params": {
+              "SafeDuration": { "value": 5.0, "time_unit": "s" }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "escape_let_binding",
+    "description": "Escape bound to an identifier via let",
+    "input": "let esc = Escape(SafeDuration=5s)\nesc",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [
+        {
+          "type": "Binding",
+          "name": "esc",
+          "value": {
+            "type": "AversiveSchedule",
+            "kind": "Escape",
+            "params": {
+              "SafeDuration": { "value": 5.0, "time_unit": "s" }
+            }
+          }
+        }
+      ],
+      "schedule": {
+        "type": "IdentifierRef",
+        "name": "esc"
+      }
+    }
+  },
+  {
+    "id": "escape_with_response_cost",
+    "description": "Escape with ResponseCost: empirical validity of shock + point-loss combination is a research question, not a syntactic constraint",
+    "input": "Escape(SafeDuration=5s) ResponseCost(amount=1)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 5.0, "time_unit": "s" }
+        },
+        "responseCost": {
+          "amount": 1
+        }
+      }
+    }
+  },
+  {
+    "id": "escape_with_brief_annotation",
+    "description": "Escape with schedule-level annotation (non-reinforcer-family; verifies annotation carrier on AversiveSchedule kind=Escape)",
+    "input": "Escape(SafeDuration=5s) @brief(\"dummy\")",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AversiveSchedule",
+        "kind": "Escape",
+        "params": {
+          "SafeDuration": { "value": 5.0, "time_unit": "s" }
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "brief",
+            "positional": "dummy"
+          }
+        ]
       }
     }
   }

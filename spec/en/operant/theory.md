@@ -286,7 +286,7 @@ R5  Leaf without explicit LH: node ∈ {Atomic, Special, DRModifier, SecondOrder
     node.effective_lh = node.inherited_lh
     action: if effective_lh ≠ ⊥ then set node.limitedHold = effective_lh
 
-R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
+R6  AversiveSchedule → Sidman(...) | DiscrimAv(...) | Escape(...)
     inherited_lh is discarded (no qualification, no propagation)
 ```
 
@@ -298,7 +298,7 @@ R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
 | `Overlay` | Pass to baseline; punisher gets `⊥` | R3 |
 | Leaf with explicit `limitedHold` | Retain explicit value (no override) | R4 |
 | `Atomic`, `Special`, `DRModifier`, `SecondOrder`, `TrialBased` | Set `limitedHold` property if `inherited_lh ≠ ⊥` | R5 |
-| `AversiveSchedule` (Sidman, DiscrimAv) | Discard `inherited_lh` | R6 |
+| `AversiveSchedule` (Sidman, DiscrimAv, Escape) | Discard `inherited_lh` | R6 |
 
 **Rationale for key design decisions.**
 
@@ -308,7 +308,7 @@ R6  AversiveSchedule → Sidman(...) | DiscrimAv(...)
 
 *R5 — SecondOrder as leaf.* In second-order schedules (e.g., `FR5(FI30)`), the unit schedule defines a derived response unit (Kelleher, 1966). The session-level LH constrains overall reinforcement delivery, not each unit's internal temporal dynamics. Propagating LH into the unit position would fundamentally alter the procedure — particularly in behavioral pharmacology, where the unit schedule's independent operation is often the experimental variable of interest (Goldberg & Kelleher, 1977). Setting `limitedHold` on the SecondOrder node preserves the intended semantics: "once the second-order arrangement produces a reinforcement opportunity, you have *d* seconds to collect it."
 
-*R6 — Aversive schedule isolation.* Sidman avoidance and discriminated avoidance have dedicated temporal parameters (SSI/RSI, CSUSInterval) that govern consequence timing. LH constrains *reinforcement availability*; these schedules deliver *aversive consequences* on procedurally distinct timelines (Sidman, 1953).
+*R6 — Aversive schedule isolation.* Sidman avoidance, discriminated avoidance, and free-operant escape have dedicated temporal parameters (SSI/RSI; CSUSInterval; SafeDuration) that govern consequence timing. LH constrains *reinforcement availability*; these schedules deliver *aversive consequences* on procedurally distinct timelines (Sidman, 1953; Dinsmoor, 1977).
 
 **Worked examples.**
 
@@ -876,11 +876,147 @@ Sidman(SSI=20-s, RSI=5-s) @reinforcer("shock", intensity="0.5mA")  -- equivalent
 ```
 
 **Scope of aversive schedules.** The `aversive_schedule` production is
-additive. It includes `Sidman` (free-operant avoidance) and
-`DiscriminatedAvoidance` (trial-based avoidance). Punishment overlay is
-expressed via the `Overlay` combinator (§2.10). Simple escape (response
-terminates ongoing aversive stimulus without a predictive CS) can be
-approximated with existing constructs using stimulus annotations.
+additive. It includes `Sidman` (free-operant avoidance, §2.7),
+`DiscriminatedAvoidance` (trial-based avoidance, §2.9), and `Escape`
+(free-operant escape, §2.7b). Punishment overlay is expressed via the
+`Overlay` combinator (§2.10).
+
+### 2.7b Aversive Schedules — Free-Operant Escape
+
+Free-operant escape is the canonical arrangement in which an ongoing
+aversive stimulus is terminated by responding: a continuous stimulus (e.g.,
+shock) is on by default and each response turns it off for a fixed safe
+period (Dinsmoor & Hughes, 1956; Dinsmoor, 1977; Hineline, 1977). It is
+distinct from both Sidman avoidance (which postpones a *scheduled* future
+shock via a reset-delay rule) and discriminated avoidance (which prevents
+a US signaled by a CS within a trial structure).
+
+The DSL introduces a dedicated primitive, `Escape`, in the
+`aversive_schedule` production (grammar.ebnf). Like `Sidman` and
+`DiscrimAv`, it is additive under design-philosophy §8.1.
+
+**Procedural definition.** One required temporal parameter and one optional
+safety parameter:
+
+- **SafeDuration**: duration of the safe period after each response, during
+  which the aversive stimulus is terminated. After the safe period, the
+  stimulus resumes.
+- **MaxShock** *(optional)*: IACUC-style safety cutoff on uninterrupted
+  shock exposure since the last response (or session start if none has
+  occurred). Omission means no cutoff; the runtime layer decides how to
+  handle fully-unresponsive sessions.
+
+Operational semantics:
+
+```
+shock_on(t) = true   iff t - last_response_time > SafeDuration
+                     (or no response has occurred yet)
+shock_on(t) = false  otherwise
+```
+
+Unlike Sidman's `next_shock(t) = max(last_shock + SSI, last_response + RSI)`,
+there is no postponement logic. Each response acts on the currently-active
+stimulus, not a future scheduled one.
+
+**Syntax.**
+
+```
+Escape(SafeDuration=5-s)                          -- continuous shock, 5s safe period per response
+Escape(SafeDuration=5-s, MaxShock=60-s)           -- with safety cutoff
+Escape(SafeDuration=500-ms)                       -- fine-grained timing
+```
+
+`SafeDuration` is required. Time units are mandatory.
+
+**Composition with other schedules.** `Escape` is a `base_schedule` and may
+appear inside any compound combinator:
+
+```
+Chain(FR 10 @reinforcer("food"), Escape(SafeDuration=5-s) @punisher("shock"))
+```
+
+**Open issue — completion semantics of AversiveSchedule in sequential
+combinators (Chain / Tand / Mult / Mix / Alt).** Unlike Atomic / Special /
+Modifier / SecondOrder, an `AversiveSchedule` (`Sidman`, `DiscrimAv`, `Escape`)
+does not have an intrinsic reinforcement event that signals link completion.
+Published chained-avoidance procedures (e.g., de Waard, Galizio, & Baron,
+1979 for Sidman) use explicit session-structure parameters (duration,
+response count, signal onset) as completion criteria. The DSL currently
+leaves this criterion to the runtime layer. Programs that rely on a specific
+completion criterion SHOULD attach an explicit `@duration(...)` or equivalent
+annotation to the aversive link; absent that, the runtime's behavior is
+implementation-defined. A future spec revision may introduce a required
+completion annotation for this class (tracked in planning; not in current
+Core).
+
+**Semantic constraints.**
+
+- `SafeDuration` must be specified. Missing → `MISSING_ESCAPE_PARAM`.
+- `SafeDuration` and `MaxShock` must carry a time unit. Dimensionless →
+  `ESCAPE_TIME_UNIT_REQUIRED`.
+- Both must be strictly positive when present. Non-positive →
+  `ESCAPE_NONPOSITIVE_PARAM`.
+- `MaxShock <= SafeDuration` triggers `ESCAPE_MAX_TOO_SHORT` (Warning):
+  the safety cutoff would trigger before a single response-initiated safe
+  period can elapse.
+- Duplicate keyword → `DUPLICATE_ESCAPE_PARAM`.
+
+**Stimulus annotation.** `@punisher` is the canonical annotation for the
+aversive stimulus delivered under Escape:
+
+```
+Escape(SafeDuration=5-s) @punisher("shock", intensity="0.5mA")
+```
+
+**Why a dedicated primitive rather than `Sidman(SSI=0)`.** A shorthand
+using Sidman with SSI=0 was considered and rejected. Numerically,
+`Sidman(SSI=0, RSI=n)` and `Escape(SafeDuration=n)` coincide on many
+trajectories; the reject is not about the state-transition timer but
+about the *duty cycle* of the aversive stimulus. Sidman's stimulus is a
+pulse train — it fires at discrete events and is absent between them.
+Escape's stimulus is continuous — it is on 100% of the time at baseline
+and each response punches out a safe window. These are distinct physical
+arrangements, with correspondingly distinct safety profiles (escape
+without `MaxShock` is categorically riskier than Sidman with finite
+SSI) and behavioral demands (continuous aversive stimulus during
+acquisition vs. scheduled pulses). A first-class `Escape` node preserves
+this duty-cycle distinction at the AST level so that static analysis,
+simulators, and semantic constraints operate on the correct stimulus
+model. This follows the design principle that keeps FT/VT/RT first-class
+rather than reducing them to `Interval` with a zero response requirement
+(§schedules/time.md).
+
+**Comparison table.**
+
+| Aspect | Sidman | DiscrimAv(mode=response_terminated) | Escape |
+|---|---|---|---|
+| Baseline stimulus state | off (scheduled shocks) | off (between trials) | on (continuous) |
+| CS | none | present (trial signal) | none |
+| Trial structure | no | yes (CSUSInterval, ITI) | no |
+| Response effect | postpones future shock by RSI | terminates present shock within trial | terminates present shock for SafeDuration |
+| Primary parameter | SSI, RSI | CSUSInterval, ITI | SafeDuration |
+| AST discriminator | `kind="Sidman"` | `kind="DiscrimAv"`, `params.mode="response_terminated"` | `kind="Escape"` |
+| Reference | Sidman (1953) | Solomon & Wynne (1953) | Dinsmoor & Hughes (1956) |
+
+**Naming convention.** AST string values follow two disjoint conventions
+that are lexically non-overlapping:
+
+- **`kind` (node-type discriminator)** uses PascalCase primitive names:
+  `"Sidman"`, `"DiscrimAv"`, `"Escape"`. These identify the structural
+  type of the AST node.
+- **Parameter enum values** use snake_case: `"fixed"`, `"response_terminated"`
+  (DiscrimAv mode); `"s"`, `"ms"`, `"min"` (time units). These are
+  qualitative labels at the parameter level.
+
+The two namespaces share no string across case variants:
+`ast.kind == "Escape"` (free-operant escape primitive) and
+`ast.params.mode == "response_terminated"` (DiscrimAv response-terminated
+mode) cannot be confused under any comparison. Earlier drafts of this
+specification used `mode="escape"` (lowercase), which shared a string
+with `kind="Escape"` up to case; that was renamed to `"response_terminated"`
+to eliminate any ambiguity. Downstream consumers that rely on string
+equality need only case-sensitive equality against the snake_case /
+PascalCase literals.
 
 ### 2.8 Lag Schedule — Operant Variability
 
@@ -999,21 +1135,21 @@ aversive-schedule primitive in the `aversive_schedule` production.
   (avoidance trial).
 - **ITI** (required): inter-trial interval, measured CS-onset to
   next-CS-onset. Must be > CSUSInterval.
-- **mode** (required): `fixed` or `escape`.
+- **mode** (required): `fixed` or `response_terminated`.
   - `fixed`: US is presented for a fixed `ShockDuration`.
-  - `escape`: US continues until the subject responds. Optional `MaxShock`
-    sets a safety cutoff.
+  - `response_terminated`: US continues until the subject responds.
+    Optional `MaxShock` sets a safety cutoff.
 - **ShockDuration** (required for mode=fixed): duration of the fixed US.
-- **MaxShock** (optional for mode=escape): safety cutoff for escape-
-  terminated US. Solomon & Wynne (1953) used a 2-minute cutoff.
+- **MaxShock** (optional for mode=response_terminated): safety cutoff for
+  response-terminated US. Solomon & Wynne (1953) used a 2-minute cutoff.
 
 **Syntax.**
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated, MaxShock=2-min)
 DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0.5-s)
-DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)  -- short alias
+DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=response_terminated)  -- short alias
 ```
 
 **Semantic constraints.**
@@ -1031,7 +1167,7 @@ DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape)  -- short alias
 definition. `@punisher` is recommended:
 
 ```
-DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
+DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=response_terminated, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
   @sd("light", modality="visual")
 ```
@@ -1040,7 +1176,7 @@ DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
 appear inside any compound combinator:
 
 ```
-Chain(FR 10, DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
+Chain(FR 10, DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=response_terminated))
 ```
 
 ### 2.10 Punishment Overlay
@@ -1654,6 +1790,8 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Reynolds, G. S. (1961). Behavioral contrast. *Journal of the Experimental Analysis of Behavior*, 4(1), 57-71. https://doi.org/10.1901/jeab.1961.4-57
 - Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
 - Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
+- Dinsmoor, J. A. (1977). Escape, avoidance, punishment: Where do we stand? *Journal of the Experimental Analysis of Behavior*, 28(1), 83-95. https://doi.org/10.1901/jeab.1977.28-83
+- Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to turn off shock. *Journal of Comparative and Physiological Psychology*, 49(3), 235-238. https://doi.org/10.1037/h0047811
 - de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance: Reinforcement within and by avoidance situations. *Journal of the Experimental Analysis of Behavior*, 32(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
 - Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, 11(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
 - Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, 9(4), 672-705. https://doi.org/10.3758/BF03196324

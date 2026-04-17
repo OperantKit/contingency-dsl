@@ -61,7 +61,7 @@ The `<dist><domain>` prefix produces the 3×3 atomic schedule grid (FR, VR, RR, 
                   | "DiscriminatedAvoidance" | "DiscrimAv"
                   | "CSUSInterval" | "ITI" | "mode"
                   | "ShockDuration" | "MaxShock"
-                  | "fixed" | "escape"
+                  | "fixed" | "response_terminated"
                   | "TO" | "Timeout"
                   | "duration" | "reset_on_response" | "contingent_response"
                   | "true" | "false"
@@ -142,6 +142,7 @@ DR modifiers are detailed in `operant/schedules/differential.md`. PR is detailed
 
 <aversive_schedule> ::= <sidman_avoidance>
                       | <discriminated_avoidance>
+                      | <escape_schedule>
 <sidman_avoidance>  ::= ("Sidman" | "SidmanAvoidance") "(" <sidman_arg> ("," <sidman_arg>)* ")"
 <sidman_arg>        ::= <sidman_kw> "=" <value>
 <sidman_kw>         ::= "SSI" | "ShockShockInterval"
@@ -151,10 +152,13 @@ DR modifiers are detailed in `operant/schedules/differential.md`. PR is detailed
 <da_arg>            ::= <da_temporal_kw> "=" <value>
                       | "mode" "=" <da_mode>
 <da_temporal_kw>    ::= "CSUSInterval" | "ITI" | "ShockDuration" | "MaxShock"
-<da_mode>           ::= "fixed" | "escape"
+<da_mode>           ::= "fixed" | "response_terminated"
+<escape_schedule>   ::= "Escape" "(" <escape_arg> ("," <escape_arg>)* ")"
+<escape_arg>        ::= <escape_kw> "=" <value>
+<escape_kw>         ::= "SafeDuration" | "MaxShock"
 ```
 
-Sidman free-operant avoidance and DiscriminatedAvoidance are first-class aversive-control primitives (see `operant/theory.md §2.7–§2.9`).
+Sidman free-operant avoidance, DiscriminatedAvoidance, and free-operant Escape are first-class aversive-control primitives (see `operant/theory.md §2.7–§2.9`; Escape is covered in §2.7b).
 
 ## 2. Notational Flexibility
 
@@ -244,7 +248,7 @@ Conc(VI 30-s, VI 60-s, FRCO=5)           -- 5 fixed-ratio changeover (Hunter & D
 Sidman(SSI=20-s, RSI=5-s)                              -- Sidman (1953)
 
 -- Discriminated avoidance
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape)       -- Solomon & Wynne (1953)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated)       -- Solomon & Wynne (1953)
 
 -- Punishment overlay
 Overlay(VI 60-s, FR 1)                              -- every response punished on VI 60 baseline

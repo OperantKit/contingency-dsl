@@ -447,6 +447,94 @@ References:
   & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414).
   Prentice-Hall.
 
+## Free-operant escape
+
+`Escape` is a dedicated aversive-schedule primitive for free-operant escape
+(see grammar.ebnf `escape_schedule` production and
+[spec/en/theory.md §2.7b](spec/en/theory.md)). `SafeDuration` is mandatory;
+`MaxShock` is optional.
+
+| Parameter | Syntax | Dimension | Required |
+|-----------|--------|-----------|----------|
+| SafeDuration | `Escape(SafeDuration=5s)` | Time (s/ms/min), strictly positive, unit required | YES |
+| MaxShock | `Escape(..., MaxShock=60s)` | Time (s/ms/min), strictly positive, unit required | NO |
+
+- `SafeDuration` must be specified. Missing → `MISSING_ESCAPE_PARAM`.
+- Time unit is mandatory for each parameter. Dimensionless → `ESCAPE_TIME_UNIT_REQUIRED`.
+- Values must be strictly positive. Non-positive → `ESCAPE_NONPOSITIVE_PARAM`.
+- `MaxShock <= SafeDuration` triggers linter WARNING `ESCAPE_MAX_TOO_SHORT`:
+  if the safety cutoff does not exceed the safe window a single response opens,
+  the free-operant structure degenerates. Comparison is performed after
+  normalizing both values to seconds (1min=60s, 1ms=0.001s). For example,
+  `SafeDuration=5min, MaxShock=200s` compares 300s vs 200s and emits the
+  warning (200s < 300s).
+- Duplicate parameters → `DUPLICATE_ESCAPE_PARAM` (verbose aliases are not
+  currently defined for Escape).
+- Omitting `MaxShock` triggers Linter WARNING `MISSING_ESCAPE_MAXSHOCK`
+  (constraint §103). Free-operant escape presents a continuous aversive
+  stimulus; without a safety cutoff a fully unresponsive subject is exposed
+  for the entire session. Adding any `MaxShock=<value>` suppresses the
+  warning. Parallel design to `MISSING_COD` and `MISSING_BRIEF`:
+  procedurally essential information that is permitted to omit but
+  flagged for explicit safety specification.
+
+**Semantics.** A continuous aversive stimulus (typically shock) is on by
+default. Each response terminates the stimulus for `SafeDuration`; after that
+window elapses the stimulus resumes. Optional `MaxShock` caps uninterrupted
+exposure since the last response:
+
+```
+shock_on(t) = true   iff t - last_response_time > SafeDuration
+                     (or no response has occurred yet)
+shock_on(t) = false  otherwise
+```
+
+Unlike Sidman avoidance, there is no reset-delay logic (each response does
+not postpone a scheduled future shock; it turns off the currently-active
+stimulus). Unlike `DiscrimAv(mode=response_terminated)`, there is no CS and no trial
+structure.
+
+### Why a dedicated primitive rather than `Sidman(SSI=0)`
+
+`Sidman(SSI=0, RSI=n)` was considered as a shorthand but rejected. The
+numerical state-transition behavior of `Sidman(SSI=0, RSI=n)` and
+`Escape(SafeDuration=n)` coincide for many response patterns: in both cases
+shocks fire at `last_response + n`. The structural distinction that justifies
+a separate primitive lives in the **duty-cycle of the aversive stimulus**,
+not in the next-shock timer:
+
+- **Sidman avoidance:** the aversive stimulus is a *pulse train*. It fires
+  at discrete events (at `last_shock + SSI` in the no-response limit, at
+  `last_response + RSI` in the responding limit). Between events the
+  stimulus is absent. Sidman's baseline duty cycle is bounded by the
+  proportion of time shock is actually on (short pulse duration ≪ SSI).
+- **Escape:** the aversive stimulus is *continuous*. At baseline the
+  stimulus is on 100% of the time; each response punches out a safe window
+  of length `SafeDuration`. Escape's baseline duty cycle is, absent
+  responses, 100%.
+
+These are different physical arrangements of the aversive stimulus, not
+different semantic interpretations of the same arrangement. They produce
+qualitatively different behavioral demands (continuous shock during
+acquisition in escape vs. scheduled shocks at SSI intervals in Sidman) and
+warrant different safety reasoning (escape with no `MaxShock` is
+categorically riskier than Sidman with finite SSI). The first-class
+`Escape` primitive preserves this duty-cycle distinction at the AST level
+so that static analysis, simulators, and semantic constraints can operate
+on the correct stimulus model. This follows the same design philosophy
+that keeps FT/VT/RT first-class rather than reducing them to `Interval`
+with a zero response requirement — the procedural reality is distinct.
+
+References:
+- Dinsmoor, J. A. (1977). Escape, avoidance, punishment: Where do we stand?
+  *JEAB*, 28(1), 83-95. https://doi.org/10.1901/jeab.1977.28-83
+- Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to
+  turn off shock. *Journal of Comparative and Physiological Psychology*,
+  49(3), 235-238. https://doi.org/10.1037/h0047811
+- Hineline, P. N. (1977). Negative reinforcement and avoidance. In
+  W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior*
+  (pp. 364-414). Prentice-Hall.
+
 ## Discriminated avoidance
 
 `DiscriminatedAvoidance` (alias `DiscrimAv`) is a dedicated
@@ -458,9 +546,9 @@ parameters are mandatory; **there is no default value** for any of them.
 |-----------|-------|--------|-----------|----------|
 | CSUSInterval | — | `DiscrimAv(CSUSInterval=10s, ...)` | Time (s/ms/min), strictly positive, unit required | YES |
 | ITI | — | `DiscrimAv(..., ITI=3min, ...)` | Time (s/ms/min), strictly positive, unit required, must be > CSUSInterval | YES |
-| mode | — | `DiscrimAv(..., mode=escape, ...)` | `fixed` \| `escape` | YES |
+| mode | — | `DiscrimAv(..., mode=response_terminated, ...)` | `fixed` \| `response_terminated` | YES |
 | ShockDuration | — | `DiscrimAv(..., ShockDuration=0.5s)` | Time (s/ms/min), strictly positive, unit required | YES (mode=fixed only) |
-| MaxShock | — | `DiscrimAv(..., MaxShock=2min)` | Time (s/ms/min), strictly positive, unit required | NO (mode=escape only, default=no cutoff) |
+| MaxShock | — | `DiscrimAv(..., MaxShock=2min)` | Time (s/ms/min), strictly positive, unit required | NO (mode=response_terminated only, default=no cutoff) |
 
 - `CSUSInterval`, `ITI`, and `mode` must all be specified. Missing any → `MISSING_DA_PARAM`.
 - Temporal parameters must carry a time unit. Dimensionless → `DA_TIME_UNIT_REQUIRED`.
@@ -468,7 +556,7 @@ parameters are mandatory; **there is no default value** for any of them.
 - `ITI` must be > `CSUSInterval`. Otherwise → `DA_ITI_TOO_SHORT`.
 - `mode=fixed` requires `ShockDuration`. Missing → `MISSING_SHOCK_DURATION`.
 - `mode=fixed` with `MaxShock` → `INVALID_PARAM_FOR_MODE`.
-- `mode=escape` with `ShockDuration` → `INVALID_PARAM_FOR_MODE`.
+- `mode=response_terminated` with `ShockDuration` → `INVALID_PARAM_FOR_MODE`.
 - Unknown mode value → `DA_INVALID_MODE`.
 - Duplicate parameters → `DUPLICATE_DA_PARAM`.
 
@@ -478,7 +566,7 @@ trial begins at ITI from the current CS onset. If the subject fails to
 respond within CSUSInterval (escape/failure trial), the US is delivered:
 
 - `mode=fixed`: US is presented for exactly `ShockDuration`.
-- `mode=escape`: US continues until the subject responds (terminates the US).
+- `mode=response_terminated`: US continues until the subject responds (terminates the US).
   Optional `MaxShock` sets a safety cutoff (Solomon & Wynne, 1953 used 2min).
 
 ```

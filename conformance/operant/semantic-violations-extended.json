@@ -308,7 +308,7 @@
   {
     "id": "error_da_iti_equals_csus",
     "description": "ITI equal to CSUSInterval is also too short (must be strictly greater; constraint §33)",
-    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=10s, mode=escape)",
+    "input": "DiscriminatedAvoidance(CSUSInterval=10s, ITI=10s, mode=response_terminated)",
     "error": {
       "type": "SemanticError",
       "code": "DA_ITI_TOO_SHORT"
@@ -384,6 +384,15 @@
     "id": "error_to_on_discrimav",
     "description": "TO on discriminated avoidance → TO_ON_AVERSIVE",
     "input": "DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s) TO(duration=30s, reset_on_response=true)",
+    "error": {
+      "type": "SemanticError",
+      "code": "TO_ON_AVERSIVE"
+    }
+  },
+  {
+    "id": "error_to_on_escape",
+    "description": "TO on free-operant escape → TO_ON_AVERSIVE (constraint §81)",
+    "input": "Escape(SafeDuration=5s) TO(duration=30s, reset_on_response=true)",
     "error": {
       "type": "SemanticError",
       "code": "TO_ON_AVERSIVE"

@@ -166,6 +166,7 @@
     "Compound": {
       "type": "object",
       "description": "Compound schedule: combinator applied to 2+ sub-schedules, with optional keyword parameters. COD and FRCO for Conc, BO for Mult/Mix.",
+      "$comment": "Name collision with schema/respondent/ast.schema.json#/$defs/Compound (R11 simultaneous CS compound). Both serialize to \"type\": \"Compound\"; disambiguate by payload shape. This (operant) Compound has {\"combinator\", \"components\"}; the respondent Compound has {\"cs_list\"}. Consumers that accept both layers MUST dispatch on payload keys, not on \"type\" alone.",
       "properties": {
         "type": { "const": "Compound" },
         "combinator": { "$ref": "#/$defs/Combinator" },
@@ -469,7 +470,7 @@
     },
 
     "AversiveSchedule": {
-      "description": "Aversive schedule primitive. Includes Sidman free-operant avoidance (Sidman, 1953) and discriminated avoidance (Solomon & Wynne, 1953). The contingency structure differs from the F/V/R × R/I/T reinforcement matrix and requires a dedicated node type.",
+      "description": "Aversive schedule primitive. Includes Sidman free-operant avoidance (Sidman, 1953), discriminated avoidance (Solomon & Wynne, 1953), and free-operant escape (Dinsmoor, 1977; Dinsmoor & Hughes, 1956). The contingency structure differs from the F/V/R × R/I/T reinforcement matrix and requires a dedicated node type. NAMING CONVENTION: the `kind` discriminator uses PascalCase primitive names (\"Sidman\", \"DiscrimAv\", \"Escape\"); parameter enum values use snake_case (\"fixed\", \"response_terminated\"). The two namespaces are lexically disjoint under any comparison (no shared strings across case variants), so `ast.kind == \"Escape\"` (free-operant escape primitive) and `ast.params.mode == \"response_terminated\"` (DiscrimAv response-terminated mode) cannot be confused.",
       "oneOf": [
         {
           "type": "object",
@@ -489,6 +490,18 @@
             "type": { "const": "AversiveSchedule" },
             "kind": { "const": "DiscrimAv" },
             "params": { "$ref": "#/$defs/DiscrimAvParams" },
+            "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. Permitted on aversive schedules." },
+            "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
+          },
+          "required": ["type", "kind", "params"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "AversiveSchedule" },
+            "kind": { "const": "Escape" },
+            "params": { "$ref": "#/$defs/EscapeParams" },
             "responseCost": { "$ref": "#/$defs/ResponseCostParams", "description": "Response cost parameters. Permitted on aversive schedules." },
             "annotations": { "type": "array", "items": { "$ref": "#/$defs/Annotation" }, "description": "Schedule-level annotations." }
           },
@@ -529,7 +542,7 @@
 
     "DiscrimAvParams": {
       "type": "object",
-      "description": "Parameters for discriminated avoidance (Solomon & Wynne, 1953). CSUSInterval, ITI, and mode are mandatory. ShockDuration is required for mode=fixed. MaxShock is optional for mode=escape.",
+      "description": "Parameters for discriminated avoidance (Solomon & Wynne, 1953). CSUSInterval, ITI, and mode are mandatory. ShockDuration is required for mode=fixed. MaxShock is optional for mode=response_terminated.",
       "properties": {
         "CSUSInterval": {
           "type": "object",
@@ -553,12 +566,12 @@
         },
         "mode": {
           "type": "string",
-          "enum": ["fixed", "escape"],
-          "description": "US delivery mode. 'fixed': US presented for a fixed ShockDuration. 'escape': US terminated by response (optional MaxShock safety cutoff)."
+          "enum": ["fixed", "response_terminated"],
+          "description": "US delivery mode. 'fixed': US presented for a fixed ShockDuration. 'response_terminated': US terminated by a response (optional MaxShock safety cutoff). The value 'response_terminated' is a snake_case enum value at the parameter level; it is disjoint from the node-type discriminator kind='Escape' (capitalized) and must not be confused with it."
         },
         "ShockDuration": {
           "type": "object",
-          "description": "Duration of the fixed US presentation. Required when mode=fixed; forbidden when mode=escape.",
+          "description": "Duration of the fixed US presentation. Required when mode=fixed; forbidden when mode=response_terminated.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -568,7 +581,7 @@
         },
         "MaxShock": {
           "type": "object",
-          "description": "Safety cutoff for escape-terminated US (Solomon & Wynne, 1953 used 2min). Optional when mode=escape; forbidden when mode=fixed. Null/absent = no cutoff.",
+          "description": "Safety cutoff for response-terminated US (Solomon & Wynne, 1953 used 2min). Optional when mode=response_terminated; forbidden when mode=fixed. Null/absent = no cutoff.",
           "properties": {
             "value": { "type": "number", "exclusiveMinimum": 0 },
             "time_unit": { "$ref": "#/$defs/TimeUnit" }
@@ -578,6 +591,35 @@
         }
       },
       "required": ["CSUSInterval", "ITI", "mode"],
+      "additionalProperties": false
+    },
+
+    "EscapeParams": {
+      "type": "object",
+      "description": "Parameters for free-operant escape (Dinsmoor, 1977; Dinsmoor & Hughes, 1956). SafeDuration is mandatory (no default). MaxShock is an optional IACUC-style safety cutoff on uninterrupted shock exposure since the last response. Operational semantics: shock is on iff t - last_response_time > SafeDuration (or no response has occurred yet).",
+      "properties": {
+        "SafeDuration": {
+          "type": "object",
+          "description": "Safe-period duration: the interval after each response during which the aversive stimulus is terminated. Must be positive; time unit required.",
+          "properties": {
+            "value": { "type": "number", "exclusiveMinimum": 0 },
+            "time_unit": { "$ref": "#/$defs/TimeUnit" }
+          },
+          "required": ["value", "time_unit"],
+          "additionalProperties": false
+        },
+        "MaxShock": {
+          "type": "object",
+          "description": "Safety cutoff on uninterrupted shock exposure since the last response (or session start if no response has occurred). Optional; absence = no cutoff (runtime-layer decision on unresponsive sessions). Must be positive when present; time unit required. Linter warns if MaxShock <= SafeDuration.",
+          "properties": {
+            "value": { "type": "number", "exclusiveMinimum": 0 },
+            "time_unit": { "$ref": "#/$defs/TimeUnit" }
+          },
+          "required": ["value", "time_unit"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["SafeDuration"],
       "additionalProperties": false
     },
 
