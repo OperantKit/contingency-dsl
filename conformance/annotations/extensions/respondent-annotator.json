@@ -1,0 +1,294 @@
+[
+  {
+    "_comment": "=== @cs — conditional stimulus metadata ==="
+  },
+  {
+    "id": "respondent_annot_cs_minimal",
+    "description": "@cs with only required label (program-level)",
+    "input": "@cs(label=\"tone\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "tone"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "@cs keyword-only annotation form. Requires respondent-annotator in registry. Operant baseline remains well-formed without the respondent primitive parser; the annotation attaches to the program for apparatus verification."
+  },
+  {
+    "id": "respondent_annot_cs_full",
+    "description": "@cs with label, duration, modality (all three params)",
+    "input": "@cs(label=\"light\", duration=10s, modality=\"visual\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs",
+          "params": {
+            "label": "light",
+            "duration": {
+              "value": 10,
+              "time_unit": "s"
+            },
+            "modality": "visual"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== @us — unconditional stimulus metadata ==="
+  },
+  {
+    "id": "respondent_annot_us_minimal",
+    "description": "@us with only required label",
+    "input": "@us(label=\"shock\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "shock"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "respondent_annot_us_full",
+    "description": "@us with label, intensity, delivery",
+    "input": "@us(label=\"shock\", intensity=\"0.5mA\", delivery=\"signaled\")\n\nVI60s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "us",
+          "params": {
+            "label": "shock",
+            "intensity": "0.5mA",
+            "delivery": "signaled"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 60.0,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== @iti — intertrial-interval metadata with jitter ==="
+  },
+  {
+    "id": "respondent_annot_iti_full",
+    "description": "@iti with distribution, mean, jitter",
+    "input": "@iti(distribution=\"uniform\", mean=60s, jitter=15s)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "iti",
+          "params": {
+            "distribution": "uniform",
+            "mean": {
+              "value": 60,
+              "time_unit": "s"
+            },
+            "jitter": {
+              "value": 15,
+              "time_unit": "s"
+            }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    }
+  },
+  {
+    "id": "respondent_annot_iti_fixed_no_jitter",
+    "description": "@iti with fixed distribution and explicit jitter=0",
+    "input": "@iti(distribution=\"fixed\", mean=30s, jitter=0s)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "iti",
+          "params": {
+            "distribution": "fixed",
+            "mean": {
+              "value": 30,
+              "time_unit": "s"
+            },
+            "jitter": {
+              "value": 0,
+              "time_unit": "s"
+            }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    }
+  },
+
+  {
+    "_comment": "=== @cs_interval — CS presentation time window ==="
+  },
+  {
+    "id": "respondent_annot_cs_interval_basic",
+    "description": "@cs_interval with cs_onset=0s and cs_offset=10s (10-second CS window)",
+    "input": "@cs_interval(cs_onset=0s, cs_offset=10s)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "cs_interval",
+          "params": {
+            "cs_onset": {
+              "value": 0,
+              "time_unit": "s"
+            },
+            "cs_offset": {
+              "value": 10,
+              "time_unit": "s"
+            }
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "_note": "cs_onset and cs_offset are time_value keyword arguments — both required by the respondent-annotator extension schema."
+  },
+
+  {
+    "_comment": "=== Errors: missing required params, invalid values, wrong types ==="
+  },
+  {
+    "id": "error_respondent_annot_cs_missing_label",
+    "description": "@cs without required label parameter",
+    "input": "@cs(duration=10s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "CS_LABEL_REQUIRED"
+    }
+  },
+  {
+    "id": "error_respondent_annot_cs_duration_nonpositive",
+    "description": "@cs with duration=0s is nonpositive",
+    "input": "@cs(label=\"tone\", duration=0s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "CS_DURATION_NONPOSITIVE"
+    }
+  },
+  {
+    "id": "error_respondent_annot_us_missing_label",
+    "description": "@us without required label parameter",
+    "input": "@us(intensity=\"0.5mA\")\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "US_LABEL_REQUIRED"
+    }
+  },
+  {
+    "id": "error_respondent_annot_iti_jitter_negative",
+    "description": "@iti with negative jitter is invalid",
+    "input": "@iti(distribution=\"uniform\", mean=60s, jitter=-5s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "ITI_JITTER_NEGATIVE"
+    }
+  },
+  {
+    "id": "error_respondent_annot_iti_mean_nonpositive",
+    "description": "@iti with mean=0s is nonpositive",
+    "input": "@iti(distribution=\"fixed\", mean=0s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "ITI_MEAN_NONPOSITIVE"
+    }
+  },
+  {
+    "id": "error_respondent_annot_cs_interval_negative_onset",
+    "description": "@cs_interval with cs_onset=-1s is negative",
+    "input": "@cs_interval(cs_onset=-1s, cs_offset=10s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "CS_INTERVAL_ONSET_NEGATIVE"
+    }
+  },
+  {
+    "id": "error_respondent_annot_cs_interval_offset_not_after_onset",
+    "description": "@cs_interval with cs_offset <= cs_onset is invalid",
+    "input": "@cs_interval(cs_onset=10s, cs_offset=10s)\n\nFR5",
+    "error": {
+      "type": "SemanticError",
+      "code": "CS_INTERVAL_OFFSET_NOT_AFTER_ONSET"
+    }
+  }
+]
