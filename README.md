@@ -7,7 +7,7 @@ Language-independent specification for declaring reinforcement contingencies and
 | Layer | Scope | Directory |
 |---|---|---|
 | **Foundations** | CFG / LL(2) meta-grammar; paradigm-neutral types (contingency, time scales, stimulus typing, valence, context) | `spec/*/foundations/`, `schema/foundations/` |
-| **Operant** | Three-term contingency (SD-R-SR); reinforcement schedules by Ferster-Skinner class (ratio / interval / time / differential / compound / progressive); stateful variants (Percentile, Adjusting, Interlocking); trial-based variants (MTS, Go/NoGo) | `spec/*/operant/`, `schema/operant/` |
+| **Operant** | Three-term contingency (SD-R-SR); reinforcement schedules by Ferster-Skinner class (ratio / interval / time / differential / compound / progressive); aversive control (Sidman free-operant avoidance, discriminated avoidance, escape, response cost); stateful variants (Percentile, Adjusting, Interlocking, Admission Gate); trial-based variants (MTS, Go/NoGo); response modifiers (Limited Hold, Timeout, reinforcement delay, interpolated schedules) | `spec/*/operant/`, `schema/operant/` |
 | **Respondent** | Two-term contingency (CS-US); minimum Tier A primitives (Pair, Extinction, CSOnly, USOnly, Contingency, TrulyRandom, ExplicitlyUnpaired, Compound, Serial, ITI, Differential). Deeper Pavlovian procedures live in the companion package `contingency-respondent-dsl`. | `spec/*/respondent/`, `schema/respondent/` |
 | **Composed** | Procedures that combine operant and respondent building blocks: CER, PIT, autoshaping, omission, two-process theory | `spec/*/composed/`, `schema/composed/` |
 | **Experiment** | Declarative multi-phase designs; phase and context as first-class constructs; JEAB-style inheritance of Subjects / Apparatus annotations | `spec/*/experiment/`, `schema/experiment/` |
@@ -37,15 +37,45 @@ FR5                           -- Fixed Ratio 5
 VI60s                         -- Variable Interval 60 seconds
 Chain(FR5, FI30s)             -- Chained: FR5 then FI30
 Conc(VI30s, VI60s)            -- Concurrent VI30 VI60
+Mult(VI30s, VI60s)            -- Multiple schedule (alternating components)
+Mix(VI30s, VI60s)             -- Mixed schedule (alternating, no signaling)
+Conj(FI15s, FR10)             -- Conjunctive: both requirements must be met
+Alt(FR5, VI60s)               -- Alternative: either requirement satisfies
 FR5(FI30)                     -- Second-order: 5 FI30 completions
 let baseline = VI60s          -- Named binding
 DRL5s                         -- Differential Reinforcement of Low rate
-FI30 LH10                    -- Limited Hold: 10s availability window
-Overlay(VI60s, FR1)           -- Punishment overlay on VI60 baseline
+FI30 LH10                     -- Limited Hold: 10s availability window
+FI30 TO(duration=30s)         -- Timeout after reinforcement
+
+-- Aversive control
+Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
+                              -- Sidman free-operant avoidance (Sidman, 1953)
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
+                              -- Discriminated avoidance (Solomon & Wynne, 1953)
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)
+                              -- Escape mode: response terminates shock
+@reinforcer("token") VI60s ResponseCost(amount=1)
+                              -- Response cost on conditioned reinforcer
+
+-- Punishment overlays
+Overlay(VI60s, FR1) @punisher("shock")
+                              -- Punishment overlay on VI60 baseline
 Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
                               -- Changeover-only punishment (Todorov, 1971)
 Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
                               -- Directional response-class punishment
+```
+
+### Operant — stateful and trial-based
+```
+Pctl(IRT, 50)                 -- Percentile schedule (Platt, 1973)
+Adj(delay, start=10s, step=1s)
+                              -- Adjusting schedule
+Interlock(R0=300, T=10min)    -- Interlocking schedule (Berryman & Nevin, 1962)
+MTS(comparisons=3, consequence=CRF, ITI=5s)
+                              -- Matching-to-Sample (trial-based)
+GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)
+                              -- Go/NoGo discrimination
 ```
 
 ### Respondent
@@ -84,7 +114,7 @@ Omission(cs=KeyLight, us=Food, cancel_response=KeyPeck)
 
 - **[Syntax Guide (EN)](docs/en/syntax-guide.md)** / **[構文ガイド (JA)](docs/ja/syntax-guide.md)** — Progressive guide covering operant, respondent, and composed primitives
 - **[Use Cases (EN)](docs/en/use-cases.md)** / **[ユースケース (JA)](docs/ja/use-cases.md)** — What each construct enables, with citations
-- **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — Metadata layers including `@cs`, `@us`, `@iti`, `@cs_interval`, `@model`
+- **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — Metadata layers including `@reinforcer`, `@punisher`, `@sd`, `@cs`, `@us`, `@iti`, `@cs_interval`, `@context`, `@species`, `@strain`, `@apparatus`, `@model`
 - **[Paper Examples (EN)](docs/en/paper-examples.md)** / **[論文例 (JA)](docs/ja/paper-examples.md)** — DSL encodings of CER, autoshaping, PIT, omission, and classical schedule studies
 - **[Architecture (EN)](spec/en/architecture.md)** / **[アーキテクチャ (JA)](spec/ja/architecture.md)** — Six-layer diagram, SEI P1/P2/P3, TC / non-TC boundary
 - **[Design Philosophy (EN)](spec/en/design-philosophy.md)** / **[設計思想 (JA)](spec/ja/design-philosophy.md)** — Supreme objective, layer rationale, admission gate
@@ -106,14 +136,14 @@ cd ../contingency-dsl-rs && cargo test conformance
 ```
 
 The test corpus is organized by layer:
-- `conformance/foundations/` — paradigm-neutral lexical tests
-- `conformance/operant/` — schedule behavior (ratio, interval, time, differential, compound, progressive)
+- `conformance/foundations/` — paradigm-neutral lexical tests (forthcoming)
+- `conformance/operant/` — atomic schedules, compound combinators (Conc / Alt / Conj / Chain / Tand / Mult / Mix / Overlay / Interpolate), modifiers (DR*, PR, Lag, Repeat, Limited Hold, Timeout, reinforcement delay), second-order, aversive (Sidman, DiscriminatedAvoidance), response cost, algebraic equivalences, boundary values, errors, warnings
 - `conformance/operant/stateful/` — Percentile, Adjusting, Interlocking
 - `conformance/operant/trial-based/` — MTS, Go/NoGo
-- `conformance/respondent/` — Tier A primitive fixtures (forthcoming)
+- `conformance/respondent/` — Tier A primitive fixtures (Pair, contingency controls, compound stimuli, elementary)
 - `conformance/composed/` — CER, PIT, autoshaping, omission (forthcoming)
-- `conformance/experiment/` — phase-sequence fixtures
-- `conformance/annotations/` — annotation fixtures including `extensions/respondent-annotator.json`
+- `conformance/experiment/` — phase, progressive-training, shaping
+- `conformance/annotations/` — subjects, apparatus, procedure (stimulus / temporal / trial-structure), measurement, program-level; `extensions/respondent-annotator.json`
 - `conformance/representations/` — alternative coordinate systems (t-τ)
 
 ## Regenerating `dist/`
