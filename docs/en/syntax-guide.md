@@ -1,7 +1,24 @@
 # Syntax Guide
 
 > A progressive guide to contingency-dsl syntax — from basic schedules to advanced constructs.
-> For the formal grammar (BNF), see [grammar.md](../../spec/en/grammar.md).
+> For the formal grammar (BNF), see [foundations/grammar.md](../../spec/en/foundations/grammar.md), [operant/grammar.md](../../spec/en/operant/grammar.md), and [respondent/grammar.md](../../spec/en/respondent/grammar.md).
+>
+> ## Ψ layer map
+>
+> The DSL is organized by scientific category. This guide is grouped accordingly:
+>
+> | Ψ layer | Covered in |
+> |---|---|
+> | **Foundations** (paradigm-neutral formal base) | implicit throughout — atomic syntax, literal types |
+> | **Operant** (three-term SD-R-SR) | Levels 1–4 below (atomic, compound, modifiers, second-order) |
+> | **Operant.Stateful** (runtime-computed criteria) | Level 3 — Percentile Schedule |
+> | **Operant.TrialBased** (discrete-trial schedules) | see `spec/en/operant/trial-based/` |
+> | **Respondent** (two-term CS-US, Tier A) | Level 7 — Respondent primitives |
+> | **Composed** (operant × respondent) | Level 8 — Composed procedures |
+> | **Experiment** (declarative phase structure) | Level 6 — Experiment layer (multi-phase) |
+> | **Annotation** (program-scoped metadata) | see [annotations.md](annotations.md) |
+>
+> The layer names Core, Core-Stateful, and Core-TrialBased used in prior drafts have been retired; all tracked documents use the Foundations / Operant / Operant.Stateful / Operant.TrialBased / Respondent / Composed / Experiment vocabulary introduced with the Ψ design checkpoint.
 
 ---
 
@@ -159,7 +176,7 @@ PR(exponential)                 -- Exponential: Richardson & Roberts (1996)
 PR(geometric, start=1, ratio=2) -- Geometric: 1, 2, 4, 8, 16, ...
 ```
 
-### Percentile Schedule (Core-Stateful)
+### Percentile Schedule (Operant.Stateful)
 
 A differential reinforcement procedure where the criterion adapts to the subject's behavior:
 
@@ -263,6 +280,138 @@ Second-order schedules are foundational in:
 - **Behavioral pharmacology**: Drug self-administration under lean schedules (Kelleher, 1966)
 - **Conditioned reinforcement research**: Testing what stimuli maintain behavior (Malagodi et al., 1973)
 - **Long-session experiments**: Maintaining stable performance over hours with infrequent primary reinforcement
+
+---
+
+## Level 4.5: Respondent Primitives (Tier A)
+
+> Two-term contingency (CS-US). These belong to the **Respondent** layer and live alongside Operant schedules. Only the Tier A primitives — the founding procedures named by the Rescorla (1967) contingency-space formalism and its immediate controls — are covered here. Depth beyond Tier A (blocking, overshadowing, latent inhibition, renewal, reinstatement, etc.) is delegated to the companion package `contingency-respondent-dsl`. For full operational definitions, see [respondent/primitives.md](../../spec/en/respondent/primitives.md).
+
+### Pair primitives (R1–R4)
+
+```
+Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)
+                                       -- CS onset → CS continues → US onset
+                                       --   (overlap; Pavlov, 1927)
+Pair.ForwardTrace(tone, food, trace_interval=5-s)
+                                       -- CS offset → trace gap → US onset
+Pair.Simultaneous(light, airpuff)      -- CS onset = US onset (isi = 0)
+Pair.Backward(shock, tone, isi=2-s)    -- US first, then CS
+                                       --   (often a conditioned inhibitor)
+```
+
+### Extinction, CS-only, US-only (R5–R7)
+
+```
+Extinction(tone)                -- after acquisition, CS alone (context-sensitive)
+CSOnly(tone, trials=40)          -- phase-independent CS-alone presentations
+USOnly(shock, trials=20)         -- US-alone (habituation / pre-exposure)
+```
+
+### Contingency space (R8–R10)
+
+```
+Contingency(p_us_given_cs=0.9, p_us_given_no_cs=0.1)
+                                 -- arbitrary point in Rescorla (1967) space
+Contingency(0.0, 0.3)            -- negative contingency (US only without CS)
+TrulyRandom(tone, shock)         -- diagonal: P(US|CS) = P(US|¬CS)
+TrulyRandom(tone, shock, p=0.2)  -- explicit shared probability
+ExplicitlyUnpaired(tone, shock, min_separation=30-s)
+                                 -- Contingency(0, p) + temporal-separation constraint
+                                 --   (Ayres, Benedict, & Witcher, 1975)
+```
+
+### Compound, serial, ITI (R11–R13)
+
+```
+Compound([tone, light])                       -- simultaneous compound CS
+Compound([tone, light], mode=Simultaneous)    -- explicit mode
+Serial([light, tone], isi=3-s)                -- serial compound (temporal order)
+ITI(exponential, mean=60-s)                   -- structural intertrial interval
+ITI(fixed, mean=30-s)
+```
+
+The `ITI(distribution, mean)` primitive is the structural declaration; the separate `@iti(distribution, mean, jitter)` annotation adds jitter metadata (see [annotations.md](annotations.md)).
+
+### Differential conditioning (R14)
+
+```
+Differential(tone_plus, tone_minus, shock)   -- A+/B− (full form)
+Differential(tone_plus, tone_minus)          -- short form; US from @us annotation
+```
+
+`Differential` is the Tier A primitive for CS+ / CS− contrastive training (Pavlov, 1927; Mackintosh, 1974). Conditioned-inhibition procedures and feature-positive / feature-negative variants (Rescorla, 1969) remain in Tier B.
+
+### Argument order convention
+
+- In `Pair.ForwardDelay`, `Pair.ForwardTrace`, and `Pair.Simultaneous`, CS precedes US.
+- In `Pair.Backward(us, cs, isi)`, US precedes CS — the argument order follows the temporal order of onset.
+- In `Contingency(p_us_given_cs, p_us_given_no_cs)`, the CS-conditional probability is always first; this order is fixed at the grammar level.
+
+---
+
+## Level 4.6: Composed Procedures
+
+> **Composed** procedures combine an operant baseline with a respondent (Pavlovian) component. They live in their own first-class layer (`composed/`) because they cannot be expressed by Operant + Respondent grammar alone — the composition itself is structural. For full specifications, see [composed/conditioned-suppression.md](../../spec/en/composed/conditioned-suppression.md), [composed/pit.md](../../spec/en/composed/pit.md), [composed/autoshaping.md](../../spec/en/composed/autoshaping.md), and [composed/omission.md](../../spec/en/composed/omission.md).
+
+### Conditioned Suppression (CER)
+
+```
+Phase(
+  name = "cer_training",
+  operant = VI 60-s,
+  respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s),
+  criterion = Stability(window=5, tolerance=0.10)
+)
+@cs(label="tone", duration=60-s, modality="auditory")
+@us(label="shock", intensity="0.5mA", delivery="unsignaled")
+```
+
+An appetitive operant baseline (VI 60-s) coexists with a Pavlovian overlay in the same phase. US delivery is Pavlovian (not response-contingent), which is what distinguishes CER from punishment. Estes & Skinner (1941); Annau & Kamin (1961).
+
+### Pavlovian-to-Instrumental Transfer (PIT)
+
+```
+PhaseSequence(
+  Phase(name="pavlovian_training",
+        respondent=Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s)),
+  Phase(name="instrumental_training",
+        operant=VI 60-s),
+  Phase(name="transfer_test",
+        operant=EXT,
+        respondent=CSOnly(tone, trials=8))
+)
+```
+
+Pavlovian and instrumental training are explicitly **independent**; the transfer test presents the CS while the operant is under extinction. Estes (1948); Rescorla & Solomon (1967); Lovibond (1983).
+
+### Autoshaping / Sign-Tracking
+
+```
+Phase(
+  name = "autoshaping_training",
+  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
+  criterion = FixedSessions(n=10)
+)
+@cs(label="key_light", duration=8-s, modality="visual")
+@us(label="food", intensity="3s_access", delivery="unsignaled")
+```
+
+No operant contingency is programmed; the emergent key-peck is Pavlovian (Brown & Jenkins, 1968).
+
+### Omission (Negative Automaintenance)
+
+```
+Phase(
+  name = "omission_training",
+  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
+  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
+  criterion = FixedSessions(n=10)
+)
+@us(label="food", delivery="cancelled_on_cs_response")
+```
+
+A response during CS cancels the scheduled US for that trial. Persistence of pecking under this negative contingency is the signature empirical argument for Pavlovian (not operant) control of autoshaped responding (Williams & Williams, 1969).
 
 ---
 
