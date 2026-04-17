@@ -52,8 +52,8 @@ Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
                               -- Sidman free-operant avoidance (Sidman, 1953)
 DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
                               -- Discriminated avoidance (Solomon & Wynne, 1953)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)
-                              -- Escape mode: response terminates shock
+DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)
+                              -- Response-terminated mode: response terminates shock
 @reinforcer("token") VI60s ResponseCost(amount=1)
                               -- Response cost on conditioned reinforcer
 

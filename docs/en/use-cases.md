@@ -286,7 +286,7 @@ aversive control studies.
 > **Keyword:** `DiscriminatedAvoidance` (short alias: `DiscrimAv`)
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
   @sd("light", modality="visual")
   @species("dog")
@@ -317,7 +317,7 @@ reinforced ratio transitions into a discriminated avoidance component:
 
 ```
 Chain(FR 10 @reinforcer("food"),
-      DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
+      DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=response_terminated))
 ```
 
 **References:**

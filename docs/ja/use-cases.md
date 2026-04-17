@@ -267,7 +267,7 @@ Mult(Lag(5, length=8), CRF, BO=5-s)
 > **キーワード:** `DiscriminatedAvoidance`（短縮形: `DiscrimAv`）
 
 ```
-DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=escape, MaxShock=2-min)
+DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=response_terminated, MaxShock=2-min)
   @punisher("shock", intensity="1.0mA")
   @sd("light", modality="visual")
   @species("dog")
@@ -293,7 +293,7 @@ DiscriminatedAvoidance(CSUSInterval=10-s, ITI=3-min, mode=fixed, ShockDuration=0
 
 ```
 Chain(FR 10 @reinforcer("food"),
-      DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=escape))
+      DiscrimAv(CSUSInterval=10-s, ITI=3-min, mode=response_terminated))
 ```
 
 **参考文献:**

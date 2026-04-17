@@ -234,7 +234,7 @@
   {
     "id": "lh_prop_aversive_discrim_av",
     "description": "DiscrimAv discards inherited LH (R6)",
-    "input": "LH = 10s\nDiscrimAv(CSUSInterval=10s, ITI=3min, mode=escape)",
+    "input": "LH = 10s\nDiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)",
     "expected": {
       "type": "Program",
       "param_decls": [
@@ -243,11 +243,11 @@
       "bindings": [],
       "schedule": {
         "type": "AversiveSchedule",
-        "kind": "DiscriminatedAvoidance",
+        "kind": "DiscrimAv",
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape"
+          "mode": "response_terminated"
         }
       }
     },
@@ -259,11 +259,11 @@
       "bindings": [],
       "schedule": {
         "type": "AversiveSchedule",
-        "kind": "DiscriminatedAvoidance",
+        "kind": "DiscrimAv",
         "params": {
           "CSUSInterval": { "value": 10.0, "time_unit": "s" },
           "ITI": { "value": 3.0, "time_unit": "min" },
-          "mode": "escape"
+          "mode": "response_terminated"
         }
       }
     }
