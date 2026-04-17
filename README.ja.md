@@ -190,3 +190,4 @@ cd ../contingency-dsl-rs && cargo test conformance
 - Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475
 - Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
 - Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, 12(4), 511–520. https://doi.org/10.1901/jeab.1969.12-511
+
