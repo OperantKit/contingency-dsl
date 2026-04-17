@@ -1,0 +1,98 @@
+[
+  {
+    "id": "pair_forward_delay",
+    "description": "R1. Pair.ForwardDelay(cs, us, isi, cs_duration) — canonical Pavlovian arrangement (Pavlov, 1927).",
+    "input": "Pair.ForwardDelay(tone, shock, isi=10s, cs_duration=15s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairForwardDelay",
+        "cs": "tone",
+        "us": "shock",
+        "isi": { "value": 10.0, "unit": "s" },
+        "cs_duration": { "value": 15.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "pair_forward_delay_kwargs_order",
+    "description": "R1. Keyword-argument order is interchangeable for isi / cs_duration.",
+    "input": "Pair.ForwardDelay(tone, shock, cs_duration=15s, isi=10s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairForwardDelay",
+        "cs": "tone",
+        "us": "shock",
+        "isi": { "value": 10.0, "unit": "s" },
+        "cs_duration": { "value": 15.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "pair_forward_trace",
+    "description": "R2. Pair.ForwardTrace(cs, us, trace_interval) — CS offset precedes US onset (Ellison, 1964).",
+    "input": "Pair.ForwardTrace(tone, food, trace_interval=5s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairForwardTrace",
+        "cs": "tone",
+        "us": "food",
+        "trace_interval": { "value": 5.0, "unit": "s" }
+      }
+    }
+  },
+  {
+    "id": "pair_simultaneous",
+    "description": "R3. Pair.Simultaneous(cs, us) — CS onset equals US onset (Rescorla, 1980).",
+    "input": "Pair.Simultaneous(light, airpuff)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairSimultaneous",
+        "cs": "light",
+        "us": "airpuff"
+      }
+    }
+  },
+  {
+    "id": "pair_simultaneous_kwargs",
+    "description": "R3. Pair.Simultaneous with explicit cs= / us= keyword forms.",
+    "input": "Pair.Simultaneous(cs=light, us=airpuff)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairSimultaneous",
+        "cs": "light",
+        "us": "airpuff"
+      }
+    }
+  },
+  {
+    "id": "pair_backward",
+    "description": "R4. Pair.Backward(us, cs, isi) — US onset precedes CS onset; source-text argument order matches temporal order (Spetch, Wilkie, & Pinel, 1981).",
+    "input": "Pair.Backward(shock, tone, isi=2s)",
+    "expected": {
+      "type": "Program",
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "PairBackward",
+        "us": "shock",
+        "cs": "tone",
+        "isi": { "value": 2.0, "unit": "s" }
+      }
+    }
+  }
+]
