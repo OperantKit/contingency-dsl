@@ -407,26 +407,20 @@ Phase(
 @species("pigeon") @n(16)
 @deprivation("80% free-feeding weight")
 @reinforcer("food", type="grain", duration=4-s)
-
-PhaseSequence(
-  Phase(
-    name = "autoshaping_acquisition",
-    respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-    criterion = FixedSessions(n=5)
-  ),
-  Phase(
-    name = "omission_contingency",
-    respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-    operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-    criterion = FixedSessions(n=40)
-  )
-)
 @cs(label="key_light", duration=8-s, modality="visual")
 @us(label="food", intensity="4s_access", delivery="cancelled_on_cs_response")
+
+phase autoshaping_acquisition:
+  sessions = 5
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s)
+
+phase omission_contingency:
+  sessions = 40
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
 **Notes:**
-- The `@us delivery="cancelled_on_cs_response"` annotation names the contingency; the `operant_constraint` field expresses the structural response→US-cancellation term.
+- The `@omission(response="key_peck", during="cs")` annotation declares the response→US-cancellation rule on the Pavlovian primitive. An analyzer/executor pass interprets the annotation: any matching response during the specified window suppresses US delivery on that trial.
 - Williams and Williams (1969) showed that pecking persists across ~40 sessions under the omission contingency despite losing most reinforcers — the empirical argument for Pavlovian (not operant) control of autoshaped pecking.
 - See [composed/omission.md](../../spec/en/composed/omission.md) for the full specification.
 

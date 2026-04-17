@@ -39,16 +39,15 @@ Classifying autoshaping as composed preserves the structural distinction the DSL
 ## 4. DSL Encoding
 
 ```
-Phase(
-  name = "autoshaping_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  criterion = FixedSessions(n=10)
-)
 @cs(label="key_light", duration=8-s, modality="visual")
 @us(label="food", intensity="3s_access", delivery="unsignaled")
+
+phase autoshaping_training:
+  sessions = 10
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s)
 ```
 
-The key light is a localized CS (attached to a specific chamber operandum); the DSL does not require a separate "operant response" production because none is programmed. The emergent key-peck is recorded via `@measurement` annotations (not shown) rather than through the operant grammar.
+The key light is a localized CS (attached to a specific chamber operandum); the DSL does not require a separate "operant response" production because none is programmed. The phase body is a single Pavlovian primitive. The emergent key-peck is recorded via `@measurement` annotations (not shown) rather than through the operant grammar.
 
 ## 5. Citation
 

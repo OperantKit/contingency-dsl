@@ -399,16 +399,14 @@ Phase(
 ### 省略（ネガティブ自動維持）
 
 ```
-Phase(
-  name = "omission_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-  criterion = FixedSessions(n=10)
-)
 @us(label="food", delivery="cancelled_on_cs_response")
+
+phase omission_training:
+  sessions = 10
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
-CS 提示中の反応が当該試行の予定 US をキャンセルする。この負の反応-結果随伴性にもかかわらず反応が維持されることが、オートシェイピングに対するパヴロフ型（非オペラント）制御の実証的根拠となる（Williams & Williams, 1969）。
+CS 提示中の反応が当該試行の予定 US をキャンセルする。`@omission(response, during)` 注釈をパヴロフ型 primitive に付与してキャンセル規則を宣言し、アナライザ／実行器のパスが実行時にこれを解釈する。この負の反応-結果随伴性にもかかわらず反応が維持されることが、オートシェイピングに対するパヴロフ型（非オペラント）制御の実証的根拠となる（Williams & Williams, 1969）。
 
 ---
 

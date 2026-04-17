@@ -39,16 +39,15 @@ DSL は以下の理由から、自動形成を `operant/` ではなく `composed
 ## 4. DSL 符号化
 
 ```
-Phase(
-  name = "autoshaping_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  criterion = FixedSessions(n=10)
-)
 @cs(label="key_light", duration=8-s, modality="visual")
 @us(label="food", intensity="3s_access", delivery="unsignaled")
+
+phase autoshaping_training:
+  sessions = 10
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s)
 ```
 
-キー光は局所化された CS である（特定のチャンバー操作手段に紐付く）。DSL は別個の「オペラント反応」産出規則を要求しない。それが計画されていないからである。出現するキー突きは、オペラント文法を介してではなく `@measurement` 注釈（図示なし）を介して記録される。
+キー光は局所化された CS である（特定のチャンバー操作手段に紐付く）。DSL は別個の「オペラント反応」産出規則を要求しない。それが計画されていないからである。フェーズ本体は単一のパヴロフ型 primitive である。出現するキー突きは、オペラント文法を介してではなく `@measurement` 注釈（図示なし）を介して記録される。
 
 ## 5. 引用
 

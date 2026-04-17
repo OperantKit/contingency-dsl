@@ -68,7 +68,7 @@ Phase(
 
 `label` is the human-readable phase name used in JEAB Procedure sections: Acquisition, Extinction, Reversal, Renewal Test, Baseline, Treatment, Probe, and so on. The label is metadata for the reader; it does not participate in the grammar's static verification.
 
-`schedule` may be an operant `ScheduleExpr` (e.g., `VI 60-s`), a respondent expression (e.g., `Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)`), or composed expressions admitted by the composed layer. A phase may additionally carry both an operant and a respondent expression when the composed procedure is CER-like — the operant baseline runs throughout and the respondent overlay operates in parallel.
+`schedule` may be an operant `ScheduleExpr` (e.g., `VI 60-s`), a respondent expression (e.g., `Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)`), or composed expressions admitted by the composed layer. Each phase carries a single schedule body. CER-like procedures that combine an operant baseline with a Pavlovian overlay are encoded as a sequence of phases (baseline → pairing → test) rather than a single phase carrying two parallel schedules; see `../composed/conditioned-suppression.md` for the canonical encoding.
 
 `criterion` is required on non-terminal phases and absent on the terminal phase. See `criteria.md` for the criterion catalog.
 

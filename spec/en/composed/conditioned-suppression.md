@@ -32,20 +32,26 @@ Annau and Kamin (1961) showed that suppression-ratio acquisition is a graded fun
 
 ## 3. DSL Encoding
 
-CER is composed at the Experiment layer: an operant baseline schedule runs throughout the session; a Pavlovian phase-level overlay introduces the CS–US contingency. The DSL expresses this via a single phase whose operant component is a VI baseline and whose respondent component is a forward-delay Pair primitive. Annotations (`@cs`, `@us` from `annotations/extensions/respondent-annotator.md`) record stimulus metadata.
+CER is composed at the Experiment layer as a sequence of phases: an operant baseline establishes the response rate, a pairing phase superimposes the Pavlovian CS–US contingency on the same baseline, and a test phase reintroduces the baseline (typically with the CS) to measure the suppression ratio. Stimulus metadata is recorded by annotations (`@cs`, `@us` from `../annotations/extensions/respondent-annotator.md`).
 
 ```
-Phase(
-  name = "cer_training",
-  operant = VI 60-s,
-  respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s),
-  criterion = Stability(window=5, tolerance=0.10)
-)
 @cs(label="tone", duration=60-s, modality="auditory")
 @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+
+phase baseline:
+  sessions = 10
+  VI60s
+
+phase pairing:
+  sessions = 5
+  Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s)
+
+phase test:
+  sessions = 3
+  use baseline
 ```
 
-The operant baseline and the Pavlovian overlay coexist in the same phase because the US is delivered on the Pavlovian schedule independently of the operant response class. This temporal independence is what makes CER a composed procedure rather than a punishment procedure on the operant baseline.
+Each phase carries a single schedule body. The pairing phase substitutes a Pavlovian primitive for the operant baseline; the US is delivered on the Pavlovian schedule independently of the operant response class. This temporal independence is what makes CER a composed procedure rather than a punishment procedure on the operant baseline. The `use baseline` form in the test phase reinstates the baseline schedule by reference.
 
 ## 4. Distinction from Punishment
 

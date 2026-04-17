@@ -34,29 +34,23 @@ The DSL expresses both variants with the same composed structure; the distinctio
 ## 3. DSL Encoding
 
 ```
-PhaseSequence(
-  Phase(
-    name = "pavlovian_training",
-    respondent = Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s),
-    criterion = FixedSessions(n=8)
-  ),
-  Phase(
-    name = "instrumental_training",
-    operant = VI 60-s,
-    criterion = Stability(window=5, tolerance=0.10)
-  ),
-  Phase(
-    name = "transfer_test",
-    operant = EXT,
-    respondent = CSOnly(tone, trials=8),
-    criterion = FixedSessions(n=1)
-  )
-)
 @cs(label="tone", duration=10-s, modality="auditory")
 @us(label="food", intensity="45mg_pellet", delivery="signaled")
+
+phase pavlovian_training:
+  sessions = 8
+  Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s)
+
+phase instrumental_training:
+  sessions = 10
+  VI60s
+
+phase transfer_test:
+  sessions = 1
+  use instrumental_training
 ```
 
-The Pavlovian and instrumental phases run in separate sessions (or in clearly separated blocks within a session), which the `PhaseSequence` construct ensures. The transfer test places the operant schedule under extinction (`EXT`) so that the CS's effect is read out against zero baseline reinforcement; `CSOnly` presents the Pavlovian CS without US.
+Each phase carries a single schedule body and runs in separate sessions (or in clearly separated blocks within a session); the phase sequence ensures the temporal separation. The transfer test reinstates the operant baseline by reference (`use instrumental_training`); during the test, the Pavlovian CS is presented (typically as probe trials whose schedule is governed by `@cs_interval` annotations) so that the CS's modulating effect on the instrumental response can be quantified.
 
 ## 4. Relationship to CER
 

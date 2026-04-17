@@ -411,26 +411,20 @@ Phase(
 @species("pigeon") @n(16)
 @deprivation("80% free-feeding weight")
 @reinforcer("food", type="grain", duration=4-s)
-
-PhaseSequence(
-  Phase(
-    name = "autoshaping_acquisition",
-    respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-    criterion = FixedSessions(n=5)
-  ),
-  Phase(
-    name = "omission_contingency",
-    respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-    operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-    criterion = FixedSessions(n=40)
-  )
-)
 @cs(label="key_light", duration=8-s, modality="visual")
 @us(label="food", intensity="4s_access", delivery="cancelled_on_cs_response")
+
+phase autoshaping_acquisition:
+  sessions = 5
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s)
+
+phase omission_contingency:
+  sessions = 40
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
 **注記:**
-- `@us delivery="cancelled_on_cs_response"` で随伴性を命名し、`operant_constraint` フィールドが反応→US キャンセルの構造項を表現する。
+- `@omission(response="key_peck", during="cs")` 注釈がパヴロフ型 primitive に対する反応→US キャンセル規則を宣言する。アナライザ／実行器のパスが注釈を解釈し、指定窓内で該当反応が出現するたびにその試行の US 呈示を抑制する。
 - Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した — これがオートシェイピング反応に対するパヴロフ型（非オペラント）制御の実証的根拠である。
 - 仕様全体は [composed/omission.md](../../spec/ja/composed/omission.md) を参照。
 

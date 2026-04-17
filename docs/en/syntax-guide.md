@@ -400,16 +400,14 @@ No operant contingency is programmed; the emergent key-peck is Pavlovian (Brown 
 ### Omission (Negative Automaintenance)
 
 ```
-Phase(
-  name = "omission_training",
-  respondent = Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s),
-  operant_constraint = Overlay(EXT, cancel_us_on_response=true),
-  criterion = FixedSessions(n=10)
-)
 @us(label="food", delivery="cancelled_on_cs_response")
+
+phase omission_training:
+  sessions = 10
+  Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
-A response during CS cancels the scheduled US for that trial. Persistence of pecking under this negative contingency is the signature empirical argument for Pavlovian (not operant) control of autoshaped responding (Williams & Williams, 1969).
+A response during CS cancels the scheduled US for that trial. The `@omission(response, during)` annotation on the Pavlovian primitive declares the cancellation rule, which an analyzer/executor pass interprets at runtime. Persistence of pecking under this negative contingency is the signature empirical argument for Pavlovian (not operant) control of autoshaped responding (Williams & Williams, 1969).
 
 ---
 

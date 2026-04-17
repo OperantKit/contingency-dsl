@@ -68,7 +68,7 @@ Phase(
 
 `label` は、JEAB Procedure セクションで用いられる人間可読のフェーズ名である: Acquisition, Extinction, Reversal, Renewal Test, Baseline, Treatment, Probe 等。ラベルは読者のためのメタデータであり、文法の静的検証には参加しない。
 
-`schedule` はオペラント `ScheduleExpr`（例: `VI 60-s`）、レスポンデント式（例: `Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)`）、または合成層が許容する合成式でありうる。CER 様の合成手続きにおいては、オペラント・ベースラインがセッション全体を通じて作動し、レスポンデント・オーバーレイが並行作動する場合、フェーズはオペラント式とレスポンデント式の双方を加えて保持してもよい。
+`schedule` はオペラント `ScheduleExpr`（例: `VI 60-s`）、レスポンデント式（例: `Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=15-s)`）、または合成層が許容する合成式でありうる。各フェーズは単一のスケジュール本体を持つ。CER 様の手続き（オペラント・ベースラインとパヴロフ型オーバーレイの組合せ）は、単一フェーズに 2 本のスケジュールを並走させるのではなく、フェーズの並び（ベースライン → ペアリング → テスト）として符号化される。標準的な符号化は `../composed/conditioned-suppression.md` を参照。
 
 `criterion` は非終端フェーズでは必須であり、終端フェーズでは不在である。基準カタログは `criteria.md` を参照。
 
