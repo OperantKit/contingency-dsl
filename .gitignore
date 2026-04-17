@@ -13,6 +13,12 @@ build/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.tox/
+
+# Test / coverage
+.coverage
+.coverage.*
+htmlcov/
 
 # Generated artifacts (reproducible from schema/*/grammar.ebnf via scripts/)
 # Release binaries are published to GitHub Releases, not tracked in git.
@@ -22,3 +28,7 @@ dist/
 # Package-local scratch / planning / draft / review traces
 # See operantkit/.claude/rules/common/local-scratch-and-privacy.md
 .local/
+PLAN.md
+
+# uv is prohibited by operantkit/CLAUDE.md; ignore lockfiles if created by tooling
+uv.lock
