@@ -381,7 +381,7 @@ de Villiers (1980) はこのパラダイムで並立 VI VI における罰の減
 
 ---
 
-## 12. Percentile Schedule による shaping（Core-Stateful）
+## 12. Percentile Schedule による shaping（Operant.Stateful）
 
 **シナリオ:** パーセンタイルスケジュールによるレバー押し IRT の shaping — 自動的 shaping の定量的基盤 (Galbicka, 1994)。
 
@@ -496,6 +496,190 @@ Mult(choice_component, chain_component)
 
 ---
 
+## 15. レスポンデント単独手続き（独立したパヴロフ型条件づけ）
+
+**シナリオ:** オペラント反応のない純粋なパヴロフ型手続き — EAB では稀だが代表的（例: 恐怖条件づけ、唾液条件づけ、味覚嫌悪学習のベースライン）。
+
+```
+Phase(
+  name = "pavlovian_acquisition",
+  respondent = Pair.ForwardDelay(tone, shock, isi=10-s, cs_duration=10-s),
+  criterion = FixedSessions(n=8)
+)
+  @species("rat") @n(8)
+  @cs(label="tone", duration=10-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+  @iti(distribution="exponential", mean=120-s)
+```
+
+**何をするか:** 前向き遅延パヴロフ条件づけを 8 セッション。条件反応（例: フリージング）は装置固有のビデオ解析パイプラインで測定。DSL は随伴性と CS/US/ITI メタデータを記録する。
+
+**存在理由:** レスポンデント単独手続きは二項 CS-US 随伴性の最も単純な表現である。合成手続き（CER、PIT、オートシェイピング）が後に活用するベースライン連合を確立する。EAB 論文がオペラント・ベースラインを測定プラットフォームとして用いる場合でも、レスポンデント条件づけの原理が解釈を支える。
+
+**研究課題別の代替レスポンデント primitive:**
+
+```
+TrulyRandom(tone, shock, p=0.2)              -- Rescorla (1967) 統制
+ExplicitlyUnpaired(tone, shock, min_separation=30-s)
+                                              -- Ayres et al. (1975) 精密化統制
+Contingency(p_us_given_cs=0.6, p_us_given_no_cs=0.4)
+                                              -- 随伴性空間の任意点
+Differential(tone_plus, tone_minus, shock)   -- A+/B− 弁別
+```
+
+**引用:**
+- Pavlov, I. P. (1927). *Conditioned reflexes* (G. V. Anrep, Trans.). Oxford University Press.
+- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, *74*(1), 71-80. https://doi.org/10.1037/h0024109
+
+---
+
+## 16. 合成手続き: オペラント・ベースライン + CER
+
+**シナリオ:** 条件性抑制 (CER) — 食物系オペラント・ベースラインと嫌悪系パヴロフ型オーバーレイを組み合わせる典型的合成手続き。CS 前ベースラインに対する CS 中の反応抑制がパヴロフ型連合を定量する。
+
+```
+PhaseSequence(
+  Phase(
+    name = "baseline",
+    operant = VI 60-s,
+    criterion = Stability(window=5, tolerance=0.10)
+  ),
+  Phase(
+    name = "cer_training",
+    operant = VI 60-s,
+    respondent = Pair.ForwardDelay(tone, shock, isi=60-s, cs_duration=60-s),
+    criterion = FixedSessions(n=10)
+  )
+)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="shock", intensity="0.5mA", delivery="unsignaled")
+```
+
+**何をするか:** VI 60-s ベースラインを安定まで到達させ、続いてパヴロフ型オーバーレイを重畳する。オペラント・スケジュールは CS 中も動作し続け、変化するのは嫌悪系 CS-shock 随伴性のみ。
+
+**なぜ罰でなく合成か?** US は**オペラント反応から独立に**提示される（パヴロフ型、二項）のであって、**反応随伴的に**提示される（オペラント罰、三項）のではない。この構造的区別が分類を決める: CER は `composed/` に、罰は `operant/` に属する（`Overlay` と `PUNISH` 参照）。
+
+**PIT 変種** — パヴロフと道具的訓練が独立で、転移テストを含む:
+
+```
+PhaseSequence(
+  Phase(name="pavlovian_training",
+        respondent=Pair.ForwardDelay(tone, food, isi=10-s, cs_duration=10-s)),
+  Phase(name="instrumental_training",
+        operant=VI 60-s),
+  Phase(name="transfer_test",
+        operant=EXT,
+        respondent=CSOnly(tone, trials=8))
+)
+  @cs(label="tone", duration=10-s, modality="auditory")
+  @us(label="food", intensity="45mg_pellet", delivery="signaled")
+```
+
+**引用:**
+- Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, *29*(5), 390-400. https://doi.org/10.1037/h0062283
+- Annau, Z., & Kamin, L. J. (1961). The conditioned emotional response as a function of intensity of the US. *Journal of Comparative and Physiological Psychology*, *54*(4), 428-432. https://doi.org/10.1037/h0042199
+- Estes, W. K. (1948). Discriminative conditioning. II. Effects of a Pavlovian conditioned stimulus upon a subsequently established operant response. *Journal of Experimental Psychology*, *38*(2), 173-177. https://doi.org/10.1037/h0057525
+
+---
+
+## 17. `@cs` / `@us` 注釈によるスケジュール式の拡張
+
+**シナリオ:** respondent-annotator を用いて、セッション内の別のパヴロフ手続きと刺激を共有する既存オペラント・スケジュールに CS/US メタデータを付加する。CS ラベル、そのモダリティ、US 強度を明示化することで、オペラント・スケジュールの文法を変えずに再現性と装置検証を高める。
+
+```
+Mult(VI 30-s, EXT, BO=5-s)
+  @sd("tone", component=1)
+  @cs(label="tone", duration=60-s, modality="auditory")
+  @us(label="food", intensity="45mg_pellet", delivery="signaled")
+  @iti(distribution="fixed", mean=30-s, jitter=0)
+```
+
+**何をするか:** トーンが VI 30-s 成分を合図する多元スケジュールに `@cs` / `@us` / `@iti` メタデータを付加する。`@sd` と `@cs` は**同一物理刺激**を 2 つの観点で記述する — オペラント注釈は弁別刺激として、レスポンデント注釈はモダリティと持続時間を持つ CS として。
+
+**なぜ両方の注釈?** 単一のトーン刺激はオペラント反応の S^D として**および**パヴロフ連合の CS として機能しうる。DSL はいずれの解釈も優先しない。ソース内で両ラベルを明示することで (a) 装置の物理パラメータを必要とする装置検証パイプラインを支え、(b) 同一刺激をオペラント・レスポンデント両視点から記述する Methods セクションへのコンパイルを支える。
+
+**使用時期:**
+- スケジュールがパヴロフ解釈にも関連する刺激ラベル付けを持つ
+- 装置検証パイプラインが CS 持続時間／モダリティ／US 強度を必要とする
+- 出版パイプラインが読者向けの CS/US 窓指定を必要とする
+
+**使用しない時期:**
+- レスポンデント解釈のないピュア・オペラント手続き — `@sd` のみを用いる
+- ピュア・レスポンデント手続き — `@cs` / `@us` のみを用い、`@sd` は不要
+
+**引用:**
+- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, *74*(3), 151-182. https://doi.org/10.1037/h0024475
+
+---
+
+## 18. レスポンデント拡張ポイント — Core を変えずに Tier B primitive を追加する
+
+**シナリオ:** 研究プログラムがブロッキング (Kamin, 1969)、潜在制止 (Lubow & Moore, 1959)、更新 (Bouton & Bolles, 1979) など、Core DSL が提供しない Tier B レスポンデント手続きを表現する必要がある。レスポンデント拡張ポイントは、同梱パッケージ `contingency-respondent-dsl` または任意の第三者 registry が、contingency-dsl 文法を変えずにこれらの primitive を追加することを可能にする。
+
+**拡張ポイントの動作.** `respondent/grammar.md` が宣言するのは:
+
+```ebnf
+RespondentExpr ::=
+      CoreRespondentPrimitive        -- Tier A (Pair.*, Extinction, CSOnly 等)
+    | ExtensionRespondentPrimitive    -- 第三者、プログラム境域
+
+ExtensionRespondentPrimitive ::=
+      Identifier "(" ArgList? ")"     -- レスポンデント registry で解決
+```
+
+プログラムは識別子と拡張 primitive の対応を保つ registry をロードする。parser はそれらの識別子をレスポンデント式として受理し、未登録の識別子は当該プログラムのスコープ内で parse error となる。
+
+**例 — `contingency-respondent-dsl` の registry をロード:**
+
+```
+-- プログラムが contingency-respondent-dsl registry をロードする宣言は
+-- プログラム構成ファイルまたは CLI フラグに置く（DSL ソースには置かない）
+
+PhaseSequence(
+  Phase(name="phase_1",
+        respondent = Pair.ForwardDelay(noise, shock, isi=10-s, cs_duration=10-s)),
+  Phase(name="phase_2_blocking",
+        respondent = Blocking(added_cs=tone,
+                              established_cs=noise,
+                              us=shock))
+)
+```
+
+ここで `Blocking(...)` は `contingency-respondent-dsl` が提供する**拡張 primitive** であり、Tier A レスポンデント文法には属さない。Core 文法は変更不要。プログラムの registry が `Blocking` を構造的意味論に解決する。
+
+**潜在制止、更新、その他の Tier B 手続きも同様:**
+
+```
+LatentInhibition(cs=tone, pre_exposure_trials=40)
+Renewal(training_context=A, extinction_context=B, test_context=A)
+Reinstatement(cs=tone, us=shock)
+SpontaneousRecovery(cs=tone, recovery_interval=24h)
+```
+
+**拡張ポイントが重要な理由:**
+- **Core 文法は不変.** Tier B 手続きの追加は contingency-dsl の文法・schema・conformance fixture の編集を要さない。
+- **プログラム境域の閉包.** 異なるラボが異なる拡張 registry を提供でき衝突しない。Tier A のみをロードするプログラムも完全にパースできる。
+- **静的検証の境界.** Tier A primitive は Core で完全に静的検証可能。拡張 primitive は自身の検証規則を提供する。
+
+**レスポンデント層と拡張ポイントの使い分け:**
+
+| 状況 | 使用先 |
+|---|---|
+| 前向き／痕跡／同時／後向きペアリング、随伴性空間、差別条件づけ | **Tier A primitive**（Core） |
+| ITI 構造、消去、CS 単独／US 単独提示 | **Tier A primitive**（Core） |
+| ブロッキング、オーバーシャドーイング、潜在制止、条件性制止 | **レスポンデント拡張**（`contingency-respondent-dsl` 経由） |
+| 更新、復元、自発的回復、対抗条件づけ | **レスポンデント拡張**（`contingency-respondent-dsl` 経由） |
+| いずれの層にも未登録の新しい構造的 CS-US 関係 | **レスポンデント拡張**（カスタム registry） |
+
+**respondent-annotator との区別.** respondent-annotator (`@cs`、`@us`、`@iti`、`@cs_interval`) は既存 primitive に**メタデータ**を付加する。レスポンデント拡張ポイントは自身の文法を持つ**新しい primitive**を追加する。両者は直交する機構である: 注釈は parse tree を変えないが、拡張は変える。
+
+**引用:**
+- Kamin, L. J. (1969). Predictability, surprise, attention, and conditioning. In B. A. Campbell & R. M. Church (Eds.), *Punishment and aversive behavior* (pp. 279-296). Appleton-Century-Crofts.
+- Lubow, R. E., & Moore, A. U. (1959). Latent inhibition: The effect of nonreinforced pre-exposure to the conditional stimulus. *Journal of Comparative and Physiological Psychology*, *52*(4), 415-419. https://doi.org/10.1037/h0046700
+- Bouton, M. E., & Bolles, R. C. (1979). Contextual control of the extinction of conditioned fear. *Learning and Motivation*, *10*(4), 445-466. https://doi.org/10.1016/0023-9690(79)90057-2
+
+---
+
 ## まとめ: 各構成が可能にすること
 
 | 構成 | 何を可能にするか | なければ |
@@ -516,6 +700,12 @@ Mult(choice_component, chain_component)
 | `let` | 可読な複雑プログラム | 読めないネスト式 |
 | `phase` / `progressive` / `shaping` | 多フェーズ実験デザイン（A-B-A 反転、パラメトリック研究、Skinner 反応形成） | セッション間構造を宣言的に表現できない |
 | `interleave` | 用量反応・強化子量・介在 baseline デザイン（論文 Method と 1:1） | 大半の本体が同一の 2N 個 phase を手書き |
+| `Pair.ForwardDelay` / `Pair.Backward` / ... | パヴロフ型（二項）手続き、恐怖／食物系条件づけ | レスポンデント随伴性を表現できない |
+| `Contingency(p, q)` / `TrulyRandom` / `ExplicitlyUnpaired` | Rescorla (1967) 随伴性空間の統制手続き | 随伴性空間形式化を表現できない |
+| `Differential(cs+, cs−, us)` | A+/B− パヴロフ弁別 | 対比 CS 訓練を表現できない |
+| 合成 `Phase(operant=..., respondent=...)` | CER / PIT / オートシェイピング / 省略 | オペラント × レスポンデント合成を表現できない |
+| `@cs` / `@us` / `@iti` / `@cs_interval` | 任意 primitive への CS/US メタデータ（Procedure/Apparatus/Measurement 横断） | 読者向けの CS/US 窓を記録できない |
+| レスポンデント拡張ポイント | Tier B 手続き（ブロッキング、オーバーシャドーイング、更新、…）を `contingency-respondent-dsl` 経由で追加 | Tier B 手続きに Core 文法変更が必要になる |
 
 ---
 
