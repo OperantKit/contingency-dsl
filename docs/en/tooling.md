@@ -18,17 +18,43 @@ schema/*/grammar.ebnf          (source of truth — tracked in git)
                 contingency-dsl.langium, LSP server bundle, .vsix
 ```
 
-The `schema/` directory contains the normative EBNF grammars:
+The `schema/` directory contains the normative EBNF grammars arranged to
+mirror the Ψ spec layout:
 
 | File | Scope |
 |---|---|
-| `schema/core/grammar.ebnf` | Core schedules (FR, VI, Chain, Conc, etc.) |
-| `schema/core-stateful/grammar.ebnf` | Stateful extensions (Pctl, Adj, Interlocking) |
-| `schema/core-trial-based/grammar.ebnf` | Trial-based extensions |
+| `schema/foundations/grammar.ebnf` | Paradigm-neutral formal base (CFG skeleton, meta-grammar) |
+| `schema/operant/grammar.ebnf` | Operant schedules (FR, VI, Chain, Conc, etc.) |
+| `schema/operant/stateful/grammar.ebnf` | Operant.Stateful (Pctl, Adj, Interlocking) |
+| `schema/operant/trial-based/grammar.ebnf` | Operant.TrialBased (MTS, Go/NoGo) |
+| `schema/respondent/grammar.ebnf` | Respondent Tier A primitives + extension point |
 
 These EBNF files are the **single source of truth**. All tooling
-artifacts are derived from them and are **not tracked in git** — they
-live in `dist/`, which is gitignored.
+artifacts are derived from them and are distributed as reproducible
+outputs under `dist/` (generated via `scripts/gen-langium.sh` and
+`scripts/gen-treesitter.sh`).
+
+### EBNF loader order
+
+Both converter scripts load the EBNF fragments in a deterministic order
+that guarantees the merged grammar respects layer dependencies:
+
+1. **Foundations** first (paradigm-neutral lexical and meta-grammar rules)
+2. **Operant** (three-term contingency)
+3. **Operant.Stateful** (`operant/stateful/grammar.ebnf`)
+4. **Operant.TrialBased** (`operant/trial-based/grammar.ebnf`)
+5. **Respondent** (two-term Tier A primitives + extension point)
+
+After the ordered prefix is loaded, the script discovers any additional
+`grammar.ebnf` files under `schema/` via `rglob` and appends them in
+sorted order. This lets new extension layers (for example, future
+annotation-specific EBNF fragments) be added to the build without
+editing the converter scripts.
+
+The ordering policy lives in `scripts/ebnf2langium.py` and
+`scripts/ebnf2treesitter.py` (variable `_LOAD_ORDER` in Langium). If a
+grammar fragment outside the ordered prefix needs to precede Respondent,
+promote it in `_LOAD_ORDER`.
 
 ---
 
@@ -142,8 +168,10 @@ grammar.ebnf ──[ebnf2langium]──→ .langium ──[langium generate]─�
 
 ## Distribution
 
-Generated artifacts are **not committed to git**. They are distributed
-through GitHub Releases.
+Generated artifacts are reproducible from the tracked EBNF sources via
+`scripts/gen-langium.sh` and `scripts/gen-treesitter.sh`. They are not
+committed to git and are intended to be distributed through GitHub
+Releases (when a release pipeline is configured).
 
 ### Release workflow
 
