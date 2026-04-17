@@ -251,15 +251,16 @@ FR5 @reinforcer("sucrose")
 
 ```
 conformance/
-├── core/
-│   ├── v1.0/          # コア文法 v1.0 のテスト
-│   └── v1.0/          # v1.0 で追加されたテスト
-├── annotators/
+├── foundations/
+├── operant/
+│   ├── stateful/
+│   └── trial-based/
+├── respondent/
+├── composed/
+├── experiment/
+├── annotations/
 │   ├── procedure-stimulus/
-│   │   ├── v1.0/
-│   │   └── v1.0/
 │   ├── subjects/
-│   │   └── v1.0/
 │   └── ...
 └── compatibility.yaml  # バージョン互換性マトリクス
 ```
@@ -268,21 +269,21 @@ conformance/
 
 ```yaml
 # conformance/compatibility.yaml
-core:
-  - version: "1.0"
-    test_suite: conformance/core/v1.0/
-  - version: "1.1"
-    test_suite: conformance/core/v1.0/
-    backward_compatible_with: "1.0"
+operant:
+  - checkpoint: "Ψ"
+    test_suite: conformance/operant/
+  - checkpoint: "Ψ+additive"
+    test_suite: conformance/operant/
+    backward_compatible_with: "Ψ"
 
 annotators:
   procedure.stimulus:
-    - version: "1.0"
-      test_suite: conformance/annotators/procedure-stimulus/v1.0/
-    - version: "1.1"
-      test_suite: conformance/annotators/procedure-stimulus/v1.0/
-      backward_compatible_with: "1.0"
-      migration: migrations/procedure-stimulus-1.0-to-1.1.md
+    - checkpoint: "Ψ"
+      test_suite: conformance/annotations/procedure-stimulus/
+    - checkpoint: "Ψ+additive"
+      test_suite: conformance/annotations/procedure-stimulus/
+      backward_compatible_with: "Ψ"
+      migration: migrations/procedure-stimulus-Ψ-to-Ψ-additive.md
 ```
 
 ### 6.3 CI 強制
