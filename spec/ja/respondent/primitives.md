@@ -236,6 +236,8 @@ Compound([tone, light], mode=Simultaneous)       -- 明示
 
 **関連プリミティブ.** US との対提示（囲うフェーズレベル注釈を介す、あるいは合成 CS を許容する `Pair.*` 構成に埋め込む）は、ブロッキング、影かけ、関連 Tier B 手続きの基盤を成す。
 
+**オペラント `Compound` との名称衝突.** オペラント層 AST（`schema/operant/ast.schema.json#/$defs/Compound`）は同じ識別子 `Compound` をスケジュール結合子（`Conc`, `Chain`, `Tand`, `Mult`, `Mix`, `Alt`, `Conj`）として用いる。両者は `"type": "Compound"` にシリアライズされるため、AST 判別子のみでは層の帰属を決定できない。両層を受け入れる消費側は payload 形状で分岐する必要がある: `{"combinator", "components"}` はオペラント Compound、`{"cs_list"}` はこのレスポンデント Compound を示す。この規則は各スキーマの `$comment` にも反映されている。
+
 ---
 
 ## R12. `Serial(cs_list, isi)`

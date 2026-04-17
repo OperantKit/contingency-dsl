@@ -236,6 +236,8 @@ Compound([tone, light], mode=Simultaneous)       -- explicit
 
 **Related primitives.** Paired with a US (via an enclosing phase-level annotation or by embedding in a `Pair.*` construction that admits compound CSs) forms the basis of blocking, overshadowing, and related Tier B procedures.
 
+**Name collision with operant `Compound`.** The operant-layer AST (`schema/operant/ast.schema.json#/$defs/Compound`) uses the same identifier `Compound` for schedule combinators (`Conc`, `Chain`, `Tand`, `Mult`, `Mix`, `Alt`, `Conj`). Both serialize to `"type": "Compound"`, so the AST discriminator alone is not sufficient to decide layer membership. Consumers that accept both layers must dispatch on payload shape: `{"combinator", "components"}` denotes the operant Compound; `{"cs_list"}` denotes this respondent Compound. This rule is mirrored in each schema's `$comment`.
+
 ---
 
 ## R12. `Serial(cs_list, isi)`

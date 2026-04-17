@@ -181,6 +181,7 @@
     "Compound": {
       "type": "object",
       "description": "R11. Presents multiple CSs. Default mode is Simultaneous; additional modes are deferred to extension primitives.",
+      "$comment": "Name collision with schema/operant/ast.schema.json#/$defs/Compound (schedule combinator). Both serialize to \"type\": \"Compound\"; disambiguate by payload shape. This (respondent) Compound has {\"cs_list\"}; the operant Compound has {\"combinator\", \"components\"}. Consumers that accept both layers MUST dispatch on payload keys, not on \"type\" alone.",
       "properties": {
         "type": { "const": "Compound" },
         "cs_list": {
