@@ -23,9 +23,9 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Respondent** | 5 | 32 | ✅ Full coverage |
 | **Composed** | 5 | 5 | ✅ Full coverage |
 | **Experiment** | 5 | 70 | ✅ Full coverage |
-| **Annotations** | 10 | 203 | ✅ Full coverage (incl. respondent-annotator extension stub) |
+| **Annotations** | 11 | 207 | ✅ Full coverage (incl. respondent-annotator extension stub) |
 | **Representations (T-τ)** | 5 | 42 | ✅ Full coverage |
-| **Total** | **56** | **1117** | |
+| **Total** | **57** | **1121** | |
 
 ---
 
@@ -163,6 +163,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | SecondOrder semantics | theory.md §2.11.1 | `operant/second_order.json`, `operant/errors.json` | 5 basic parsing + 4 compound-unit rejection cases | ✅ |
 | Annotation measurement parsing | annotations spec | `annotations/measurement.json` | 29 cases (all 10 keywords) | ✅ |
 | Annotation measurement errors | annotations spec | `annotations/errors.json` | 36 cases (incl. 2 cross-annotation) | ✅ |
+| Annotation procedure-context (`@context`) | schema/annotations/procedure-context.schema.json | `annotations/procedure-context.json` | 4 cases (program/schedule scope, cues param, ABA renewal) | ✅ |
 | Cross-annotation composition | design-philosophy.md §4 | `annotations/program-level.json` | `program_annotations_all_four_jeab_categories` | ✅ |
 | T-τ representation conversion | representations/t-tau.md | `representations/t-tau/` | 33 cases total (to: 11, from: 9, roundtrip: 6, errors: 7) | ✅ |
 | Pctl percentile criterion | operant/stateful/grammar.md | `operant/stateful/percentile.json` | 10 valid cases | ✅ |
