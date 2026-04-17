@@ -5,6 +5,7 @@
 **Companion documents:**
 - [Foundations / Context](../foundations/context.md) — paradigm-neutral context typing (temporal, spatial, stimulus).
 - [Experiment / Phase Sequence](phase-sequence.md) — the phase-level construct that attaches context.
+- [Experiment / Paper](paper.md) — Experiment and Paper wrappers that host context-bearing bodies.
 - [Respondent Theory](../respondent/theory.md) — why context matters for extinction and renewal.
 
 ---

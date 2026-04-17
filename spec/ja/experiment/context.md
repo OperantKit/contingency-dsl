@@ -5,6 +5,7 @@
 **関連文書:**
 - [基盤 / 文脈](../foundations/context.md) — パラダイム中立な文脈型付け（時間的・空間的・刺激的）。
 - [実験 / フェーズ列](phase-sequence.md) — 文脈を付与するフェーズレベル構成要素。
+- [実験 / 論文](paper.md) — 文脈を含む body を格納する Experiment / Paper ラッパ。
 - [レスポンデント理論](../respondent/theory.md) — 消去と更新にとって文脈が重要な理由。
 
 ---

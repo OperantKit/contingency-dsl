@@ -22,6 +22,8 @@
 
 **拡張（§10）.** Operant.Stateful 層（`schema/operant/stateful/grammar.ebnf` 定義の `Pctl`, `Adj`, `Interlock`）は LL(2) 分類を保存する。新規の決定点はすべて LL(1) であり、既存の決定点を無効化しない。完全な FIRST/FOLLOW 分析は §10 を参照。
 
+**拡張（§11）.** Experiment 層（`phase_decl`, `progressive_decl`, `shaping_decl`）と Paper 層（`paper`, `experiment_decl`）は LL(2) 分類を保存する。`file` 生成規則は 3 分岐（`paper | experiment_body | program`）に拡張されるが、注釈を因数分解した後の最初の非注釈トークン（`KW_EXPERIMENT` ／ `KW_PHASE`・`KW_PROGRESSIVE`・`KW_SHAPING` ／ スケジュール・パラメータ系トークン）で LL(1) として解決される。フェーズラベルと実験ラベルは数字始まり形（`digit_ident`）を許容するが、`upper_ident` および `ident` と字句的に互いに素であるため曖昧性は生じない。完全な決定点分析は §11 を参照。
+
 ## 2〜13. 形式的内容（英語版参照）
 
 以下の各節の完全な内容は、英語版 `../en/foundations/ll2-proof.md` にある。
@@ -35,7 +37,7 @@
 - §8: パラダイム保存の証明
 - §9: 注釈システムの LL(2)／LL(3) 境界事例分析
 - §10: Operant.Stateful 拡張（`Pctl`, `Adj`, `Interlock`）の LL 分析
-- §11: Experiment 層の決定点（phase / progressive / interleave）
+- §11: Experiment 層と Paper 層の決定点（phase / progressive / shaping / interleave、`paper | experiment_body | program` 3 分岐、`experiment_decl`、`phase_name` / `experiment_label` の `upper_ident | digit_ident` — 計 11 の LL(1) 決定点）
 - §12: response-class punishment 決定点（COD 等の directional keyword 引数）
 - §13: Operant.TrialBased MTS 拡張の決定点（`delay`, `correction`；`schema/operant/trial-based/grammar.ebnf` 参照）
 

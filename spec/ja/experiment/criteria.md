@@ -4,6 +4,7 @@
 
 **関連文書:**
 - [実験 / フェーズ列](phase-sequence.md) — 基準が付与される場所。
+- [実験 / 論文](paper.md) — 基準を含む PhaseSequence body を格納する Experiment / Paper ラッパ。
 - [実験 / 文脈](context.md) — 文脈変化との基準相互作用。
 - スキーマ: `schema/experiment/phase-sequence.schema.json` — 基準形状定義の権威ソース。
 

@@ -3,6 +3,7 @@
 > Part of the contingency-dsl experiment layer. Defines the `PhaseSequence` construct, the `Phase` element and its annotation inheritance rules, the `no_schedule` phase variant, and the JEAB-aligned Method-section conventions that motivate the design. This file is the human-facing specification; the corresponding JSON Schema is `schema/experiment/phase-sequence.schema.json`.
 
 **Companion documents:**
+- [Experiment / Paper](paper.md) — Experiment and Paper wrappers for multi-experiment publications.
 - [Experiment / Context](context.md) — first-class Context and its interaction with phase sequencing.
 - [Experiment / Criteria](criteria.md) — phase-change criteria (`Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`).
 - [Respondent Primitives](../respondent/primitives.md) — respondent primitives that appear in phases.

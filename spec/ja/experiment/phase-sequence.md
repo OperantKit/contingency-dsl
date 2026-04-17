@@ -3,6 +3,7 @@
 > contingency-dsl 実験層の一部。`PhaseSequence` 構成要素、`Phase` 要素とその注釈継承規則、`no_schedule` フェーズ変種、および設計を動機づける JEAB 準拠の Method セクション慣習を定義する。本ファイルは人間向けの仕様である。対応する JSON Schema は `schema/experiment/phase-sequence.schema.json` にある。
 
 **関連文書:**
+- [実験 / 論文](paper.md) — 複数実験刊行物のための Experiment / Paper ラッパ。
 - [実験 / 文脈](context.md) — 一級の文脈と、フェーズ配列との相互作用。
 - [実験 / 基準](criteria.md) — 相変化基準（`Stability`, `FixedSessions`, `PerformanceCriterion`, `CumulativeReinforcements`, `ExperimenterJudgment`）。
 - [レスポンデント・プリミティブ](../respondent/primitives.md) — フェーズに現れるレスポンデント・プリミティブ。

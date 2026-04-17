@@ -29,9 +29,15 @@
 
     "Paper": {
       "type": "object",
-      "description": "A publication containing one or more experiments. Experiments are independent — no annotation sharing between them.",
+      "description": "A publication containing one or more experiments. Paper-level `shared_annotations` are inherited by every experiment; per-experiment annotations inside each Experiment.body override shared annotations by keyword (same scoping rule as PhaseSequence.shared_annotations vs per-Phase annotations). When no annotation is common across experiments, `shared_annotations` is empty and each Experiment body declares its own annotations independently.",
       "properties": {
         "type": { "const": "Paper" },
+        "shared_annotations": {
+          "type": "array",
+          "items": { "$ref": "../operant/ast.schema.json#/$defs/Annotation" },
+          "default": [],
+          "description": "Annotations inherited by every experiment in the paper. A per-experiment annotation with the same keyword overrides the paper-level value for that experiment only."
+        },
         "experiments": {
           "type": "array",
           "items": { "$ref": "#/$defs/Experiment" },

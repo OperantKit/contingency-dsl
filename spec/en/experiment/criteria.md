@@ -4,6 +4,7 @@
 
 **Companion documents:**
 - [Experiment / Phase Sequence](phase-sequence.md) — where criteria attach.
+- [Experiment / Paper](paper.md) — Experiment and Paper wrappers that host criterion-bearing PhaseSequence bodies.
 - [Experiment / Context](context.md) — criterion interaction with context changes.
 - Schema: `schema/experiment/phase-sequence.schema.json` — authoritative criterion shape definitions.
 

@@ -1,0 +1,240 @@
+[
+  {
+    "id": "paper_two_experiments_shared_annotations",
+    "description": "Two-experiment paper with shared @subjects and @apparatus inherited by both experiments",
+    "input": "@subjects(species=\"pigeon\", n=4)\n@apparatus(chamber=\"chamber_A\")\n\nexperiment 1:\n  VI 30-s\n\nexperiment 2:\n  VI 60-s",
+    "expected": {
+      "type": "Paper",
+      "shared_annotations": [
+        { "type": "Annotation", "keyword": "subjects", "kwargs": { "species": "pigeon", "n": 4 } },
+        { "type": "Annotation", "keyword": "apparatus", "kwargs": { "chamber": "chamber_A" } }
+      ],
+      "experiments": [
+        {
+          "type": "Experiment",
+          "label": "1",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Experiment",
+          "label": "2",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "paper_mixed_program_and_phasesequence",
+    "description": "Paper where Experiment 1 is a bare Program and Experiment 2 is a multi-phase PhaseSequence",
+    "input": "@subjects(species=\"rat\", n=8)\n\nexperiment 1:\n  VI 30-s\n\nexperiment 2:\n  phase Baseline:\n    sessions = 20\n    VI 60-s\n\n  phase Extinction:\n    sessions = 5\n    EXT\n\n  phase Recovery:\n    VI 60-s",
+    "expected": {
+      "type": "Paper",
+      "shared_annotations": [
+        { "type": "Annotation", "keyword": "subjects", "kwargs": { "species": "rat", "n": 8 } }
+      ],
+      "experiments": [
+        {
+          "type": "Experiment",
+          "label": "1",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Experiment",
+          "label": "2",
+          "body": {
+            "type": "PhaseSequence",
+            "shared_annotations": [],
+            "shared_param_decls": [],
+            "phases": [
+              {
+                "type": "Phase",
+                "label": "Baseline",
+                "criterion": { "type": "FixedSessions", "count": 20 },
+                "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+              },
+              {
+                "type": "Phase",
+                "label": "Extinction",
+                "criterion": { "type": "FixedSessions", "count": 5 },
+                "schedule": { "type": "Special", "kind": "EXT" }
+              },
+              {
+                "type": "Phase",
+                "label": "Recovery",
+                "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "paper_per_experiment_override",
+    "description": "Paper where Experiment 2a overrides paper-level @subjects (n=4 → n=6); Experiment 2b inherits paper-level @subjects unchanged",
+    "input": "@subjects(species=\"pigeon\", n=4)\n\nexperiment 1:\n  @apparatus(chamber=\"chamber_A\")\n  VI 30-s\n\nexperiment 2a:\n  @subjects(species=\"pigeon\", n=6)\n  @apparatus(chamber=\"chamber_B\")\n  VI 60-s\n\nexperiment 2b:\n  @apparatus(chamber=\"chamber_B\")\n  VI 120-s",
+    "expected": {
+      "type": "Paper",
+      "shared_annotations": [
+        { "type": "Annotation", "keyword": "subjects", "kwargs": { "species": "pigeon", "n": 4 } }
+      ],
+      "experiments": [
+        {
+          "type": "Experiment",
+          "label": "1",
+          "body": {
+            "type": "Program",
+            "program_annotations": [
+              { "type": "Annotation", "keyword": "apparatus", "kwargs": { "chamber": "chamber_A" } }
+            ],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Experiment",
+          "label": "2a",
+          "body": {
+            "type": "Program",
+            "program_annotations": [
+              { "type": "Annotation", "keyword": "subjects", "kwargs": { "species": "pigeon", "n": 6 } },
+              { "type": "Annotation", "keyword": "apparatus", "kwargs": { "chamber": "chamber_B" } }
+            ],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Experiment",
+          "label": "2b",
+          "body": {
+            "type": "Program",
+            "program_annotations": [
+              { "type": "Annotation", "keyword": "apparatus", "kwargs": { "chamber": "chamber_B" } }
+            ],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 120.0, "time_unit": "s" }
+          }
+        }
+      ]
+    },
+    "notes": "Effective @subjects per experiment after inheritance: Experiment 1 → paper-level (n=4); Experiment 2a → its own (n=6); Experiment 2b → paper-level (n=4). Inheritance is a post-parse semantic operation; the AST stores the declarations as written."
+  },
+  {
+    "id": "paper_single_experiment_wrapper",
+    "description": "Paper with exactly one experiment. Semantically equivalent to a bare Program per constraint 95, but the wrapper preserves the experiment label",
+    "input": "@subjects(species=\"rat\", n=8)\n\nexperiment 1:\n  VI 60-s",
+    "expected": {
+      "type": "Paper",
+      "shared_annotations": [
+        { "type": "Annotation", "keyword": "subjects", "kwargs": { "species": "rat", "n": 8 } }
+      ],
+      "experiments": [
+        {
+          "type": "Experiment",
+          "label": "1",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "paper_upper_ident_label",
+    "description": "Experiment label using upper_ident form (Experiment1) rather than digit_ident (1). Both forms are grammatically equivalent per §11.7",
+    "input": "experiment Experiment1:\n  VI 30-s\n\nexperiment Experiment2:\n  VI 60-s",
+    "expected": {
+      "type": "Paper",
+      "shared_annotations": [],
+      "experiments": [
+        {
+          "type": "Experiment",
+          "label": "Experiment1",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+          }
+        },
+        {
+          "type": "Experiment",
+          "label": "Experiment2",
+          "body": {
+            "type": "Program",
+            "program_annotations": [],
+            "param_decls": [],
+            "bindings": [],
+            "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "phase_digit_label",
+    "description": "Phase label using digit_ident (1, 2, 3) — symmetric with experiment_label. Exercised under a bare experiment_body (no paper wrapper)",
+    "input": "phase 1:\n  sessions = 10\n  VI 30-s\n\nphase 2:\n  sessions = 10\n  VI 60-s\n\nphase 3:\n  VI 120-s",
+    "expected": {
+      "type": "PhaseSequence",
+      "shared_annotations": [],
+      "shared_param_decls": [],
+      "phases": [
+        {
+          "type": "Phase",
+          "label": "1",
+          "criterion": { "type": "FixedSessions", "count": 10 },
+          "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 30.0, "time_unit": "s" }
+        },
+        {
+          "type": "Phase",
+          "label": "2",
+          "criterion": { "type": "FixedSessions", "count": 10 },
+          "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 60.0, "time_unit": "s" }
+        },
+        {
+          "type": "Phase",
+          "label": "3",
+          "schedule": { "type": "Atomic", "dist": "V", "domain": "I", "value": 120.0, "time_unit": "s" }
+        }
+      ]
+    }
+  },
+  {
+    "id": "paper_error_duplicate_experiment_label",
+    "description": "Two experiments declared with the same label. Constraint 94 requires DUPLICATE_EXPERIMENT_LABEL",
+    "input": "experiment 1:\n  VI 30-s\n\nexperiment 1:\n  VI 60-s",
+    "expected_error": {
+      "code": "DUPLICATE_EXPERIMENT_LABEL",
+      "severity": "SemanticError",
+      "label": "1"
+    }
+  }
+]
