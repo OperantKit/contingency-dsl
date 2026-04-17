@@ -1,0 +1,65 @@
+[
+  {
+    "id": "respondent_primitive_with_schedule_level_annotation",
+    "description": "Dot-identifier respondent primitive combined with a postfix schedule-level annotation. Verifies the dotted-identifier grammar (Pair.ForwardDelay) composes cleanly with the @-prefixed annotation grammar, including DISTRIBUTION_NAME lexemes (exponential) appearing as annotation values.",
+    "input": "Pair.ForwardDelay(tone, shock, isi=10s, cs_duration=15s) @iti(distribution=exponential, mean=60s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AnnotatedSchedule",
+        "expr": {
+          "type": "PairForwardDelay",
+          "cs": "tone",
+          "us": "shock",
+          "isi": { "value": 10.0, "unit": "s" },
+          "cs_duration": { "value": 15.0, "unit": "s" }
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "iti",
+            "params": {
+              "distribution": "exponential",
+              "mean": { "value": 60, "time_unit": "s" }
+            }
+          }
+        ]
+      }
+    },
+    "_note": "The dot-identifier respondent primitive and the postfix @annotation compose via the shared _parse_schedule path. DISTRIBUTION_NAME (cross-layer lexeme) is accepted at annotation-value position as a plain string."
+  },
+  {
+    "id": "respondent_backward_pair_with_iti_annotation",
+    "description": "Pair.Backward with a trailing @iti annotation — the specific case called out in the parser follow-up. Pair.Backward takes (us, cs, isi=...) positional order.",
+    "input": "Pair.Backward(shock, tone, isi=10s) @iti(distribution=uniform, mean=30s)",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "AnnotatedSchedule",
+        "expr": {
+          "type": "PairBackward",
+          "us": "shock",
+          "cs": "tone",
+          "isi": { "value": 10.0, "unit": "s" }
+        },
+        "annotations": [
+          {
+            "type": "Annotation",
+            "keyword": "iti",
+            "params": {
+              "distribution": "uniform",
+              "mean": { "value": 30, "time_unit": "s" }
+            }
+          }
+        ]
+      }
+    },
+    "_note": "uniform is a DISTRIBUTION_NAME lexeme; the annotation-value path stringifies it."
+  }
+]
