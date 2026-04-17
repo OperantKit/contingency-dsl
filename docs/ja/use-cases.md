@@ -1,7 +1,7 @@
 # ユースケース
 
 > contingency-dsl が何を可能にし、各構成がなぜ必要なのかを実例で示す。
-> 構文の詳細は [syntax-guide.md](syntax-guide.md)、形式理論は [theory.md](../../spec/ja/theory.md) を参照。
+> 構文の詳細は [syntax-guide.md](syntax-guide.md)、形式理論は [operant/theory.md](../../spec/ja/operant/theory.md) を参照。
 
 > **用語ノート: 被験体 vs 有機体** — 本文書では以下の使い分けに従う。
 > - **被験体**（subject）: 手続き・実験計画の記述（例:「被験体は CS-US 間隔中に反応することで US を回避できる」）
@@ -703,7 +703,7 @@ SpontaneousRecovery(cs=tone, recovery_interval=24h)
 | `Pair.ForwardDelay` / `Pair.Backward` / ... | パヴロフ型（二項）手続き、恐怖／食物系条件づけ | レスポンデント随伴性を表現できない |
 | `Contingency(p, q)` / `TrulyRandom` / `ExplicitlyUnpaired` | Rescorla (1967) 随伴性空間の統制手続き | 随伴性空間形式化を表現できない |
 | `Differential(cs+, cs−, us)` | A+/B− パヴロフ弁別 | 対比 CS 訓練を表現できない |
-| 合成 `Phase(operant=..., respondent=...)` | CER / PIT / オートシェイピング / 省略 | オペラント × レスポンデント合成を表現できない |
+| 合成手続き（`phase` ブロック内のオペラント／レスポンデント primitive + `@omission` / `@avoidance` 注釈） | CER / PIT / オートシェイピング / 省略 | オペラント × レスポンデント合成を表現できない |
 | `@cs` / `@us` / `@iti` / `@cs_interval` | 任意 primitive への CS/US メタデータ（Procedure/Apparatus/Measurement 横断） | 読者向けの CS/US 窓を記録できない |
 | レスポンデント拡張ポイント | Tier B 手続き（ブロッキング、オーバーシャドーイング、更新、…）を `contingency-respondent-dsl` 経由で追加 | Tier B 手続きに Core 文法変更が必要になる |
 

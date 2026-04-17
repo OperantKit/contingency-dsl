@@ -1,6 +1,6 @@
 # Computability, Expressiveness, and Architectural Boundaries
 
-> Part of the [contingency-dsl theory documentation](theory.md). Describes the six-layer architecture, computability properties, and annotation system.
+> Part of the [contingency-dsl theory documentation](operant/theory.md). Describes the six-layer architecture, computability properties, and annotation system.
 
 ---
 
@@ -295,7 +295,7 @@ None of these raise the position in the Chomsky hierarchy, provided the followin
 
 > **Well-formedness condition for `def`.** Let G = (V, E) be the directed graph where V is the set of `def` names and (f, g) ∈ E iff the body of f contains a call to g. G must be a directed acyclic graph (DAG). The parser SHALL reject any definition set where G contains a cycle (including self-loops and mutual recursion). This ensures that `def` expansion always terminates and the output remains within the base CFG.
 
-`def` is deferred to a future version (not included in the current BNF). The keyword is reserved ([grammar.md §3.2](grammar.md)) to prevent identifier collisions.
+`def` is deferred to a future version (not included in the current BNF). The keyword is reserved ([operant/grammar.md §3.2](operant/grammar.md)) to prevent identifier collisions.
 
 ## 4.5 Position in the Chomsky Hierarchy and Static Verification
 
@@ -335,7 +335,7 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
                   program.annotations[key]  otherwise
 ```
 
-See [annotation-design.md](annotation-design.md) §6 for full specification.
+See [annotations/design.md](annotations/design.md) §6 for full specification.
 
 ### 4.7.1 Motivation
 
@@ -352,7 +352,7 @@ See [annotation-design.md](annotation-design.md) §6 for full specification.
 Each annotator is named with the `-annotator` suffix, meaning: *an annotation module that adds an orthogonal dimension to the base DSL*.
 
 Recommended annotator names match JEAB Method section headings 1:1 (see
-[annotation-design.md §3.7](annotation-design.md)).
+[annotations/design.md §3.7](annotations/design.md)).
 
 | Annotator | JEAB Category | Annotation Keywords | Purpose |
 |-----------|---------------|---------------------|---------|
@@ -378,7 +378,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 ### 4.7.3 Package Architecture
 
-All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotation-design.md §3.7](annotation-design.md)).
+All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotations/design.md §3.7](annotations/design.md)).
 
 ```
 contingency-dsl (base CFG)
@@ -652,8 +652,8 @@ The `schema/` tree mirrors the directory structure:
 - `schema/operant/stateful/grammar.ebnf` — Operant.Stateful (Percentile, Adjusting, Interlocking)
 - `schema/operant/trial-based/grammar.ebnf` — Operant.TrialBased (MTS, Go/NoGo)
 - `schema/respondent/grammar.ebnf`, `schema/respondent/ast.schema.json` — Respondent Tier A primitives + extension point
-- `schema/composed/*.schema.json` — per-procedure composed schemas (conditioned-suppression, pit, autoshaping, omission, two-process-theory)
-- `schema/experiment/phase-sequence.schema.json` — Experiment layer
+- `schema/experiment/phase-sequence.schema.json` — Experiment layer (composed procedures — CER, PIT, autoshaping, omission, two-process-theory — are encoded as `PhaseSequence` AST trees built from operant + respondent + annotation primitives; no dedicated composed-procedure AST schema is needed)
+- `schema/annotations/extensions/composed-annotator.schema.json` — composed-layer annotations (`@omission`, `@avoidance`) that express response-contingent US-modulation rules on Pavlovian primitives
 - `schema/annotations/extensions/` — annotator extension schemas (learning-models, respondent-annotator, etc.)
 - `schema/representations/` — alternative coordinate systems
 

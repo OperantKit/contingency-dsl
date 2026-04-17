@@ -1,5 +1,7 @@
 # contingency-dsl
 
+:jp: [日本語版 README](README.ja.md)
+
 Language-independent specification for declaring reinforcement contingencies and Pavlovian pairings. Organized by scientific category (operant / respondent / composed) under a paradigm-neutral formal foundation.
 
 ## Layer structure
@@ -9,7 +11,7 @@ Language-independent specification for declaring reinforcement contingencies and
 | **Foundations** | CFG / LL(2) meta-grammar; paradigm-neutral types (contingency, time scales, stimulus typing, valence, context) | `spec/*/foundations/`, `schema/foundations/` |
 | **Operant** | Three-term contingency (SD-R-SR); reinforcement schedules by Ferster-Skinner class (ratio / interval / time / differential / compound / progressive); aversive control (Sidman free-operant avoidance, discriminated avoidance, escape, response cost); stateful variants (Percentile, Adjusting, Interlocking, Admission Gate); trial-based variants (MTS, Go/NoGo); response modifiers (Limited Hold, Timeout, reinforcement delay, interpolated schedules) | `spec/*/operant/`, `schema/operant/` |
 | **Respondent** | Two-term contingency (CS-US); minimum Tier A primitives (Pair, Extinction, CSOnly, USOnly, Contingency, TrulyRandom, ExplicitlyUnpaired, Compound, Serial, ITI, Differential). Deeper Pavlovian procedures live in the companion package `contingency-respondent-dsl`. | `spec/*/respondent/`, `schema/respondent/` |
-| **Composed** | Procedures that combine operant and respondent building blocks: CER, PIT, autoshaping, omission, two-process theory | `spec/*/composed/`, `schema/composed/` |
+| **Composed** | Procedures that combine operant and respondent building blocks: CER, PIT, autoshaping, omission, two-process theory. Encoded as `PhaseSequence` AST trees built from operant + respondent primitives plus the composed-layer annotations `@omission` / `@avoidance` (`schema/annotations/extensions/composed-annotator.schema.json`); no dedicated composed-procedure AST schema. | `spec/*/composed/` |
 | **Experiment** | Declarative multi-phase designs; phase and context as first-class constructs; JEAB-style inheritance of Subjects / Apparatus annotations | `spec/*/experiment/`, `schema/experiment/` |
 | **Annotation** | Program-scoped metadata following JEAB Method categories (Subjects / Apparatus / Procedure / Measurement); extensions under `annotations/extensions/` (e.g., respondent-annotator, learning-models-annotator) | `spec/*/annotations/`, `schema/annotations/` |
 
@@ -96,18 +98,37 @@ ITI(distribution=exponential, mean=120s)
 
 ### Composed (operant × respondent)
 ```
--- CER (Estes & Skinner, 1941): operant baseline + Pavlovian overlay
-PhaseSequence(
-  Phase("baseline", schedule=VI60s),
-  Phase("pairing",  schedule=VI60s @cs(Tone, duration=60s) @us(Shock, intensity=0.5mA)),
-  Phase("test",     schedule=VI60s @cs(Tone, duration=60s))
-)
+-- CER (Estes & Skinner, 1941): operant baseline + Pavlovian pairing + reference reinstatement
+@cs(label="Tone", duration=60s, modality="auditory")
+@us(label="Shock", intensity="0.5mA", delivery="unsignaled")
+
+phase baseline:
+  sessions = 10
+  VI60s
+
+phase pairing:
+  sessions = 5
+  Pair.ForwardDelay(Tone, Shock, isi=60s, cs_duration=60s)
+
+phase test:
+  sessions = 3
+  use baseline
 
 -- Autoshaping (Brown & Jenkins, 1968)
-Autoshape(cs=KeyLight, us=Food, iti=ITI(distribution=exponential, mean=60s))
+@cs(label="KeyLight", duration=8s, modality="visual")
+@us(label="Food", delivery="unsignaled")
+
+phase autoshaping_training:
+  sessions = 10
+  Pair.ForwardDelay(KeyLight, Food, isi=8s, cs_duration=8s)
 
 -- Omission / negative automaintenance (Williams & Williams, 1969)
-Omission(cs=KeyLight, us=Food, cancel_response=KeyPeck)
+@cs(label="KeyLight", duration=6s, modality="visual")
+@us(label="Food", delivery="cancelled_on_cs_response")
+
+phase omission_training:
+  sessions = 20
+  Pair.ForwardDelay(KeyLight, Food, isi=6s, cs_duration=6s) @omission(response="key_peck", during="cs")
 ```
 
 ## Documentation
@@ -136,12 +157,12 @@ cd ../contingency-dsl-rs && cargo test conformance
 ```
 
 The test corpus is organized by layer:
-- `conformance/foundations/` — paradigm-neutral lexical tests (forthcoming)
+- `conformance/foundations/` — paradigm-neutral lexical tests (intentionally empty under the strict scoping rule defined in `conformance/foundations/README.md`)
 - `conformance/operant/` — atomic schedules, compound combinators (Conc / Alt / Conj / Chain / Tand / Mult / Mix / Overlay / Interpolate), modifiers (DR*, PR, Lag, Repeat, Limited Hold, Timeout, reinforcement delay), second-order, aversive (Sidman, DiscriminatedAvoidance), response cost, algebraic equivalences, boundary values, errors, warnings
 - `conformance/operant/stateful/` — Percentile, Adjusting, Interlocking
 - `conformance/operant/trial-based/` — MTS, Go/NoGo
 - `conformance/respondent/` — Tier A primitive fixtures (Pair, contingency controls, compound stimuli, elementary)
-- `conformance/composed/` — CER, PIT, autoshaping, omission (forthcoming)
+- `conformance/composed/` — CER (conditioned suppression), PIT, autoshaping, omission, two-process avoidance
 - `conformance/experiment/` — phase, progressive-training, shaping
 - `conformance/annotations/` — subjects, apparatus, procedure (stimulus / temporal / trial-structure), measurement, program-level; `extensions/respondent-annotator.json`
 - `conformance/representations/` — alternative coordinate systems (t-τ)

@@ -1,7 +1,7 @@
 # Use Cases
 
 > Practical scenarios showing what contingency-dsl enables and why each construct exists.
-> For syntax details, see [syntax-guide.md](syntax-guide.md). For formal theory, see [theory.md](../../spec/en/theory.md).
+> For syntax details, see [syntax-guide.md](syntax-guide.md). For formal theory, see [operant/theory.md](../../spec/en/operant/theory.md).
 
 ---
 
@@ -747,7 +747,7 @@ SpontaneousRecovery(cs=tone, recovery_interval=24h)
 | `Pair.ForwardDelay` / `Pair.Backward` / ... | Pavlovian (two-term) procedures, fear / appetitive conditioning | Cannot express respondent contingencies |
 | `Contingency(p, q)` / `TrulyRandom` / `ExplicitlyUnpaired` | Rescorla (1967) contingency-space controls | Cannot express the contingency-space formalism |
 | `Differential(cs+, cs−, us)` | A+/B− Pavlovian discrimination | Cannot express contrastive CS training |
-| Composed `Phase(operant=..., respondent=...)` | CER / PIT / autoshaping / omission | Cannot express operant × respondent composites |
+| Composed procedures (operant / respondent primitives inside `phase` blocks + `@omission` / `@avoidance` annotations) | CER / PIT / autoshaping / omission | Cannot express operant × respondent composites |
 | `@cs` / `@us` / `@iti` / `@cs_interval` | CS/US metadata on any primitive; cross-cuts Procedure/Apparatus/Measurement | Cannot record reader-friendly CS/US windows |
 | Respondent extension point | Tier B procedures (blocking, overshadowing, renewal, ...) via `contingency-respondent-dsl` | Tier B procedures require Core grammar changes |
 

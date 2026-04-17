@@ -38,7 +38,7 @@ Each JSON file contains an array of test cases:
 
 ### Success cases
 
-`expected` contains the AST matching `schema/operant/ast.schema.json` (operant-layer schema; the respondent layer has its own `schema/respondent/ast.schema.json`, and composed procedures reference their per-procedure schemas under `schema/composed/`).
+`expected` contains the AST matching `schema/operant/ast.schema.json` (operant-layer schema; the respondent layer has its own `schema/respondent/ast.schema.json`; composed procedures are encoded as `PhaseSequence` AST trees per `schema/experiment/phase-sequence.schema.json`, with composed-layer behavior carried by `@omission` / `@avoidance` annotations defined in `schema/annotations/extensions/composed-annotator.schema.json`).
 
 For phase-specific validation of operant fixtures:
 - `pre_expansion` fields validate against `schema/operant/ast-parsed.schema.json` (Phase 1: includes IdentifierRef, RepeatModifier)

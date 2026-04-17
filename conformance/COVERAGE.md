@@ -559,4 +559,4 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 
 ---
 
-*References: `schema/foundations/grammar.ebnf`, `schema/operant/grammar.ebnf`, `schema/operant/stateful/grammar.ebnf`, `schema/operant/trial-based/grammar.ebnf`, `schema/respondent/grammar.ebnf`, `schema/composed/*.schema.json`, `schema/annotations/extensions/respondent-annotator.schema.json`*
+*References: `schema/foundations/grammar.ebnf`, `schema/operant/grammar.ebnf`, `schema/operant/stateful/grammar.ebnf`, `schema/operant/trial-based/grammar.ebnf`, `schema/respondent/grammar.ebnf`, `schema/experiment/phase-sequence.schema.json`, `schema/annotations/extensions/composed-annotator.schema.json`, `schema/annotations/extensions/respondent-annotator.schema.json`*
