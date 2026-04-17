@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://operantkit.dev/contingency-dsl/schema/foundations/types.schema.json",
+  "title": "contingency-dsl Foundations — Shared Types",
+  "description": "Paradigm-neutral shared type definitions. Operant, respondent, composed, and experiment layer schemas $ref into this file for Identifier, Number, Duration, Probability, TimeUnit, and related types. Keeping these centralized guarantees uniform validation across paradigms.",
+
+  "$defs": {
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[a-z_][a-zA-Z0-9_]*$",
+      "description": "Lowercase-initial identifier. Must begin with a lowercase ASCII letter or underscore. Guarantees lexical disjointness from all DSL keywords (uppercase-initial) and paradigm-specific schedule / primitive names."
+    },
+
+    "UpperIdentifier": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z0-9_]*$",
+      "description": "Uppercase-initial identifier. Used for phase names in the experiment layer and for respondent extension-primitive names."
+    },
+
+    "Number": {
+      "type": "number",
+      "description": "Numeric literal (integer or decimal). Includes negative values for contexts that permit them; paradigm-level schemas add sign constraints where appropriate (e.g., operant atomic value minimum=0, exclusiveMinimum=0)."
+    },
+
+    "PositiveNumber": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Strictly positive number. Used for durations, rates, and any quantity that must be > 0."
+    },
+
+    "NonNegativeNumber": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Zero or positive number. Used for contingency probabilities, delays that may be zero, and optional offsets."
+    },
+
+    "PositiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Strictly positive integer. Used for trial counts, session counts, component indices (1-based), ratio requirements, and Repeat counts."
+    },
+
+    "TimeUnit": {
+      "type": "string",
+      "enum": ["s", "ms", "min"],
+      "description": "Canonical time-unit enum for the AST. Source text may use 's' or 'sec' for seconds; the AST normalizes to 's'. The 'sec' alias is accepted in source but does not appear in the AST."
+    },
+
+    "Duration": {
+      "type": "object",
+      "description": "Time-valued quantity with an explicit unit. Stored as (value, unit) in the AST so that downstream tools can render the original unit without recomputation.",
+      "properties": {
+        "value": { "$ref": "#/$defs/Number" },
+        "unit": { "$ref": "#/$defs/TimeUnit" }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
+
+    "Probability": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Probability in [0, 1]. Used by respondent contingency primitives (Rescorla 1967 axis convention) and by any extension that parameterizes stochastic contingencies."
+    },
+
+    "Boolean": {
+      "type": "boolean",
+      "description": "Boolean literal. Source form is 'true' or 'false' (lowercase)."
+    },
+
+    "StringLiteral": {
+      "type": "string",
+      "description": "Source-level double-quoted string. Used for annotation values, stimulus labels, method names, and free-form metadata."
+    },
+
+    "AnnotationValue": {
+      "description": "The value side of an annotation key=value pair. Supports scalars (string, number), time values (stored as number after normalization), and structured values (arrays and objects).",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "number" },
+        { "type": "boolean" },
+        { "type": "array", "items": { "$ref": "#/$defs/AnnotationValue" } },
+        { "type": "object", "additionalProperties": { "$ref": "#/$defs/AnnotationValue" } }
+      ]
+    }
+  }
+}

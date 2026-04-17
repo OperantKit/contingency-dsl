@@ -1,0 +1,170 @@
+; contingency-dsl — Foundations Grammar
+;
+; Paradigm-neutral formal skeleton. Contains only lexical / structural
+; productions that are shared across all paradigm layers (operant,
+; respondent, composed) and the experiment layer.
+;
+; Scope: this file intentionally does NOT define the shape of paradigm-
+; specific expressions (schedules, pairings, compositions). Those live in:
+;   - schema/operant/grammar.ebnf      — operant (three-term) productions
+;   - schema/respondent/grammar.ebnf   — respondent (two-term) productions
+;   - schema/composed/                 — composed procedure schemas (AST only)
+;   - schema/experiment/               — multi-phase experiment layer
+;
+; Companion spec: spec/en/foundations/grammar.md (spec/ja/foundations/grammar.md)
+;   — meta-grammar, token types, parse-tree conventions, LL(2) summary.
+;
+; Notation:
+;   ::=    definition
+;   |      alternation
+;   *      zero or more
+;   +      one or more
+;   ?      optional
+;   "x"    terminal literal
+;   [...]  character class
+;   --     comment
+;
+; === Top-level (paradigm-neutral root) ===
+;
+; A source file is either a multi-phase experiment (experiment layer) or a
+; single-phase program (paradigm-specific). The dispatch below is LL(1):
+; if the first non-annotation token is "phase", "progressive", or "shaping"
+; the file is an experiment; otherwise it is a program whose <expr>
+; specializes per paradigm.
+;
+; Each paradigm layer supplies its own <expr> production:
+;   - operant:    expr ::= annotated_schedule                 (operant/grammar.ebnf)
+;   - respondent: expr ::= respondent_expr                    (respondent/grammar.ebnf)
+;
+; The composed layer combines both by referencing the two expression
+; productions from within its per-procedure schemas (no separate grammar
+; file; see schema/composed/*.schema.json).
+
+file          ::= experiment | program
+
+program       ::= program_annotation* param_decl* binding* expr
+
+; <expr> is paradigm-specific. Operant and respondent layers each define
+; the concrete form. Extensions (per the respondent extension point and
+; the operant schedule extension point) add alternatives within those
+; layer files; the foundations layer is invariant under extension.
+
+binding       ::= "let" ident "=" expr
+
+; === Program-level annotations ===
+;
+; Session-wide annotation defaults. Positional scoping: any "@" before the
+; first param_decl / binding / expr is a program-level annotation.
+; LL(1) decidable: peek next token; if "@" consume program_annotation,
+; otherwise fall through to param_decl*.
+
+program_annotation ::= annotation
+
+; === Param declarations ===
+;
+; Paradigm-neutral surface form: <name> "=" <value>.
+; The enumeration of valid <param_name> keywords is paradigm-specific and
+; listed by each paradigm's grammar file (e.g., operant/grammar.ebnf §1
+; enumerates LH, COD, FRCO, BO, RD).
+
+param_decl    ::= param_name "=" value
+
+; === Identifier tokenization ===
+;
+; Identifiers must begin with a lowercase ASCII letter or underscore.
+; This guarantees lexical disjointness from every DSL keyword (all of
+; which begin with an uppercase letter) and from all paradigm-specific
+; schedule / primitive names. Each paradigm layer augments the reserved
+; set with its own keywords; unions across layers remain disjoint from
+; this regular set.
+
+ident         ::= [a-z_] [a-zA-Z0-9_]*   -- must not match any reserved keyword
+upper_ident   ::= [A-Z] [a-zA-Z0-9_]*    -- phase names, extension-primitive names
+
+; === Value / number / time literals ===
+;
+; Numeric literals with optional time-unit suffix. Time-unit resolution is
+; LL(2) after a bare number: peek the next non-ws token; if it is one of
+; {s, sec, ms, min} (optionally preceded by "-" or whitespace), consume as
+; time_unit; otherwise the value production ends at the bare number.
+;
+; AST normalization: "sec" is normalized to "s" in the AST. The canonical
+; TimeUnit enum is {"s", "ms", "min"}.
+
+value         ::= number (time_sep? time_unit)?
+time_sep      ::= "-" | ws
+time_unit     ::= "s" | "sec" | "ms" | "min"
+number        ::= [0-9]+ ("." [0-9]+)?
+ws            ::= " "+
+
+; === String literals ===
+;
+; Double-quoted strings for annotation values and stimulus labels.
+; No escape sequences are defined at the foundations level; paradigm
+; layers that require richer string semantics are responsible for
+; their own extensions.
+
+string_literal ::= '"' [^"]* '"'
+
+boolean        ::= "true" | "false"
+
+; === Comments ===
+;
+; "--" begins a line comment extending to end of line.
+; Comments are stripped during lexing and do not appear in the AST.
+; This rule is paradigm-neutral and applied uniformly.
+
+; === Annotation attachment syntax ===
+;
+; Annotations cross-cut every paradigm layer: a program-level annotation
+; applies to the entire file; a schedule-level annotation (operant) or a
+; phase-level annotation (experiment) attaches to the corresponding AST
+; node. The surface form is the same regardless of attachment target.
+
+annotation         ::= "@" annotation_name ("(" annotation_args ")")?
+annotation_name    ::= ident                      -- resolved by program's annotation registry
+
+; Annotation argument lists support three forms:
+;   1. Positional-only:           @species("rat")
+;   2. Positional + keyword args: @chamber("med-associates", model="ENV-007")
+;   3. Keyword-only:              @session_end(rule="first", time=60min)
+;
+; LL(2) decision at the first argument: peek two tokens after "(":
+;   - If next is IDENT followed by "=", parse as keyword-only form.
+;   - Otherwise parse as positional form (optionally followed by keywords).
+; Semantic constraint (Phase 2): within the positional form, positional
+; args precede keyword args (no interleaving).
+
+annotation_args    ::= positional_form | keyword_only_form
+positional_form    ::= annotation_val ("," annotation_kv)*
+keyword_only_form  ::= annotation_kv ("," annotation_kv)*
+annotation_kv      ::= ident "=" annotation_val
+annotation_val     ::= string_literal | time_value | number
+                     | annotation_array
+                     | annotation_object
+annotation_array   ::= "[" (annotation_val ("," annotation_val)*)? "]"
+annotation_object  ::= "{" (annotation_kv ("," annotation_kv)*)? "}"
+time_value         ::= number time_unit
+
+; Annotation time_value note:
+;   Does NOT support the "-" separator (i.e., `time=60-min` is INVALID
+;   in annotation argument position; write `time=60min`). This avoids
+;   ambiguity with the unary "-" in numeric keyword-argument positions.
+;
+; AST normalization:
+;   Time values in annotations are normalized to seconds (default) and
+;   stored as a bare number; the original unit is not preserved. Programs
+;   MAY choose a different normalization convention.
+
+; === Paradigm dispatch (forward reference) ===
+;
+; The paradigm-specific <expr> production is supplied by the active
+; layer file. Foundations supplies only the container shape
+; (`program ::= ... expr`); every concrete alternative lives in:
+;   - operant/grammar.ebnf      — schedule expressions
+;   - respondent/grammar.ebnf   — pair / extinction / contingency / etc.
+;
+; The experiment layer (file ::= experiment | program) is defined in
+; schema/experiment/*.schema.json and reuses phase_name / phase_meta /
+; stability_spec productions co-located here implicitly through the
+; standard <upper_ident> and <value> forms.
