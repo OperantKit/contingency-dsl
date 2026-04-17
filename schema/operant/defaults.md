@@ -369,9 +369,9 @@ References:
   rates: A selective critique. *Psychological Bulletin*, 74(4), 225-254.
   https://doi.org/10.1037/h0029813
 
-## Lag schedule (v1.x)
+## Lag schedule
 
-**v1.x:** `Lag` is a differential reinforcement modifier for operant
+`Lag` is a differential reinforcement modifier for operant
 variability (see grammar.ebnf `lag_mod` production and
 [spec/en/theory.md §2.8](spec/en/theory.md)). The parameter `n` is positional
 to match literature notation ("Lag 5", Page & Neuringer, 1985). The keyword
@@ -411,9 +411,9 @@ References:
   theory. *Psychonomic Bulletin & Review*, 9(4), 672-705.
   https://doi.org/10.3758/BF03196324
 
-## Sidman free-operant avoidance (v1.x)
+## Sidman free-operant avoidance
 
-**v1.x:** Sidman is a dedicated aversive-schedule primitive
+Sidman is a dedicated aversive-schedule primitive
 (see grammar.ebnf `aversive_schedule` production and
 [spec/en/theory.md §2.7](spec/en/theory.md)). Both parameters are
 mandatory; **there is no default value**.
@@ -447,9 +447,9 @@ References:
   & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414).
   Prentice-Hall.
 
-## Discriminated avoidance (v1.x)
+## Discriminated avoidance
 
-**v1.x:** `DiscriminatedAvoidance` (alias `DiscrimAv`) is a dedicated
+`DiscriminatedAvoidance` (alias `DiscrimAv`) is a dedicated
 aversive-schedule primitive (see grammar.ebnf `discriminated_avoidance`
 production and [spec/en/theory.md §2.9](spec/en/theory.md)). Three
 parameters are mandatory; **there is no default value** for any of them.
@@ -491,9 +491,9 @@ References:
   Acquisition in normal dogs. *Psychological Monographs: General and Applied*,
   67(4), 1-19. https://doi.org/10.1037/h0093649
 
-## Punishment overlay (v1.x) — Overlay combinator
+## Punishment overlay — Overlay combinator
 
-**v1.x:** `Overlay` is a compound combinator that superimposes a punishment
+`Overlay` is a compound combinator that superimposes a punishment
 contingency on an existing reinforcement baseline. It takes exactly 2
 positional components: the baseline schedule and the punisher schedule.
 
