@@ -191,7 +191,7 @@
 
   {
     "id": "shaping_percentile_invalid_rank_error",
-    "description": "§88: percentile_rank must be in [0, 100]. Out of range raises PCTL_INVALID_RANK (reused from core-stateful §P1).",
+    "description": "§88: percentile_rank must be in [0, 100]. Out of range raises PCTL_INVALID_RANK (reused from operant/stateful §P1).",
     "input": "shaping LeverForceShaping:\n  target = \"LeverPress\"\n  method = percentile\n  dimension = force\n  percentile_rank = 150\n  stable(visual)",
     "expected_error": "PCTL_INVALID_RANK",
     "expected_phase": "semantic"

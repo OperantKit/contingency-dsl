@@ -14,73 +14,76 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 | Layer | Files | Test Cases | Status |
 |---|---|---|---|
-| **Core** | 16 | 420 | ✅ Primary coverage |
-| **Core-Stateful** | 4 | 92 | ✅ Full coverage |
-| **Core-Trial-Based** | 3 | 84 | ✅ Full coverage |
+| **Foundations** | 0 | 0 | Forthcoming (paradigm-neutral lexical fixtures) |
+| **Operant** | 19 | 420+ | ✅ Primary coverage |
+| **Operant-Stateful** | 4 | 92 | ✅ Full coverage |
+| **Operant-Trial-Based** | 3 | 84 | ✅ Full coverage |
+| **Respondent** | 0 | 0 | Forthcoming (Phase Ψ-10 — Tier A primitive fixtures) |
+| **Composed** | 0 | 0 | Forthcoming (CER / PIT / autoshape / omission / two-process) |
 | **Experiment** | 4 | 35 | ✅ Full coverage |
-| **Annotations** | 3 | 69 | ✅ Full coverage |
+| **Annotations** | 8 | 140+ | ✅ Full coverage (incl. respondent-annotator extension stub) |
 | **Representations (T-τ)** | 4 | 33 | ✅ Full coverage |
-| **Total** | **35** | **733** | |
+| **Total** | **42+** | **800+** | |
 
 ---
 
 ## §1. Grammar Production Coverage
 
-### §1.1 Core Grammar (`schema/core/grammar.ebnf`)
+### §1.1 Operant Grammar (`schema/operant/grammar.ebnf`)
 
 | # | Production | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| 1 | `program` | `core/program.json` | `program_lh_default`, `program_lh_and_bindings`, `program_minimal`, `program_comments_and_whitespace` | ✅ 4 cases |
+| 1 | `program` | `operant/program.json` | `program_lh_default`, `program_lh_and_bindings`, `program_minimal`, `program_comments_and_whitespace` | ✅ 4 cases |
 | 2 | `program_annotation` | `annotations/program-level.json` | `program_annotations_subject_only`, `program_annotations_full_preamble`, `program_annotations_with_schedule_annotations`, `program_annotations_all_four_jeab_categories` | ✅ 4 cases |
-| 3 | `param_decl` | `core/program.json`, `core/limited_hold.json`, `core/reinforcement_delay.json` | `program_lh_default`, `program_lh_and_bindings`, `lh_alias_param_decl`, `rd_param_decl_ms`, `rd_param_decl_s`, `rd_param_decl_zero`, `rd_param_decl_alias`, `rd_with_other_param_decls` | ✅ |
-| 4 | `param_name` | `core/program.json`, `core/compound-kw-aliases.json`, `core/reinforcement_delay.json` | LH, COD, FRCO, BO, RD + verbose aliases | ✅ All 10 variants |
-| 5 | `binding` | `core/binding.json` | `let_simple` .. `let_in_second_order_both` | ✅ 9 cases |
+| 3 | `param_decl` | `operant/program.json`, `operant/limited_hold.json`, `operant/reinforcement_delay.json` | `program_lh_default`, `program_lh_and_bindings`, `lh_alias_param_decl`, `rd_param_decl_ms`, `rd_param_decl_s`, `rd_param_decl_zero`, `rd_param_decl_alias`, `rd_with_other_param_decls` | ✅ |
+| 4 | `param_name` | `operant/program.json`, `operant/compound-kw-aliases.json`, `operant/reinforcement_delay.json` | LH, COD, FRCO, BO, RD + verbose aliases | ✅ All 10 variants |
+| 5 | `binding` | `operant/binding.json` | `let_simple` .. `let_in_second_order_both` | ✅ 9 cases |
 | 6 | `schedule` | (ubiquitous) | — | ✅ Implicit |
 | 7 | `base_schedule` | (tested via atomic, compound, modifier, ident, paren) | — | ✅ Transitive |
-| 8 | `atomic_or_second` | `core/atomic.json`, `core/second_order.json` | 32 + 5 = 37 cases | ✅ |
-| 9 | `parametric_atomic` | `core/atomic.json` | `atomic_fr5` .. `atomic_ri_space_sec` (24 valid variants), all 3×3 dist×domain | ✅ Full grid |
-| 10 | `simple_schedule` | `core/second_order.json` | `second_order_fr5_fi30` .. `second_order_rr_ft` | ✅ 5 cases |
-| 11 | `dist` | `core/atomic.json` | F: `atomic_fr5`; V: `atomic_vi60s`; R: `atomic_rr20` | ✅ F, V, R |
-| 12 | `domain` | `core/atomic.json` | R: `atomic_fr5`; I: `atomic_vi60s`; T: `atomic_ft30s` | ✅ R, I, T |
+| 8 | `atomic_or_second` | `operant/atomic.json`, `operant/second_order.json` | 32 + 5 = 37 cases | ✅ |
+| 9 | `parametric_atomic` | `operant/atomic.json` | `atomic_fr5` .. `atomic_ri_space_sec` (24 valid variants), all 3×3 dist×domain | ✅ Full grid |
+| 10 | `simple_schedule` | `operant/second_order.json` | `second_order_fr5_fi30` .. `second_order_rr_ft` | ✅ 5 cases |
+| 11 | `dist` | `operant/atomic.json` | F: `atomic_fr5`; V: `atomic_vi60s`; R: `atomic_rr20` | ✅ F, V, R |
+| 12 | `domain` | `operant/atomic.json` | R: `atomic_fr5`; I: `atomic_vi60s`; T: `atomic_ft30s` | ✅ R, I, T |
 | 13 | `ws` | (implicit in all files) | — | ⚠️ Incidental |
-| 14 | `value` | `core/atomic.json`, `core/boundary-values.json` | integer, float, with/without unit | ✅ |
-| 15 | `time_sep` | `core/atomic.json` | `atomic_vi_hyphen_s` (hyphen), `atomic_vi_space_s` (space), `atomic_vi60s` (compact) | ✅ All 3 forms |
-| 16 | `time_unit` | `core/atomic.json`, `core/warnings.json` | `atomic_vi60s` (s), `atomic_vi_ms` (ms), `atomic_fi_min` (min), `atomic_fi_hyphen_sec` (sec→s normalization) | ✅ s, sec, ms, min |
-| 17 | `number` | `core/atomic.json`, `core/boundary-values.json` | integer: `atomic_fr5`; float: `atomic_fr_float`; large: `boundary_fr_large` | ✅ |
-| 18 | `ident` | `core/binding.json` | `let_simple`, `let_underscore_name` | ✅ |
-| 19 | `reserved` | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
-| 20 | `compound` | `core/compound.json` | 34 cases | ✅ |
-| 21 | `combinator` | `core/compound.json` | Conc: `conc_vi_vi`; Alt: `alt_fr_fi`; Conj: `conj_fr_fi`; Chain: `chain_fr_fi`; Tand: `tand_vr_drl`; Mult: `mult_fr_ext`; Mix: `mix_fr_fr`; Overlay: `overlay_basic` | ✅ All 8 |
-| 22 | `interpolate` | `core/interpolated.json` | `interpolate_basic` .. `interpolate_with_let_binding` | ✅ 7 cases |
-| 23 | `interp_kw_arg` | `core/interpolated.json`, `core/errors.json` | count: `interpolate_basic`; onset: `interpolate_with_onset` | ✅ Both keywords |
-| 24 | `arg_list` | `core/compound.json`, `core/compound-kw-aliases.json` | positional-only + keyword-mixed | ✅ |
-| 25 | `positional_args` | `core/compound.json` | 2-component: `conc_vi_vi`; 3: `conc_three_components`; 5: `conc_five_components` | ✅ |
-| 26 | `keyword_arg` | `core/compound.json`, `core/compound-kw-aliases.json` | scalar + directional + overlay_kw_arg forms | ✅ |
-| 27 | `scalar_kw_arg` | `core/compound.json`, `core/compound-kw-aliases.json` | `conc_vi_vi_with_cod`, `conc_with_frco`, `mult_fr_ext_with_bo` | ✅ |
-| 28 | `directional_kw_arg` | `core/compound.json`, `core/semantic-violations-extended.json`, `core/warnings.json` | `conc_directional_cod_two` .. `conc_directional_cod_overrides_param_decl` | ✅ 7 cases |
-| 29 | `dir_ref` | `core/compound.json`, `core/errors.json` | numeric: `conc_directional_cod_two`; ident: `conc_directional_cod_let_bindings` | ✅ Both forms |
-| 30 | `kw_name` | `core/compound.json`, `core/compound-kw-aliases.json` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | ✅ All 6 |
-| 30a | `overlay_kw_arg` | `core/compound.json` | `overlay_target_changeover`, `overlay_target_all_explicit` | ✅ 2 cases |
-| 30b | `target_value` | `core/compound.json` | changeover: `overlay_target_changeover`; all: `overlay_target_all_explicit` | ✅ Both values |
-| 30c | `punish_directive` | `core/compound.json` | `conc_punish_directional`, `conc_punish_changeover`, `conc_punish_component`, `conc_punish_ident` | ✅ 4 cases |
-| 30d | `punish_target` | `core/compound.json` | changeover: `conc_punish_changeover`; directional: `conc_punish_directional`; single dir_ref: `conc_punish_component` | ✅ All 3 forms |
-| 31 | `modifier` | `core/modifier.json` | 23 cases | ✅ |
-| 32 | `dr_mod` | `core/modifier.json` | `drl_5s`, `drh_2s`, `dro_10s`, `drl_space` | ✅ DRL, DRH, DRO |
-| 33 | `pr_mod` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric`, `pr_geometric_defaults`, `pr_shorthand_5`, `pr_shorthand_1`, `pr_shorthand_no_space` | ✅ Both forms |
-| 34 | `pr_opts` | `core/modifier.json` | `pr_hodos` (no params), `pr_linear` (with params), `pr_geometric` (with params) | ✅ |
-| 35 | `pr_step` | `core/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric` | ✅ All 4 |
-| 36 | `pr_param` | `core/modifier.json` | start + increment in `pr_linear`; start + ratio in `pr_geometric` | ✅ |
-| 37 | `repeat` | `core/modifier.json`, `core/algebra.json` | `repeat_3_fr10`, `repeat_nested`, `repeat_1_identity`, `repeat_identity`, `repeat_additive_decomposition` | ✅ |
-| 38 | `lag_mod` | `core/modifier.json` | `lag_simple_shorthand`, `lag_simple_no_space`, `lag_zero_equiv_crf`, `lag_parenthesized_n_only`, `lag_parenthesized_with_length`, `lag_page_neuringer_exp3`, `lag_in_mult_schedule`, `lag_let_binding` | ✅ 8 cases |
-| 39 | `lag_kw_arg` | `core/modifier.json`, `core/errors.json` | `lag_parenthesized_with_length`, `lag_page_neuringer_exp3` | ✅ |
-| 40 | `aversive_schedule` | `core/aversive.json` | 14 cases | ✅ |
-| 41 | `sidman_avoidance` | `core/aversive.json` | `sidman_basic` .. `sidman_let_binding` | ✅ 7 cases |
-| 42 | `sidman_arg` | `core/aversive.json`, `core/errors.json` | SSI, RSI, verbose aliases | ✅ |
-| 43 | `sidman_kw` | `core/aversive.json` | SSI: `sidman_basic`; ShockShockInterval: `sidman_verbose_alias`; RSI: `sidman_basic`; ResponseShockInterval: `sidman_verbose_alias` | ✅ All 4 |
-| 44 | `discriminated_avoidance` | `core/aversive.json` | `da_basic_escape` .. `da_param_order_swapped` | ✅ 7 cases |
-| 45 | `da_arg` | `core/aversive.json`, `core/errors.json` | temporal + mode args | ✅ |
-| 46 | `da_temporal_kw` | `core/aversive.json` | CSUSInterval, ITI, ShockDuration, MaxShock | ✅ All 4 |
-| 47 | `da_mode` | `core/aversive.json`, `core/errors.json` | `da_basic_escape` (escape), `da_basic_fixed` (fixed) | ✅ Both |
+| 14 | `value` | `operant/atomic.json`, `operant/boundary-values.json` | integer, float, with/without unit | ✅ |
+| 15 | `time_sep` | `operant/atomic.json` | `atomic_vi_hyphen_s` (hyphen), `atomic_vi_space_s` (space), `atomic_vi60s` (compact) | ✅ All 3 forms |
+| 16 | `time_unit` | `operant/atomic.json`, `operant/warnings.json` | `atomic_vi60s` (s), `atomic_vi_ms` (ms), `atomic_fi_min` (min), `atomic_fi_hyphen_sec` (sec→s normalization) | ✅ s, sec, ms, min |
+| 17 | `number` | `operant/atomic.json`, `operant/boundary-values.json` | integer: `atomic_fr5`; float: `atomic_fr_float`; large: `boundary_fr_large` | ✅ |
+| 18 | `ident` | `operant/binding.json` | `let_simple`, `let_underscore_name` | ✅ |
+| 19 | `reserved` | `operant/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
+| 20 | `compound` | `operant/compound.json` | 34 cases | ✅ |
+| 21 | `combinator` | `operant/compound.json` | Conc: `conc_vi_vi`; Alt: `alt_fr_fi`; Conj: `conj_fr_fi`; Chain: `chain_fr_fi`; Tand: `tand_vr_drl`; Mult: `mult_fr_ext`; Mix: `mix_fr_fr`; Overlay: `overlay_basic` | ✅ All 8 |
+| 22 | `interpolate` | `operant/interpolated.json` | `interpolate_basic` .. `interpolate_with_let_binding` | ✅ 7 cases |
+| 23 | `interp_kw_arg` | `operant/interpolated.json`, `operant/errors.json` | count: `interpolate_basic`; onset: `interpolate_with_onset` | ✅ Both keywords |
+| 24 | `arg_list` | `operant/compound.json`, `operant/compound-kw-aliases.json` | positional-only + keyword-mixed | ✅ |
+| 25 | `positional_args` | `operant/compound.json` | 2-component: `conc_vi_vi`; 3: `conc_three_components`; 5: `conc_five_components` | ✅ |
+| 26 | `keyword_arg` | `operant/compound.json`, `operant/compound-kw-aliases.json` | scalar + directional + overlay_kw_arg forms | ✅ |
+| 27 | `scalar_kw_arg` | `operant/compound.json`, `operant/compound-kw-aliases.json` | `conc_vi_vi_with_cod`, `conc_with_frco`, `mult_fr_ext_with_bo` | ✅ |
+| 28 | `directional_kw_arg` | `operant/compound.json`, `operant/semantic-violations-extended.json`, `operant/warnings.json` | `conc_directional_cod_two` .. `conc_directional_cod_overrides_param_decl` | ✅ 7 cases |
+| 29 | `dir_ref` | `operant/compound.json`, `operant/errors.json` | numeric: `conc_directional_cod_two`; ident: `conc_directional_cod_let_bindings` | ✅ Both forms |
+| 30 | `kw_name` | `operant/compound.json`, `operant/compound-kw-aliases.json` | COD, ChangeoverDelay, FRCO, FixedRatioChangeover, BO, Blackout | ✅ All 6 |
+| 30a | `overlay_kw_arg` | `operant/compound.json` | `overlay_target_changeover`, `overlay_target_all_explicit` | ✅ 2 cases |
+| 30b | `target_value` | `operant/compound.json` | changeover: `overlay_target_changeover`; all: `overlay_target_all_explicit` | ✅ Both values |
+| 30c | `punish_directive` | `operant/compound.json` | `conc_punish_directional`, `conc_punish_changeover`, `conc_punish_component`, `conc_punish_ident` | ✅ 4 cases |
+| 30d | `punish_target` | `operant/compound.json` | changeover: `conc_punish_changeover`; directional: `conc_punish_directional`; single dir_ref: `conc_punish_component` | ✅ All 3 forms |
+| 31 | `modifier` | `operant/modifier.json` | 23 cases | ✅ |
+| 32 | `dr_mod` | `operant/modifier.json` | `drl_5s`, `drh_2s`, `dro_10s`, `drl_space` | ✅ DRL, DRH, DRO |
+| 33 | `pr_mod` | `operant/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric`, `pr_geometric_defaults`, `pr_shorthand_5`, `pr_shorthand_1`, `pr_shorthand_no_space` | ✅ Both forms |
+| 34 | `pr_opts` | `operant/modifier.json` | `pr_hodos` (no params), `pr_linear` (with params), `pr_geometric` (with params) | ✅ |
+| 35 | `pr_step` | `operant/modifier.json` | `pr_hodos`, `pr_linear`, `pr_exponential`, `pr_geometric` | ✅ All 4 |
+| 36 | `pr_param` | `operant/modifier.json` | start + increment in `pr_linear`; start + ratio in `pr_geometric` | ✅ |
+| 37 | `repeat` | `operant/modifier.json`, `operant/algebra.json` | `repeat_3_fr10`, `repeat_nested`, `repeat_1_identity`, `repeat_identity`, `repeat_additive_decomposition` | ✅ |
+| 38 | `lag_mod` | `operant/modifier.json` | `lag_simple_shorthand`, `lag_simple_no_space`, `lag_zero_equiv_crf`, `lag_parenthesized_n_only`, `lag_parenthesized_with_length`, `lag_page_neuringer_exp3`, `lag_in_mult_schedule`, `lag_let_binding` | ✅ 8 cases |
+| 39 | `lag_kw_arg` | `operant/modifier.json`, `operant/errors.json` | `lag_parenthesized_with_length`, `lag_page_neuringer_exp3` | ✅ |
+| 40 | `aversive_schedule` | `operant/aversive.json` | 14 cases | ✅ |
+| 41 | `sidman_avoidance` | `operant/aversive.json` | `sidman_basic` .. `sidman_let_binding` | ✅ 7 cases |
+| 42 | `sidman_arg` | `operant/aversive.json`, `operant/errors.json` | SSI, RSI, verbose aliases | ✅ |
+| 43 | `sidman_kw` | `operant/aversive.json` | SSI: `sidman_basic`; ShockShockInterval: `sidman_verbose_alias`; RSI: `sidman_basic`; ResponseShockInterval: `sidman_verbose_alias` | ✅ All 4 |
+| 44 | `discriminated_avoidance` | `operant/aversive.json` | `da_basic_escape` .. `da_param_order_swapped` | ✅ 7 cases |
+| 45 | `da_arg` | `operant/aversive.json`, `operant/errors.json` | temporal + mode args | ✅ |
+| 46 | `da_temporal_kw` | `operant/aversive.json` | CSUSInterval, ITI, ShockDuration, MaxShock | ✅ All 4 |
+| 47 | `da_mode` | `operant/aversive.json`, `operant/errors.json` | `da_basic_escape` (escape), `da_basic_fixed` (fixed) | ✅ Both |
 | 48 | `annotated_schedule` | `annotations/measurement.json`, `annotations/program-level.json` | 29 + 4 = 33 cases | ✅ |
 | 49 | `annotation` | `annotations/measurement.json`, `annotations/program-level.json` | — | ✅ |
 | 50 | `annotation_args` | `annotations/measurement.json` | positional + keyword-only forms | ✅ |
@@ -91,7 +94,7 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 **Summary:** 54 productions; 52 with dedicated coverage, 1 implicit (`ws`), 1 transitive (`base_schedule`).
 
-### §1.1b Experiment Layer Grammar (`schema/core/grammar.ebnf`, v2.0 additions)
+### §1.1b Experiment Layer Grammar (`schema/operant/grammar.ebnf`, experiment additions)
 
 | # | Production | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
@@ -114,33 +117,33 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 **Summary:** 14 productions; all with dedicated coverage.
 
-### §1.2 Core-Stateful Grammar (`schema/core-stateful/grammar.ebnf`)
+### §1.2 Operant-Stateful Grammar (`schema/operant/stateful/grammar.ebnf`)
 
 | # | Production | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| S1 | `pctl_mod` | `core-stateful/percentile.json` | `pctl_minimal` .. `pctl_with_annotations` | ✅ 10 cases |
-| S2 | `pctl_target` | `core-stateful/percentile.json` | IRT: `pctl_minimal`; force: `pctl_force_dimension`; duration: `pctl_duration_shaping`; rate: `pctl_rate_target`; latency: `pctl_fully_specified` | ✅ All 5 |
-| S3 | `pctl_rank` | `core-stateful/percentile.json`, `core-stateful/errors.json` | valid: `pctl_minimal`; boundary: `pctl_warn_extreme_rank_zero`, `pctl_warn_extreme_rank_100` | ✅ |
-| S4 | `pctl_kw_arg` | `core-stateful/percentile.json` | window: `pctl_with_window`; dir: `pctl_fully_specified` | ✅ Both |
-| S5 | `pctl_dir` | `core-stateful/percentile.json` | below (default): `pctl_minimal`; above: `pctl_fully_specified` | ✅ Both |
-| S6 | `adj_schedule` | `core-stateful/adjusting.json` | `adj_delay_minimal` .. `adj_with_annotations` | ✅ 16 cases |
-| S7 | `adj_target` | `core-stateful/adjusting.json` | delay: `adj_delay_minimal`; ratio: `adj_ratio_minimal`; amount: `adj_amount_minimal` | ✅ All 3 |
-| S8 | `adj_kw_arg` | `core-stateful/adjusting.json` | start, step, min, max | ✅ All 4 |
-| S9 | `interlock_schedule` | `core-stateful/interlocking.json` | `interlock_standard` .. `interlock_with_annotations` | ✅ 12 cases |
-| S10 | `interlock_kw_arg` | `core-stateful/interlocking.json` | R0: `interlock_standard`; T: `interlock_standard` | ✅ Both |
+| S1 | `pctl_mod` | `operant/stateful/percentile.json` | `pctl_minimal` .. `pctl_with_annotations` | ✅ 10 cases |
+| S2 | `pctl_target` | `operant/stateful/percentile.json` | IRT: `pctl_minimal`; force: `pctl_force_dimension`; duration: `pctl_duration_shaping`; rate: `pctl_rate_target`; latency: `pctl_fully_specified` | ✅ All 5 |
+| S3 | `pctl_rank` | `operant/stateful/percentile.json`, `operant/stateful/errors.json` | valid: `pctl_minimal`; boundary: `pctl_warn_extreme_rank_zero`, `pctl_warn_extreme_rank_100` | ✅ |
+| S4 | `pctl_kw_arg` | `operant/stateful/percentile.json` | window: `pctl_with_window`; dir: `pctl_fully_specified` | ✅ Both |
+| S5 | `pctl_dir` | `operant/stateful/percentile.json` | below (default): `pctl_minimal`; above: `pctl_fully_specified` | ✅ Both |
+| S6 | `adj_schedule` | `operant/stateful/adjusting.json` | `adj_delay_minimal` .. `adj_with_annotations` | ✅ 16 cases |
+| S7 | `adj_target` | `operant/stateful/adjusting.json` | delay: `adj_delay_minimal`; ratio: `adj_ratio_minimal`; amount: `adj_amount_minimal` | ✅ All 3 |
+| S8 | `adj_kw_arg` | `operant/stateful/adjusting.json` | start, step, min, max | ✅ All 4 |
+| S9 | `interlock_schedule` | `operant/stateful/interlocking.json` | `interlock_standard` .. `interlock_with_annotations` | ✅ 12 cases |
+| S10 | `interlock_kw_arg` | `operant/stateful/interlocking.json` | R0: `interlock_standard`; T: `interlock_standard` | ✅ Both |
 
 **Summary:** 10 productions; all with dedicated coverage.
 
-### §1.3 Core-Trial-Based Grammar (`schema/core-trial-based/grammar.ebnf`)
+### §1.3 Operant-Trial-Based Grammar (`schema/operant/trial-based/grammar.ebnf`)
 
 | # | Production | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| T1 | `trial_based_schedule` | `core-trial-based/mts.json`, `core-trial-based/gonogo.json` | (transitive via mts_schedule, gonogo_schedule) | ✅ Both branches |
-| T2 | `mts_schedule` | `core-trial-based/mts.json` | `mts_minimal` .. `mts_with_limited_hold` | ✅ 23 cases |
-| T3 | `mts_kw_arg` | `core-trial-based/mts.json` | comparisons, consequence, incorrect, ITI, type | ✅ All 5 |
-| T4 | `mts_type` | `core-trial-based/mts.json` | identity: `mts_fully_specified`; arbitrary: `mts_arbitrary_explicit` | ✅ Both |
-| T5 | `gonogo_schedule` | `core-trial-based/gonogo.json` | `gonogo_minimal` .. `gonogo_with_limited_hold_kwarg` | ✅ 22 cases |
-| T6 | `gonogo_kw_arg` | `core-trial-based/gonogo.json` | responseWindow, consequence, incorrect, falseAlarm, ITI, LH | ✅ All 6 |
+| T1 | `trial_based_schedule` | `operant/trial-based/mts.json`, `operant/trial-based/gonogo.json` | (transitive via mts_schedule, gonogo_schedule) | ✅ Both branches |
+| T2 | `mts_schedule` | `operant/trial-based/mts.json` | `mts_minimal` .. `mts_with_limited_hold` | ✅ 23 cases |
+| T3 | `mts_kw_arg` | `operant/trial-based/mts.json` | comparisons, consequence, incorrect, ITI, type | ✅ All 5 |
+| T4 | `mts_type` | `operant/trial-based/mts.json` | identity: `mts_fully_specified`; arbitrary: `mts_arbitrary_explicit` | ✅ Both |
+| T5 | `gonogo_schedule` | `operant/trial-based/gonogo.json` | `gonogo_minimal` .. `gonogo_with_limited_hold_kwarg` | ✅ 22 cases |
+| T6 | `gonogo_kw_arg` | `operant/trial-based/gonogo.json` | responseWindow, consequence, incorrect, falseAlarm, ITI, LH | ✅ All 6 |
 
 **Summary:** 6 productions; all with dedicated coverage.
 
@@ -150,142 +153,142 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 | Rule | Spec Reference | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| LH propagation R1–R6 | theory.md §1.6.1 | `core/lh_propagation.json` | 27 cases (14 valid + 13 resolved ASTs) | ✅ |
-| Algebraic equivalences | theory.md §2.2, Theorems 1–8 | `core/algebra.json` | 25 cases: identity (R1–R5, R10), annihilator (R6–R9), associativity (R13–R17), commutativity, non-distributivity, Repeat decomposition | ✅ |
-| Let-binding expansion | grammar.ebnf §5 | `core/binding.json` | `let_simple` .. `let_in_second_order_both` (9 cases) | ✅ |
-| Repeat desugaring | theory.md §2.2.3 | `core/algebra.json` | `repeat_identity`, `repeat_additive_decomposition` | ✅ |
-| Value range constraints | grammar.ebnf §46–§62 | `core/boundary-values.json` | 54 cases (all atomic/DR/PR/LH/Repeat/FRCO/SecondOrder boundary values) | ✅ |
-| SecondOrder semantics | theory.md §2.11.1 | `core/second_order.json`, `core/errors.json` | 5 basic parsing + 4 compound-unit rejection cases | ✅ |
+| LH propagation R1–R6 | theory.md §1.6.1 | `operant/lh_propagation.json` | 27 cases (14 valid + 13 resolved ASTs) | ✅ |
+| Algebraic equivalences | theory.md §2.2, Theorems 1–8 | `operant/algebra.json` | 25 cases: identity (R1–R5, R10), annihilator (R6–R9), associativity (R13–R17), commutativity, non-distributivity, Repeat decomposition | ✅ |
+| Let-binding expansion | grammar.ebnf §5 | `operant/binding.json` | `let_simple` .. `let_in_second_order_both` (9 cases) | ✅ |
+| Repeat desugaring | theory.md §2.2.3 | `operant/algebra.json` | `repeat_identity`, `repeat_additive_decomposition` | ✅ |
+| Value range constraints | grammar.ebnf §46–§62 | `operant/boundary-values.json` | 54 cases (all atomic/DR/PR/LH/Repeat/FRCO/SecondOrder boundary values) | ✅ |
+| SecondOrder semantics | theory.md §2.11.1 | `operant/second_order.json`, `operant/errors.json` | 5 basic parsing + 4 compound-unit rejection cases | ✅ |
 | Annotation measurement parsing | annotations spec | `annotations/measurement.json` | 29 cases (all 10 keywords) | ✅ |
 | Annotation measurement errors | annotations spec | `annotations/errors.json` | 36 cases (incl. 2 cross-annotation) | ✅ |
 | Cross-annotation composition | design-philosophy.md §4 | `annotations/program-level.json` | `program_annotations_all_four_jeab_categories` | ✅ |
 | T-τ representation conversion | representations/t-tau.md | `representations/t-tau/` | 33 cases total (to: 11, from: 9, roundtrip: 6, errors: 7) | ✅ |
-| Pctl percentile criterion | core-stateful/grammar.md | `core-stateful/percentile.json` | 10 valid cases | ✅ |
-| Adj adjusting mechanism | core-stateful/grammar.md | `core-stateful/adjusting.json` | 16 valid cases | ✅ |
-| Interlocking R(t) formula | core-stateful/grammar.md | `core-stateful/interlocking.json` | 12 valid cases | ✅ |
-| MTS trial structure | core-trial-based/grammar.md | `core-trial-based/mts.json` | 23 valid cases | ✅ |
-| MTS + combinator interaction | core-trial-based/grammar.md | `core-trial-based/mts.json` | `mts_in_mult`, `mts_in_chain`, `mts_mult_training_test` | ✅ |
-| MTS + LH compatibility | core-trial-based/grammar.ebnf §LH | `core-trial-based/mts.json` | `mts_with_limited_hold` | ✅ |
-| Trial-based modifier incompatibility | core-trial-based/grammar.ebnf | `core-trial-based/errors.json` | `mts_error_drl_modifier` .. `mts_error_lag_modifier` | ✅ 5 cases |
-| GoNoGo trial structure | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | 22 cases (10 valid + 2 boundary + 2 LH + 8 error) | ✅ |
-| GoNoGo + combinator interaction | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | `gonogo_in_mult`, `gonogo_in_chain`, `gonogo_mult_training_probe` | ✅ |
-| GoNoGo + LH redundancy | core-trial-based/grammar.ebnf §LH | `core-trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
-| GoNoGo SDT-style asymmetric consequence | core-trial-based/grammar.ebnf §2 | `core-trial-based/gonogo.json` | `gonogo_sdt_style` | ✅ |
+| Pctl percentile criterion | operant/stateful/grammar.md | `operant/stateful/percentile.json` | 10 valid cases | ✅ |
+| Adj adjusting mechanism | operant/stateful/grammar.md | `operant/stateful/adjusting.json` | 16 valid cases | ✅ |
+| Interlocking R(t) formula | operant/stateful/grammar.md | `operant/stateful/interlocking.json` | 12 valid cases | ✅ |
+| MTS trial structure | operant/trial-based/grammar.md | `operant/trial-based/mts.json` | 23 valid cases | ✅ |
+| MTS + combinator interaction | operant/trial-based/grammar.md | `operant/trial-based/mts.json` | `mts_in_mult`, `mts_in_chain`, `mts_mult_training_test` | ✅ |
+| MTS + LH compatibility | operant/trial-based/grammar.ebnf §LH | `operant/trial-based/mts.json` | `mts_with_limited_hold` | ✅ |
+| Trial-based modifier incompatibility | operant/trial-based/grammar.ebnf | `operant/trial-based/errors.json` | `mts_error_drl_modifier` .. `mts_error_lag_modifier` | ✅ 5 cases |
+| GoNoGo trial structure | operant/trial-based/grammar.ebnf §2 | `operant/trial-based/gonogo.json` | 22 cases (10 valid + 2 boundary + 2 LH + 8 error) | ✅ |
+| GoNoGo + combinator interaction | operant/trial-based/grammar.ebnf §2 | `operant/trial-based/gonogo.json` | `gonogo_in_mult`, `gonogo_in_chain`, `gonogo_mult_training_probe` | ✅ |
+| GoNoGo + LH redundancy | operant/trial-based/grammar.ebnf §LH | `operant/trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
+| GoNoGo SDT-style asymmetric consequence | operant/trial-based/grammar.ebnf §2 | `operant/trial-based/gonogo.json` | `gonogo_sdt_style` | ✅ |
 
 ---
 
 ## §3. Error Code Coverage
 
-### §3.1 Core Parse Errors
+### §3.1 Operant Parse Errors
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `UNEXPECTED_EOF` | ParseError | `core/errors.json` | `error_empty_input` | ✅ |
-| `UNEXPECTED_CHARACTER` | LexError | `core/errors.json` | `error_invalid_char`, `multi_error_missing_value_and_unexpected_char`, `multi_error_lex_errors_multiline`, `multi_error_three_parse_errors` | ✅ 4 cases |
-| `UNEXPECTED_TOKEN` | ParseError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_paren_as_second_order`, `error_da_missing_all` | ✅ 2 cases |
-| `INSUFFICIENT_COMPONENTS` | ParseError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_compound_one_component`, `error_interpolate_one_component`, `error_overlay_one_component` | ✅ 3 cases |
-| `EXPECTED_VALUE` | ParseError | `core/errors.json`, `core/boundary-values.json` | `error_missing_value`, `boundary_fr_negative`, `boundary_vi_negative`, `boundary_drl_negative`, `error_atomic_negative_value`, `error_atomic_negative_interval`, `error_lh_negative`, `error_lag_missing_positional_n`, `multi_error_two_missing_values`, `multi_error_missing_value_and_unexpected_char`, `multi_error_three_parse_errors` | ✅ 11 cases |
-| `EXPECTED_RPAREN` | ParseError | `core/errors.json` | `error_unclosed_paren`, `multi_error_three_parse_errors` | ✅ 2 cases |
-| `EXPECTED_COMMA_OR_RPAREN` | ParseError | `core/errors.json` | `error_missing_comma` | ✅ |
-| `EXPECTED_LPAREN_OR_NUMBER` | ParseError | `core/errors.json` | `error_pr_bare` | ✅ |
-| `KEYWORD_BEFORE_POSITIONAL` | ParseError | `core/errors.json` | `error_keyword_before_positional` | ✅ |
-| `RESERVED_WORD` | ParseError | `core/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
-| `INVALID_SECOND_ORDER_OVERALL` | ParseError | `core/errors.json` | `error_second_order_ext_overall`, `error_crf_second_order_overall` | ✅ 2 cases |
+| `UNEXPECTED_EOF` | ParseError | `operant/errors.json` | `error_empty_input` | ✅ |
+| `UNEXPECTED_CHARACTER` | LexError | `operant/errors.json` | `error_invalid_char`, `multi_error_missing_value_and_unexpected_char`, `multi_error_lex_errors_multiline`, `multi_error_three_parse_errors` | ✅ 4 cases |
+| `UNEXPECTED_TOKEN` | ParseError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_paren_as_second_order`, `error_da_missing_all` | ✅ 2 cases |
+| `INSUFFICIENT_COMPONENTS` | ParseError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_compound_one_component`, `error_interpolate_one_component`, `error_overlay_one_component` | ✅ 3 cases |
+| `EXPECTED_VALUE` | ParseError | `operant/errors.json`, `operant/boundary-values.json` | `error_missing_value`, `boundary_fr_negative`, `boundary_vi_negative`, `boundary_drl_negative`, `error_atomic_negative_value`, `error_atomic_negative_interval`, `error_lh_negative`, `error_lag_missing_positional_n`, `multi_error_two_missing_values`, `multi_error_missing_value_and_unexpected_char`, `multi_error_three_parse_errors` | ✅ 11 cases |
+| `EXPECTED_RPAREN` | ParseError | `operant/errors.json` | `error_unclosed_paren`, `multi_error_three_parse_errors` | ✅ 2 cases |
+| `EXPECTED_COMMA_OR_RPAREN` | ParseError | `operant/errors.json` | `error_missing_comma` | ✅ |
+| `EXPECTED_LPAREN_OR_NUMBER` | ParseError | `operant/errors.json` | `error_pr_bare` | ✅ |
+| `KEYWORD_BEFORE_POSITIONAL` | ParseError | `operant/errors.json` | `error_keyword_before_positional` | ✅ |
+| `RESERVED_WORD` | ParseError | `operant/errors.json` | `error_reserved_word_as_ident`, `error_reserved_pr_step_hodos`, `error_reserved_pr_param_start`, `error_reserved_pr_step_linear`, `error_reserved_pr_step_exponential`, `error_reserved_pr_step_geometric`, `error_reserved_pr_param_increment` | ✅ 7 cases |
+| `INVALID_SECOND_ORDER_OVERALL` | ParseError | `operant/errors.json` | `error_second_order_ext_overall`, `error_crf_second_order_overall` | ✅ 2 cases |
 
-### §3.2 Core Semantic Errors — Binding / Variable
-
-| Error Code | Type | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|---|
-| `UNDEFINED_IDENTIFIER` | SemanticError | `core/errors.json` | `error_undefined_ident` | ✅ |
-| `FORWARD_REFERENCE` | SemanticError | `core/errors.json` | `error_forward_reference`, `error_self_referential_binding` | ✅ 2 cases |
-| `DUPLICATE_BINDING` | SemanticError | `core/errors.json` | `error_shadowing`, `multi_error_semantic_binding_and_keyword` | ✅ 2 cases |
-
-### §3.3 Core Semantic Errors — Value Range
+### §3.2 Operant Semantic Errors — Binding / Variable
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `ATOMIC_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_atomic_nonpositive_ratio`, `error_atomic_nonpositive_interval`, `boundary_fr_zero` .. `boundary_rt_zero` (10), `boundary_fr_zero_compact`, `boundary_second_order_fr0`, `multi_error_semantic_nonpositive_values`, `multi_error_semantic_mixed_codes`, `multi_error_semantic_nonpositive_and_duplicate_kw` | ✅ 17 cases |
-| `DR_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_dr_nonpositive`, `boundary_drl_zero`, `boundary_drh_zero`, `boundary_dro_zero`, `multi_error_semantic_mixed_codes` | ✅ 5 cases |
-| `PR_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_pr_nonpositive_shorthand`, `error_pr_nonpositive_start`, `error_pr_nonpositive_increment`, `boundary_pr_shorthand_zero`, `boundary_pr_linear_zero_start`, `boundary_pr_linear_zero_increment`, `boundary_pr_geometric_zero_start` | ✅ 7 cases |
-| `PR_NON_INTEGER_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_pr_non_integer_start`, `error_pr_non_integer_increment`, `error_pr_non_integer_shorthand`, `boundary_pr_fractional_shorthand`, `boundary_pr_fractional_start`, `boundary_pr_fractional_increment` | ✅ 6 cases |
-| `LH_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_lh_nonpositive_expression`, `error_lh_nonpositive_expression_ms`, `error_lh_nonpositive_program_level`, `boundary_lh_zero` | ✅ 4 cases |
-| `FRCO_NONPOSITIVE_VALUE` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_frco_nonpositive`, `boundary_conc_frco_zero` | ✅ 2 cases |
-| `PR_GEOMETRIC_RATIO_NOT_PROGRESSIVE` | SemanticError | `core/boundary-values.json` | `boundary_pr_geometric_ratio_one`, `boundary_pr_geometric_ratio_below_one` | ✅ 2 cases |
-| `REPEAT_ZERO_COUNT` | SemanticError | `core/errors.json` | `error_repeat_zero` | ✅ |
-| `REPEAT_NON_INTEGER_COUNT` | SemanticError | `core/errors.json`, `core/boundary-values.json` | `error_repeat_non_integer`, `boundary_repeat_fractional`, `boundary_repeat_fractional_large` | ✅ 3 cases |
+| `UNDEFINED_IDENTIFIER` | SemanticError | `operant/errors.json` | `error_undefined_ident` | ✅ |
+| `FORWARD_REFERENCE` | SemanticError | `operant/errors.json` | `error_forward_reference`, `error_self_referential_binding` | ✅ 2 cases |
+| `DUPLICATE_BINDING` | SemanticError | `operant/errors.json` | `error_shadowing`, `multi_error_semantic_binding_and_keyword` | ✅ 2 cases |
 
-### §3.4 Core Semantic Errors — Compound / Combinator
+### §3.3 Operant Semantic Errors — Value Range
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `INVALID_KEYWORD_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_cod_on_chain`, `error_cod_on_alt`, `error_frco_on_tand`, `error_bo_on_conc`, `error_bo_on_chain`, `error_bo_on_tand`, `error_bo_on_alt`, `error_overlay_keyword_arg`, `error_directional_frco`, `error_directional_bo`, `error_directional_cod_on_chain`, + 18 extended cases | ✅ 29 cases |
-| `DUPLICATE_KEYWORD_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_duplicate_keyword`, `error_duplicate_bo`, + 3 alias-collision cases, `multi_error_semantic_nonpositive_and_duplicate_kw`, `multi_error_semantic_binding_and_keyword` | ✅ 7 cases |
-| `OVERLAY_REQUIRES_TWO` | SemanticError | `core/errors.json` | `error_overlay_three_components` | ✅ |
-| `INVALID_OVERLAY_TARGET` | SemanticError | `core/compound.json` | `error_non_overlay_target` | ✅ |
-| `TARGET_REQUIRES_CONC` | SemanticError | `core/compound.json` | `error_overlay_target_non_conc` | ✅ |
-| `EXPECTED_TARGET_VALUE` | ParseError | `core/compound.json` | `error_overlay_target_unknown` | ✅ |
-| `INVALID_PUNISH_COMBINATOR` | SemanticError | `core/compound.json` | `error_punish_non_conc` | ✅ |
-| `PUNISH_SELF_REFERENCE` | SemanticError | `core/compound.json` | `error_punish_self_ref` | ✅ |
-| `DUPLICATE_PUNISH_DIRECTIVE` | SemanticError | `core/compound.json` | `error_punish_duplicate` | ✅ |
-| `PUNISH_TARGET_CONFLICT` | SemanticError | `core/compound.json` | `error_punish_target_conflict` | ✅ |
-| `INTERPOLATE_REQUIRES_TWO` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_three_components`, `error_interp_alias_three_components` | ✅ 2 cases |
-| `MISSING_INTERPOLATE_COUNT` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_missing_count`, `error_interp_alias_missing_count` | ✅ 2 cases |
-| `INTERPOLATE_NONPOSITIVE_COUNT` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_count_zero`, `error_interpolate_count_negative` | ✅ 2 cases |
-| `INTERPOLATE_COUNT_TIME_UNIT` | SemanticError | `core/errors.json` | `error_interpolate_count_with_time_unit` | ✅ |
-| `INTERPOLATE_ONSET_TIME_UNIT_REQUIRED` | SemanticError | `core/errors.json` | `error_interpolate_onset_no_time_unit` | ✅ |
-| `INTERPOLATE_NONPOSITIVE_ONSET` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_onset_nonpositive`, `error_interpolate_onset_negative` | ✅ 2 cases |
-| `DUPLICATE_INTERPOLATE_KW_ARG` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_interpolate_duplicate_count`, `error_interpolate_duplicate_onset` | ✅ 2 cases |
-| `INVALID_SECOND_ORDER_UNIT` | SemanticError | `core/errors.json` | `error_second_order_chain_unit`, `error_second_order_tand_unit`, `error_second_order_conc_unit`, `error_second_order_mult_unit` | ✅ 4 cases |
+| `ATOMIC_NONPOSITIVE_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_atomic_nonpositive_ratio`, `error_atomic_nonpositive_interval`, `boundary_fr_zero` .. `boundary_rt_zero` (10), `boundary_fr_zero_compact`, `boundary_second_order_fr0`, `multi_error_semantic_nonpositive_values`, `multi_error_semantic_mixed_codes`, `multi_error_semantic_nonpositive_and_duplicate_kw` | ✅ 17 cases |
+| `DR_NONPOSITIVE_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_dr_nonpositive`, `boundary_drl_zero`, `boundary_drh_zero`, `boundary_dro_zero`, `multi_error_semantic_mixed_codes` | ✅ 5 cases |
+| `PR_NONPOSITIVE_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_pr_nonpositive_shorthand`, `error_pr_nonpositive_start`, `error_pr_nonpositive_increment`, `boundary_pr_shorthand_zero`, `boundary_pr_linear_zero_start`, `boundary_pr_linear_zero_increment`, `boundary_pr_geometric_zero_start` | ✅ 7 cases |
+| `PR_NON_INTEGER_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_pr_non_integer_start`, `error_pr_non_integer_increment`, `error_pr_non_integer_shorthand`, `boundary_pr_fractional_shorthand`, `boundary_pr_fractional_start`, `boundary_pr_fractional_increment` | ✅ 6 cases |
+| `LH_NONPOSITIVE_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_lh_nonpositive_expression`, `error_lh_nonpositive_expression_ms`, `error_lh_nonpositive_program_level`, `boundary_lh_zero` | ✅ 4 cases |
+| `FRCO_NONPOSITIVE_VALUE` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_frco_nonpositive`, `boundary_conc_frco_zero` | ✅ 2 cases |
+| `PR_GEOMETRIC_RATIO_NOT_PROGRESSIVE` | SemanticError | `operant/boundary-values.json` | `boundary_pr_geometric_ratio_one`, `boundary_pr_geometric_ratio_below_one` | ✅ 2 cases |
+| `REPEAT_ZERO_COUNT` | SemanticError | `operant/errors.json` | `error_repeat_zero` | ✅ |
+| `REPEAT_NON_INTEGER_COUNT` | SemanticError | `operant/errors.json`, `operant/boundary-values.json` | `error_repeat_non_integer`, `boundary_repeat_fractional`, `boundary_repeat_fractional_large` | ✅ 3 cases |
 
-### §3.5 Core Semantic Errors — Directional COD
+### §3.4 Operant Semantic Errors — Compound / Combinator
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `DIRECTIONAL_SELF_REFERENCE` | SemanticError | `core/errors.json` | `error_directional_cod_self_reference` | ✅ |
-| `DIRECTIONAL_INDEX_OUT_OF_RANGE` | SemanticError | `core/errors.json`, `core/compound.json` | `error_directional_cod_index_out_of_range`, `error_punish_index_oob` | ✅ 2 cases |
-| `DIRECTIONAL_IDENT_NOT_FOUND` | SemanticError | `core/errors.json` | `error_directional_cod_ident_not_found` | ✅ |
-| `DUPLICATE_DIRECTIONAL_KW` | SemanticError | `core/errors.json` | `error_directional_cod_duplicate` | ✅ |
-| `INVALID_DIRECTIONAL_KW` | SemanticError | `core/errors.json` | `error_directional_frco`, `error_directional_bo` | ✅ 2 cases |
+| `INVALID_KEYWORD_ARG` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_cod_on_chain`, `error_cod_on_alt`, `error_frco_on_tand`, `error_bo_on_conc`, `error_bo_on_chain`, `error_bo_on_tand`, `error_bo_on_alt`, `error_overlay_keyword_arg`, `error_directional_frco`, `error_directional_bo`, `error_directional_cod_on_chain`, + 18 extended cases | ✅ 29 cases |
+| `DUPLICATE_KEYWORD_ARG` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_duplicate_keyword`, `error_duplicate_bo`, + 3 alias-collision cases, `multi_error_semantic_nonpositive_and_duplicate_kw`, `multi_error_semantic_binding_and_keyword` | ✅ 7 cases |
+| `OVERLAY_REQUIRES_TWO` | SemanticError | `operant/errors.json` | `error_overlay_three_components` | ✅ |
+| `INVALID_OVERLAY_TARGET` | SemanticError | `operant/compound.json` | `error_non_overlay_target` | ✅ |
+| `TARGET_REQUIRES_CONC` | SemanticError | `operant/compound.json` | `error_overlay_target_non_conc` | ✅ |
+| `EXPECTED_TARGET_VALUE` | ParseError | `operant/compound.json` | `error_overlay_target_unknown` | ✅ |
+| `INVALID_PUNISH_COMBINATOR` | SemanticError | `operant/compound.json` | `error_punish_non_conc` | ✅ |
+| `PUNISH_SELF_REFERENCE` | SemanticError | `operant/compound.json` | `error_punish_self_ref` | ✅ |
+| `DUPLICATE_PUNISH_DIRECTIVE` | SemanticError | `operant/compound.json` | `error_punish_duplicate` | ✅ |
+| `PUNISH_TARGET_CONFLICT` | SemanticError | `operant/compound.json` | `error_punish_target_conflict` | ✅ |
+| `INTERPOLATE_REQUIRES_TWO` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_interpolate_three_components`, `error_interp_alias_three_components` | ✅ 2 cases |
+| `MISSING_INTERPOLATE_COUNT` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_interpolate_missing_count`, `error_interp_alias_missing_count` | ✅ 2 cases |
+| `INTERPOLATE_NONPOSITIVE_COUNT` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_interpolate_count_zero`, `error_interpolate_count_negative` | ✅ 2 cases |
+| `INTERPOLATE_COUNT_TIME_UNIT` | SemanticError | `operant/errors.json` | `error_interpolate_count_with_time_unit` | ✅ |
+| `INTERPOLATE_ONSET_TIME_UNIT_REQUIRED` | SemanticError | `operant/errors.json` | `error_interpolate_onset_no_time_unit` | ✅ |
+| `INTERPOLATE_NONPOSITIVE_ONSET` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_interpolate_onset_nonpositive`, `error_interpolate_onset_negative` | ✅ 2 cases |
+| `DUPLICATE_INTERPOLATE_KW_ARG` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_interpolate_duplicate_count`, `error_interpolate_duplicate_onset` | ✅ 2 cases |
+| `INVALID_SECOND_ORDER_UNIT` | SemanticError | `operant/errors.json` | `error_second_order_chain_unit`, `error_second_order_tand_unit`, `error_second_order_conc_unit`, `error_second_order_mult_unit` | ✅ 4 cases |
 
-### §3.6 Core Semantic Errors — Sidman Avoidance
-
-| Error Code | Type | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|---|
-| `MISSING_SIDMAN_PARAM` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_sidman_missing_rsi`, `error_sidman_missing_ssi`, `error_sidman_verbose_alias_missing_rsi` | ✅ 3 cases |
-| `SIDMAN_TIME_UNIT_REQUIRED` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_sidman_no_time_unit`, `error_sidman_mixed_time_unit` | ✅ 2 cases |
-| `SIDMAN_NONPOSITIVE_PARAM` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_sidman_zero_ssi`, `error_sidman_zero_rsi` | ✅ 2 cases |
-| `DUPLICATE_SIDMAN_PARAM` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_sidman_duplicate_ssi`, `error_sidman_duplicate_alias`, `error_sidman_duplicate_rsi_alias` | ✅ 3 cases |
-
-### §3.7 Core Semantic Errors — Discriminated Avoidance
-
-| Error Code | Type | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|---|
-| `MISSING_DA_PARAM` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_da_missing_mode`, `error_da_missing_csus`, `error_da_missing_iti`, `error_discrimav_alias_missing_mode` | ✅ 4 cases |
-| `DA_TIME_UNIT_REQUIRED` | SemanticError | `core/errors.json` | `error_da_no_time_unit` | ✅ |
-| `DA_NONPOSITIVE_PARAM` | SemanticError | `core/errors.json` | `error_da_nonpositive_csus` | ✅ |
-| `DA_INVALID_MODE` | SemanticError | `core/errors.json` | `error_da_invalid_mode` | ✅ |
-| `MISSING_SHOCK_DURATION` | SemanticError | `core/errors.json` | `error_da_fixed_missing_shock_duration` | ✅ |
-| `INVALID_PARAM_FOR_MODE` | SemanticError | `core/errors.json` | `error_da_fixed_with_max_shock`, `error_da_escape_with_shock_duration` | ✅ 2 cases |
-| `DA_ITI_TOO_SHORT` | SemanticError | `core/errors.json`, `core/semantic-violations-extended.json` | `error_da_iti_too_short`, `error_da_iti_equals_csus` | ✅ 2 cases |
-| `DUPLICATE_DA_PARAM` | SemanticError | `core/errors.json` | `error_da_duplicate_param` | ✅ |
-
-### §3.8 Core Semantic Errors — Lag
+### §3.5 Operant Semantic Errors — Directional COD
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `LAG_INVALID_N_VALUE` | SemanticError | `core/errors.json` | `error_lag_negative_n`, `error_lag_non_integer_n` | ✅ 2 cases |
-| `LAG_UNEXPECTED_TIME_UNIT` | SemanticError | `core/errors.json` | `error_lag_time_unit` | ✅ |
-| `LAG_INVALID_LENGTH` | SemanticError | `core/errors.json` | `error_lag_length_zero`, `error_lag_length_negative` | ✅ 2 cases |
-| `DUPLICATE_LAG_KW_ARG` | SemanticError | `core/errors.json` | `error_lag_duplicate_kw` | ✅ |
+| `DIRECTIONAL_SELF_REFERENCE` | SemanticError | `operant/errors.json` | `error_directional_cod_self_reference` | ✅ |
+| `DIRECTIONAL_INDEX_OUT_OF_RANGE` | SemanticError | `operant/errors.json`, `operant/compound.json` | `error_directional_cod_index_out_of_range`, `error_punish_index_oob` | ✅ 2 cases |
+| `DIRECTIONAL_IDENT_NOT_FOUND` | SemanticError | `operant/errors.json` | `error_directional_cod_ident_not_found` | ✅ |
+| `DUPLICATE_DIRECTIONAL_KW` | SemanticError | `operant/errors.json` | `error_directional_cod_duplicate` | ✅ |
+| `INVALID_DIRECTIONAL_KW` | SemanticError | `operant/errors.json` | `error_directional_frco`, `error_directional_bo` | ✅ 2 cases |
 
-### §3.9 Core Semantic Errors — Reinforcement Delay
+### §3.6 Operant Semantic Errors — Sidman Avoidance
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `RD_TIME_UNIT_REQUIRED` | SemanticError | `core/reinforcement_delay.json` | `rd_error_no_time_unit` | ✅ |
-| `RD_NEGATIVE_VALUE` | SemanticError | `core/reinforcement_delay.json` | `rd_error_negative` | ✅ |
+| `MISSING_SIDMAN_PARAM` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_sidman_missing_rsi`, `error_sidman_missing_ssi`, `error_sidman_verbose_alias_missing_rsi` | ✅ 3 cases |
+| `SIDMAN_TIME_UNIT_REQUIRED` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_sidman_no_time_unit`, `error_sidman_mixed_time_unit` | ✅ 2 cases |
+| `SIDMAN_NONPOSITIVE_PARAM` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_sidman_zero_ssi`, `error_sidman_zero_rsi` | ✅ 2 cases |
+| `DUPLICATE_SIDMAN_PARAM` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_sidman_duplicate_ssi`, `error_sidman_duplicate_alias`, `error_sidman_duplicate_rsi_alias` | ✅ 3 cases |
 
-### §3.10 Core Semantic Errors — Multi-Error Recovery
+### §3.7 Operant Semantic Errors — Discriminated Avoidance
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `MISSING_DA_PARAM` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_da_missing_mode`, `error_da_missing_csus`, `error_da_missing_iti`, `error_discrimav_alias_missing_mode` | ✅ 4 cases |
+| `DA_TIME_UNIT_REQUIRED` | SemanticError | `operant/errors.json` | `error_da_no_time_unit` | ✅ |
+| `DA_NONPOSITIVE_PARAM` | SemanticError | `operant/errors.json` | `error_da_nonpositive_csus` | ✅ |
+| `DA_INVALID_MODE` | SemanticError | `operant/errors.json` | `error_da_invalid_mode` | ✅ |
+| `MISSING_SHOCK_DURATION` | SemanticError | `operant/errors.json` | `error_da_fixed_missing_shock_duration` | ✅ |
+| `INVALID_PARAM_FOR_MODE` | SemanticError | `operant/errors.json` | `error_da_fixed_with_max_shock`, `error_da_escape_with_shock_duration` | ✅ 2 cases |
+| `DA_ITI_TOO_SHORT` | SemanticError | `operant/errors.json`, `operant/semantic-violations-extended.json` | `error_da_iti_too_short`, `error_da_iti_equals_csus` | ✅ 2 cases |
+| `DUPLICATE_DA_PARAM` | SemanticError | `operant/errors.json` | `error_da_duplicate_param` | ✅ |
+
+### §3.8 Operant Semantic Errors — Lag
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `LAG_INVALID_N_VALUE` | SemanticError | `operant/errors.json` | `error_lag_negative_n`, `error_lag_non_integer_n` | ✅ 2 cases |
+| `LAG_UNEXPECTED_TIME_UNIT` | SemanticError | `operant/errors.json` | `error_lag_time_unit` | ✅ |
+| `LAG_INVALID_LENGTH` | SemanticError | `operant/errors.json` | `error_lag_length_zero`, `error_lag_length_negative` | ✅ 2 cases |
+| `DUPLICATE_LAG_KW_ARG` | SemanticError | `operant/errors.json` | `error_lag_duplicate_kw` | ✅ |
+
+### §3.9 Operant Semantic Errors — Reinforcement Delay
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `RD_TIME_UNIT_REQUIRED` | SemanticError | `operant/reinforcement_delay.json` | `rd_error_no_time_unit` | ✅ |
+| `RD_NEGATIVE_VALUE` | SemanticError | `operant/reinforcement_delay.json` | `rd_error_negative` | ✅ |
+
+### §3.10 Operant Semantic Errors — Multi-Error Recovery
 
 | Test Case ID | Error Codes | Type |
 |---|---|---|
@@ -300,70 +303,70 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 ✅ 8 multi-error cases covering parse, lex, semantic, and mixed recovery.
 
-### §3.11 Core-Stateful Semantic Errors — Percentile
+### §3.11 Operant-Stateful Semantic Errors — Percentile
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `PCTL_INVALID_RANK` | SemanticError | `core-stateful/errors.json` | `pctl_error_rank_out_of_range`, `pctl_error_negative_rank`, `pctl_error_fractional_rank` | ✅ 3 cases |
-| `PCTL_INVALID_WINDOW` | SemanticError | `core-stateful/errors.json` | `pctl_error_window_zero`, `pctl_error_window_negative` | ✅ 2 cases |
-| `PCTL_UNKNOWN_TARGET` | SemanticError | `core-stateful/errors.json` | `pctl_error_unknown_target` | ✅ |
-| `PCTL_INVALID_DIR` | SemanticError | `core-stateful/errors.json` | `pctl_error_invalid_dir` | ✅ |
-| `PCTL_UNEXPECTED_TIME_UNIT` | SemanticError | `core-stateful/errors.json` | `pctl_error_rank_with_time_unit` | ✅ |
-| `DUPLICATE_PCTL_KW_ARG` | SemanticError | `core-stateful/errors.json` | `pctl_error_duplicate_window`, `pctl_error_duplicate_dir` | ✅ 2 cases |
+| `PCTL_INVALID_RANK` | SemanticError | `operant/stateful/errors.json` | `pctl_error_rank_out_of_range`, `pctl_error_negative_rank`, `pctl_error_fractional_rank` | ✅ 3 cases |
+| `PCTL_INVALID_WINDOW` | SemanticError | `operant/stateful/errors.json` | `pctl_error_window_zero`, `pctl_error_window_negative` | ✅ 2 cases |
+| `PCTL_UNKNOWN_TARGET` | SemanticError | `operant/stateful/errors.json` | `pctl_error_unknown_target` | ✅ |
+| `PCTL_INVALID_DIR` | SemanticError | `operant/stateful/errors.json` | `pctl_error_invalid_dir` | ✅ |
+| `PCTL_UNEXPECTED_TIME_UNIT` | SemanticError | `operant/stateful/errors.json` | `pctl_error_rank_with_time_unit` | ✅ |
+| `DUPLICATE_PCTL_KW_ARG` | SemanticError | `operant/stateful/errors.json` | `pctl_error_duplicate_window`, `pctl_error_duplicate_dir` | ✅ 2 cases |
 
-### §3.12 Core-Stateful Semantic Errors — Adjusting
-
-| Error Code | Type | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|---|
-| `ADJ_MISSING_PARAM` | SemanticError | `core-stateful/errors.json` | `adj_error_missing_start`, `adj_error_missing_step`, `adj_error_no_args` | ✅ 3 cases |
-| `ADJ_UNKNOWN_TARGET` | SemanticError | `core-stateful/errors.json` | `adj_error_unknown_target` | ✅ |
-| `ADJ_NONPOSITIVE_START` | SemanticError | `core-stateful/errors.json` | `adj_error_nonpositive_start`, `adj_error_negative_start` | ✅ 2 cases |
-| `ADJ_NONPOSITIVE_STEP` | SemanticError | `core-stateful/errors.json` | `adj_error_nonpositive_step` | ✅ |
-| `ADJ_TIME_UNIT_REQUIRED` | SemanticError | `core-stateful/errors.json` | `adj_error_delay_missing_time_unit`, `adj_error_delay_max_missing_time_unit` | ✅ 2 cases |
-| `ADJ_UNEXPECTED_TIME_UNIT` | SemanticError | `core-stateful/errors.json` | `adj_error_ratio_with_time_unit`, `adj_error_amount_with_time_unit` | ✅ 2 cases |
-| `ADJ_INVALID_BOUNDS` | SemanticError | `core-stateful/errors.json` | `adj_error_invalid_bounds` | ✅ |
-| `ADJ_START_OUT_OF_BOUNDS` | SemanticError | `core-stateful/errors.json` | `adj_error_start_out_of_bounds_below`, `adj_error_start_out_of_bounds_above` | ✅ 2 cases |
-| `ADJ_RATIO_NOT_INTEGER` | SemanticError | `core-stateful/errors.json` | `adj_error_ratio_not_integer`, `adj_error_ratio_step_not_integer` | ✅ 2 cases |
-| `DUPLICATE_ADJ_KW_ARG` | SemanticError | `core-stateful/errors.json` | `adj_error_duplicate_start`, `adj_error_duplicate_step` | ✅ 2 cases |
-
-### §3.13 Core-Stateful Semantic Errors — Interlocking
+### §3.12 Operant-Stateful Semantic Errors — Adjusting
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `INTERLOCK_MISSING_PARAM` | SemanticError | `core-stateful/errors.json` | `interlock_error_missing_R0`, `interlock_error_missing_T`, `interlock_error_no_args` | ✅ 3 cases |
-| `INTERLOCK_INVALID_R0` | SemanticError | `core-stateful/errors.json` | `interlock_error_nonpositive_R0`, `interlock_error_negative_R0`, `interlock_error_fractional_R0` | ✅ 3 cases |
-| `INTERLOCK_UNEXPECTED_TIME_UNIT` | SemanticError | `core-stateful/errors.json` | `interlock_error_R0_with_time_unit` | ✅ |
-| `INTERLOCK_NONPOSITIVE_T` | SemanticError | `core-stateful/errors.json` | `interlock_error_nonpositive_T` | ✅ |
-| `INTERLOCK_TIME_UNIT_REQUIRED` | SemanticError | `core-stateful/errors.json` | `interlock_error_T_missing_time_unit` | ✅ |
-| `DUPLICATE_INTERLOCK_KW_ARG` | SemanticError | `core-stateful/errors.json` | `interlock_error_duplicate_R0` | ✅ |
+| `ADJ_MISSING_PARAM` | SemanticError | `operant/stateful/errors.json` | `adj_error_missing_start`, `adj_error_missing_step`, `adj_error_no_args` | ✅ 3 cases |
+| `ADJ_UNKNOWN_TARGET` | SemanticError | `operant/stateful/errors.json` | `adj_error_unknown_target` | ✅ |
+| `ADJ_NONPOSITIVE_START` | SemanticError | `operant/stateful/errors.json` | `adj_error_nonpositive_start`, `adj_error_negative_start` | ✅ 2 cases |
+| `ADJ_NONPOSITIVE_STEP` | SemanticError | `operant/stateful/errors.json` | `adj_error_nonpositive_step` | ✅ |
+| `ADJ_TIME_UNIT_REQUIRED` | SemanticError | `operant/stateful/errors.json` | `adj_error_delay_missing_time_unit`, `adj_error_delay_max_missing_time_unit` | ✅ 2 cases |
+| `ADJ_UNEXPECTED_TIME_UNIT` | SemanticError | `operant/stateful/errors.json` | `adj_error_ratio_with_time_unit`, `adj_error_amount_with_time_unit` | ✅ 2 cases |
+| `ADJ_INVALID_BOUNDS` | SemanticError | `operant/stateful/errors.json` | `adj_error_invalid_bounds` | ✅ |
+| `ADJ_START_OUT_OF_BOUNDS` | SemanticError | `operant/stateful/errors.json` | `adj_error_start_out_of_bounds_below`, `adj_error_start_out_of_bounds_above` | ✅ 2 cases |
+| `ADJ_RATIO_NOT_INTEGER` | SemanticError | `operant/stateful/errors.json` | `adj_error_ratio_not_integer`, `adj_error_ratio_step_not_integer` | ✅ 2 cases |
+| `DUPLICATE_ADJ_KW_ARG` | SemanticError | `operant/stateful/errors.json` | `adj_error_duplicate_start`, `adj_error_duplicate_step` | ✅ 2 cases |
 
-### §3.14 Core-Trial-Based Semantic Errors — MTS
-
-| Error Code | Type | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|---|
-| `MTS_INVALID_COMPARISONS` | SemanticError | `core-trial-based/errors.json` | `mts_error_comparisons_less_than_2`, `mts_error_comparisons_zero`, `mts_error_comparisons_negative`, `mts_error_comparisons_fractional` | ✅ 4 cases |
-| `MTS_COMPARISONS_TIME_UNIT` | SemanticError | `core-trial-based/errors.json` | `mts_error_comparisons_time_unit` | ✅ |
-| `MTS_MISSING_PARAM` | SemanticError | `core-trial-based/errors.json` | `mts_error_missing_consequence`, `mts_error_missing_iti`, `mts_error_missing_comparisons` | ✅ 3 cases |
-| `MTS_NONPOSITIVE_ITI` | SemanticError | `core-trial-based/errors.json` | `mts_error_iti_zero`, `mts_error_iti_negative` | ✅ 2 cases |
-| `MTS_ITI_TIME_UNIT_REQUIRED` | SemanticError | `core-trial-based/errors.json` | `mts_error_iti_no_time_unit` | ✅ |
-| `MTS_INVALID_TYPE` | SemanticError | `core-trial-based/errors.json` | `mts_error_invalid_type` | ✅ |
-| `MTS_INVALID_CONSEQUENCE` | SemanticError | `core-trial-based/errors.json` | `mts_error_consequence_compound`, `mts_error_consequence_chain` | ✅ 2 cases |
-| `MTS_INVALID_INCORRECT` | SemanticError | `core-trial-based/errors.json` | `mts_error_incorrect_compound` | ✅ |
-| `MTS_RECURSIVE_CONSEQUENCE` | SemanticError | `core-trial-based/errors.json` | `mts_error_consequence_recursive_mts`, `mts_error_incorrect_recursive_mts` | ✅ 2 cases |
-| `DUPLICATE_MTS_KW_ARG` | SemanticError | `core-trial-based/errors.json` | `mts_error_duplicate_comparisons`, `mts_error_duplicate_consequence`, `mts_error_duplicate_iti`, `mts_error_duplicate_type` | ✅ 4 cases |
-| `TRIAL_BASED_MODIFIER_INCOMPATIBLE` | SemanticError | `core-trial-based/errors.json` | `mts_error_drl_modifier`, `mts_error_drh_modifier`, `mts_error_dro_modifier`, `mts_error_pctl_modifier`, `mts_error_lag_modifier` | ✅ 5 cases |
-
-### §3.15 Core-Trial-Based Semantic Errors — GoNoGo
+### §3.13 Operant-Stateful Semantic Errors — Interlocking
 
 | Error Code | Type | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|---|
-| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_responseWindow_zero` | ✅ |
-| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_responseWindow_no_unit` | ✅ |
-| `MISSING_GONOGO_PARAM` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_missing_responseWindow`, `gonogo_error_missing_consequence` | ✅ 2 cases |
-| `GONOGO_NONPOSITIVE_ITI` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_negative_iti` | ✅ |
-| `GONOGO_INVALID_CONSEQUENCE` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_compound_consequence` | ✅ |
-| `GONOGO_RECURSIVE_CONSEQUENCE` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_recursive_consequence` | ✅ |
-| `DUPLICATE_GONOGO_KW_ARG` | SemanticError | `core-trial-based/gonogo.json` | `gonogo_error_duplicate_kwarg` | ✅ |
+| `INTERLOCK_MISSING_PARAM` | SemanticError | `operant/stateful/errors.json` | `interlock_error_missing_R0`, `interlock_error_missing_T`, `interlock_error_no_args` | ✅ 3 cases |
+| `INTERLOCK_INVALID_R0` | SemanticError | `operant/stateful/errors.json` | `interlock_error_nonpositive_R0`, `interlock_error_negative_R0`, `interlock_error_fractional_R0` | ✅ 3 cases |
+| `INTERLOCK_UNEXPECTED_TIME_UNIT` | SemanticError | `operant/stateful/errors.json` | `interlock_error_R0_with_time_unit` | ✅ |
+| `INTERLOCK_NONPOSITIVE_T` | SemanticError | `operant/stateful/errors.json` | `interlock_error_nonpositive_T` | ✅ |
+| `INTERLOCK_TIME_UNIT_REQUIRED` | SemanticError | `operant/stateful/errors.json` | `interlock_error_T_missing_time_unit` | ✅ |
+| `DUPLICATE_INTERLOCK_KW_ARG` | SemanticError | `operant/stateful/errors.json` | `interlock_error_duplicate_R0` | ✅ |
+
+### §3.14 Operant-Trial-Based Semantic Errors — MTS
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `MTS_INVALID_COMPARISONS` | SemanticError | `operant/trial-based/errors.json` | `mts_error_comparisons_less_than_2`, `mts_error_comparisons_zero`, `mts_error_comparisons_negative`, `mts_error_comparisons_fractional` | ✅ 4 cases |
+| `MTS_COMPARISONS_TIME_UNIT` | SemanticError | `operant/trial-based/errors.json` | `mts_error_comparisons_time_unit` | ✅ |
+| `MTS_MISSING_PARAM` | SemanticError | `operant/trial-based/errors.json` | `mts_error_missing_consequence`, `mts_error_missing_iti`, `mts_error_missing_comparisons` | ✅ 3 cases |
+| `MTS_NONPOSITIVE_ITI` | SemanticError | `operant/trial-based/errors.json` | `mts_error_iti_zero`, `mts_error_iti_negative` | ✅ 2 cases |
+| `MTS_ITI_TIME_UNIT_REQUIRED` | SemanticError | `operant/trial-based/errors.json` | `mts_error_iti_no_time_unit` | ✅ |
+| `MTS_INVALID_TYPE` | SemanticError | `operant/trial-based/errors.json` | `mts_error_invalid_type` | ✅ |
+| `MTS_INVALID_CONSEQUENCE` | SemanticError | `operant/trial-based/errors.json` | `mts_error_consequence_compound`, `mts_error_consequence_chain` | ✅ 2 cases |
+| `MTS_INVALID_INCORRECT` | SemanticError | `operant/trial-based/errors.json` | `mts_error_incorrect_compound` | ✅ |
+| `MTS_RECURSIVE_CONSEQUENCE` | SemanticError | `operant/trial-based/errors.json` | `mts_error_consequence_recursive_mts`, `mts_error_incorrect_recursive_mts` | ✅ 2 cases |
+| `DUPLICATE_MTS_KW_ARG` | SemanticError | `operant/trial-based/errors.json` | `mts_error_duplicate_comparisons`, `mts_error_duplicate_consequence`, `mts_error_duplicate_iti`, `mts_error_duplicate_type` | ✅ 4 cases |
+| `TRIAL_BASED_MODIFIER_INCOMPATIBLE` | SemanticError | `operant/trial-based/errors.json` | `mts_error_drl_modifier`, `mts_error_drh_modifier`, `mts_error_dro_modifier`, `mts_error_pctl_modifier`, `mts_error_lag_modifier` | ✅ 5 cases |
+
+### §3.15 Operant-Trial-Based Semantic Errors — GoNoGo
+
+| Error Code | Type | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|---|
+| `GONOGO_NONPOSITIVE_RESPONSE_WINDOW` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_responseWindow_zero` | ✅ |
+| `GONOGO_RESPONSE_WINDOW_TIME_UNIT_REQUIRED` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_responseWindow_no_unit` | ✅ |
+| `MISSING_GONOGO_PARAM` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_missing_responseWindow`, `gonogo_error_missing_consequence` | ✅ 2 cases |
+| `GONOGO_NONPOSITIVE_ITI` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_negative_iti` | ✅ |
+| `GONOGO_INVALID_CONSEQUENCE` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_compound_consequence` | ✅ |
+| `GONOGO_RECURSIVE_CONSEQUENCE` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_recursive_consequence` | ✅ |
+| `DUPLICATE_GONOGO_KW_ARG` | SemanticError | `operant/trial-based/gonogo.json` | `gonogo_error_duplicate_kwarg` | ✅ |
 
 ### §3.16 Representations — T-τ Errors
 
@@ -420,44 +423,44 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 
 ## §4. Warning Code Coverage
 
-### §4.1 Core Warnings
+### §4.1 Operant Warnings
 
 | Warning Code | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|
-| `MISSING_TIME_UNIT` | `core/warnings.json`, `core/atomic.json` | `warn_fi_missing_time_unit`, `warn_vi_missing_time_unit`, `warn_ri_missing_time_unit`, `warn_ft_missing_time_unit`, `warn_vt_missing_time_unit`, `warn_rt_missing_time_unit`, `warn_fi_in_compound_missing_time_unit`, `warn_drl_missing_time_unit`, `warn_drh_missing_time_unit`, `warn_dro_missing_time_unit`, `atomic_fi30_no_unit` .. `atomic_rt15_no_unit` (6 in atomic) | ✅ 16 cases |
-| `MISSING_COD` | `core/warnings.json`, `core/compound.json`, `core/binding.json` | `warn_conc_missing_cod_basic`, `conc_vi_vi`, `conc_three_components`, `nested_conc_chain_alt`, `conc_deep_nesting_depth3`, `conc_five_components`, `let_binding_in_compound` | ✅ 7+ cases |
-| `RSI_EXCEEDS_SSI` | `core/warnings.json` | `warn_sidman_rsi_exceeds_ssi` | ✅ |
-| `LAG_LARGE_N` | `core/warnings.json` | `warn_lag_large_n_51`, `warn_lag_large_n_100`, `warn_lag_large_n_parenthesized` | ✅ 3 cases |
-| `MISSING_INTERPOLATE_ONSET` | `core/warnings.json` | `warn_interpolate_missing_onset`, `warn_interp_alias_missing_onset` | ✅ 2 cases |
-| `REDUNDANT_DIRECTIONAL_COD` | `core/warnings.json` | `warn_redundant_directional_cod` | ✅ |
-| `VACUOUS_LH_RATIO` | `core/lh_propagation.json` | `lh_prop_explicit_override`, `lh_prop_nested_chain_in_conc`, `lh_prop_ratio_warning`, `lh_prop_mult` | ✅ 4 cases |
-| `RD_LARGE_DELAY` | `core/reinforcement_delay.json` | `rd_warning_large_delay` | ✅ |
+| `MISSING_TIME_UNIT` | `operant/warnings.json`, `operant/atomic.json` | `warn_fi_missing_time_unit`, `warn_vi_missing_time_unit`, `warn_ri_missing_time_unit`, `warn_ft_missing_time_unit`, `warn_vt_missing_time_unit`, `warn_rt_missing_time_unit`, `warn_fi_in_compound_missing_time_unit`, `warn_drl_missing_time_unit`, `warn_drh_missing_time_unit`, `warn_dro_missing_time_unit`, `atomic_fi30_no_unit` .. `atomic_rt15_no_unit` (6 in atomic) | ✅ 16 cases |
+| `MISSING_COD` | `operant/warnings.json`, `operant/compound.json`, `operant/binding.json` | `warn_conc_missing_cod_basic`, `conc_vi_vi`, `conc_three_components`, `nested_conc_chain_alt`, `conc_deep_nesting_depth3`, `conc_five_components`, `let_binding_in_compound` | ✅ 7+ cases |
+| `RSI_EXCEEDS_SSI` | `operant/warnings.json` | `warn_sidman_rsi_exceeds_ssi` | ✅ |
+| `LAG_LARGE_N` | `operant/warnings.json` | `warn_lag_large_n_51`, `warn_lag_large_n_100`, `warn_lag_large_n_parenthesized` | ✅ 3 cases |
+| `MISSING_INTERPOLATE_ONSET` | `operant/warnings.json` | `warn_interpolate_missing_onset`, `warn_interp_alias_missing_onset` | ✅ 2 cases |
+| `REDUNDANT_DIRECTIONAL_COD` | `operant/warnings.json` | `warn_redundant_directional_cod` | ✅ |
+| `VACUOUS_LH_RATIO` | `operant/lh_propagation.json` | `lh_prop_explicit_override`, `lh_prop_nested_chain_in_conc`, `lh_prop_ratio_warning`, `lh_prop_mult` | ✅ 4 cases |
+| `RD_LARGE_DELAY` | `operant/reinforcement_delay.json` | `rd_warning_large_delay` | ✅ |
 
-### §4.2 Core-Stateful Warnings
-
-| Warning Code | Test File(s) | Test Case IDs | Status |
-|---|---|---|---|
-| `PCTL_EXTREME_RANK` | `core-stateful/errors.json` | `pctl_warn_extreme_rank_zero`, `pctl_warn_extreme_rank_100` | ✅ 2 cases |
-| `PCTL_SMALL_WINDOW` | `core-stateful/errors.json` | `pctl_warn_small_window` | ✅ |
-| `PCTL_LARGE_WINDOW` | `core-stateful/errors.json` | `pctl_warn_large_window` | ✅ |
-| `ADJ_UNBOUNDED_DELAY` | `core-stateful/errors.json` | `adj_warn_unbounded_delay` | ✅ |
-| `ADJ_LARGE_STEP` | `core-stateful/errors.json` | `adj_warn_large_step` | ✅ |
-| `ADJ_ZERO_MIN_DELAY` | `core-stateful/errors.json` | `adj_warn_zero_min_delay` | ✅ |
-| `ADJ_SUBUNIT_RATIO` | `core-stateful/errors.json` | `adj_warn_subunit_ratio` | ✅ |
-| `INTERLOCK_TRIVIAL_RATIO` | `core-stateful/errors.json` | `interlock_warn_trivial_ratio` | ✅ |
-| `INTERLOCK_LARGE_RATIO` | `core-stateful/errors.json` | `interlock_warn_large_ratio` | ✅ |
-
-### §4.3 Core-Trial-Based Warnings
+### §4.2 Operant-Stateful Warnings
 
 | Warning Code | Test File(s) | Test Case IDs | Status |
 |---|---|---|---|
-| `MTS_MANY_COMPARISONS` | `core-trial-based/errors.json` | `mts_warn_many_comparisons`, `mts_warn_comparisons_boundary` | ✅ 2 cases |
-| `MTS_NO_REINFORCEMENT` | `core-trial-based/errors.json` | `mts_warn_no_reinforcement` | ✅ |
-| `MTS_IDENTITY_WITH_CLASSES` | `core-trial-based/errors.json` | `mts_warn_identity_with_stimulus_classes` | ✅ |
-| `MTS_ARBITRARY_WITHOUT_CLASSES` | `core-trial-based/errors.json` | `mts_warn_arbitrary_without_stimulus_classes`, `mts_warn_default_arbitrary_without_stimulus_classes` | ✅ 2 cases |
-| `MTS_SHORT_ITI` | `core-trial-based/errors.json` | `mts_warn_short_iti` | ✅ |
-| `MTS_LONG_LH` | `core-trial-based/errors.json` | `mts_warn_long_lh` | ✅ |
-| `GONOGO_LH_REDUNDANT` | `core-trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
+| `PCTL_EXTREME_RANK` | `operant/stateful/errors.json` | `pctl_warn_extreme_rank_zero`, `pctl_warn_extreme_rank_100` | ✅ 2 cases |
+| `PCTL_SMALL_WINDOW` | `operant/stateful/errors.json` | `pctl_warn_small_window` | ✅ |
+| `PCTL_LARGE_WINDOW` | `operant/stateful/errors.json` | `pctl_warn_large_window` | ✅ |
+| `ADJ_UNBOUNDED_DELAY` | `operant/stateful/errors.json` | `adj_warn_unbounded_delay` | ✅ |
+| `ADJ_LARGE_STEP` | `operant/stateful/errors.json` | `adj_warn_large_step` | ✅ |
+| `ADJ_ZERO_MIN_DELAY` | `operant/stateful/errors.json` | `adj_warn_zero_min_delay` | ✅ |
+| `ADJ_SUBUNIT_RATIO` | `operant/stateful/errors.json` | `adj_warn_subunit_ratio` | ✅ |
+| `INTERLOCK_TRIVIAL_RATIO` | `operant/stateful/errors.json` | `interlock_warn_trivial_ratio` | ✅ |
+| `INTERLOCK_LARGE_RATIO` | `operant/stateful/errors.json` | `interlock_warn_large_ratio` | ✅ |
+
+### §4.3 Operant-Trial-Based Warnings
+
+| Warning Code | Test File(s) | Test Case IDs | Status |
+|---|---|---|---|
+| `MTS_MANY_COMPARISONS` | `operant/trial-based/errors.json` | `mts_warn_many_comparisons`, `mts_warn_comparisons_boundary` | ✅ 2 cases |
+| `MTS_NO_REINFORCEMENT` | `operant/trial-based/errors.json` | `mts_warn_no_reinforcement` | ✅ |
+| `MTS_IDENTITY_WITH_CLASSES` | `operant/trial-based/errors.json` | `mts_warn_identity_with_stimulus_classes` | ✅ |
+| `MTS_ARBITRARY_WITHOUT_CLASSES` | `operant/trial-based/errors.json` | `mts_warn_arbitrary_without_stimulus_classes`, `mts_warn_default_arbitrary_without_stimulus_classes` | ✅ 2 cases |
+| `MTS_SHORT_ITI` | `operant/trial-based/errors.json` | `mts_warn_short_iti` | ✅ |
+| `MTS_LONG_LH` | `operant/trial-based/errors.json` | `mts_warn_long_lh` | ✅ |
+| `GONOGO_LH_REDUNDANT` | `operant/trial-based/gonogo.json` | `gonogo_with_limited_hold`, `gonogo_with_limited_hold_kwarg` | ✅ 2 cases |
 
 ---
 
@@ -467,20 +470,20 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 
 | File | Test Case IDs | Verifies |
 |---|---|---|
-| `core/warnings.json` | `no_warn_fr_no_time_unit` | FR (ratio domain) has no MISSING_TIME_UNIT |
-| `core/warnings.json` | `no_warn_fi_with_time_unit` | FI with explicit unit has no warning |
-| `core/warnings.json` | `warn_sidman_rsi_equals_ssi` | RSI = SSI does NOT trigger RSI_EXCEEDS_SSI |
-| `core/warnings.json` | `no_warn_sidman_rsi_less_than_ssi` | RSI < SSI is clean |
-| `core/warnings.json` | `no_warn_lag_50` | Lag 50 does NOT trigger LAG_LARGE_N |
-| `core/warnings.json` | `no_warn_interpolate_with_onset` | Interpolate with onset has no warning |
-| `core/warnings.json` | `no_warn_conc_with_cod_explicit` | Conc with explicit COD has no warning |
-| `core/warnings.json` | `no_warn_conc_with_cod_zero` | COD=0s does NOT trigger MISSING_COD |
-| `core/warnings.json` | `warn_directional_cod_no_missing_cod` | Directional COD suppresses MISSING_COD |
-| `core/atomic.json` | `atomic_fr5_no_warning`, `atomic_vi60s_no_warning` | Clean valid cases produce no diagnostics |
-| `core-trial-based/mts.json` | `mts_comparisons_9_no_warning` | comparisons=9 does NOT trigger MTS_MANY_COMPARISONS |
-| `core-trial-based/mts.json` | `mts_iti_1s_no_warning` | ITI=1s does NOT trigger MTS_SHORT_ITI |
-| `core-trial-based/gonogo.json` | `gonogo_responseWindow_boundary_500ms` | responseWindow=500ms does NOT trigger GONOGO_SHORT_RESPONSE_WINDOW |
-| `core-trial-based/gonogo.json` | `gonogo_iti_1s_no_warning` | ITI=1s does NOT trigger GONOGO_SHORT_ITI |
+| `operant/warnings.json` | `no_warn_fr_no_time_unit` | FR (ratio domain) has no MISSING_TIME_UNIT |
+| `operant/warnings.json` | `no_warn_fi_with_time_unit` | FI with explicit unit has no warning |
+| `operant/warnings.json` | `warn_sidman_rsi_equals_ssi` | RSI = SSI does NOT trigger RSI_EXCEEDS_SSI |
+| `operant/warnings.json` | `no_warn_sidman_rsi_less_than_ssi` | RSI < SSI is clean |
+| `operant/warnings.json` | `no_warn_lag_50` | Lag 50 does NOT trigger LAG_LARGE_N |
+| `operant/warnings.json` | `no_warn_interpolate_with_onset` | Interpolate with onset has no warning |
+| `operant/warnings.json` | `no_warn_conc_with_cod_explicit` | Conc with explicit COD has no warning |
+| `operant/warnings.json` | `no_warn_conc_with_cod_zero` | COD=0s does NOT trigger MISSING_COD |
+| `operant/warnings.json` | `warn_directional_cod_no_missing_cod` | Directional COD suppresses MISSING_COD |
+| `operant/atomic.json` | `atomic_fr5_no_warning`, `atomic_vi60s_no_warning` | Clean valid cases produce no diagnostics |
+| `operant/trial-based/mts.json` | `mts_comparisons_9_no_warning` | comparisons=9 does NOT trigger MTS_MANY_COMPARISONS |
+| `operant/trial-based/mts.json` | `mts_iti_1s_no_warning` | ITI=1s does NOT trigger MTS_SHORT_ITI |
+| `operant/trial-based/gonogo.json` | `gonogo_responseWindow_boundary_500ms` | responseWindow=500ms does NOT trigger GONOGO_SHORT_RESPONSE_WINDOW |
+| `operant/trial-based/gonogo.json` | `gonogo_iti_1s_no_warning` | ITI=1s does NOT trigger GONOGO_SHORT_ITI |
 
 ---
 
@@ -488,30 +491,30 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 
 | File | Valid | Error | Warning | Total |
 |---|---|---|---|---|
-| `core/atomic.json` | 24 | 0 | 8 | 32 |
-| `core/compound.json` | 27 | 0 | 7 | 34 |
-| `core/modifier.json` | 23 | 0 | 0 | 23 |
-| `core/binding.json` | 8 | 0 | 1 | 9 |
-| `core/second_order.json` | 5 | 0 | 0 | 5 |
-| `core/limited_hold.json` | 12 | 0 | 0 | 12 |
-| `core/lh_propagation.json` | 23 | 0 | 4 | 27 |
-| `core/aversive.json` | 14 | 0 | 0 | 14 |
-| `core/interpolated.json` | 7 | 0 | 0 | 7 |
-| `core/program.json` | 4 | 0 | 0 | 4 |
-| `core/reinforcement_delay.json` | 7 | 2 | 1 | 10 |
-| `core/algebra.json` | 25 | 0 | 0 | 25 |
-| `core/errors.json` | 0 | 96 | 0 | 96 |
-| `core/boundary-values.json` | 19 | 35 | 0 | 54 |
-| `core/warnings.json` | 9 | 0 | 24 | 33 |
-| `core/compound-kw-aliases.json` | 12 | 0 | 0 | 12 |
-| `core/semantic-violations-extended.json` | 0 | 41 | 0 | 41 |
-| `core-stateful/percentile.json` | 10 | 0 | 0 | 10 |
-| `core-stateful/adjusting.json` | 16 | 0 | 0 | 16 |
-| `core-stateful/interlocking.json` | 12 | 0 | 0 | 12 |
-| `core-stateful/errors.json` | 0 | 38 | 16 | 54 |
-| `core-trial-based/mts.json` | 23 | 0 | 0 | 23 |
-| `core-trial-based/gonogo.json` | 14 | 8 | 2 | 22 † |
-| `core-trial-based/errors.json` | 0 | 29 | 10 | 39 |
+| `operant/atomic.json` | 24 | 0 | 8 | 32 |
+| `operant/compound.json` | 27 | 0 | 7 | 34 |
+| `operant/modifier.json` | 23 | 0 | 0 | 23 |
+| `operant/binding.json` | 8 | 0 | 1 | 9 |
+| `operant/second_order.json` | 5 | 0 | 0 | 5 |
+| `operant/limited_hold.json` | 12 | 0 | 0 | 12 |
+| `operant/lh_propagation.json` | 23 | 0 | 4 | 27 |
+| `operant/aversive.json` | 14 | 0 | 0 | 14 |
+| `operant/interpolated.json` | 7 | 0 | 0 | 7 |
+| `operant/program.json` | 4 | 0 | 0 | 4 |
+| `operant/reinforcement_delay.json` | 7 | 2 | 1 | 10 |
+| `operant/algebra.json` | 25 | 0 | 0 | 25 |
+| `operant/errors.json` | 0 | 96 | 0 | 96 |
+| `operant/boundary-values.json` | 19 | 35 | 0 | 54 |
+| `operant/warnings.json` | 9 | 0 | 24 | 33 |
+| `operant/compound-kw-aliases.json` | 12 | 0 | 0 | 12 |
+| `operant/semantic-violations-extended.json` | 0 | 41 | 0 | 41 |
+| `operant/stateful/percentile.json` | 10 | 0 | 0 | 10 |
+| `operant/stateful/adjusting.json` | 16 | 0 | 0 | 16 |
+| `operant/stateful/interlocking.json` | 12 | 0 | 0 | 12 |
+| `operant/stateful/errors.json` | 0 | 38 | 16 | 54 |
+| `operant/trial-based/mts.json` | 23 | 0 | 0 | 23 |
+| `operant/trial-based/gonogo.json` | 14 | 8 | 2 | 22 † |
+| `operant/trial-based/errors.json` | 0 | 29 | 10 | 39 |
 | `annotations/measurement.json` | 29 | 0 | 0 | 29 |
 | `annotations/program-level.json` | 4 | 0 | 0 | 4 |
 | `annotations/errors.json` | 0 | 36 | 0 | 36 |
@@ -544,10 +547,10 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 | R-1 | Measurement annotator coverage | 2026-04-14 — 29 parsing + 36 error + 4 program-level cases |
 | R-2 | Multi-error recovery | 2026-04-14 — 8 multi-error cases (parse + lex + semantic + mixed) |
 | R-3 | Reinforcement Delay error codes | 2026-04-14 — `RD_TIME_UNIT_REQUIRED`, `RD_NEGATIVE_VALUE`, `RD_LARGE_DELAY` |
-| R-4 | Core-Stateful error codes (Pctl/Adj/Interlock) | 2026-04-14 — 54 error/warning cases |
-| R-5 | Core-Trial-Based error codes (MTS) | 2026-04-14 — 39 error/warning cases |
+| R-4 | Operant-Stateful error codes (Pctl/Adj/Interlock) | 2026-04-14 — 54 error/warning cases |
+| R-5 | Operant-Trial-Based error codes (MTS) | 2026-04-14 — 39 error/warning cases |
 | R-6 | T-τ representation errors | 2026-04-14 — 7 error cases + 3 ratio-domain errors |
-| R-7 | Core-Trial-Based GoNoGo coverage | 2026-04-15 — 22 conformance cases (14 valid + 8 error + 2 warning); Langium + Tree-sitter grammar regenerated |
+| R-7 | Operant-Trial-Based GoNoGo coverage | 2026-04-15 — 22 conformance cases (14 valid + 8 error + 2 warning); Langium + Tree-sitter grammar regenerated |
 
 ---
 
@@ -555,16 +558,16 @@ These test cases verify that valid inputs do NOT produce false warnings or error
 
 | Layer | Error Codes | Warning Codes | All Tested |
 |---|---|---|---|
-| Core (Parse) | 11 | — | ✅ |
-| Core (Semantic) | 42 | 8 | ✅ |
-| Core-Stateful | 16 | 9 | ✅ |
-| Core-Trial-Based (MTS) | 11 | 6 | ✅ |
-| Core-Trial-Based (GoNoGo) | 7 | 1 | ✅ |
+| Operant (Parse) | 11 | — | ✅ |
+| Operant (Semantic) | 42 | 8 | ✅ |
+| Operant-Stateful | 16 | 9 | ✅ |
+| Operant-Trial-Based (MTS) | 11 | 6 | ✅ |
+| Operant-Trial-Based (GoNoGo) | 7 | 1 | ✅ |
 | Annotations | 34 | — | ✅ |
 | Representations (T-τ) | 7 | — | ✅ |
 | **Total** | **128** | **24** | **✅ 100%** |
 
 ---
 
-*Last updated: 2026-04-15*
-*References: grammar.ebnf (Core), grammar.ebnf (Core-Stateful), grammar.ebnf (Core-Trial-Based)*
+*Last updated: 2026-04-17 (Phase Ψ-5 restructure — core/ → operant/, core-stateful/ → operant/stateful/, core-trial-based/ → operant/trial-based/)*
+*References: `schema/foundations/grammar.ebnf`, `schema/operant/grammar.ebnf`, `schema/operant/stateful/grammar.ebnf`, `schema/operant/trial-based/grammar.ebnf`, `schema/respondent/grammar.ebnf`, `schema/composed/*.schema.json`, `schema/annotations/extensions/respondent-annotator.schema.json`*

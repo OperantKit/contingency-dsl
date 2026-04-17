@@ -275,7 +275,7 @@
     }
   },
 
-  { "_comment": "=== Compound schedule usage (spec/en/core-trial-based/grammar.md §Compound Usage) ===" },
+  { "_comment": "=== Compound schedule usage (spec/en/operant/trial-based/mts.md §11 Compound Usage) ===" },
 
   {
     "id": "mts_in_mult",

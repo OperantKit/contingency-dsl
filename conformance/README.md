@@ -8,13 +8,17 @@ Tests are organized to mirror `schema/`:
 
 ```
 conformance/
-├── core/              — Core grammar tests (atomic, compound, modifier, binding, etc.)
-├── core-stateful/     — Core-Stateful layer tests (percentile, adjusting, interlocking)
-├── core-trial-based/  — Core-TrialBased layer tests (MTS matching-to-sample)
-├── experiment/        — Experiment layer tests (phase-sequence, criterion, annotation inheritance)
-├── annotations/       — Annotation system tests (program-level, measurement, errors)
+├── foundations/           — Paradigm-neutral lexical tests (placeholder; see foundations/README.md)
+├── operant/               — Operant schedule tests (atomic, compound, modifier, binding, etc.)
+│   ├── stateful/          — Stateful operant schedules (percentile, adjusting, interlocking)
+│   └── trial-based/       — Trial-based operant procedures (MTS matching-to-sample, GoNoGo)
+├── respondent/            — Respondent (Pavlovian) primitive tests (placeholder; see respondent/README.md)
+├── composed/              — Composed procedures (CER, PIT, autoshape, omission, two-process; placeholder)
+├── experiment/            — Experiment-layer tests (phase-sequence, criterion, annotation inheritance)
+├── annotations/           — Annotation system tests (program-level, measurement, errors)
+│   └── extensions/        — Annotator extension tests (respondent-annotator)
 └── representations/
-    └── t-tau/         — T-tau coordinate transform tests (to/from/roundtrip/errors)
+    └── t-tau/             — T-tau coordinate transform tests (to/from/roundtrip/errors)
 ```
 
 ## Format
@@ -34,12 +38,12 @@ Each JSON file contains an array of test cases:
 
 ### Success cases
 
-`expected` contains the AST matching `schema/core/ast.schema.json` (universal schema).
+`expected` contains the AST matching `schema/operant/ast.schema.json` (operant-layer schema; the respondent layer has its own `schema/respondent/ast.schema.json`, and composed procedures reference their per-procedure schemas under `schema/composed/`).
 
-For phase-specific validation:
-- `pre_expansion` fields validate against `schema/core/ast-parsed.schema.json` (Phase 1: includes IdentifierRef, RepeatModifier)
-- `expected` fields validate against `schema/core/ast-resolved.schema.json` (Phase 2/3: no IdentifierRef, no RepeatModifier)
-- `resolved` fields validate against `schema/core/ast-resolved.schema.json` (Phase 3: post-LH-propagation)
+For phase-specific validation of operant fixtures:
+- `pre_expansion` fields validate against `schema/operant/ast-parsed.schema.json` (Phase 1: includes IdentifierRef, RepeatModifier)
+- `expected` fields validate against `schema/operant/ast-resolved.schema.json` (Phase 2/3: no IdentifierRef, no RepeatModifier)
+- `resolved` fields validate against `schema/operant/ast-resolved.schema.json` (Phase 3: post-LH-propagation)
 
 Execution engines SHOULD validate against `ast-resolved.schema.json` to reject unresolved ASTs.
 
@@ -90,7 +94,11 @@ LH default propagation should validate against `expected` only.
 
 ## Test files
 
-### core/
+### foundations/
+
+Empty (placeholder). See `foundations/README.md` for the dividing principle and qualifying topics.
+
+### operant/
 
 | File | Cases | Scope |
 |------|-------|-------|
@@ -109,20 +117,35 @@ LH default propagation should validate against `expected` only.
 | `warnings.json` | 25 | Linter warnings: MISSING_TIME_UNIT, RSI_EXCEEDS_SSI, LAG_LARGE_N, MISSING_INTERPOLATE_ONSET, MISSING_COD |
 | `algebra.json` | 24 | Algebraic equivalence (≡) and non-equivalence (≢) pairs: identity, annihilator, commutativity, associativity, Repeat, non-distributivity |
 | `lh_propagation.json` | 14 | LH default propagation attribute grammar (§1.6.1): R1–R6 rules, SecondOrder unit isolation, aversive isolation, Overlay punisher isolation, explicit override, binding expansion phase ordering |
+| `interpolated.json` | 7 | Interpolate / Interp alias with count + onset kwargs |
+| `reinforcement_delay.json` | 10 | RD param_decl and schedule-level RD with time-unit variants |
+| `response_cost.json` | — | Response-cost (punishment) schedules |
+| `timeout.json` | — | Timeout (TO) schedules |
 
-### core-stateful/
+### operant/stateful/
 
 | File | Cases | Scope |
 |------|-------|-------|
 | `percentile.json` | 10 | Pctl minimal, all targets, compound, let binding, annotations |
-| `errors.json` | 16 | Pctl semantic errors (rank, window, target, dir, time unit, duplicates) + linter warnings |
+| `adjusting.json` | 16 | Adjusting delay / ratio / amount with bounds |
+| `interlocking.json` | 12 | Interlocking R(t) formula with R0 and T parameters |
+| `errors.json` | 54 | Stateful semantic errors (Pctl/Adj/Interlock) + linter warnings |
 
-### core-trial-based/
+### operant/trial-based/
 
 | File | Cases | Scope |
 |------|-------|-------|
-| `mts.json` | 19 | MTS minimal, fully specified, time units, let binding, annotations, kwarg order, compound (Mult/Chain), boundary values, LH |
-| `errors.json` | 29 | MTS semantic errors (M1–M11), modifier incompatibility (5), linter warnings (W1–W5 + W7, 8 cases) |
+| `mts.json` | 23 | MTS minimal, fully specified, time units, let binding, annotations, kwarg order, compound (Mult/Chain), boundary values, LH |
+| `gonogo.json` | 22 | GoNoGo trial structure, LH redundancy, SDT-style asymmetric consequence |
+| `errors.json` | 39 | MTS semantic errors (M1–M11), modifier incompatibility (5), linter warnings (W1–W5 + W7, 8 cases) |
+
+### respondent/
+
+Empty (placeholder). See `respondent/README.md`. Tier A primitive fixtures added in Phase Ψ-10.
+
+### composed/
+
+Empty (placeholder). See `composed/README.md`. CER / PIT / autoshape / omission / two-process fixtures forthcoming.
 
 ### experiment/
 
@@ -140,11 +163,17 @@ LH default propagation should validate against `expected` only.
 | `program-level.json` | 4 | Program-level annotations (subjects, apparatus, session) |
 | `procedure-stimulus.json` | 15 | @reinforcer, @punisher/@consequentStimulus aliases, @sd, @brief, @stimulus_classes, @training, @testing |
 | `procedure-temporal.json` | 8 | @clock, @warmup, @algorithm (Fleshler-Hoffman, arithmetic) |
-| `procedure-context.json` | — | @context (environmental context for renewal/ABA designs) |
+| `procedure-trial-structure.json` | — | Trial-structure annotations (correction, correction-latency) |
 | `subjects.json` | 10 | @species, @strain, @deprivation, @history, @n |
 | `apparatus.json` | 10 | @chamber, @operandum (dual scope), @interface, @hardware/@hw alias |
 | `measurement.json` | 29 | @session_end, @baseline, @steady_state, @dependent_measure, @training_volume, @microstructure, @phase_end, @logging, @iri_window, @warmup_exclude |
 | `errors.json` | 52 | Annotation parameter validation errors (measurement + stimulus + temporal + subjects + apparatus) |
+
+### annotations/extensions/
+
+| File | Cases | Scope |
+|------|-------|-------|
+| `respondent-annotator.json` | 14 | @cs, @us, @iti, @cs_interval — respondent stimulus and timing metadata extension (paired with `schema/annotations/extensions/respondent-annotator.schema.json`) |
 
 ### representations/t-tau/
 
