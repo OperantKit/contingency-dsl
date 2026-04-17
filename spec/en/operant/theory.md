@@ -1333,7 +1333,7 @@ This distinction is procedurally essential. If the overall were interpreted as a
 FR_n(S) ≡ Repeat(n, S) ≡ Tand(S, S, …, S)    [n copies]
 ```
 
-This equivalence holds because the ratio-overall counts unit completions deterministically and does not impose temporal structure on the completion sequence (Kelleher & Gollub, 1962). Note: this equivalence holds only in the absence of brief stimulus presentation between unit completions; with brief stimuli (conditioned reinforcers), the second-order arrangement produces different behavioral effects than a simple tandem.
+This equivalence holds because the ratio-overall counts unit completions deterministically and does not impose temporal structure on the completion sequence (Kelleher & Gollub, 1962). Note: this equivalence holds only in the absence of brief stimulus presentation between unit completions; when brief stimuli function as conditioned reinforcers, the second-order arrangement produces different behavioral effects than a simple tandem.
 
 **Interval/Time-overall: irreducible primitive.** When the overall schedule is an interval or time schedule (FI, VI, RI, FT, VT, RT), the second-order schedule is **not reducible** to tandem composition. The overall schedule controls the *temporal distribution* of reinforcement across unit completions, which requires a stateful primitive.
 
@@ -1375,14 +1375,14 @@ On response event (obs):
 
 **Brief stimulus requirement (constraint §74).** A `SecondOrder` expression without a `@brief` annotation — at either the schedule level or the program level — triggers a linter WARNING (`MISSING_BRIEF`). This is not a SemanticError; the program remains valid and parseable.
 
-The brief stimulus (conditioned reinforcer) is a defining independent variable of second-order schedules (Kelleher, 1966). Its presence or absence fundamentally alters the behavioral function of the arrangement: with brief stimuli, the second-order schedule maintains extended sequences of behavior through conditioned reinforcement; without them, a ratio-overall second-order schedule reduces to a tandem (§2.11.1 above). In drug self-administration research, brief stimuli are nearly universally employed (Goldberg, Kelleher, & Morse, 1975).
+The brief stimulus, when functioning as a conditioned reinforcer, is a defining independent variable of second-order schedules (Kelleher, 1966). Its presence or absence fundamentally alters the behavioral function of the arrangement: with brief stimuli that bridge the gap between infrequent primary reinforcements, the second-order schedule maintains extended sequences of behavior through conditioned reinforcement; without them, a ratio-overall second-order schedule reduces to a tandem (§2.11.1 above). In drug self-administration research, brief stimuli are nearly universally employed (Goldberg, Kelleher, & Morse, 1975).
 
 To suppress the warning, the user must provide one of:
 
 - `@brief("stimulus_id")` — specifying the brief stimulus identity (with optional `duration` parameter)
 - `@brief(none)` — explicitly opting out of brief stimulus presentation
 
-The `@brief(none)` form signals that the user has considered and deliberately excluded the conditioned reinforcer. Its semantics are identical to bare omission (no brief stimulus between unit completions), but the intent is documented in the source. This follows the same design philosophy as `MISSING_COD` for `Conc` (grammar.ebnf constraint §7): procedurally essential information that is permitted to omit, but flagged to encourage explicit specification.
+The `@brief(none)` form signals that the user has considered and deliberately omitted the brief stimulus (and therefore any conditioned-reinforcing function it might serve). Its semantics are identical to bare omission (no brief stimulus between unit completions), but the intent is documented in the source. This follows the same design philosophy as `MISSING_COD` for `Conc` (grammar.ebnf constraint §7): procedurally essential information that is permitted to omit, but flagged to encourage explicit specification.
 
 **References.**
 
@@ -1478,7 +1478,7 @@ E  ::=  Response(t)        -- operant response at session time t
 
 ```
 O  ::=  Reinforced         -- primary reinforcement delivered
-      | Brief              -- brief stimulus / conditioned reinforcer (SecondOrder only)
+      | Brief              -- brief stimulus, typically functioning as a conditioned reinforcer (SecondOrder only)
       | None               -- no consequence
 ```
 

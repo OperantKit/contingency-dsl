@@ -770,9 +770,6 @@ number_list   ::= number ("," number)*
 ;   2. No recursion, iteration, or computation is introduced.
 ;   3. Runtime evaluation is the responsibility of the execution engine.
 ;
-; Design provenance: .local/planning_v1/I-13a_SHAPING_ADVANCE_INDUCTION.md
-; (EBNF, adversarial review reflection, non-TC verification).
-;
 ; Reference: Eckard, M. L., & Kyonka, E. G. E. (2018). Behavioural Processes;
 ;            Fernando, A. B. P., Urcelay, G. P., Mar, A. C., et al. (2014).
 ;            Journal of Neuroscience; Rey, C. N., Thrailkill, E. A., Goldberg, K.,
@@ -1007,10 +1004,14 @@ interleave_decl ::= "interleave" phase_name [ "no_trailing" ]
 ; that desugars to a single Phase (for method=artful or method=percentile)
 ; or to a progressive_decl (for method=staged).
 ;
-; Design provenance:
-;   .local/context/ast-completeness-vs-execution-orthogonality.md
-;   (AST completeness vs execution orthogonality principle; shaping as
-;    under-specified procedure; artful/percentile/staged method taxonomy)
+; Design principle (AST completeness × execution orthogonality):
+;   The DSL must record any procedure that a JEAB Methods section records,
+;   even when the procedure is intrinsically under-specified (e.g., "key
+;   pecking was shaped by successive approximation"). The artful /
+;   percentile / staged method taxonomy separates what is recorded (the
+;   AST) from what is executable (the runtime policy), so that artful
+;   shaping AST can be parsed and re-exported even when no automatic
+;   executor exists for it.
 ;
 ; Desugar rules (D-SHAPING):
 ;

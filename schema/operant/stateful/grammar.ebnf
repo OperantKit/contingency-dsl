@@ -314,8 +314,8 @@ adj_kw_arg      ::= "start" "=" value
 ; Naming collision resolution:
 ;   "Interlocking" in the DSL refers to Ferster & Skinner (1957) schedules.
 ;   Glenn (2004) "Interlocking Behavioral Contingencies" (metacontingency)
-;   uses the annotation @ibc (renamed from @interlocking to resolve the
-;   collision). See INTERLOCK_SCHEDULE_DESIGN_2026-04-13.md §6.
+;   uses the annotation @ibc to resolve the collision; @ibc lives in
+;   annotations/extensions/social-annotator, not in this grammar.
 ;
 ; Ferster, C. B., & Skinner, B. F. (1957). Schedules of reinforcement.
 ;   Appleton-Century-Crofts.

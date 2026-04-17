@@ -128,8 +128,8 @@ R(t) = max(1, ⌈R0 × (1 − t/T)⌉)
 
 "Interlocking" in the DSL refers to Ferster & Skinner (1957) schedules.
 Glenn (2004) "Interlocking Behavioral Contingencies" (metacontingency) uses the
-annotation keyword `@ibc` (renamed from `@interlocking` to resolve the naming
-collision). See `INTERLOCK_SCHEDULE_DESIGN_2026-04-13.md` §6.
+annotation keyword `@ibc` to resolve the naming collision; `@ibc` lives in
+`annotations/extensions/social-annotator`, not in this schedule layer.
 
 ### Linter warnings
 
