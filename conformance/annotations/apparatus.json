@@ -322,5 +322,229 @@
       }
     },
     "_note": "Canonical JEAB Apparatus section for Conc VI VI with two-lever setup. Program-level declarations (physical specs), schedule-level references (behavioral assignment). COD = 2s standard changeover delay."
+  },
+
+  { "_comment": "=== Annotator validation coverage: apparatus_ext.validate() rules ===" },
+
+  {
+    "id": "apparatus_chamber_missing_name_negative",
+    "description": "@chamber without positional name (negative — CHAMBER_MISSING_NAME)",
+    "input": "@chamber\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "chamber"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["CHAMBER_MISSING_NAME"],
+    "_note": "Bare @chamber with no manufacturer string."
+  },
+  {
+    "id": "apparatus_interface_missing_name_negative",
+    "description": "@interface without positional name (negative — INTERFACE_MISSING_NAME)",
+    "input": "@interface\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "interface"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["INTERFACE_MISSING_NAME"],
+    "_note": "Bare @interface with no protocol string."
+  },
+  {
+    "id": "apparatus_hardware_missing_name_negative",
+    "description": "@hardware without positional name (negative — HARDWARE_MISSING_NAME)",
+    "input": "@hardware\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["HARDWARE_MISSING_NAME"],
+    "_note": "Bare @hardware with no backend identifier."
+  },
+  {
+    "id": "apparatus_hardware_unexpected_params_negative",
+    "description": "@hardware with named parameter (negative — HARDWARE_UNEXPECTED_PARAMS)",
+    "input": "@hardware(\"med-associates\", port=\"USB\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "med-associates",
+          "params": {
+            "port": "USB"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["HARDWARE_UNEXPECTED_PARAMS"],
+    "_note": "@hardware accepts only the positional backend name; named parameters belong on @interface."
+  },
+  {
+    "id": "apparatus_chamber_multiple_negative",
+    "description": "Two @chamber annotations in one program (negative — CHAMBER_MULTIPLE)",
+    "input": "@chamber(\"med-associates\")\n@chamber(\"coulbourn\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "med-associates"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "chamber",
+          "positional": "coulbourn"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["CHAMBER_MULTIPLE"],
+    "_note": "@chamber is declared at most once per program."
+  },
+  {
+    "id": "apparatus_interface_multiple_negative",
+    "description": "Two @interface annotations in one program (negative — INTERFACE_MULTIPLE)",
+    "input": "@interface(\"MED-PC\")\n@interface(\"serial\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "interface",
+          "positional": "MED-PC"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "interface",
+          "positional": "serial"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["INTERFACE_MULTIPLE"],
+    "_note": "@interface is declared at most once per program."
+  },
+  {
+    "id": "apparatus_hardware_multiple_negative",
+    "description": "Two @hardware annotations in one program (negative — HARDWARE_MULTIPLE)",
+    "input": "@hardware(\"med-associates\")\n@hardware(\"arduino\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "med-associates"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "arduino"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["HARDWARE_MULTIPLE"],
+    "_note": "@hardware is declared at most once per program."
+  },
+  {
+    "id": "apparatus_hardware_alias_collision_negative",
+    "description": "Both @hardware and @hw declared in the same program (negative — HARDWARE_ALIAS_COLLISION)",
+    "input": "@hardware(\"med-associates\")\n@hw(\"arduino\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "med-associates"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "hardware",
+          "positional": "arduino",
+          "label": "hw"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["HARDWARE_MULTIPLE", "HARDWARE_ALIAS_COLLISION"],
+    "_note": "@hw is the alias form of @hardware. Specifying both is ambiguous and emits both the multiplicity and the alias-collision diagnostics."
   }
 ]

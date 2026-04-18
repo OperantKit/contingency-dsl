@@ -106,7 +106,7 @@
             "value": 30.0,
             "time_unit": "s"
           },
-          "annotations": [
+          "phase_annotations": [
             {
               "type": "Annotation",
               "keyword": "context",
@@ -119,8 +119,8 @@
           "type": "Phase",
           "label": "Extinction",
           "criterion": { "type": "FixedSessions", "count": 4 },
-          "schedule": { "type": "Atomic", "dist": "EXT" },
-          "annotations": [
+          "schedule": { "type": "Special", "kind": "EXT" },
+          "phase_annotations": [
             {
               "type": "Annotation",
               "keyword": "context",
@@ -133,8 +133,8 @@
           "type": "Phase",
           "label": "RenewalTest",
           "criterion": { "type": "FixedSessions", "count": 1 },
-          "schedule": { "type": "Atomic", "dist": "EXT" },
-          "annotations": [
+          "schedule": { "type": "Special", "kind": "EXT" },
+          "phase_annotations": [
             {
               "type": "Annotation",
               "keyword": "context",

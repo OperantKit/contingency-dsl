@@ -227,5 +227,253 @@
       }
     },
     "_note": "Complete temporal preamble for a standard VI experiment: second-resolution clock, 5-minute warmup, Fleshler-Hoffman N=12 series."
+  },
+
+  { "_comment": "=== Annotator validation coverage: temporal_ext.validate() rules ===" },
+
+  {
+    "id": "temporal_clock_missing_unit_negative",
+    "description": "@clock with no unit parameter (negative — validator: CLOCK_MISSING_UNIT)",
+    "input": "@clock\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["CLOCK_MISSING_UNIT"],
+    "_note": "Bare @clock without unit= — required parameter missing."
+  },
+  {
+    "id": "temporal_clock_invalid_unit_negative",
+    "description": "@clock with unit outside the {s, ms, min} enum (negative — CLOCK_INVALID_UNIT)",
+    "input": "@clock(unit=\"hr\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "hr"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["CLOCK_INVALID_UNIT"],
+    "_note": "'hr' is not in the {s, ms, min} enumeration accepted by validator."
+  },
+  {
+    "id": "temporal_clock_multiple_negative",
+    "description": "Two @clock annotations in one program (negative — CLOCK_MULTIPLE)",
+    "input": "@clock(unit=\"s\")\n@clock(unit=\"ms\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "s"
+          }
+        },
+        {
+          "type": "Annotation",
+          "keyword": "clock",
+          "params": {
+            "unit": "ms"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["CLOCK_MULTIPLE"],
+    "_note": "@clock is a declarative singleton per program."
+  },
+  {
+    "id": "temporal_warmup_missing_duration_negative",
+    "description": "@warmup with no duration parameter (negative — WARMUP_MISSING_DURATION)",
+    "input": "@warmup\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "warmup"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["WARMUP_MISSING_DURATION"],
+    "_note": "Bare @warmup without duration= — required parameter missing."
+  },
+  {
+    "id": "temporal_warmup_negative_duration_negative",
+    "description": "@warmup with negative duration (negative — WARMUP_NEGATIVE_DURATION)",
+    "input": "@warmup(duration=-300)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "warmup",
+          "params": {
+            "duration": -300
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["WARMUP_NEGATIVE_DURATION"],
+    "_note": "Warmup duration must be >= 0. Negative durations are physically nonsensical."
+  },
+  {
+    "id": "temporal_algorithm_missing_name_negative",
+    "description": "@algorithm with no positional name (negative — ALGORITHM_MISSING_NAME)",
+    "input": "@algorithm\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "expected_diagnostics": ["ALGORITHM_MISSING_NAME"],
+    "_note": "Bare @algorithm without positional name argument."
+  },
+  {
+    "id": "temporal_algorithm_unknown_negative",
+    "description": "@algorithm with name not in known generators (negative — ALGORITHM_UNKNOWN)",
+    "input": "@algorithm(\"random-walk\")\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "random-walk"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "expected_diagnostics": ["ALGORITHM_UNKNOWN"],
+    "_note": "'random-walk' is not in the known {fleshler-hoffman, arithmetic} set."
+  },
+  {
+    "id": "temporal_algorithm_invalid_n_zero_negative",
+    "description": "@algorithm n=0 (negative — ALGORITHM_INVALID_N: n must be >=1)",
+    "input": "@algorithm(\"fleshler-hoffman\", n=0)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "fleshler-hoffman",
+          "params": {
+            "n": 0
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "expected_diagnostics": ["ALGORITHM_INVALID_N"],
+    "_note": "n must be a positive integer. n=0 yields an empty progression."
+  },
+  {
+    "id": "temporal_algorithm_invalid_n_float_negative",
+    "description": "@algorithm n with non-integer value (negative — ALGORITHM_INVALID_N)",
+    "input": "@algorithm(\"fleshler-hoffman\", n=2.5)\n\nVI30s",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "algorithm",
+          "positional": "fleshler-hoffman",
+          "params": {
+            "n": 2.5
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "V",
+        "domain": "I",
+        "value": 30.0,
+        "time_unit": "s"
+      }
+    },
+    "expected_diagnostics": ["ALGORITHM_INVALID_N"],
+    "_note": "n must be an integer. 2.5 is rejected because int(2.5) != 2.5."
   }
 ]

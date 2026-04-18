@@ -580,5 +580,172 @@
       }
     },
     "_note": "Boundary: block_size=36 is within Arntzen (2012) modal range — no TRAINING_UNUSUAL_BLOCK_SIZE warning."
+  },
+
+  { "_comment": "=== Annotator validation coverage: stimulus_ext.validate() rules ===" },
+
+  {
+    "id": "stimulus_reinforcer_conditioned_with_backup_positive",
+    "description": "Conditioned reinforcer declares its backup primary reinforcer (validator rule: conditioned requires >=1 backup)",
+    "input": "@reinforcer(\"food\")\n@reinforcer(\"token\", type=\"conditioned\", backup=\"food\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "food"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "token",
+          "params": {
+            "type": "conditioned",
+            "backup": "food"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": [],
+    "_note": "Positive case for stimulus_ext rule 1 (conditioned requires backup) and rule 3 (backup must be declared). 'food' is declared first, then 'token' references it as backup."
+  },
+  {
+    "id": "stimulus_reinforcer_conditioned_missing_backup_negative",
+    "description": "Conditioned reinforcer with no backup parameter (negative — validator rule 1)",
+    "input": "@reinforcer(\"token\", type=\"conditioned\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "token",
+          "params": {
+            "type": "conditioned"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["REINFORCER_CONDITIONED_MISSING_BACKUP"],
+    "_note": "Parses cleanly; stimulus_ext.validate() emits a descriptive diagnostic equivalent to the mnemonic shown. Token without a primary backup violates the conditioned reinforcer contract."
+  },
+  {
+    "id": "stimulus_reinforcer_generalized_two_backups_positive",
+    "description": "Generalized reinforcer declares >=2 backup primaries via list (positive — validator rule 2 intent)",
+    "input": "@reinforcer(\"food\")\n@reinforcer(\"water\")\n@reinforcer(\"money\", type=\"generalized\", backup=[\"food\", \"water\"])\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "food"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "water"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "money",
+          "params": {
+            "type": "generalized",
+            "backup": ["food", "water"]
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": [],
+    "_note": "Positive intent fixture for stimulus_ext rule 2. The DSL accepts list-valued backup; current Python validator parses only string backups (pending), so this fixture documents the intended language form."
+  },
+  {
+    "id": "stimulus_reinforcer_generalized_one_backup_negative",
+    "description": "Generalized reinforcer with only one backup (negative — validator rule 2)",
+    "input": "@reinforcer(\"food\")\n@reinforcer(\"money\", type=\"generalized\", backup=\"food\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "food"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "money",
+          "params": {
+            "type": "generalized",
+            "backup": "food"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["REINFORCER_GENERALIZED_INSUFFICIENT_BACKUPS"],
+    "_note": "Generalized reinforcers (Skinner, 1953) require >=2 backups by definition. Single-backup generalized reinforcer collapses to a conditioned reinforcer."
+  },
+  {
+    "id": "stimulus_reinforcer_backup_undeclared_negative",
+    "description": "Conditioned reinforcer references a backup name that was never declared (negative — validator rule 3)",
+    "input": "@reinforcer(\"token\", type=\"conditioned\", backup=\"ghost\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "reinforcer",
+          "positional": "token",
+          "params": {
+            "type": "conditioned",
+            "backup": "ghost"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["REINFORCER_BACKUP_UNDECLARED"],
+    "_note": "Referential integrity: backup must point to a declared @reinforcer. 'ghost' is never declared, so the reference dangles."
   }
 ]

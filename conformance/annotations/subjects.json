@@ -287,5 +287,245 @@
       }
     },
     "_note": "Zebrafish (Danio rerio, AB strain) — increasingly used in operant research."
+  },
+
+  { "_comment": "=== Annotator validation coverage: subjects_ext.validate() rules ===" },
+
+  {
+    "id": "subjects_species_missing_name_negative",
+    "description": "@species without positional argument (negative — SPECIES_MISSING_NAME)",
+    "input": "@species\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["SPECIES_MISSING_NAME"],
+    "_note": "Bare @species with no positional name."
+  },
+  {
+    "id": "subjects_strain_missing_name_negative",
+    "description": "@strain without positional argument (negative — STRAIN_MISSING_NAME)",
+    "input": "@strain\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "strain"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["STRAIN_MISSING_NAME"],
+    "_note": "Bare @strain with no positional name."
+  },
+  {
+    "id": "subjects_history_missing_descriptor_negative",
+    "description": "@history without positional argument (negative — HISTORY_MISSING_DESCRIPTOR)",
+    "input": "@history\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "history"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["HISTORY_MISSING_DESCRIPTOR"],
+    "_note": "Bare @history with no positional descriptor."
+  },
+  {
+    "id": "subjects_n_invalid_zero_negative",
+    "description": "@n with value 0 (negative — N_INVALID_VALUE: n must be >=1)",
+    "input": "@n(0)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "n",
+          "positional": 0
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["N_INVALID_VALUE"],
+    "_note": "Subject count must be a positive integer >=1."
+  },
+  {
+    "id": "subjects_deprivation_unexpected_positional_negative",
+    "description": "@deprivation called with a positional argument (negative — DEPRIVATION_UNEXPECTED_POSITIONAL)",
+    "input": "@deprivation(\"food\", hours=23)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "positional": "food",
+          "params": {
+            "hours": 23
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["DEPRIVATION_UNEXPECTED_POSITIONAL", "DEPRIVATION_MISSING_TARGET"],
+    "_note": "@deprivation accepts only named hours= and target= parameters; positional is rejected. Target is also missing here."
+  },
+  {
+    "id": "subjects_deprivation_missing_hours_negative",
+    "description": "@deprivation without hours (negative — DEPRIVATION_MISSING_HOURS)",
+    "input": "@deprivation(target=\"food\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "target": "food"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["DEPRIVATION_MISSING_HOURS"],
+    "_note": "hours= is required by the schema."
+  },
+  {
+    "id": "subjects_deprivation_missing_target_negative",
+    "description": "@deprivation without target (negative — DEPRIVATION_MISSING_TARGET)",
+    "input": "@deprivation(hours=23)\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": 23
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["DEPRIVATION_MISSING_TARGET"],
+    "_note": "target= is required by the schema."
+  },
+  {
+    "id": "subjects_deprivation_negative_hours_negative",
+    "description": "@deprivation with negative hours (negative — DEPRIVATION_NEGATIVE_HOURS)",
+    "input": "@deprivation(hours=-2, target=\"food\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "deprivation",
+          "params": {
+            "hours": -2,
+            "target": "food"
+          }
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["DEPRIVATION_NEGATIVE_HOURS"],
+    "_note": "Hours of deprivation must be non-negative."
+  },
+  {
+    "id": "subjects_species_multiple_negative",
+    "description": "Two @species annotations in one program (negative — SPECIES_MULTIPLE)",
+    "input": "@species(\"rat\")\n@species(\"mouse\")\n\nFR5",
+    "expected": {
+      "type": "Program",
+      "program_annotations": [
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "rat"
+        },
+        {
+          "type": "Annotation",
+          "keyword": "species",
+          "positional": "mouse"
+        }
+      ],
+      "param_decls": [],
+      "bindings": [],
+      "schedule": {
+        "type": "Atomic",
+        "dist": "F",
+        "domain": "R",
+        "value": 5.0
+      }
+    },
+    "expected_diagnostics": ["SPECIES_MULTIPLE"],
+    "_note": "Each subjects keyword is a declarative singleton. Same shape applies to STRAIN_MULTIPLE / DEPRIVATION_MULTIPLE / HISTORY_MULTIPLE / N_MULTIPLE."
   }
 ]
