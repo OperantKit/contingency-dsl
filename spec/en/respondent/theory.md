@@ -12,7 +12,7 @@
 
 ## 1. The Two-Term Contingency as a Distinct Formal Object
 
-Skinner (1938) drew a structural distinction between **operant** (three-term) and **respondent** (two-term) contingencies. The three-term contingency specifies a relation `P(Sr+ | R, SD)` in which a response `R` emitted in the presence of a discriminative stimulus `SD` is followed by a reinforcer; the two-term contingency specifies a relation `P(US | CS)` in which the presence of a conditional stimulus `CS` predicts an unconditional stimulus `US`. The two are not parameterizations of a common super-relation — the response `R` is *absent* from the respondent arrangement, and this absence is structural rather than trivial.
+Skinner (1938) drew a structural distinction between **operant** (three-term) and **respondent** (two-term) contingencies. The three-term contingency specifies a relation `P(Sr+ | R, SD)` in which a response `R` emitted in the presence of a discriminative stimulus `SD` is followed by a reinforcer; the two-term contingency specifies a relation `P(US | CS)` in which the presence of a conditional stimulus `CS` is differentially correlated, in the statistical sense, with the occurrence of an unconditional stimulus `US`. The two are not parameterizations of a common super-relation — the response `R` is *absent* from the respondent arrangement, and this absence is structural rather than trivial.
 
 A common misreading treats the two-term contingency as a "degenerate" three-term contingency in which the response position has been erased. This misreading collapses the CS into an `SD` role and the CR into an operant `R`. Three considerations refute the collapse:
 
@@ -36,7 +36,7 @@ The contingency-dsl Tier A primitive `Contingency(p, q)` parameterizes this plan
 | Region / Point | Primitive | Description |
 |---|---|---|
 | `(1, 0)` corner | `Pair.ForwardDelay(cs, us, ...)` | Canonical forward pairing: US occurs iff CS occurred. |
-| Diagonal `p = q` | `TrulyRandom(cs, us)` | CS-US independence; no predictive contingency. |
+| Diagonal `p = q` | `TrulyRandom(cs, us)` | CS–US statistical independence; `P(US | CS) = P(US | ¬CS)`. |
 | `p = 0` axis (with `q > 0`) | `ExplicitlyUnpaired(cs, us, min_separation)` | Negative contingency with explicit temporal separation. |
 | `(0, 0)` origin | `Extinction(cs)` (after acquisition) | No US is delivered at all; CR decrements. |
 | `p = 0, q = 0` with CS-only trials | `CSOnly(cs, trials)` | Baseline / pre-exposure (latent-inhibition procedure when applied prior to acquisition). |
@@ -55,7 +55,7 @@ Rescorla (1967) argued that "truly random" control procedures (`p = q`) and "exp
 
 ## 3. Acquisition and Extinction Without Response Strengthening
 
-Conditioned-response (CR) acquisition is a function of CS predictiveness. The Rescorla–Wagner model (Rescorla & Wagner, 1972) formalizes this as error-driven associative strength: `ΔV_CS = α_CS β_US (λ - ΣV)` on each trial in which the CS is present. The model predicts (and Rescorla, 1968, confirms) that acquisition rate depends on `p - q`, not on `p` alone.
+Conditioned-response (CR) acquisition is a function of the differential correlation between CS and US (that is, CS predictiveness in the statistical sense: `P(US | CS) − P(US | ¬CS)`). The Rescorla–Wagner model (Rescorla & Wagner, 1972) formalizes this as error-driven associative strength: `ΔV_CS = α_CS β_US (λ - ΣV)` on each trial in which the CS is present. The model predicts (and Rescorla, 1968, confirms) that acquisition rate depends on `p - q`, not on `p` alone.
 
 **Respondent extinction** (Pavlov, 1927; Bouton, 2004) is the decrement of CR when CS is presented without US. Three features distinguish respondent extinction from operant extinction:
 

@@ -515,7 +515,7 @@ progressive DoseResponse:
 
 **論文:** Fernando, A. B. P., Urcelay, G. P., Mar, A. C., Dickinson, A., & Robbins, T. W. (2014). Free-operant avoidance behavior by rats after reinforcer revaluation using opioid agonists and d-amphetamine. *Journal of Neuroscience*, *34*(18), 6286-6293. https://doi.org/10.1523/JNEUROSCI.4146-13.2014
 
-**デザイン:** 自由オペラント回避のための三相強化子再評価パラダイム。(1) 反応随伴のフィードバック刺激を伴う Sidman スケジュール下での獲得。(2) 再評価: レバー非存在下で、全身性薬物処置とペア（または非ペア）された非随伴ショック提示。(3) 元の回避スケジュールでの消去テスト（強化子送達なし）。回避が目標指向的であれば、再評価操作はテスト期の反応を変調させるはずである。
+**デザイン:** 自由オペラント回避のための三相強化子再評価パラダイム。(1) 反応随伴のフィードバック刺激を伴う Sidman スケジュール下での獲得。(2) 再評価: レバー非存在下で、全身性薬物処置とペア（または非ペア）された非随伴ショック提示。(3) 元の回避スケジュールでの消去テスト（強化子送達なし）。著者らは Adams and Dickinson (1981) の goal-directed / habitual 枠組みでこの手続きを解釈する: その枠組みの下では、テスト期反応が目標指向的であれば再評価操作はテスト期反応率を変化させるはずであり、反応が習慣的になっていれば再評価操作は反応率を変化させないはずである。DSL は手続き的配置のみを表現する。goal-directed / habitual 枠組みは著者らの理論的動機であり、DSL のコミットメントではない。
 
 **主要 DSL 機能:** `Sidman`, `no_schedule`, `advance when manual`, manual gating による `progressive` shaping
 

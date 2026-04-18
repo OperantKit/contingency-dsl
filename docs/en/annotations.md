@@ -375,7 +375,7 @@ Declares the **associative-learning model** associated with a schedule expressio
 
 - **RW (Rescorla & Wagner, 1972).** Error-correction learning: ΔV = αβ(λ − ΣV). Associative strength updates are proportional to the discrepancy between predicted and obtained US. Foundational model for blocking, overshadowing, conditioned inhibition.
 - **PH (Pearce & Hall, 1980).** Attention-modulated variant: the associability α of a CS increases when the US is surprising and decreases when the US is well-predicted. Explains latent inhibition and extinction phenomena that RW does not.
-- **TD (Sutton & Barto, 1998).** Temporal-difference learning: treats each time step as a state and learns from the difference between successive predictions. Serves as the model-theoretic bridge between behavioral and neuroscience accounts of reward-prediction error.
+- **TD (Sutton & Barto, 1998).** Temporal-difference learning: treats each time step as a state and learns from the difference between successive predictions. Serves as the model-theoretic bridge between behavioral and neuroscience accounts of reinforcement-prediction error. (Sutton and Barto's own text uses "reward" as the technical term for the quantity being predicted; this summary substitutes "reinforcement," consistent with the DSL's vocabulary policy, and flags the substitution here for readers who work from the original text.)
 
 **Current status.** The `learning-models-annotator` is **documented here as design intent**; the corresponding spec document (`spec/en/annotations/extensions/learning-models-annotator.md`) and JSON Schema are scheduled for a subsequent phase. The annotation keyword set and semantics described above are the authoritative design until those files exist.
 

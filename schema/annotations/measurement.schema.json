@@ -160,7 +160,7 @@
     },
 
     "training_volume": {
-      "description": "Training volume tracking declaration. Specifies cumulative training exposure metrics to record across sessions. Critical for overtraining paradigms and habit formation research where the amount of training determines whether behavior is goal-directed or habitual (Adams & Dickinson, 1981).",
+      "description": "Training volume tracking declaration. Specifies cumulative training exposure metrics to record across sessions. Extended training is a variable of interest in studies of behavior under reinforcer devaluation (Adams & Dickinson, 1981) and in studies of acquisition versus steady-state effects.",
       "scope": ["program"],
       "positional": null,
       "params": {

@@ -59,7 +59,9 @@ Punishment delivers the aversive stimulus **contingent on a response** (a three-
 
 ## 5. Relationship to Two-Process Theory
 
-CER is the canonical demonstration that a Pavlovian CS acquires motivational properties that modulate operant performance. Under the Rescorla–Solomon (1967) two-process framework (see `two-process-theory.md`), the CS–shock association generates a conditioned aversive state; this state suppresses appetitive operant performance because the two states are motivationally incompatible.
+CER is the canonical demonstration of the following empirical pattern: a stimulus that has been paired with an aversive US in a Pavlovian (response-independent) arrangement, when subsequently presented during an appetitive operant baseline, suppresses the baseline response rate. The suppression is obtained under conditions in which the US has never been delivered contingent on the operant response.
+
+Rescorla and Solomon (1967) offer one theoretical account of this pattern: under their two-process framework (see [two-process-theory.md](two-process-theory.md)), the CS–shock arrangement is said to establish a conditioned aversive "central state," and this state is said to suppress appetitive operant responding because an appetitive and an aversive state are treated, in that framework, as motivationally incompatible. The "central state," "conditioned aversive state," and "motivational incompatibility" vocabulary is Rescorla and Solomon's; the DSL records the empirical pattern described in the preceding paragraph and notes that two-process theory supplies one interpretation of it.
 
 ## 6. Citations
 

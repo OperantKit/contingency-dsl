@@ -16,7 +16,7 @@ The PIT procedure has three phases, the first two of which are established **ind
 
 1. **Pavlovian training.** A CS is paired with a US in the absence of the operant response requirement (e.g., `Pair.ForwardDelay(cs, food, ...)`). The CS acquires predictive properties without any operant-response history.
 2. **Instrumental training.** An operant response (e.g., lever press) is trained on a schedule that produces the same US, without the Pavlovian CS (e.g., VI 60 s maintained by food delivery). The operant history is established without CS exposure.
-3. **Transfer test.** The Pavlovian CS is presented while the instrumental response is available, typically under extinction (no US delivered during the test) to isolate the CS's motivational influence from ongoing reinforcement.
+3. **Transfer test.** The Pavlovian CS is presented while the instrumental response is available, typically under extinction (no US delivered during the test) so that any change in response rate during CS presentations cannot be attributed to ongoing response-contingent reinforcement within the test.
 
 The dependent measure is the change in operant response rate during CS presentations versus during matched no-CS intervals in the test.
 
@@ -26,8 +26,8 @@ Estes (1948) first demonstrated the transfer effect. Rescorla and Solomon (1967)
 
 Two principal variants are distinguished by what the Pavlovian and instrumental training share:
 
-- **General PIT.** The Pavlovian and instrumental training use outcomes of the **same motivational class** but not necessarily the identical outcome (e.g., Pavlovian CS paired with sucrose; instrumental response reinforced with food pellets). The CS facilitates the instrumental response via a shared motivational state.
-- **Outcome-specific PIT.** The Pavlovian CS and the instrumental response share the **identical outcome** (e.g., both trained with sucrose). The CS selectively enhances instrumental responding for that specific outcome when multiple outcome-specific responses are tested simultaneously. This variant is taken as evidence for outcome-specific S–O associations at the Pavlovian stage.
+- **General PIT.** The Pavlovian and instrumental training use outcomes of the **same appetitive or aversive class** (e.g., Pavlovian CS paired with sucrose; instrumental response reinforced with food pellets) but not necessarily the identical outcome. Under these training conditions, subsequent CS presentation increases the instrumental response rate even though the specific outcome used in Pavlovian training was never delivered contingent on the instrumental response. Two-process theory (see [two-process-theory.md](two-process-theory.md)) offers one interpretation of this pattern in terms of a shared motivational state; the DSL records the procedural arrangement and the empirical pattern without adopting that vocabulary in its own voice.
+- **Outcome-specific PIT.** The Pavlovian CS and the instrumental response share the **identical outcome** (e.g., both trained with sucrose). The CS selectively increases instrumental responding for that specific outcome when multiple outcome-specific responses are tested simultaneously. This variant is taken in the literature as evidence for outcome-specific S–O associations at the Pavlovian stage.
 
 The DSL expresses both variants with the same composed structure; the distinction is carried by the `@us` / reinforcer labels on the Pavlovian and operant phases.
 
