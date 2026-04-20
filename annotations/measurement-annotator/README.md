@@ -14,9 +14,13 @@ measurement parameters — information that belongs to neither Procedure
 nor Subjects (who is studied), but rather **how behavioral effects are
 quantified and when data collection boundaries are drawn**.
 
-Per [design-philosophy.md §4.2](../../spec/en/design-philosophy.md),
-third-party programs are free to reinterpret, extend, or replace this
-annotator. This README documents the DSL project's recommended set.
+This annotator is part of the **core recommended vocabulary** maintained
+by the DSL project. Per
+[design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
+programs retain the freedom to reinterpret or replace these categories, but
+the DSL project supplies and maintains the reference implementation in
+[`contingency-dsl-py`](../../../contingency-dsl-py/) and
+[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
 
 ---
 
@@ -341,4 +345,4 @@ reference, not a dependency on another annotator.
 - **Schema**: [`schema/annotations/measurement.schema.json`](../../schema/annotations/measurement.schema.json)
 - **Conformance tests**: [`conformance/annotations/measurement.json`](../../conformance/annotations/measurement.json)
 - **Error tests**: [`conformance/annotations/errors.json`](../../conformance/annotations/errors.json)
-- **Reference implementation**: `apps/experiment/contingency-annotator/src/contingency_annotator/measurement_annotator/` (planned)
+- **Reference implementation**: [`apps/core/contingency-dsl-py/src/contingency_dsl/annotations/measurement/`](../../../contingency-dsl-py/src/contingency_dsl/annotations/measurement/)

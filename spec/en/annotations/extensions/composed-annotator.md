@@ -121,7 +121,7 @@ must decompose them into separate phases.
 ## 5. Reference implementation
 
 The Python reference implementation lives in the
-`contingency_annotator.composed_ext` package as the `ComposedExtension`
+`contingency_dsl.annotations.composed` package as the `ComposedExtension`
 class. It conforms to the `ExtensionModule` protocol defined in
 `contingency_dsl.extensions`, supplies semantic validation for each
 annotation's required / enumerated parameters, and provides an

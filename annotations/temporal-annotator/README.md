@@ -17,9 +17,13 @@ is the responsibility of `experiment-io`), and it does **not** describe
 dependent measures or session-end rules (that is the responsibility of
 `measurement-annotator`).
 
-Per [design-philosophy.md §4.2](../../spec/en/design-philosophy.md),
-third-party programs are free to reinterpret, extend, or replace this
-annotator. This README documents the DSL project's recommended set.
+This annotator is part of the **core recommended vocabulary** maintained
+by the DSL project. Per
+[design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
+programs retain the freedom to reinterpret or replace these categories, but
+the DSL project supplies and maintains the reference implementation in
+[`contingency-dsl-py`](../../../contingency-dsl-py/) and
+[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
 
 ---
 
@@ -81,5 +85,4 @@ This annotator declares the *intent*; the runtime layers resolve it.
 
 ## Reference implementation
 
-`contingency_annotator.temporal_ext` (planned; placeholder — no
-implementation yet, schema and conformance fixtures only).
+[`contingency_dsl.annotations.temporal`](../../../contingency-dsl-py/src/contingency_dsl/annotations/temporal/).

@@ -14,9 +14,13 @@ via MED-PC"). The declarations are program-level intent: they identify
 which apparatus the program targets, while the runtime backend that
 actually drives the hardware is the responsibility of `experiment-io`.
 
-Per [design-philosophy.md §4.2](../../spec/en/design-philosophy.md),
-third-party programs are free to reinterpret, extend, or replace this
-annotator. This README documents the DSL project's recommended set.
+This annotator is part of the **core recommended vocabulary** maintained
+by the DSL project. Per
+[design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
+programs retain the freedom to reinterpret or replace these categories, but
+the DSL project supplies and maintains the reference implementation in
+[`contingency-dsl-py`](../../../contingency-dsl-py/) and
+[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
 
 ---
 
@@ -90,4 +94,4 @@ program-level / schedule-level dual semantics described in the schema.
 
 ## Reference implementation
 
-`contingency_annotator.apparatus_ext` (planned).
+[`contingency_dsl.annotations.apparatus`](../../../contingency-dsl-py/src/contingency_dsl/annotations/apparatus/).

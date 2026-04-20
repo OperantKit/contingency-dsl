@@ -109,7 +109,7 @@ Other annotators this one requires (if any). Prefer none.
 
 ## Implementation Reference
 
-Where the implementation lives (e.g., `apps/experiment/contingency-annotator/src/contingency_annotator/<name>_annotator/`).
+Where the implementation lives (e.g., `apps/experiment/contingency-dsl-py/src/contingency_dsl.annotations/<name>_annotator/`).
 
 Note: third-party programs may implement their own annotator conforming
 to this schema without using the reference implementation.

@@ -319,7 +319,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 ### 4.7.3 パッケージアーキテクチャ
 
-全ての annotator は **contingency-annotator** のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。Annotator 名は JEAB Method 節の見出しと 1:1 で対応する（[annotations/design.md §3.7](annotations/design.md) 参照）。
+全ての annotator は **contingency-dsl-py** のサブモジュールとして収容される。基底 DSL（`contingency-dsl`）は `AnnotationModule` Protocol のみを定義し、具体的な annotator 実装は持たない。Annotator 名は JEAB Method 節の見出しと 1:1 で対応する（[annotations/design.md §3.7](annotations/design.md) 参照）。
 
 ```
 contingency-dsl（基底 CFG）
@@ -327,7 +327,7 @@ contingency-dsl（基底 CFG）
   │  = contingency-py にのみ依存
   │  = 定義: AnnotationModule Protocol, AnnotatedSchedule, AnnotationRegistry
   │
-  └── contingency-annotator（アノテーションパッケージ）
+  └── contingency-dsl-py（アノテーションパッケージ）
         │  共有型: Reinforcer 階層、AssociativeState、LearningRule、
         │  StimulusManager、OfflineRunner
         │
@@ -365,15 +365,15 @@ contingency-dsl（基底 CFG）
               └── clinical_annotator/ （ABA 臨床メタデータ）
                     + @function, @target, @replacement 注釈
 
-social-contingency-sim → contingency-annotator の型を使う側（消費者であり提供者ではない）
-experiment-core → contingency-dsl + contingency-annotator を使用
+social-contingency-sim → contingency-dsl-py の型を使う側（消費者であり提供者ではない）
+experiment-core → contingency-dsl + contingency-dsl-py を使用
 ```
 
 **依存グラフ:**
 - contingency-py: 他への依存なし
 - contingency-dsl: contingency-py に依存; AnnotationModule Protocol を定義
-- contingency-annotator: contingency-dsl + contingency-py に依存; annotator を実装
-- 消費者（social-contingency-sim, experiment-core 等）: contingency-annotator に依存
+- contingency-dsl-py: contingency-dsl + contingency-py に依存; annotator を実装
+- 消費者（social-contingency-sim, experiment-core 等）: contingency-dsl-py に依存
 
 ### 4.7.4 AnnotationModule Protocol
 
@@ -524,7 +524,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 |------|------|-----|
 | ユーザー向け名 | kebab-case + `-annotator` サフィックス、JEAB カテゴリと一致 | `procedure-annotator`, `subjects-annotator` |
 | Sub-annotator（procedure-annotator 内部） | kebab-case、suffix なし | `procedure-annotator/stimulus`, `procedure-annotator/temporal` |
-| Python モジュール | `contingency_annotator.<snake>` | `contingency_annotator.procedure_annotator.stimulus` |
+| Python モジュール | `contingency_dsl.annotations.<snake>` | `contingency_dsl.annotations.procedure_annotator.stimulus` |
 | Protocol 実装クラス | PascalCase + `Annotator` | `ProcedureAnnotator` |
 | アノテーション dataclass | PascalCase + `Annotation` | `ReinforcerAnnotation` |
 | DSL 構文 | `@` プレフィックス + 小文字キーワード | `@reinforcer("food")` |
@@ -533,7 +533,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 ### 4.7.9 設計原則
 
 - **contingency-py は増やさない。** 基底 CFG に対応するランタイム型のみ保持。
-- **全てのアノテーションモジュールは contingency-annotator に集約。** DSL アノテーションは型とメタデータであり、シミュレーションロジックではない。`social-contingency-sim` はこれらの型の消費者であり、提供者ではない。
+- **全てのアノテーションモジュールは contingency-dsl-py に集約。** DSL アノテーションは型とメタデータであり、シミュレーションロジックではない。`social-contingency-sim` はこれらの型の消費者であり、提供者ではない。
 - **基底 CFG は全 annotator の共通言語。** Annotator は基底 CFG に新しい生成規則を**追加**するが、既存の規則を**変更しない**（開放閉鎖原則）。
 - **Annotator はデカルト積で合成。** 各 annotator は直交する次元を追加し、独立に、または任意の組み合わせで有効化可能。
 - **Protocol ベースの疎結合。** サードパーティの annotator もフレームワークを継承することなく `AnnotationModule` に適合可能（構造的部分型付け）。

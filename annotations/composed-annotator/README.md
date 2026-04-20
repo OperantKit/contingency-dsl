@@ -13,9 +13,13 @@ pairing. The pairing itself is captured by the Tier A respondent
 primitive; the cancellation or postponement rule is captured by a
 `@omission` / `@avoidance` annotation attached to that primitive.
 
-Per [design-philosophy.md §4.2](../../spec/en/design-philosophy.md),
-third-party programs are free to reinterpret, extend, or replace this
-annotator. This README documents the DSL project's recommended set.
+This annotator is part of the **core recommended vocabulary** maintained
+by the DSL project. Per
+[design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
+programs retain the freedom to reinterpret or replace these categories, but
+the DSL project supplies and maintains the reference implementation in
+[`contingency-dsl-py`](../../../contingency-dsl-py/) and
+[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
 
 ---
 
@@ -57,4 +61,4 @@ decompose them into separate phases.
 
 ## Reference implementation
 
-[`contingency_annotator.composed_ext.ComposedExtension`](../../../../experiment/contingency-annotator/src/contingency_annotator/composed_ext/).
+[`contingency_dsl.annotations.composed.ComposedExtension`](../../../contingency-dsl-py/src/contingency_dsl/annotations/composed/).

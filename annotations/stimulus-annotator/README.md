@@ -16,9 +16,13 @@ separation keeps the schedule expression theoretical (analyzable in terms
 of matching, scallops, etc.) while letting a single program be wired to
 concrete reinforcers, signals, and operanda.
 
-Per [design-philosophy.md §4.2](../../spec/en/design-philosophy.md),
-third-party programs are free to reinterpret, extend, or replace this
-annotator. This README documents the DSL project's recommended set.
+This annotator is part of the **core recommended vocabulary** maintained
+by the DSL project. Per
+[design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
+programs retain the freedom to reinterpret or replace these categories, but
+the DSL project supplies and maintains the reference implementation in
+[`contingency-dsl-py`](../../../contingency-dsl-py/) and
+[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
 
 ---
 
@@ -84,4 +88,4 @@ itself. Cross-annotator constraints (e.g. apparatus binding for
 
 ## Reference implementation
 
-[`contingency_annotator.stimulus_ext.StimulusExtension`](../../../../experiment/contingency-annotator/src/contingency_annotator/stimulus_ext/).
+[`contingency_dsl.annotations.stimulus.StimulusExtension`](../../../contingency-dsl-py/src/contingency_dsl/annotations/stimulus/).

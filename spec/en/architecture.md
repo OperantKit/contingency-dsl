@@ -378,7 +378,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 ### 4.7.3 Package Architecture
 
-All annotators live as submodules within **contingency-annotator**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotations/design.md §3.7](annotations/design.md)).
+All annotators live as submodules within **contingency-dsl-py**. The base DSL (`contingency-dsl`) defines only the `AnnotationModule` protocol; concrete annotators are never part of the base package. Annotator names correspond 1:1 to JEAB Method section headings (see [annotations/design.md §3.7](annotations/design.md)).
 
 ```
 contingency-dsl (base CFG)
@@ -386,7 +386,7 @@ contingency-dsl (base CFG)
   │  = Depends only on contingency-py
   │  = Defines: AnnotationModule Protocol, AnnotatedSchedule, AnnotationRegistry
   │
-  └── contingency-annotator (annotation package)
+  └── contingency-dsl-py (annotation package)
         │  Shared types: Reinforcer hierarchy, AssociativeState, LearningRule,
         │  StimulusManager, OfflineRunner
         │
@@ -424,15 +424,15 @@ contingency-dsl (base CFG)
               └── clinical_annotator/ (ABA clinical metadata)
                     + @function, @target, @replacement annotations
 
-social-contingency-sim → uses contingency-annotator types (consumer, not provider)
-experiment-core → uses contingency-dsl + contingency-annotator
+social-contingency-sim → uses contingency-dsl-py types (consumer, not provider)
+experiment-core → uses contingency-dsl + contingency-dsl-py
 ```
 
 **Dependency graph:**
 - contingency-py: no dependencies on others
 - contingency-dsl: depends on contingency-py; defines AnnotationModule Protocol
-- contingency-annotator: depends on contingency-dsl + contingency-py; implements annotators
-- Consumers (social-contingency-sim, experiment-core, etc.): depend on contingency-annotator
+- contingency-dsl-py: depends on contingency-dsl + contingency-py; implements annotators
+- Consumers (social-contingency-sim, experiment-core, etc.): depend on contingency-dsl-py
 
 ### 4.7.4 AnnotationModule Protocol
 
@@ -588,7 +588,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 |------------|--------|---------|
 | User-facing name | kebab-case with `-annotator` suffix, matching JEAB category | `procedure-annotator`, `subjects-annotator` |
 | Sub-annotator (within procedure-annotator) | kebab-case, no suffix | `procedure-annotator/stimulus`, `procedure-annotator/temporal` |
-| Python module | `contingency_annotator.<snake>` | `contingency_annotator.procedure_annotator.stimulus` |
+| Python module | `contingency_dsl.annotations.<snake>` | `contingency_dsl.annotations.procedure_annotator.stimulus` |
 | Protocol implementation | PascalCase + `Annotator` | `ProcedureAnnotator` |
 | Annotation dataclass | PascalCase + `Annotation` | `ReinforcerAnnotation` |
 | DSL syntax | `@` prefix + lowercase keyword | `@reinforcer("food")` |
@@ -597,7 +597,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 ### 4.7.9 Design Principles
 
 - **contingency-py remains minimal.** Only base CFG runtime types.
-- **All annotation modules live in contingency-annotator.** DSL annotations are types and metadata, not simulation logic. `social-contingency-sim` is a consumer of these types, not a provider.
+- **All annotation modules live in contingency-dsl-py.** DSL annotations are types and metadata, not simulation logic. `social-contingency-sim` is a consumer of these types, not a provider.
 - **Base CFG is the common language.** Annotators add new production rules but never modify existing ones (open-closed principle).
 - **Annotators compose via Cartesian product.** Each annotator adds an orthogonal dimension; they can be enabled independently or in any combination.
 - **Protocol-based decoupling.** Third-party annotators can conform to `AnnotationModule` without inheriting from the framework (structural subtyping).

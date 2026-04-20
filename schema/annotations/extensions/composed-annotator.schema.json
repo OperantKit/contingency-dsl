@@ -66,5 +66,5 @@
     "disjointness": "At most one of @omission or @avoidance may be attached to a single respondent primitive; their execution-time semantics conflict (omission cancels, avoidance cancels-or-postpones). Programs that need both simultaneously must decompose into separate phases."
   },
 
-  "reference_implementation": "contingency_annotator.composed_ext.ComposedExtension (Python)"
+  "reference_implementation": "contingency_dsl.annotations.composed.ComposedExtension (Python)"
 }
