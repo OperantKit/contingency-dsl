@@ -26,9 +26,9 @@ dist/
 !dist/.gitkeep
 
 # Package-local scratch / planning / draft / review traces
-# See operantkit/.claude/rules/common/local-scratch-and-privacy.md
+# Package-local scratch / planning / draft / review traces
 .local/
 PLAN.md
 
-# uv is prohibited by operantkit/CLAUDE.md; ignore lockfiles if created by tooling
+# uv package manager is banned; any accidental uv.lock must not be tracked.
 uv.lock
