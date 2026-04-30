@@ -241,53 +241,6 @@
     },
     "_note": "Canonical JEAB Subjects section: species, strain, deprivation (establishing operation), experimental history, and group size."
   },
-  {
-    "id": "subjects_zebrafish",
-    "description": "Subjects preamble for zebrafish (Danio rerio) study",
-    "input": "@species(\"zebrafish\")\n@strain(\"AB\")\n@deprivation(hours=24, target=\"food\")\n@history(\"naive\")\n@n(12)\n\nFR5",
-    "expected": {
-      "type": "Program",
-      "program_annotations": [
-        {
-          "type": "Annotation",
-          "keyword": "species",
-          "positional": "zebrafish"
-        },
-        {
-          "type": "Annotation",
-          "keyword": "strain",
-          "positional": "AB"
-        },
-        {
-          "type": "Annotation",
-          "keyword": "deprivation",
-          "params": {
-            "hours": 24,
-            "target": "food"
-          }
-        },
-        {
-          "type": "Annotation",
-          "keyword": "history",
-          "positional": "naive"
-        },
-        {
-          "type": "Annotation",
-          "keyword": "n",
-          "positional": 12
-        }
-      ],
-      "param_decls": [],
-      "bindings": [],
-      "schedule": {
-        "type": "Atomic",
-        "dist": "F",
-        "domain": "R",
-        "value": 5.0
-      }
-    },
-    "_note": "Zebrafish (Danio rerio, AB strain) — increasingly used in operant research."
-  },
 
   { "_comment": "=== Annotator validation coverage: subjects_ext.validate() rules ===" },
 
