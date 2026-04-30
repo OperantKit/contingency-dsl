@@ -27,8 +27,7 @@ Language-independent specification for declaring reinforcement contingencies and
 
 - No code. No parser implementation. No runtime dependencies.
 - Parser implementations live in separate packages:
-  - **contingency-dsl-py** — Python reference parser
-  - **contingency-dsl-rs** — Rust parser (future)
+  - **contingency-dsl-py** — Python reference parser (sole reference implementation)
 - Tier B Pavlovian procedures (higher-order conditioning, blocking, overshadowing, latent inhibition, renewal, reinstatement, occasion setting, etc.) live in the companion package **contingency-respondent-dsl**, which plugs into the Respondent extension point defined in `spec/en/respondent/grammar.md`.
 
 ## Syntax examples
@@ -149,11 +148,8 @@ phase omission_training:
 Any parser implementation should pass all tests under `conformance/`:
 
 ```bash
-# Python example
+# Python reference parser
 cd ../contingency-dsl-py && pytest tests/test_conformance.py -v
-
-# Rust example (future)
-cd ../contingency-dsl-rs && cargo test conformance
 ```
 
 The test corpus is organized by layer:

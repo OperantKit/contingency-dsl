@@ -27,8 +27,7 @@
 
 - コードは含まない。パーサ実装もランタイム依存も含まない。
 - パーサ実装は別パッケージに存在する：
-  - **contingency-dsl-py** — Python リファレンスパーサ
-  - **contingency-dsl-rs** — Rust パーサ（将来）
+  - **contingency-dsl-py** — Python リファレンスパーサ（唯一のリファレンス実装）
 - Tier B の Pavlov 型手続き（高次条件づけ、阻止、隠蔽、潜在制止、更新（renewal）、再生（reinstatement）、条件性弁別（occasion setting）等）は姉妹パッケージ **contingency-respondent-dsl** に存在し、`spec/en/respondent/grammar.md` で定義された Respondent 拡張点に差し込まれる。
 
 ## 構文例
@@ -149,11 +148,8 @@ phase omission_training:
 任意のパーサ実装は `conformance/` 配下の全テストをパスすること：
 
 ```bash
-# Python の例
+# Python リファレンスパーサ
 cd ../contingency-dsl-py && pytest tests/test_conformance.py -v
-
-# Rust の例（将来）
-cd ../contingency-dsl-rs && cargo test conformance
 ```
 
 テストコーパスはレイヤ別に構成されている：

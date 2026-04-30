@@ -9,10 +9,9 @@ grammar (see
 ## Status
 
 These annotators are **core to the DSL**, not third-party examples.
-The DSL project supplies and maintains the reference implementations in:
+The DSL project supplies and maintains the reference implementation in:
 
-- [`contingency-dsl-py/`](../../contingency-dsl-py/) — Python
-- [`contingency-dsl-rs/`](../../contingency-dsl-rs/) — Rust
+- [`contingency-dsl-py/`](../../contingency-dsl-py/) — Python (sole reference implementation)
 
 Per [`design-philosophy.md §4.2`](../spec/en/design-philosophy.md),
 third-party programs retain the right to reinterpret, extend, or replace

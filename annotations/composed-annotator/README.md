@@ -18,8 +18,7 @@ by the DSL project. Per
 [design-philosophy.md §4.2](../../spec/en/design-philosophy.md), third-party
 programs retain the freedom to reinterpret or replace these categories, but
 the DSL project supplies and maintains the reference implementation in
-[`contingency-dsl-py`](../../../contingency-dsl-py/) and
-[`contingency-dsl-rs`](../../../contingency-dsl-rs/).
+[`contingency-dsl-py`](../../../contingency-dsl-py/) (sole reference implementation).
 
 ---
 
