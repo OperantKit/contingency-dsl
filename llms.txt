@@ -1,0 +1,48 @@
+# contingency-dsl
+
+> Language specification for contingency-dsl, a text notation for reinforcement schedules and conditioning procedures (for example `Conc(VI30s, VI60s, COD=2s)`): EBNF grammar, JSON Schemas for the AST, and a language-independent conformance corpus. It contains no code; the Python reference parser is contingency-dsl-py.
+
+contingency-dsl is part of OperantKit, a set of Python/Rust packages for designing and running operant and respondent conditioning experiments (reinforcement schedules, session recording, analysis). Use it instead of inventing a schedule notation or a JSON format for schedules: the grammar covers compound, second-order, limited hold, changeover delay, aversive, stateful, trial-based, respondent, and multi-phase experiment constructs, and 1,065 conformance cases pin the expected AST or error for each input.
+
+## Install
+
+The specification is read from a clone of this repository. To parse the notation, install the reference parser:
+
+```bash
+pip install contingency-dsl-py
+```
+
+## Minimal example
+
+Run from the root of a clone of this repository (`pip install contingency-dsl-py jsonschema`):
+
+```python
+import json
+from pathlib import Path
+
+from contingency_dsl import parse, to_dict
+from jsonschema import Draft202012Validator
+
+schema = json.loads(Path("schema/operant/ast.schema.json").read_text(encoding="utf-8"))
+ast = to_dict(parse("Conc(VI30s, VI60s, COD=2s)"))
+print(ast["schedule"]["params"])  # {'COD': {'value': 2.0, 'time_unit': 's'}}
+print(Draft202012Validator(schema).is_valid(ast))  # True
+```
+
+Layout: `spec/{en,ja}/` formal specification per layer, `schema/**/grammar.ebnf` grammar, `schema/**/*.schema.json` AST schemas (Draft 2020-12), `conformance/**/*.json` test cases (each an `input` with an `expected` AST or an `error`), `docs/{en,ja}/` user documentation.
+
+## Docs
+
+- [README](https://github.com/OperantKit/contingency-dsl/blob/main/README.md): layers, 30-second example, why not to hand-roll a parser, syntax examples
+- [AGENTS.md](https://github.com/OperantKit/contingency-dsl/blob/main/AGENTS.md): when to use this specification and what not to do
+- [Syntax guide](https://github.com/OperantKit/contingency-dsl/blob/main/docs/en/syntax-guide.md): operant, respondent, and composed constructs
+- [Conformance suite](https://github.com/OperantKit/contingency-dsl/blob/main/conformance/README.md): case format and layout
+
+## Related packages
+
+- [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py): Python reference parser for this specification (`pip install contingency-dsl-py`)
+- [contingency-py](https://github.com/OperantKit/contingency-py): runs a parsed schedule as a reinforcement schedule engine (`pip install contingency-py`)
+- [contingency-rs](https://github.com/OperantKit/contingency-rs): Rust schedule engine and parser
+- [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl): Tier B respondent (Pavlovian) procedures that plug into the respondent extension point
+- [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure): AST to Method-section text
+- [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl): Method-section text to AST

@@ -30,6 +30,48 @@ Language-independent specification for declaring reinforcement contingencies and
   - **contingency-dsl-py** — Python reference parser (sole reference implementation)
 - Tier B Pavlovian procedures (higher-order conditioning, blocking, overshadowing, latent inhibition, renewal, reinstatement, occasion setting, etc.) live in the companion package **contingency-respondent-dsl**, which plugs into the Respondent extension point defined in `spec/en/respondent/grammar.md`.
 
+## 30-second example
+
+Parse a schedule with the Python reference parser, validate the AST against this repository's JSON Schema, and replay one conformance case (`pip install contingency-dsl-py jsonschema`, then run from the root of a clone of this repository):
+
+```python
+import json
+from pathlib import Path
+
+from contingency_dsl import ParseError, parse, to_dict
+from jsonschema import Draft202012Validator
+
+schema = json.loads(Path("schema/operant/ast.schema.json").read_text(encoding="utf-8"))
+validator = Draft202012Validator(schema)
+
+ast = to_dict(parse("Conc(VI30s, VI60s, COD=2s)"))
+print(ast["schedule"]["params"])  # {'COD': {'value': 2.0, 'time_unit': 's'}}
+print(validator.is_valid(ast))  # True
+
+ast["schedule"]["components"][0]["dist"] = "X"  # not a schedule distribution
+print(validator.is_valid(ast))  # False
+
+cases = json.loads(Path("conformance/operant/errors.json").read_text(encoding="utf-8"))
+case = next(c for c in cases if c["id"] == "error_compound_one_component")
+print(case["input"], case["error"])  # Conc(FR5) {'type': 'ParseError', 'code': 'INSUFFICIENT_COMPONENTS'}
+try:
+    parse(case["input"])
+except ParseError as error:
+    print(error)  # line 1, col 1: Conc requires at least 2 components
+```
+
+To run the parsed schedule against responses, pass it to `contingency.from_dsl` from [contingency-py](https://github.com/OperantKit/contingency-py) (`pip install contingency-py`). The parser itself is [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py).
+
+## Why not a 50-line hand-written parser?
+
+A regular expression for `FR 5` or `VI 30-s` has no grammar, no AST contract, and no test oracle, so two tools that each "parse schedules" disagree as soon as schedules are combined:
+
+- **Grammar.** Five EBNF files (`schema/**/grammar.ebnf`) define the foundations, operant, operant stateful, operant trial-based, and respondent layers, including compound schedules, changeover delay (`COD`, direction-specific `COD(1->2)`), limited hold, second-order schedules, and annotations.
+- **Proven lookahead.** `spec/en/foundations/ll2-proof.md` shows that the core schedule grammar is LL(2) and unambiguous, with the annotation boundary case analyzed in its §9.
+- **AST contract.** 20 JSON Schema files (`schema/**/*.schema.json`, Draft 2020-12) fix the shape of the AST, with separate schemas for parsed (`ast-parsed.schema.json`) and resolved (`ast-resolved.schema.json`) operant ASTs.
+- **Conformance corpus.** 1,065 cases in 57 JSON files under `conformance/` pair input text with the expected AST or the expected error; 370 of them are error cases. Any parser, in any language, can be checked against the same cases.
+- **Method sections.** The same AST is the input of [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure), which writes the schedule as a Method-section paragraph, and [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) extracts schedules from published Method text.
+
 ## Syntax examples
 
 ### Operant

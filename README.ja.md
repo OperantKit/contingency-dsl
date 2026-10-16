@@ -30,6 +30,48 @@
   - **contingency-dsl-py** — Python リファレンスパーサ（唯一のリファレンス実装）
 - Tier B の Pavlov 型手続き（高次条件づけ、阻止、隠蔽、潜在制止、更新（renewal）、再生（reinstatement）、条件性弁別（occasion setting）等）は姉妹パッケージ **contingency-respondent-dsl** に存在し、`spec/en/respondent/grammar.md` で定義された Respondent 拡張点に差し込まれる。
 
+## 30 秒で動く例
+
+Python リファレンスパーサでスケジュールを構文解析し、得た AST をこのリポジトリの JSON Schema で検証し、適合性ケースを 1 件再生する（`pip install contingency-dsl-py jsonschema` のあと、このリポジトリを clone したルートで実行する）:
+
+```python
+import json
+from pathlib import Path
+
+from contingency_dsl import ParseError, parse, to_dict
+from jsonschema import Draft202012Validator
+
+schema = json.loads(Path("schema/operant/ast.schema.json").read_text(encoding="utf-8"))
+validator = Draft202012Validator(schema)
+
+ast = to_dict(parse("Conc(VI30s, VI60s, COD=2s)"))
+print(ast["schedule"]["params"])  # {'COD': {'value': 2.0, 'time_unit': 's'}}
+print(validator.is_valid(ast))  # True
+
+ast["schedule"]["components"][0]["dist"] = "X"  # スケジュールの分布として存在しない値
+print(validator.is_valid(ast))  # False
+
+cases = json.loads(Path("conformance/operant/errors.json").read_text(encoding="utf-8"))
+case = next(c for c in cases if c["id"] == "error_compound_one_component")
+print(case["input"], case["error"])  # Conc(FR5) {'type': 'ParseError', 'code': 'INSUFFICIENT_COMPONENTS'}
+try:
+    parse(case["input"])
+except ParseError as error:
+    print(error)  # line 1, col 1: Conc requires at least 2 components
+```
+
+解析したスケジュールに反応を与えて動かすには、[contingency-py](https://github.com/OperantKit/contingency-py) の `contingency.from_dsl` に渡す（`pip install contingency-py`）。パーサ本体は [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py)。
+
+## 自作の 50 行では足りない理由
+
+`FR 5` や `VI 30-s` を拾う正規表現には文法も AST の取り決めも試験の基準もないため、「スケジュールを解析できる」道具が 2 つあれば、スケジュールを組み合わせた時点で互いの結果が食い違う:
+
+- **文法.** 5 つの EBNF ファイル（`schema/**/grammar.ebnf`）が foundations・operant・operant stateful・operant trial-based・respondent の各レイヤを定義する。複合スケジュール、切替遅延（`COD`、方向別の `COD(1->2)`）、Limited Hold、二次スケジュール、アノテーションを含む。
+- **先読み量の証明.** `spec/en/foundations/ll2-proof.md` が、コアのスケジュール文法が LL(2) かつ曖昧でないことを示し、アノテーションの境界例はその §9 で分析している。
+- **AST の取り決め.** 20 個の JSON Schema ファイル（`schema/**/*.schema.json`、Draft 2020-12）が AST の形を固定する。operant の AST には構文解析直後用（`ast-parsed.schema.json`）と解決後用（`ast-resolved.schema.json`）の別スキーマがある。
+- **適合性コーパス.** `conformance/` 配下の 57 個の JSON ファイルにある 1,065 件のケースが、入力テキストと期待される AST または期待されるエラーを対にしている。うち 370 件はエラーのケース。どの言語のパーサも同じケースで検査できる。
+- **Method 節.** 同じ AST がそのまま [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure) の入力になり、スケジュールを Method 節の段落として書き出す。[contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) は論文の Method 本文からスケジュールを抽出する。
+
 ## 構文例
 
 ### Operant
