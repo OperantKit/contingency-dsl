@@ -1,0 +1,68 @@
+# Clean-clone CI: run every python block in README.md and README.ja.md
+# against the reference parser (scripts/check_readme_examples.py).
+# This repo is the spec (no pyproject), so there is no pytest step.
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  # OperantKit packages the README examples import, in dependency order
+  # (leaves first), installed from GitHub until they are published on PyPI.
+  OPERANTKIT_SIBLINGS: "contingency-dsl-py"
+  # Branch, tag or SHA to take the siblings from.
+  OPERANTKIT_SIBLING_REF: main
+  # hatch-vcs derives 0.1.1.devN from the v0.1.0 tag, which does not satisfy
+  # ">=0.1.1,<0.2"; siblings are built under this version instead.
+  OPERANTKIT_SIBLING_VERSION: "0.1.1"
+
+jobs:
+  readme-examples:
+    name: README examples (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+        experimental: [false]
+        include:
+          # 3.12 is optional: a failure here does not fail the workflow.
+          - python-version: "3.12"
+            experimental: true
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install OperantKit siblings from GitHub (dependency order)
+        if: env.OPERANTKIT_SIBLINGS != ''
+        run: |
+          python -m pip install --upgrade pip
+          for dep in $OPERANTKIT_SIBLINGS; do
+            SETUPTOOLS_SCM_PRETEND_VERSION="$OPERANTKIT_SIBLING_VERSION" \
+              python -m pip install --no-cache-dir \
+                "$dep @ git+https://github.com/OperantKit/$dep@$OPERANTKIT_SIBLING_REF"
+          done
+
+      - name: Install the JSON Schema validator
+        run: |
+          python -m pip install jsonschema
+          python -m pip check
+
+      - name: Run the README examples
+        run: python scripts/check_readme_examples.py
+
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: raven-actions/actionlint@3d39aea434753780c3b3d4a1a31c854b4dbf49d7 # v2.2.0
