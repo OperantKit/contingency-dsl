@@ -42,7 +42,7 @@ Two or more schedules operate simultaneously on distinct operanda. The subject f
 Conc(VI 30-s, VI 60-s, COD=2-s)
 ```
 
-**Changeover Delay (COD; Catania, 1966) and Fixed-Ratio Changeover (FRCO; Hunter & Davison, 1985)** are structural parameters of `Conc`:
+**Changeover Delay (COD; Catania, 1963) and Fixed-Ratio Changeover (FRCO; Hunter & Davison, 1985)** are structural parameters of `Conc`:
 
 - `COD=Xs` — minimum time after an operandum switch before reinforcement becomes available on the new operandum.
 - `FRCO=N` — minimum N responses on the new operandum after switch before reinforcement.
@@ -56,7 +56,7 @@ Conc(VI 30-s, VI 60-s, COD(1->2)=2-s, COD(2->1)=5-s)
 See `operant/theory.md §2.4` for the full COD/FRCO specification, directional semantics, and base+override rules.
 
 **Canonical references:**
-- Catania, A. C. (1966). Concurrent performances: Reinforcement interaction and response independence. *Journal of the Experimental Analysis of Behavior*, 9(5), 573–588. https://doi.org/10.1901/jeab.1966.9-573
+- Catania, A. C. (1963). Concurrent performances: Reinforcement interaction and response independence. *Journal of the Experimental Analysis of Behavior*, 6(2), 253–263. https://doi.org/10.1901/jeab.1963.6-253
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267–272. https://doi.org/10.1901/jeab.1961.4-267
 - Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer function. *Journal of the Experimental Analysis of Behavior*, 43(1), 43–59. https://doi.org/10.1901/jeab.1985.43-43
 - Shull, R. L., & Pliskoff, S. S. (1967). Changeover delay and concurrent schedules. *Journal of the Experimental Analysis of Behavior*, 10(6), 517–527. https://doi.org/10.1901/jeab.1967.10-517

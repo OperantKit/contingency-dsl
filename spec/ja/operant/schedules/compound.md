@@ -42,7 +42,7 @@ Chain/Tand および Mult/Mix は、同一トポロジー下の弁別あり／�
 Conc(VI 30-s, VI 60-s, COD=2-s)
 ```
 
-**切り替え遅延（COD; Catania, 1966）および固定比切り替え（FRCO; Hunter & Davison, 1985）** は `Conc` の構造パラメータである。
+**切り替え遅延（COD; Catania, 1963）および固定比切り替え（FRCO; Hunter & Davison, 1985）** は `Conc` の構造パラメータである。
 
 - `COD=Xs` — 操作手段の切り替え後、新たな操作手段上で強化子が利用可能になるまでの最小時間。
 - `FRCO=N` — 切り替え後、新たな操作手段上で強化子が得られるまでに必要な最小反応数 N。
@@ -56,7 +56,7 @@ Conc(VI 30-s, VI 60-s, COD(1->2)=2-s, COD(2->1)=5-s)
 COD/FRCO の完全な仕様、方向性意味論、base+override 規則については `operant/theory.md §2.4` を参照。
 
 **標準参照:**
-- Catania, A. C. (1966). Concurrent performances: Reinforcement interaction and response independence. *Journal of the Experimental Analysis of Behavior*, 9(5), 573–588. https://doi.org/10.1901/jeab.1966.9-573
+- Catania, A. C. (1963). Concurrent performances: Reinforcement interaction and response independence. *Journal of the Experimental Analysis of Behavior*, 6(2), 253–263. https://doi.org/10.1901/jeab.1963.6-253
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267–272. https://doi.org/10.1901/jeab.1961.4-267
 - Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer function. *Journal of the Experimental Analysis of Behavior*, 43(1), 43–59. https://doi.org/10.1901/jeab.1985.43-43
 - Shull, R. L., & Pliskoff, S. S. (1967). Changeover delay and concurrent schedules. *Journal of the Experimental Analysis of Behavior*, 10(6), 517–527. https://doi.org/10.1901/jeab.1967.10-517

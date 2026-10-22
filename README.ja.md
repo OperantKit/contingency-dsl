@@ -190,8 +190,12 @@ phase omission_training:
 任意のパーサ実装は `conformance/` 配下の全テストをパスすること：
 
 ```bash
-# Python リファレンスパーサ
-cd ../contingency-dsl-py && pytest tests/test_conformance.py -v
+# Python リファレンスパーサ: 隣に置いた contingency-dsl/ の conformance/ を読む
+cd ..
+git clone https://github.com/OperantKit/contingency-dsl-py
+cd contingency-dsl-py
+pip install -e '.[test]'
+pytest tests/test_conformance.py -v
 ```
 
 テストコーパスはレイヤ別に構成されている：

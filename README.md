@@ -190,8 +190,12 @@ phase omission_training:
 Any parser implementation should pass all tests under `conformance/`:
 
 ```bash
-# Python reference parser
-cd ../contingency-dsl-py && pytest tests/test_conformance.py -v
+# Python reference parser: it reads conformance/ from a sibling contingency-dsl/ checkout
+cd ..
+git clone https://github.com/OperantKit/contingency-dsl-py
+cd contingency-dsl-py
+pip install -e '.[test]'
+pytest tests/test_conformance.py -v
 ```
 
 The test corpus is organized by layer:
