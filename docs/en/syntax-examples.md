@@ -16,10 +16,12 @@ Mix(VI30s, VI60s)             -- Mixed schedule (alternating, no signaling)
 Conj(FI15s, FR10)             -- Conjunctive: both requirements must be met
 Alt(FR5, VI60s)               -- Alternative: either requirement satisfies
 FR5(FI30)                     -- Second-order: 5 FI30 completions
-let baseline = VI60s          -- Named binding
+let baseline = VI60s          -- Named binding, used by the next line
+Mult(baseline, EXT)
 DRL5s                         -- Differential Reinforcement of Low rate
 FI30 LH10                     -- Limited Hold: 10s availability window
-FI30 TO(duration=30s)         -- Timeout after reinforcement
+FI30 TO(duration=30s, reset_on_response=false)
+                              -- Timeout after reinforcement
 
 -- Aversive control
 Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
@@ -39,6 +41,8 @@ Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
 Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
                               -- Directional response-class punishment
 ```
+
+> **Reference parser:** the two `@punisher` examples above do not parse with the annotation extensions bundled with [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py). The spec defines `@punisher` as an alias of `@reinforcer` (`schema/annotations/procedure-stimulus.schema.json`), but the parser checks the keyword as written before it resolves the alias, so it reports `unknown annotation '@punisher'`. `scripts/check_docs_examples.py` registers the keyword on its own and checks the rest of each example.
 
 ## Operant — stateful and trial-based
 
@@ -105,6 +109,8 @@ phase omission_training:
   sessions = 20
   Pair.ForwardDelay(KeyLight, Food, isi=6s, cs_duration=6s) @omission(response="key_peck", during="cs")
 ```
+
+> **Reference parser:** these examples do not parse with the annotation extensions bundled with [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py). `@cs` and `@us` are defined by `schema/annotations/extensions/respondent-annotator.schema.json`, and the parser has no extension for them, so it reports `unknown annotation '@cs'`. `scripts/check_docs_examples.py` registers the two keywords on their own and checks the rest of each example.
 
 ## References
 

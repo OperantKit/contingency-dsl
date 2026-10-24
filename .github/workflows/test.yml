@@ -1,5 +1,6 @@
 # Clean-clone CI: run every python block in README.md and README.ja.md
-# against the reference parser (scripts/check_readme_examples.py).
+# against the reference parser (scripts/check_readme_examples.py), and parse
+# the docs syntax examples with it (scripts/check_docs_examples.py).
 # This repo is the spec (no pyproject), so there is no pytest step.
 name: test
 
@@ -59,6 +60,9 @@ jobs:
 
       - name: Run the README examples
         run: python scripts/check_readme_examples.py
+
+      - name: Parse the docs syntax examples
+        run: python scripts/check_docs_examples.py
 
   actionlint:
     name: actionlint
