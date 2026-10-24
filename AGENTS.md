@@ -18,6 +18,16 @@ This repository contains no code. To parse the notation in Python, use contingen
 - 1,065 conformance cases in 57 JSON files pin the expected AST or error for each input, so independent parsers can be checked against the same cases.
 - Annotation keywords (`@reinforcer`, `@sd`, `@cs`, `@us`, `@species`, `@apparatus`, and others) follow Method-section categories (Subjects / Apparatus / Procedure / Measurement) and are defined in `annotations/` and `schema/annotations/`.
 
+## Why not a 50-line hand-written parser?
+
+A regular expression for `FR 5` or `VI 30-s` has no grammar, no AST contract, and no test oracle, so two tools that each "parse schedules" disagree as soon as schedules are combined:
+
+- **Grammar.** Five EBNF files (`schema/**/grammar.ebnf`) define the foundations, operant, operant stateful, operant trial-based, and respondent layers, including compound schedules, changeover delay (`COD`, direction-specific `COD(1->2)`), limited hold, second-order schedules, and annotations.
+- **Proven lookahead.** `spec/en/foundations/ll2-proof.md` shows that the core schedule grammar is LL(2) and unambiguous, with the annotation boundary case analyzed in its §9.
+- **AST contract.** 20 JSON Schema files (`schema/**/*.schema.json`, Draft 2020-12) fix the shape of the AST, with separate schemas for parsed (`ast-parsed.schema.json`) and resolved (`ast-resolved.schema.json`) operant ASTs.
+- **Conformance corpus.** 1,065 cases in 57 JSON files under `conformance/` pair input text with the expected AST or the expected error; 370 of them are error cases. Any parser, in any language, can be checked against the same cases.
+- **Method sections.** The same AST is the input of [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure), which writes the schedule as a Method-section paragraph, and [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) extracts schedules from published Method text.
+
 ## Do not
 
 - Do not invent new keywords, schedule abbreviations, or AST fields in a consumer. Add them to this specification first (spec text, grammar, schema, and conformance cases together).

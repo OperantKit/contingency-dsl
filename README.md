@@ -2,37 +2,31 @@
 
 :jp: [日本語版 README](README.ja.md)
 
-Language-independent specification for declaring reinforcement contingencies and Pavlovian pairings. Organized by scientific category (operant / respondent / composed) under a paradigm-neutral formal foundation.
+contingency-dsl is a short text notation for schedules of reinforcement and Pavlovian conditioning procedures, such as `Conc(VI 30-s, VI 60-s, COD=2-s)` or `Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)`. This repository is its specification: the grammar, the JSON format of a parsed expression, and a set of test cases. It is the common language of [OperantKit](https://github.com/OperantKit): the parser, the schedule engines, and the Method-section tools all read the same expressions.
 
-## Layer structure
+**In short**
 
-| Layer | Scope | Directory |
-|---|---|---|
-| **Foundations** | CFG / LL(2) meta-grammar; paradigm-neutral types (contingency, time scales, stimulus typing, valence, context) | `spec/*/foundations/`, `schema/foundations/` |
-| **Operant** | Three-term contingency (SD-R-SR); reinforcement schedules by Ferster-Skinner class (ratio / interval / time / differential / compound / progressive); aversive control (Sidman free-operant avoidance, discriminated avoidance, escape, response cost); stateful variants (Percentile, Adjusting, Interlocking, Admission Gate); trial-based variants (MTS, Go/NoGo); response modifiers (Limited Hold, Timeout, reinforcement delay, interpolated schedules) | `spec/*/operant/`, `schema/operant/` |
-| **Respondent** | Two-term contingency (CS-US); minimum Tier A primitives (Pair, Extinction, CSOnly, USOnly, Contingency, TrulyRandom, ExplicitlyUnpaired, Compound, Serial, ITI, Differential). Deeper Pavlovian procedures live in the companion package `contingency-respondent-dsl`. | `spec/*/respondent/`, `schema/respondent/` |
-| **Composed** | Procedures that combine operant and respondent building blocks: CER, PIT, autoshaping, omission, two-process theory. Encoded as `PhaseSequence` AST trees built from operant + respondent primitives plus the composed-layer annotations `@omission` / `@avoidance` (`schema/annotations/extensions/composed-annotator.schema.json`); no dedicated composed-procedure AST schema. | `spec/*/composed/` |
-| **Experiment** | Declarative multi-phase designs; phase and context as first-class constructs; JEAB-style inheritance of Subjects / Apparatus annotations | `spec/*/experiment/`, `schema/experiment/` |
-| **Annotation** | Program-scoped metadata following JEAB Method categories (Subjects / Apparatus / Procedure / Measurement); extensions under `annotations/extensions/` (e.g., respondent-annotator, learning-models-annotator) | `spec/*/annotations/`, `schema/annotations/` |
+- A schedule fits in a sentence or a table cell and states its parameters, such as the changeover delay (COD) and the limited hold, instead of leaving them to the program.
+- The notation follows the abbreviations already used in Method sections (`FR 5`, `VI 60-s`, `Conc(...)`, `Mult(...)`).
+- Every parser, in any language, can be checked against the same 1,065 test cases.
 
-## What this package contains
+A Method section that says "concurrent VI 30 s VI 60 s" often leaves out how the changeover delay was handled or how the intervals were generated, and every lab's program fills the gap differently. Writing the procedure in a notation with a grammar makes those choices explicit and lets other people rerun the same procedure.
 
-- **`spec/{en,ja}/`** — Formal specification per layer (theory, grammar, primitives, design rationale)
-- **`schema/`** — EBNF grammar per layer + JSON Schemas for the AST
-- **`conformance/`** — Language-independent conformance test suite (input text → expected AST JSON)
-- **`docs/{en,ja}/`** — User-facing documentation (syntax guide, use cases, annotations, paper examples, tooling)
-- **`scripts/`** — EBNF → Langium and EBNF → Tree-sitter converters; regeneration scripts for `dist/`
+## Installation
 
-## What this package does NOT contain
+This repository contains no code. To use the notation from Python, install the parser [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) (Python 3.11 or newer). The packages are not on PyPI yet, so install from GitHub:
 
-- No code. No parser implementation. No runtime dependencies.
-- Parser implementations live in separate packages:
-  - **contingency-dsl-py** — Python reference parser (sole reference implementation)
-- Tier B Pavlovian procedures (higher-order conditioning, blocking, overshadowing, latent inhibition, renewal, reinstatement, occasion setting, etc.) live in the companion package **contingency-respondent-dsl**, which plugs into the Respondent extension point defined in `spec/en/respondent/grammar.md`.
+```bash
+git clone https://github.com/OperantKit/contingency-dsl
+cd contingency-dsl
+pip install git+https://github.com/OperantKit/contingency-dsl-py jsonschema
+```
 
-## 30-second example
+`jsonschema` is only needed to check a parsed expression against the JSON Schema, as in the example below.
 
-Parse a schedule with the Python reference parser, validate the AST against this repository's JSON Schema, and replay one conformance case (`pip install contingency-dsl-py jsonschema`, then run from the root of a clone of this repository):
+## Example
+
+Parse a concurrent schedule, check the result against this repository's JSON Schema, and replay one of the test cases. Run it from the root of the clone:
 
 ```python
 import json
@@ -60,176 +54,85 @@ except ParseError as error:
     print(error)  # line 1, col 1: Conc requires at least 2 components
 ```
 
-To run the parsed schedule against responses, pass it to `contingency.from_dsl` from [contingency-py](https://github.com/OperantKit/contingency-py) (`pip install contingency-py`). The parser itself is [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py).
+To run a parsed schedule against responses, use [contingency-py](https://github.com/OperantKit/contingency-py). To turn it into a Method-section paragraph, use [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure); to extract it from published Method text, use [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl).
 
-## Why not a 50-line hand-written parser?
+## What the notation covers
 
-A regular expression for `FR 5` or `VI 30-s` has no grammar, no AST contract, and no test oracle, so two tools that each "parse schedules" disagree as soon as schedules are combined:
+A few expressions:
 
-- **Grammar.** Five EBNF files (`schema/**/grammar.ebnf`) define the foundations, operant, operant stateful, operant trial-based, and respondent layers, including compound schedules, changeover delay (`COD`, direction-specific `COD(1->2)`), limited hold, second-order schedules, and annotations.
-- **Proven lookahead.** `spec/en/foundations/ll2-proof.md` shows that the core schedule grammar is LL(2) and unambiguous, with the annotation boundary case analyzed in its §9.
-- **AST contract.** 20 JSON Schema files (`schema/**/*.schema.json`, Draft 2020-12) fix the shape of the AST, with separate schemas for parsed (`ast-parsed.schema.json`) and resolved (`ast-resolved.schema.json`) operant ASTs.
-- **Conformance corpus.** 1,065 cases in 57 JSON files under `conformance/` pair input text with the expected AST or the expected error; 370 of them are error cases. Any parser, in any language, can be checked against the same cases.
-- **Method sections.** The same AST is the input of [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure), which writes the schedule as a Method-section paragraph, and [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) extracts schedules from published Method text.
-
-## Syntax examples
-
-### Operant
 ```
-FR5                           -- Fixed Ratio 5
-VI60s                         -- Variable Interval 60 seconds
-Chain(FR5, FI30s)             -- Chained: FR5 then FI30
-Conc(VI30s, VI60s)            -- Concurrent VI30 VI60
-Mult(VI30s, VI60s)            -- Multiple schedule (alternating components)
-Mix(VI30s, VI60s)             -- Mixed schedule (alternating, no signaling)
-Conj(FI15s, FR10)             -- Conjunctive: both requirements must be met
-Alt(FR5, VI60s)               -- Alternative: either requirement satisfies
-FR5(FI30)                     -- Second-order: 5 FI30 completions
-let baseline = VI60s          -- Named binding
-DRL5s                         -- Differential Reinforcement of Low rate
-FI30 LH10                     -- Limited Hold: 10s availability window
-FI30 TO(duration=30s)         -- Timeout after reinforcement
-
--- Aversive control
-Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
-                              -- Sidman free-operant avoidance (Sidman, 1953)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
-                              -- Discriminated avoidance (Solomon & Wynne, 1953)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)
-                              -- Response-terminated mode: response terminates shock
-@reinforcer("token") VI60s ResponseCost(amount=1)
-                              -- Response cost on conditioned reinforcer
-
--- Punishment overlays
-Overlay(VI60s, FR1) @punisher("shock")
-                              -- Punishment overlay on VI60 baseline
-Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
-                              -- Changeover-only punishment (Todorov, 1971)
-Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
-                              -- Directional response-class punishment
-```
-
-### Operant — stateful and trial-based
-```
-Pctl(IRT, 50)                 -- Percentile schedule (Platt, 1973)
-Adj(delay, start=10s, step=1s)
-                              -- Adjusting schedule
-Interlock(R0=300, T=10min)    -- Interlocking schedule (Berryman & Nevin, 1962)
-MTS(comparisons=3, consequence=CRF, ITI=5s)
-                              -- Matching-to-Sample (trial-based)
-GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)
-                              -- Go/NoGo discrimination
-```
-
-### Respondent
-```
+FR5                                     -- fixed ratio 5
+Conc(VI30s, VI60s, COD=2s)              -- concurrent VI VI with a 2-s changeover delay
+Chain(FR5, FI30s)                       -- chained FR 5 FI 30 s
+FI30 LH10                               -- FI 30 s with a 10-s limited hold
 Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)
-Pair.ForwardTrace(cs=Tone, us=Shock, trace_interval=5s)
-Pair.Simultaneous(cs=Light, us=Food)
-Pair.Backward(us=Shock, cs=Tone, isi=10s)
-Contingency(p_us_given_cs=0.8, p_us_given_no_cs=0.2)
-TrulyRandom(cs=Tone, us=Shock)           -- sugar for Contingency(p, p)
-ExplicitlyUnpaired(cs=Tone, us=Shock, min_separation=30s)
-Compound(cs_list=[Tone, Light], mode=Simultaneous)
-Serial(cs_list=[Tone, Light], isi=5s)
-Differential(cs_positive=Tone, cs_negative=Noise, us=Shock)  -- A+/B− discrimination
-Extinction(cs=Tone)
-ITI(distribution=exponential, mean=120s)
 ```
 
-### Composed (operant × respondent)
-```
--- CER (Estes & Skinner, 1941): operant baseline + Pavlovian pairing + reference reinstatement
-@cs(label="Tone", duration=60s, modality="auditory")
-@us(label="Shock", intensity="0.5mA", delivery="unsignaled")
+More examples, grouped by layer, are in [Syntax examples](docs/en/syntax-examples.md). The specification is organized in layers:
 
-phase baseline:
-  sessions = 10
-  VI60s
+| Layer | What it describes |
+|---|---|
+| **Foundations** | The meta-grammar and the types shared by every layer (contingency, time scales, stimuli, context) |
+| **Operant** | Three-term contingencies: ratio, interval, time, differential, compound, and progressive-ratio schedules; aversive control (Sidman avoidance, discriminated avoidance, escape, response cost); stateful schedules (percentile, adjusting, interlocking); trial-based procedures (matching-to-sample, go/no-go); limited hold, timeout, reinforcement delay |
+| **Respondent** | Two-term (CS-US) contingencies: `Pair.*`, `Extinction`, `CSOnly`, `USOnly`, `Contingency`, `TrulyRandom`, `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`, `Differential` |
+| **Composed** | Procedures built from operant and respondent parts, such as conditioned suppression, Pavlovian-instrumental transfer, autoshaping, and omission |
+| **Experiment** | Multi-phase designs, with phases and contexts as part of the program |
+| **Annotation** | Metadata in the Method-section categories (Subjects, Apparatus, Procedure, Measurement), such as `@reinforcer`, `@sd`, `@species`, `@apparatus` |
 
-phase pairing:
-  sessions = 5
-  Pair.ForwardDelay(Tone, Shock, isi=60s, cs_duration=60s)
+Deeper Pavlovian procedures (blocking, overshadowing, latent inhibition, renewal, reinstatement, occasion setting, and others) are specified in the companion package [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl).
 
-phase test:
-  sessions = 3
-  use baseline
+## What is in this repository
 
--- Autoshaping (Brown & Jenkins, 1968)
-@cs(label="KeyLight", duration=8s, modality="visual")
-@us(label="Food", delivery="unsignaled")
+- `spec/en/`, `spec/ja/`: the formal specification of each layer (theory, grammar, primitives, design rationale)
+- `schema/`: the EBNF grammar of each layer and the JSON Schemas for the parsed form
+- `conformance/`: the test cases (input text and the expected parsed form or error)
+- `docs/en/`, `docs/ja/`: user documentation
+- `scripts/`: converters from the EBNF grammar to Langium and Tree-sitter
 
-phase autoshaping_training:
-  sessions = 10
-  Pair.ForwardDelay(KeyLight, Food, isi=8s, cs_duration=8s)
+Parsers live in separate packages:
 
--- Omission / negative automaintenance (Williams & Williams, 1969)
-@cs(label="KeyLight", duration=6s, modality="visual")
-@us(label="Food", delivery="cancelled_on_cs_response")
-
-phase omission_training:
-  sessions = 20
-  Pair.ForwardDelay(KeyLight, Food, isi=6s, cs_duration=6s) @omission(response="key_peck", during="cs")
-```
+- **contingency-dsl-py** — Python reference parser (sole reference implementation)
 
 ## Documentation
 
-- **[Syntax Guide (EN)](docs/en/syntax-guide.md)** / **[構文ガイド (JA)](docs/ja/syntax-guide.md)** — Progressive guide covering operant, respondent, and composed primitives
-- **[Use Cases (EN)](docs/en/use-cases.md)** / **[ユースケース (JA)](docs/ja/use-cases.md)** — What each construct enables, with citations
-- **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — Metadata layers including `@reinforcer`, `@punisher`, `@sd`, `@cs`, `@us`, `@iti`, `@cs_interval`, `@context`, `@species`, `@strain`, `@apparatus`, `@model`
-- **[Paper Examples (EN)](docs/en/paper-examples.md)** / **[論文例 (JA)](docs/ja/paper-examples.md)** — DSL encodings of CER, autoshaping, PIT, omission, and classical schedule studies
-- **[Architecture (EN)](spec/en/architecture.md)** / **[アーキテクチャ (JA)](spec/ja/architecture.md)** — Six-layer diagram, SEI P1/P2/P3, TC / non-TC boundary
-- **[Design Philosophy (EN)](spec/en/design-philosophy.md)** / **[設計思想 (JA)](spec/ja/design-philosophy.md)** — Supreme objective, layer rationale, admission gate
-- **[Operant Grammar (EN)](spec/en/operant/grammar.md)** / **[オペラント文法 (JA)](spec/ja/operant/grammar.md)** — Three-term contingency productions
-- **[Respondent Grammar (EN)](spec/en/respondent/grammar.md)** / **[レスポンデント文法 (JA)](spec/ja/respondent/grammar.md)** — Tier A primitives + extension point
-- **[Foundations Grammar (EN)](spec/en/foundations/grammar.md)** / **[基盤文法 (JA)](spec/ja/foundations/grammar.md)** — Paradigm-neutral lexical structure
-- **[Tooling (EN)](docs/en/tooling.md)** / **[ツーリング (JA)](docs/ja/tooling.md)** — Tree-sitter, Langium LSP, EBNF loader order
+- [Syntax guide](docs/en/syntax-guide.md): the notation step by step
+- [Syntax examples](docs/en/syntax-examples.md): examples for every layer
+- [Use cases](docs/en/use-cases.md): what each construct is for, with citations
+- [Annotations](docs/en/annotations.md): `@reinforcer`, `@punisher`, `@sd`, `@cs`, `@us`, `@species`, `@apparatus`, and the other metadata keywords
+- [Paper examples](docs/en/paper-examples.md): published studies written in the notation
+- [Tooling](docs/en/tooling.md): Tree-sitter and Langium grammars
+- Specification: [architecture](spec/en/architecture.md), [design philosophy](spec/en/design-philosophy.md), [operant grammar](spec/en/operant/grammar.md), [respondent grammar](spec/en/respondent/grammar.md), [foundations grammar](spec/en/foundations/grammar.md)
 
-## Conformance testing
+## Conformance tests
 
-Any parser implementation should pass all tests under `conformance/`:
+`conformance/` holds 1,065 test cases in 57 JSON files; 370 of them expect an error. Each case pairs an input with the expected parsed form or the expected error, so a parser in any language can be checked against the same inputs. The format and the directory layout are described in [conformance/README.md](conformance/README.md).
+
+The Python parser's test suite reads the cases from a `contingency-dsl` clone next to it:
 
 ```bash
-# Python reference parser: it reads conformance/ from a sibling contingency-dsl/ checkout
-cd ..
+git clone https://github.com/OperantKit/contingency-dsl
 git clone https://github.com/OperantKit/contingency-dsl-py
 cd contingency-dsl-py
 pip install -e '.[test]'
-pytest tests/test_conformance.py -v
+pytest tests/test_conformance.py
 ```
 
-The test corpus is organized by layer:
-- `conformance/foundations/` — paradigm-neutral lexical tests (intentionally empty under the strict scoping rule defined in `conformance/foundations/README.md`)
-- `conformance/operant/` — atomic schedules, compound combinators (Conc / Alt / Conj / Chain / Tand / Mult / Mix / Overlay / Interpolate), modifiers (DR*, PR, Lag, Repeat, Limited Hold, Timeout, reinforcement delay), second-order, aversive (Sidman, DiscriminatedAvoidance), response cost, algebraic equivalences, boundary values, errors, warnings
-- `conformance/operant/stateful/` — Percentile, Adjusting, Interlocking
-- `conformance/operant/trial-based/` — MTS, Go/NoGo
-- `conformance/respondent/` — Tier A primitive fixtures (Pair, contingency controls, compound stimuli, elementary)
-- `conformance/composed/` — CER (conditioned suppression), PIT, autoshaping, omission, two-process avoidance
-- `conformance/experiment/` — phase, progressive-training, shaping
-- `conformance/annotations/` — subjects, apparatus, procedure (stimulus / temporal / trial-structure), measurement, program-level; `extensions/respondent-annotator.json`
-- `conformance/representations/` — alternative coordinate systems (t-τ)
+## Limitations
 
-## Regenerating `dist/`
+- contingency-dsl-py does not accept every construct specified here. It ships six annotation extensions; the respondent annotations used in the composed examples (`@cs`, `@us`) are specified here but are not accepted by those extensions.
+- `conformance/foundations/` has no cases: existing lexical tests use operant schedule keywords and are filed under `conformance/operant/` instead ([why](conformance/foundations/README.md)).
 
-The `dist/` tree (Langium and Tree-sitter artifacts) is gitignored and reproducible from `schema/*/grammar.ebnf`:
+## For contributors
+
+`dist/` (the generated Langium and Tree-sitter grammars) is not tracked. Regenerate it from `schema/**/grammar.ebnf`:
 
 ```bash
 ./scripts/gen-langium.sh      # dist/langium/contingency-dsl.langium
 ./scripts/gen-treesitter.sh   # dist/tree-sitter/grammar.js
 ```
 
-Loader order: Foundations → Operant → Operant.Stateful → Operant.TrialBased → Respondent, followed by any additional `grammar.ebnf` discovered via rglob in sorted order.
+Every `python` block in this README and in `README.ja.md` is run by `scripts/check_readme_examples.py`. Notes for AI coding agents are in [AGENTS.md](AGENTS.md).
 
-## References
+## Citation and license
 
-- Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, 11(1), 1–8. https://doi.org/10.1901/jeab.1968.11-1
-- Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
-- Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, 29(5), 390–400. https://doi.org/10.1037/h0062283
-- Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
-- Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529–530. https://doi.org/10.1901/jeab.1962.5-529
-- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
-- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, 74(1), 71–80. https://doi.org/10.1037/h0024109
-- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475
-- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
-- Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, 12(4), 511–520. https://doi.org/10.1901/jeab.1969.12-511
-
+Cite this repository with [CITATION.cff](CITATION.cff). MIT License; see [LICENSE](LICENSE).

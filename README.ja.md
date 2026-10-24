@@ -2,37 +2,31 @@
 
 :gb: [English README](README.md)
 
-強化随伴性と Pavlov 型対提示を宣言するための言語非依存な仕様。パラダイム中立な形式的基盤の上で、科学的カテゴリ（operant / respondent / composed）別に構成されている。
+contingency-dsl は、強化スケジュールと Pavlov 型条件づけの手続きを `Conc(VI 30-s, VI 60-s, COD=2-s)` や `Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)` のような短いテキストで書くための記法です。このリポジトリはその仕様で、文法、式を構文解析した結果の JSON 形式、テストケースの集まりを収めています。[OperantKit](https://github.com/OperantKit) の共通言語で、パーサ・スケジュールエンジン・方法セクション（Method 節）の道具はどれも同じ式を読みます。
 
-## レイヤ構造
+**要点**
 
-| レイヤ | 範囲 | ディレクトリ |
-|---|---|---|
-| **Foundations** | CFG / LL(2) メタ文法；パラダイム中立な型（随伴性・時間スケール・刺激型付け・価（valence）・文脈） | `spec/*/foundations/`, `schema/foundations/` |
-| **Operant** | 三項随伴性（SD-R-SR）；Ferster-Skinner 分類に基づく強化スケジュール（比率 / 間隔 / 時間 / 分化強化 / 複合 / 累進）；嫌悪制御（Sidman 自由オペラント回避・弁別回避・逃避・応答コスト）；状態保持バリアント（Percentile, Adjusting, Interlocking, Admission Gate）；試行ベースバリアント（MTS, Go/NoGo）；反応修飾子（Limited Hold, Timeout, 強化遅延, 内挿スケジュール） | `spec/*/operant/`, `schema/operant/` |
-| **Respondent** | 二項随伴性（CS-US）；最小限の Tier A プリミティブ（Pair, Extinction, CSOnly, USOnly, Contingency, TrulyRandom, ExplicitlyUnpaired, Compound, Serial, ITI, Differential）。より深い Pavlov 型手続きは姉妹パッケージ `contingency-respondent-dsl` に収録。 | `spec/*/respondent/`, `schema/respondent/` |
-| **Composed** | オペラントとレスポンデントの構成要素を組み合わせる手続き：CER, PIT, オートシェイピング, 省略（omission）, 二過程理論。`PhaseSequence` AST ツリーとしてエンコードされ、operant + respondent プリミティブに composed レイヤのアノテーション `@omission` / `@avoidance`（`schema/annotations/extensions/composed-annotator.schema.json`）を加えて構成される；composed 手続き専用の AST スキーマは存在しない。 | `spec/*/composed/` |
-| **Experiment** | 宣言的な多フェーズデザイン；Phase と Context を第一級構成要素として扱う；JEAB スタイルの Subjects / Apparatus アノテーション継承 | `spec/*/experiment/`, `schema/experiment/` |
-| **Annotation** | JEAB Method カテゴリ（Subjects / Apparatus / Procedure / Measurement）に沿ったプログラムスコープのメタデータ；拡張は `annotations/extensions/` 配下（例: respondent-annotator, learning-models-annotator） | `spec/*/annotations/`, `schema/annotations/` |
+- スケジュールが 1 文や表の 1 マスに収まり、切替遅延（changeover delay, COD）や制限時間（limited hold）のようなパラメータをプログラム任せにせず式の中に書けます。
+- 記法は Method 節ですでに使われている略記（`FR 5`、`VI 60-s`、`Conc(...)`、`Mult(...)`）に沿っています。
+- どの言語のパーサも、同じ 1,065 件のテストケースで確かめられます。
 
-## このパッケージが含むもの
+「並立 VI 30 秒 VI 60 秒」と書かれた Method 節では、切替遅延をどう扱ったか、間隔をどう生成したかが省かれることが多く、その空白を研究室ごとのプログラムがそれぞれ違うやり方で埋めています。文法のある記法で手続きを書けば、そうした選択がはっきり書かれ、他の人が同じ手続きを再実行できます。
 
-- **`spec/{en,ja}/`** — レイヤ別の形式仕様（理論、文法、プリミティブ、設計根拠）
-- **`schema/`** — レイヤ別 EBNF 文法 + AST 用 JSON Schema
-- **`conformance/`** — 言語非依存の適合性テストスイート（入力テキスト → 期待される AST JSON）
-- **`docs/{en,ja}/`** — ユーザ向けドキュメント（構文ガイド、ユースケース、アノテーション、論文例、ツーリング）
-- **`scripts/`** — EBNF → Langium および EBNF → Tree-sitter 変換スクリプト、`dist/` 再生成スクリプト
+## インストール
 
-## このパッケージが含まないもの
+このリポジトリにはコードがありません。Python からこの記法を使うには、パーサ [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) を入れます（Python 3.11 以上）。パッケージはまだ PyPI に登録されていないので、GitHub から入れます。
 
-- コードは含まない。パーサ実装もランタイム依存も含まない。
-- パーサ実装は別パッケージに存在する：
-  - **contingency-dsl-py** — Python リファレンスパーサ（唯一のリファレンス実装）
-- Tier B の Pavlov 型手続き（高次条件づけ、阻止、隠蔽、潜在制止、更新（renewal）、再生（reinstatement）、条件性弁別（occasion setting）等）は姉妹パッケージ **contingency-respondent-dsl** に存在し、`spec/en/respondent/grammar.md` で定義された Respondent 拡張点に差し込まれる。
+```bash
+git clone https://github.com/OperantKit/contingency-dsl
+cd contingency-dsl
+pip install git+https://github.com/OperantKit/contingency-dsl-py jsonschema
+```
 
-## 30 秒で動く例
+`jsonschema` は、下の例のように構文解析の結果を JSON Schema で検査するときだけ必要です。
 
-Python リファレンスパーサでスケジュールを構文解析し、得た AST をこのリポジトリの JSON Schema で検証し、適合性ケースを 1 件再生する（`pip install contingency-dsl-py jsonschema` のあと、このリポジトリを clone したルートで実行する）:
+## 例
+
+並立スケジュールを構文解析し、結果をこのリポジトリの JSON Schema で検査し、テストケースを 1 件再生します。clone したリポジトリの最上位で実行してください。
 
 ```python
 import json
@@ -48,7 +42,7 @@ ast = to_dict(parse("Conc(VI30s, VI60s, COD=2s)"))
 print(ast["schedule"]["params"])  # {'COD': {'value': 2.0, 'time_unit': 's'}}
 print(validator.is_valid(ast))  # True
 
-ast["schedule"]["components"][0]["dist"] = "X"  # スケジュールの分布として存在しない値
+ast["schedule"]["components"][0]["dist"] = "X"  # スケジュールの分布として不正な値
 print(validator.is_valid(ast))  # False
 
 cases = json.loads(Path("conformance/operant/errors.json").read_text(encoding="utf-8"))
@@ -60,176 +54,85 @@ except ParseError as error:
     print(error)  # line 1, col 1: Conc requires at least 2 components
 ```
 
-解析したスケジュールに反応を与えて動かすには、[contingency-py](https://github.com/OperantKit/contingency-py) の `contingency.from_dsl` に渡す（`pip install contingency-py`）。パーサ本体は [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py)。
+構文解析したスケジュールを反応に対して実行するには [contingency-py](https://github.com/OperantKit/contingency-py) を使います。Method 節の段落にするには [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure) を、公刊された Method 節の文章から取り出すには [contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) を使います。
 
-## 自作の 50 行では足りない理由
+## 記法で書けるもの
 
-`FR 5` や `VI 30-s` を拾う正規表現には文法も AST の取り決めも試験の基準もないため、「スケジュールを解析できる」道具が 2 つあれば、スケジュールを組み合わせた時点で互いの結果が食い違う:
+式の例をいくつか示します。
 
-- **文法.** 5 つの EBNF ファイル（`schema/**/grammar.ebnf`）が foundations・operant・operant stateful・operant trial-based・respondent の各レイヤを定義する。複合スケジュール、切替遅延（`COD`、方向別の `COD(1->2)`）、Limited Hold、二次スケジュール、アノテーションを含む。
-- **先読み量の証明.** `spec/en/foundations/ll2-proof.md` が、コアのスケジュール文法が LL(2) かつ曖昧でないことを示し、アノテーションの境界例はその §9 で分析している。
-- **AST の取り決め.** 20 個の JSON Schema ファイル（`schema/**/*.schema.json`、Draft 2020-12）が AST の形を固定する。operant の AST には構文解析直後用（`ast-parsed.schema.json`）と解決後用（`ast-resolved.schema.json`）の別スキーマがある。
-- **適合性コーパス.** `conformance/` 配下の 57 個の JSON ファイルにある 1,065 件のケースが、入力テキストと期待される AST または期待されるエラーを対にしている。うち 370 件はエラーのケース。どの言語のパーサも同じケースで検査できる。
-- **Method 節.** 同じ AST がそのまま [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure) の入力になり、スケジュールを Method 節の段落として書き出す。[contingency-procedure2dsl](https://github.com/OperantKit/contingency-procedure2dsl) は論文の Method 本文からスケジュールを抽出する。
-
-## 構文例
-
-### Operant
 ```
-FR5                           -- Fixed Ratio 5
-VI60s                         -- Variable Interval 60秒
-Chain(FR5, FI30s)             -- Chained: FR5 の後 FI30
-Conc(VI30s, VI60s)            -- Concurrent VI30 VI60
-Mult(VI30s, VI60s)            -- Multiple schedule（成分を交互に呈示、弁別刺激あり）
-Mix(VI30s, VI60s)             -- Mixed schedule（交互だが弁別信号なし）
-Conj(FI15s, FR10)             -- Conjunctive: 両方の要件を満たす必要がある
-Alt(FR5, VI60s)               -- Alternative: いずれかの要件で充足
-FR5(FI30)                     -- 二次スケジュール: FI30 を 5 回完了
-let baseline = VI60s          -- 名前付き束縛
-DRL5s                         -- 低反応率分化強化
-FI30 LH10                     -- Limited Hold: 10秒の利用可能ウィンドウ
-FI30 TO(duration=30s)         -- 強化後の Timeout
-
--- 嫌悪制御
-Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
-                              -- Sidman 自由オペラント回避 (Sidman, 1953)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=fixed, ShockDuration=0.5s)
-                              -- 弁別回避 (Solomon & Wynne, 1953)
-DiscrimAv(CSUSInterval=10s, ITI=3min, mode=response_terminated)
-                              -- 応答終結モード: 反応がショックを終結させる
-@reinforcer("token") VI60s ResponseCost(amount=1)
-                              -- 条件性強化子への応答コスト
-
--- 罰オーバレイ
-Overlay(VI60s, FR1) @punisher("shock")
-                              -- VI60 ベースラインへの罰オーバレイ
-Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
-                              -- 変化行動のみへの罰 (Todorov, 1971)
-Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
-                              -- 方向性のある応答クラス罰
-```
-
-### Operant — 状態保持・試行ベース
-```
-Pctl(IRT, 50)                 -- Percentile スケジュール (Platt, 1973)
-Adj(delay, start=10s, step=1s)
-                              -- Adjusting スケジュール
-Interlock(R0=300, T=10min)    -- Interlocking スケジュール (Berryman & Nevin, 1962)
-MTS(comparisons=3, consequence=CRF, ITI=5s)
-                              -- 見本合わせ（試行ベース）
-GoNoGo(responseWindow=5s, consequence=CRF, ITI=10s)
-                              -- Go/NoGo 弁別
-```
-
-### Respondent
-```
+FR5                                     -- 固定比率 5
+Conc(VI30s, VI60s, COD=2s)              -- 切替遅延 2 秒の並立 VI VI
+Chain(FR5, FI30s)                       -- 連鎖 FR 5 FI 30 秒
+FI30 LH10                               -- 制限時間 10 秒の FI 30 秒
 Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)
-Pair.ForwardTrace(cs=Tone, us=Shock, trace_interval=5s)
-Pair.Simultaneous(cs=Light, us=Food)
-Pair.Backward(us=Shock, cs=Tone, isi=10s)
-Contingency(p_us_given_cs=0.8, p_us_given_no_cs=0.2)
-TrulyRandom(cs=Tone, us=Shock)           -- Contingency(p, p) の糖衣構文
-ExplicitlyUnpaired(cs=Tone, us=Shock, min_separation=30s)
-Compound(cs_list=[Tone, Light], mode=Simultaneous)
-Serial(cs_list=[Tone, Light], isi=5s)
-Differential(cs_positive=Tone, cs_negative=Noise, us=Shock)  -- A+/B− 弁別
-Extinction(cs=Tone)
-ITI(distribution=exponential, mean=120s)
 ```
 
-### Composed（operant × respondent）
-```
--- CER (Estes & Skinner, 1941): オペラントベースライン + Pavlov 型対提示 + baseline の再利用
-@cs(label="Tone", duration=60s, modality="auditory")
-@us(label="Shock", intensity="0.5mA", delivery="unsignaled")
+レイヤごとの例は [構文例](docs/ja/syntax-examples.md) にあります。仕様は次のレイヤに分かれています。
 
-phase baseline:
-  sessions = 10
-  VI60s
+| レイヤ | 記述する内容 |
+|---|---|
+| **Foundations** | すべてのレイヤに共通するメタ文法と型（随伴性、時間尺度、刺激、文脈） |
+| **Operant** | 三項随伴性: 比率・時隔・時間・分化強化・複合・累進比率の各スケジュール、嫌悪性制御（Sidman 型回避、弁別回避、逃避、反応コスト）、状態を持つスケジュール（パーセンタイル、調整、連動）、試行型の手続き（見本合わせ、go/no-go）、制限時間・タイムアウト・強化遅延 |
+| **Respondent** | 二項（CS-US）随伴性: `Pair.*`、`Extinction`、`CSOnly`、`USOnly`、`Contingency`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential` |
+| **Composed** | オペラントとレスポンデントの部品を組み合わせた手続き（条件性抑制、Pavlov 型–道具的転移、オートシェイピング、省略など） |
+| **Experiment** | 複数フェーズのデザイン。フェーズと文脈をプログラムの一部として書けます |
+| **Annotation** | Method 節の区分（Subjects、Apparatus、Procedure、Measurement）に沿ったメタデータ（`@reinforcer`、`@sd`、`@species`、`@apparatus` など） |
 
-phase pairing:
-  sessions = 5
-  Pair.ForwardDelay(Tone, Shock, isi=60s, cs_duration=60s)
+より複雑な Pavlov 型の手続き（阻止、隠蔽、潜在制止、リニューアル、復位、機会設定など）は、姉妹パッケージ [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl) で定義されています。
 
-phase test:
-  sessions = 3
-  use baseline
+## このリポジトリの中身
 
--- オートシェイピング (Brown & Jenkins, 1968)
-@cs(label="KeyLight", duration=8s, modality="visual")
-@us(label="Food", delivery="unsignaled")
+- `spec/en/`、`spec/ja/`: 各レイヤの形式仕様（理論、文法、プリミティブ、設計の根拠）
+- `schema/`: 各レイヤの EBNF 文法と、構文解析の結果を表す JSON Schema
+- `conformance/`: テストケース（入力テキストと、期待される構文解析の結果またはエラー）
+- `docs/en/`、`docs/ja/`: 利用者向けの文書
+- `scripts/`: EBNF 文法から Langium と Tree-sitter の文法を作る変換スクリプト
 
-phase autoshaping_training:
-  sessions = 10
-  Pair.ForwardDelay(KeyLight, Food, isi=8s, cs_duration=8s)
+パーサは別のパッケージにあります。
 
--- Omission / 負の自動維持 (Williams & Williams, 1969)
-@cs(label="KeyLight", duration=6s, modality="visual")
-@us(label="Food", delivery="cancelled_on_cs_response")
+- **contingency-dsl-py** — Python のリファレンスパーサ（唯一のリファレンス実装）
 
-phase omission_training:
-  sessions = 20
-  Pair.ForwardDelay(KeyLight, Food, isi=6s, cs_duration=6s) @omission(response="key_peck", during="cs")
-```
+## 文書
 
-## ドキュメント
+- [構文ガイド](docs/ja/syntax-guide.md): 記法を順を追って説明します
+- [構文例](docs/ja/syntax-examples.md): すべてのレイヤの例
+- [ユースケース](docs/ja/use-cases.md): 各構文が何のためにあるか（文献つき）
+- [アノテーション](docs/ja/annotations.md): `@reinforcer`、`@punisher`、`@sd`、`@cs`、`@us`、`@species`、`@apparatus` などのメタデータのキーワード
+- [論文例](docs/ja/paper-examples.md): 公刊された研究をこの記法で書いたもの
+- [ツーリング](docs/ja/tooling.md): Tree-sitter と Langium の文法
+- 仕様: [アーキテクチャ](spec/ja/architecture.md)、[設計思想](spec/ja/design-philosophy.md)、[オペラント文法](spec/ja/operant/grammar.md)、[レスポンデント文法](spec/ja/respondent/grammar.md)、[基盤文法](spec/ja/foundations/grammar.md)
 
-- **[Syntax Guide (EN)](docs/en/syntax-guide.md)** / **[構文ガイド (JA)](docs/ja/syntax-guide.md)** — operant, respondent, composed プリミティブを段階的に解説
-- **[Use Cases (EN)](docs/en/use-cases.md)** / **[ユースケース (JA)](docs/ja/use-cases.md)** — 各構成要素で何が可能になるかを引用付きで解説
-- **[Annotations (EN)](docs/en/annotations.md)** / **[アノテーション (JA)](docs/ja/annotations.md)** — `@reinforcer`, `@punisher`, `@sd`, `@cs`, `@us`, `@iti`, `@cs_interval`, `@context`, `@species`, `@strain`, `@apparatus`, `@model` を含むメタデータレイヤ
-- **[Paper Examples (EN)](docs/en/paper-examples.md)** / **[論文例 (JA)](docs/ja/paper-examples.md)** — CER, オートシェイピング, PIT, omission, 古典的スケジュール研究の DSL エンコーディング
-- **[Architecture (EN)](spec/en/architecture.md)** / **[アーキテクチャ (JA)](spec/ja/architecture.md)** — 6 層図、SEI P1/P2/P3、TC / non-TC 境界
-- **[Design Philosophy (EN)](spec/en/design-philosophy.md)** / **[設計思想 (JA)](spec/ja/design-philosophy.md)** — 至高目的、各レイヤの根拠、Admission Gate
-- **[Operant Grammar (EN)](spec/en/operant/grammar.md)** / **[オペラント文法 (JA)](spec/ja/operant/grammar.md)** — 三項随伴性の生成規則
-- **[Respondent Grammar (EN)](spec/en/respondent/grammar.md)** / **[レスポンデント文法 (JA)](spec/ja/respondent/grammar.md)** — Tier A プリミティブ + 拡張点
-- **[Foundations Grammar (EN)](spec/en/foundations/grammar.md)** / **[基盤文法 (JA)](spec/ja/foundations/grammar.md)** — パラダイム中立な字句構造
-- **[Tooling (EN)](docs/en/tooling.md)** / **[ツーリング (JA)](docs/ja/tooling.md)** — Tree-sitter, Langium LSP, EBNF ローダ順
+## 適合テスト
 
-## 適合性テスト
+`conformance/` には 57 個の JSON ファイルに 1,065 件のテストケースがあり、そのうち 370 件はエラーを期待するケースです。各ケースは入力と、期待される構文解析の結果またはエラーの組なので、どの言語のパーサも同じ入力で確かめられます。形式とディレクトリ構成は [conformance/README.md](conformance/README.md) に書かれています。
 
-任意のパーサ実装は `conformance/` 配下の全テストをパスすること：
+Python パーサのテストは、隣に置いた `contingency-dsl` の clone からケースを読みます。
 
 ```bash
-# Python リファレンスパーサ: 隣に置いた contingency-dsl/ の conformance/ を読む
-cd ..
+git clone https://github.com/OperantKit/contingency-dsl
 git clone https://github.com/OperantKit/contingency-dsl-py
 cd contingency-dsl-py
 pip install -e '.[test]'
-pytest tests/test_conformance.py -v
+pytest tests/test_conformance.py
 ```
 
-テストコーパスはレイヤ別に構成されている：
-- `conformance/foundations/` — パラダイム中立な字句テスト（`conformance/foundations/README.md` で定義された厳格なスコーピングルールにより意図的に空）
-- `conformance/operant/` — 原子スケジュール、複合コンビネータ（Conc / Alt / Conj / Chain / Tand / Mult / Mix / Overlay / Interpolate）、修飾子（DR*, PR, Lag, Repeat, Limited Hold, Timeout, 強化遅延）、二次スケジュール、嫌悪制御（Sidman, DiscriminatedAvoidance）、応答コスト、代数的等価性、境界値、エラー、警告
-- `conformance/operant/stateful/` — Percentile, Adjusting, Interlocking
-- `conformance/operant/trial-based/` — MTS, Go/NoGo
-- `conformance/respondent/` — Tier A プリミティブのフィクスチャ（Pair, 随伴性統制, 複合刺激, 基本構成）
-- `conformance/composed/` — CER（条件性抑制）、PIT、オートシェイピング、omission、二過程回避
-- `conformance/experiment/` — phase, progressive-training, shaping
-- `conformance/annotations/` — subjects, apparatus, procedure（刺激 / 時間 / 試行構造）、measurement, プログラムレベル；`extensions/respondent-annotator.json`
-- `conformance/representations/` — 代替座標系（t-τ）
+## 制限
 
-## `dist/` の再生成
+- contingency-dsl-py は、ここで定義されたすべての構文を受け付けるわけではありません。同梱されているアノテーション拡張は 6 つで、Composed の例で使うレスポンデント用のアノテーション（`@cs`、`@us`）はここで定義されていますが、それらの拡張では受け付けられません。
+- `conformance/foundations/` にはケースがありません。既存の字句のテストはオペラントのスケジュールのキーワードを含むため、`conformance/operant/` に置かれています（[理由](conformance/foundations/README.md)）。
 
-`dist/` ツリー（Langium および Tree-sitter のアーティファクト）は gitignored であり、`schema/*/grammar.ebnf` から再現可能：
+## 開発に参加する人へ
+
+`dist/`（生成した Langium と Tree-sitter の文法）は git で管理していません。`schema/**/grammar.ebnf` から作り直します。
 
 ```bash
 ./scripts/gen-langium.sh      # dist/langium/contingency-dsl.langium
 ./scripts/gen-treesitter.sh   # dist/tree-sitter/grammar.js
 ```
 
-ローダ順: Foundations → Operant → Operant.Stateful → Operant.TrialBased → Respondent、続いて rglob でソート順に発見された追加の `grammar.ebnf`。
+この README と `README.md` の `python` ブロックは、すべて `scripts/check_readme_examples.py` で実行されます。AI のコーディングエージェント向けの説明は [AGENTS.md](AGENTS.md) にあります。
 
-## 参考文献
+## 引用とライセンス
 
-- Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, 11(1), 1–8. https://doi.org/10.1901/jeab.1968.11-1
-- Catania, A. C. (2013). *Learning* (5th ed.). Sloan Publishing.
-- Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, 29(5), 390–400. https://doi.org/10.1037/h0062283
-- Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
-- Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529–530. https://doi.org/10.1901/jeab.1962.5-529
-- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
-- Rescorla, R. A. (1967). Pavlovian conditioning and its proper control procedures. *Psychological Review*, 74(1), 71–80. https://doi.org/10.1037/h0024109
-- Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475
-- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
-- Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, 12(4), 511–520. https://doi.org/10.1901/jeab.1969.12-511
-
+このリポジトリを引用するときは [CITATION.cff](CITATION.cff) を使ってください。MIT License です。[LICENSE](LICENSE) を参照してください。
