@@ -16,10 +16,12 @@ Mix(VI30s, VI60s)             -- 混合スケジュール（交替するが弁�
 Conj(FI15s, FR10)             -- 連言: 両方の要件を満たす必要がある
 Alt(FR5, VI60s)               -- 二択: どちらかの要件を満たせばよい
 FR5(FI30)                     -- 二次スケジュール: FI30 を 5 回完了
-let baseline = VI60s          -- 名前付きの束縛
+let baseline = VI60s          -- 名前付きの束縛（次の行で使う）
+Mult(baseline, EXT)
 DRL5s                         -- 低反応率分化強化
 FI30 LH10                     -- 制限時間（Limited Hold）: 強化子を得られる時間は 10 秒
-FI30 TO(duration=30s)         -- 強化後のタイムアウト
+FI30 TO(duration=30s, reset_on_response=false)
+                              -- 強化後のタイムアウト
 
 -- 嫌悪性制御
 Sidman(SSI=20s, RSI=5s) @punisher("shock", intensity="0.5mA")
@@ -39,6 +41,8 @@ Overlay(Conc(VI30s, VI60s, COD=2s), FR1, target=changeover)
 Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
                               -- 切替の向きごとの反応クラスへの罰
 ```
+
+> **参照パーサについて:** 上の `@punisher` を使う 2 例は、[contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) に同梱されたアノテーション拡張では解析できません。仕様では `@punisher` は `@reinforcer` の別名です（`schema/annotations/procedure-stimulus.schema.json`）が、パーサは別名を解決する前に書かれたままのキーワードを照合するため、`unknown annotation '@punisher'` を報告します。`scripts/check_docs_examples.py` はこのキーワードだけを別に登録し、例の残りの部分を検査します。
 
 ## Operant — 状態を持つスケジュールと試行型の手続き
 
@@ -105,6 +109,8 @@ phase omission_training:
   sessions = 20
   Pair.ForwardDelay(KeyLight, Food, isi=6s, cs_duration=6s) @omission(response="key_peck", during="cs")
 ```
+
+> **参照パーサについて:** これらの例は、[contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) に同梱されたアノテーション拡張では解析できません。`@cs` と `@us` は `schema/annotations/extensions/respondent-annotator.schema.json` で定義されていますが、パーサにはこれらを扱う拡張がないため、`unknown annotation '@cs'` を報告します。`scripts/check_docs_examples.py` はこの 2 つのキーワードだけを別に登録し、例の残りの部分を検査します。
 
 ## 参考文献
 

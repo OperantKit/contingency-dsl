@@ -23,9 +23,9 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Respondent** | 5 | 32 | ✅ Full coverage |
 | **Composed** | 5 | 5 | ✅ Full coverage |
 | **Experiment** | 5 | 70 | ✅ Full coverage |
-| **Annotations** | 11 | 207 | ✅ Full coverage (incl. respondent-annotator extension stub) |
+| **Annotations** | 11 | 241 | ✅ Full coverage (incl. respondent-annotator extension stub) |
 | **Representations (T-τ)** | 5 | 42 | ✅ Full coverage |
-| **Total** | **57** | **1121** | |
+| **Total** | **57** | **1155** | |
 
 ---
 
