@@ -9,12 +9,12 @@ contingency-dsl is part of OperantKit, a set of Python/Rust packages for designi
 The specification is read from a clone of this repository. To parse the notation, install the reference parser:
 
 ```bash
-pip install contingency-dsl-py
+pip install git+https://github.com/OperantKit/contingency-dsl-py
 ```
 
 ## Minimal example
 
-Run from the root of a clone of this repository (`pip install contingency-dsl-py jsonschema`):
+Run from the root of a clone of this repository (`pip install git+https://github.com/OperantKit/contingency-dsl-py jsonschema`):
 
 ```python
 import json
@@ -40,8 +40,8 @@ Layout: `spec/{en,ja}/` formal specification per layer, `schema/**/grammar.ebnf`
 
 ## Related packages
 
-- [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py): Python reference parser for this specification (`pip install contingency-dsl-py`)
-- [contingency-py](https://github.com/OperantKit/contingency-py): runs a parsed schedule as a reinforcement schedule engine (`pip install contingency-py`)
+- [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py): Python reference parser for this specification
+- [contingency-py](https://github.com/OperantKit/contingency-py): runs a parsed schedule as a reinforcement schedule engine
 - [contingency-rs](https://github.com/OperantKit/contingency-rs): Rust schedule engine and parser
 - [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl): Tier B respondent (Pavlovian) procedures that plug into the respondent extension point
 - [contingency-dsl2procedure](https://github.com/OperantKit/contingency-dsl2procedure): AST to Method-section text
