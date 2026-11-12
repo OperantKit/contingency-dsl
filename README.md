@@ -8,7 +8,7 @@ contingency-dsl is a short text notation for schedules of reinforcement and Pavl
 
 - A schedule fits in a sentence or a table cell and states its parameters, such as the changeover delay (COD) and the limited hold, instead of leaving them to the program.
 - The notation follows the abbreviations already used in Method sections (`FR 5`, `VI 60-s`, `Conc(...)`, `Mult(...)`).
-- Every parser, in any language, can be checked against the same 1,065 test cases.
+- Every parser, in any language, can be checked against the same test cases in `conformance/`.
 
 A Method section that says "concurrent VI 30 s VI 60 s" often leaves out how the changeover delay was handled or how the intervals were generated, and every lab's program fills the gap differently. Writing the procedure in a notation with a grammar makes those choices explicit and lets other people rerun the same procedure.
 
@@ -105,7 +105,7 @@ Parsers live in separate packages:
 
 ## Conformance tests
 
-`conformance/` holds 1,065 test cases in 57 JSON files; 370 of them expect an error. Each case pairs an input with the expected parsed form or the expected error, so a parser in any language can be checked against the same inputs. The format and the directory layout are described in [conformance/README.md](conformance/README.md).
+`conformance/` holds the test cases as JSON files; some of them expect an error. Each case pairs an input with the expected parsed form or the expected error, so a parser in any language can be checked against the same inputs. The format and the directory layout are described in [conformance/README.md](conformance/README.md).
 
 The Python parser's test suite reads the cases from a `contingency-dsl` clone next to it:
 
