@@ -12,7 +12,7 @@
 
 ## 1. リサージェンス: ABA デザイン
 
-**論文:** Brown, T. L., Greer, B. D., Craig, A. R., Roane, H. S., & Shahan, T. A. (2020). Resurgence following differential reinforcement of alternative behavior implemented with and without extinction. *JEAB*, *113*(2), 449-467. https://doi.org/10.1002/jeab.590
+**論文:** Brown, K. R., Greer, B. D., Craig, A. R., Sullivan, W. E., Fisher, W. W., & Roane, H. S. (2020). Resurgence following differential reinforcement of alternative behavior implemented with and without extinction. *JEAB*, *113*(2), 449-467. https://doi.org/10.1002/jeab.588
 
 **デザイン:** 3 フェーズの ABA リサージェンスデザイン。ベースラインで並立スケジュール上の標的反応を確立し、DRA で代替強化源を導入し、消去で全ての強化を停止して標的反応のリサージェンスを検証する。
 
@@ -235,7 +235,7 @@ phase Extinction_C2:
 
 ## 4. 罰後のリニューアル
 
-**論文:** Broomer, S. T., & Bouton, M. E. (2022). Renewal of operant behavior following punishment or extinction in different contexts. *Learning & Behavior*, *51*(3), 262-273. https://doi.org/10.3758/s13420-022-00543-1
+**論文:** Broomer, M. C., & Bouton, M. E. (2022). A comparison of renewal, spontaneous recovery, and reacquisition after punishment and extinction. *Learning & Behavior*, *51*(3), 262-273. https://doi.org/10.3758/s13420-022-00552-2
 
 **デザイン:** 罰と消去を比較する ABA リニューアルデザイン。文脈 A で反応訓練、文脈 B で罰（または消去）、その後両文脈でテスト。文脈変更が罰された行動を復活させるかを検証する。
 
@@ -562,7 +562,7 @@ phase ExtinctionTest:
 
 ## 12. DRL + Peak 手続き（タイミング精度）
 
-**論文:** Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.03.018
+**論文:** Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.02.022
 
 **デザイン:** 三相のタイミング精度研究。(1) FI shaping: 反応率基準で強化区間を 2-s から 18-s まで段階的に延長。(2) Peak 手続きベースライン: 1 セッションあたり 45 試行の強化 FI 18-s 試行 + 15 試行の非強化 54-s probe 試行をランダム順序で呈示。(3) DRL 介入: FI の反応を DRL（9-s、18-s、27-s のいずれか）で置き換え。タイミング正確性と精度を probe 試行の反応分布から測定する。
 
@@ -612,7 +612,7 @@ phase DRL_Intervention:
 
 ## 13. 並立 VI スケジュール下のトークン刺激
 
-**論文:** Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *100*(2), 233-252. https://doi.org/10.1002/jeab.37
+**論文:** Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *99*(2), 159-178. https://doi.org/10.1002/jeab.12
 
 **デザイン:** ハトが、一次強化ではなくトークン刺激を送達する 2 つの並立 VI 60-s スケジュール間で選択する。両キーいずれかで獲得した固定数のトークンが交換期を惹起し、交換期では各トークンが FR 1 で食餌と引き換えられる。交換までに必要なトークン数を条件間でパラメトリックに変動させ、一次強化までの遅延が配分をどう変調するかを検証する。
 
@@ -687,7 +687,7 @@ progressive MagnitudeAssay:
 
 ## 15. ABA リニューアルにおける省略 vs 消去
 
-**論文:** Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 274-287. https://doi.org/10.1002/jeab.568
+**論文:** Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 124-140. https://doi.org/10.1002/jeab.568
 
 **デザイン:** 反応除去手続きとして消去と省略（DRO）を比較する ABA リニューアル。(1) Context A での VI スケジュール下の獲得。(2) Context B での除去: 消去、または標的行動非出現区間を最終値まで段階的に上げた DRO のいずれか。(3) Context A と B でのテスト（反応非依存強化子送達の有無を問う）。省略が ABA リニューアルを消去に比べて減弱するかを問う。
 
@@ -764,21 +764,21 @@ phase RenewalTest:
 
 - Annau, Z., & Kamin, L. J. (1961). The conditioned emotional response as a function of intensity of the US. *Journal of Comparative and Physiological Psychology*, *54*(4), 428-432. https://doi.org/10.1037/h0042199
 - Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
-- Broomer, S. T., & Bouton, M. E. (2022). Renewal of operant behavior following punishment or extinction in different contexts. *Learning & Behavior*, *51*(3), 262-273. https://doi.org/10.3758/s13420-022-00543-1
+- Broomer, M. C., & Bouton, M. E. (2022). A comparison of renewal, spontaneous recovery, and reacquisition after punishment and extinction. *Learning & Behavior*, *51*(3), 262-273. https://doi.org/10.3758/s13420-022-00552-2
 - Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, *11*(1), 1-8. https://doi.org/10.1901/jeab.1968.11-1
-- Brown, T. L., Greer, B. D., Craig, A. R., Roane, H. S., & Shahan, T. A. (2020). Resurgence following differential reinforcement of alternative behavior implemented with and without extinction. *JEAB*, *113*(2), 449-467. https://doi.org/10.1002/jeab.590
+- Brown, K. R., Greer, B. D., Craig, A. R., Sullivan, W. E., Fisher, W. W., & Roane, H. S. (2020). Resurgence following differential reinforcement of alternative behavior implemented with and without extinction. *JEAB*, *113*(2), 449-467. https://doi.org/10.1002/jeab.588
 - Craig, A. R., Cunningham, P. E., & Shahan, T. A. (2015). Behavioral momentum and accumulation of behavioral mass. *JEAB*, *103*(3), 437-449. https://doi.org/10.1002/jeab.145
-- Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.03.018
+- Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.02.022
 - Estes, W. K. (1948). Discriminative conditioning. II. Effects of a Pavlovian conditioned stimulus upon a subsequently established operant response. *Journal of Experimental Psychology*, *38*(2), 173-177. https://doi.org/10.1037/h0057525
 - Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, *29*(5), 390-400. https://doi.org/10.1037/h0062283
 - Fernando, A. B. P., Urcelay, G. P., Mar, A. C., Dickinson, A., & Robbins, T. W. (2014). Free-operant avoidance behavior by rats after reinforcer revaluation using opioid agonists and d-amphetamine. *Journal of Neuroscience*, *34*(18), 6286-6293. https://doi.org/10.1523/JNEUROSCI.4146-13.2014
 - Goldberg, S. R. (1973). Comparable behavior maintained under fixed-ratio and second-order schedules of food presentation, cocaine injection, or d-amphetamine injection in the squirrel monkey. *Journal of Pharmacology and Experimental Therapeutics*, *186*(1), 18-30.
 - Killeen, P. R. (1994). Mathematical principles of reinforcement. *Behavioral and Brain Sciences*, *17*(1), 105-135. https://doi.org/10.1017/S0140525X00033628
 - Lovibond, P. F. (1983). Facilitation of instrumental behavior by a Pavlovian appetitive conditioned stimulus. *Journal of Experimental Psychology: Animal Behavior Processes*, *9*(3), 225-247. https://doi.org/10.1037/0097-7403.9.3.225
-- Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *100*(2), 233-252. https://doi.org/10.1002/jeab.37
+- Mazur, J. E., & Biondi, D. R. (2013). Pigeons' choices with token stimuli in concurrent variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *99*(2), 159-178. https://doi.org/10.1002/jeab.12
 - McLean, A. P., Grace, R. C., & Nevin, J. A. (2012). Response strength in extreme multiple schedules. *JEAB*, *97*(1), 51-70. https://doi.org/10.1901/jeab.2012.97-51
 - Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, *74*(3), 151-182. https://doi.org/10.1037/h0024475
-- Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 274-287. https://doi.org/10.1002/jeab.568
+- Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 124-140. https://doi.org/10.1002/jeab.568
 - Rickard, J. F., Body, S., Zhang, Z., Bradshaw, C. M., & Szabadi, E. (2009). Effect of reinforcer magnitude on performance maintained by progressive-ratio schedules. *Journal of the Experimental Analysis of Behavior*, *91*(1), 75-87. https://doi.org/10.1901/jeab.2009.91-75
 - Roberts, S., & Richardson, N. R. (1992). Self-administration of cocaine on a progressive ratio schedule in rats: Dose-response relationship and effect of haloperidol pretreatment. *Psychopharmacology*, *106*(2), 251-255.
 - Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, *12*(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511

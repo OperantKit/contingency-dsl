@@ -220,8 +220,8 @@ References:
   https://doi.org/10.1901/jeab.1981.36-21
 - Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer
   function: White-noise analysis of session-to-session response-ratio
-  dynamics on concurrent VI VI schedules. *Animal Learning & Behavior*,
-  13(3), 293-299. https://doi.org/10.3758/BF03197983
+  dynamics on concurrent VI VI schedules. *Journal of the Experimental
+  Analysis of Behavior*, 43(1), 43-59. https://doi.org/10.1901/jeab.1985.43-43
 
 ### Behavioral effects (for procedure selection)
 
@@ -530,7 +530,7 @@ References:
   *JEAB*, 28(1), 83-95. https://doi.org/10.1901/jeab.1977.28-83
 - Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to
   turn off shock. *Journal of Comparative and Physiological Psychology*,
-  49(3), 235-238. https://doi.org/10.1037/h0047811
+  49(3), 235-238. https://doi.org/10.1037/h0041968
 - Hineline, P. N. (1977). Negative reinforcement and avoidance. In
   W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior*
   (pp. 364-414). Prentice-Hall.

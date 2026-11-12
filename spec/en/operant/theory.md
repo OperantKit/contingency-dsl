@@ -143,7 +143,7 @@ The 2D type system maps directly to canonical sources:
 | Herrnstein & Morse (1957) | Earliest experimental demonstration of FT-like procedure (response-independent food at fixed intervals); positive acceleration |
 | Lattal (1972) | Response-reinforcer independence (FT/VT) vs. conventional extinction; FT/VT produces slower response decrement |
 | Farmer (1963) | Formalizes Random schedules (RR, RI, RT) — constant-probability-per-unit assumption |
-| Lachter, Cole, & Schoenfeld (1971) | Non-contingent reinforcement at irregular intervals (VT/RT-like); closest empirical demonstration for RT |
+| Lachter (1971) | Non-contingent reinforcement at irregular intervals (VT/RT-like); closest empirical demonstration for RT |
 | Fleshler & Hoffman (1962) | Variable schedule value generation algorithm |
 | Schoenfeld & Cole (1972) | T-tau system as an alternative coordinate system (see [representations/overview.md](../representations/overview.md)) |
 
@@ -401,7 +401,7 @@ The `RD` param_decl instructs the runtime to impose a uniform delay between any 
 **Position in the grammar.** `RD` is a `param_decl` keyword (alongside `LH`, `COD`, `FRCO`, `BO`), not a schedule expression modifier. This reflects the literature: Lattal (2010) reviews delay as a *procedural parameter* that applies to the session arrangement, while per-schedule delays are tandem schedule structures that belong in the schedule expression itself.
 
 **References:**
-- Lattal, K. A. (1972). Response-reinforcer independence and conventional extinction after fixed-interval and variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *18*(1), 123–131. https://doi.org/10.1901/jeab.1972.18-123
+- Lattal, K. A. (1972). Response-reinforcer independence and conventional extinction after fixed-interval and variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *18*(1), 133–140. https://doi.org/10.1901/jeab.1972.18-133
 - Lattal, K. A. (2010). Delayed reinforcement of operant behavior. *Journal of the Experimental Analysis of Behavior*, *93*(1), 129–139. https://doi.org/10.1901/jeab.2010.93-129
 - Sizemore, O. J., & Lattal, K. A. (1978). Unsignalled delay of reinforcement in variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, *30*(2), 169–175. https://doi.org/10.1901/jeab.1978.30-169
 - Richards, R. W. (1981). A comparison of signaled and unsignaled delay of reinforcement. *Journal of the Experimental Analysis of Behavior*, *35*(2), 145–152. https://doi.org/10.1901/jeab.1981.35-145
@@ -1777,7 +1777,7 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Findley, J. D. (1958). Preference and switching under concurrent scheduling. *Journal of the Experimental Analysis of Behavior*, 1(2), 123-144. https://doi.org/10.1901/jeab.1958.1-123
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267-272. https://doi.org/10.1901/jeab.1961.4-267
-- Herrnstein, R. J., & Morse, W. H. (1957). Some effects of response-independent positive reinforcement on maintained operant behavior. *Journal of Comparative and Physiological Psychology*, *50*(5), 461–467. https://doi.org/10.1037/h0048673
+- Herrnstein, R. J., & Morse, W. H. (1957). Some effects of response-independent positive reinforcement on maintained operant behavior. *Journal of Comparative and Physiological Psychology*, *50*(5), 461–467. https://doi.org/10.1037/h0041506
 - Herrnstein, R. J., & Loveland, D. H. (1975). Maximizing and matching on concurrent ratio schedules. *Journal of the Experimental Analysis of Behavior*, 24(1), 107-116. https://doi.org/10.1901/jeab.1975.24-107
 - Herrnstein, R. J., & Vaughan, W. (1980). Melioration and behavioral allocation. In J. E. R. Staddon (Ed.), *Limits to action: The allocation of individual behavior* (pp. 143-176). Academic Press.
 - Baum, W. M., Aparicio, C. F., & Alonso-Alvarez, B. (2022). Rate matching, probability matching, and optimization in concurrent ratio schedules. *Journal of the Experimental Analysis of Behavior*, 118(1). https://doi.org/10.1002/jeab.771
@@ -1785,13 +1785,13 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Kramer, T. J., & Rilling, M. (1970). Differential reinforcement of low rates: A selective critique. *Psychological Bulletin*, *74*(4), 225–254. https://doi.org/10.1037/h0029813
 - Mizutani, Y. (2018). OperantKit: A Swift framework for reinforcement schedule simulation [Computer software]. GitHub. https://github.com/YutoMizutani/OperantKit
 - Nevin, J. A. (1974). Response strength in multiple schedules. *Journal of the Experimental Analysis of Behavior*, *21*(3), 389–408. https://doi.org/10.1901/jeab.1974.21-389
-- Lachter, G. D., Cole, B. K., & Schoenfeld, W. N. (1971). Some temporal parameters of non-contingent reinforcement. *Journal of the Experimental Analysis of Behavior*, *16*(2), 207–217. https://doi.org/10.1901/jeab.1971.16-207
+- Lachter, G. D. (1971). Some temporal parameters of non-contingent reinforcement. *Journal of the Experimental Analysis of Behavior*, *16*(2), 207–217. https://doi.org/10.1901/jeab.1971.16-207
 - Schoenfeld, W. N., & Cole, B. K. (1972). *Stimulus schedules: The t-τ systems*. Harper & Row.
 - Reynolds, G. S. (1961). Behavioral contrast. *Journal of the Experimental Analysis of Behavior*, 4(1), 57-71. https://doi.org/10.1901/jeab.1961.4-57
 - Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253-261. https://doi.org/10.1037/h0060730
 - Hineline, P. N. (1977). Negative reinforcement and avoidance. In W. K. Honig & J. E. R. Staddon (Eds.), *Handbook of operant behavior* (pp. 364-414). Prentice-Hall.
 - Dinsmoor, J. A. (1977). Escape, avoidance, punishment: Where do we stand? *Journal of the Experimental Analysis of Behavior*, 28(1), 83-95. https://doi.org/10.1901/jeab.1977.28-83
-- Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to turn off shock. *Journal of Comparative and Physiological Psychology*, 49(3), 235-238. https://doi.org/10.1037/h0047811
+- Dinsmoor, J. A., & Hughes, L. H. (1956). Training rats to press a bar to turn off shock. *Journal of Comparative and Physiological Psychology*, 49(3), 235-238. https://doi.org/10.1037/h0041968
 - de Waard, R. J., Galizio, M., & Baron, A. (1979). Chained schedules of avoidance: Reinforcement within and by avoidance situations. *Journal of the Experimental Analysis of Behavior*, 32(3), 399-407. https://doi.org/10.1901/jeab.1979.32-399
 - Page, S., & Neuringer, A. (1985). Variability is an operant. *Journal of Experimental Psychology: Animal Behavior Processes*, 11(3), 429-452. https://doi.org/10.1037/0097-7403.11.3.429
 - Neuringer, A. (2002). Operant variability: Evidence, functions, and theory. *Psychonomic Bulletin & Review*, 9(4), 672-705. https://doi.org/10.3758/BF03196324
@@ -1800,7 +1800,7 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Zeiler, M. D. (1968). Fixed and variable schedules of response-independent reinforcement. *Journal of the Experimental Analysis of Behavior*, *11*(4), 405–414. https://doi.org/10.1901/jeab.1968.11-405
 - Skinner, B. F. (1948). 'Superstition' in the pigeon. *Journal of Experimental Psychology*, 38(2), 168-172. https://doi.org/10.1037/h0055873
 - Denney, J., & Neuringer, A. (1998). Behavioral variability is controlled by discriminative stimuli. *Animal Learning & Behavior*, *26*(2), 154-162. https://doi.org/10.3758/BF03199208
-- Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0020364
+- Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0019499
 - Stokes, P. D. (1995). Learned variability. *Animal Learning & Behavior*, *23*(2), 164-176. https://doi.org/10.3758/BF03199931
 - Wagner, A. R. (1981). SOP: A model of automatic memory processing in animal behavior. In N. E. Spear & R. R. Miller (Eds.), *Information processing in animals: Memory mechanisms* (pp. 5-47). Erlbaum.
 

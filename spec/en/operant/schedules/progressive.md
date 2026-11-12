@@ -109,6 +109,6 @@ See `docs/en/design-rationale.md §2` for the historical discussion of why the s
 
 - Hodos, W. (1961). Progressive ratio as a measure of reward strength. *Science*, 134(3483), 943–944. https://doi.org/10.1126/science.134.3483.943
 - Hodos, W., & Kalman, G. (1963). Effects of increment size and reinforcer volume on progressive ratio performance. *Journal of the Experimental Analysis of Behavior*, 6(3), 387–392. https://doi.org/10.1901/jeab.1963.6-387
-- Jarmolowicz, D. P., & Lattal, K. A. (2010). On distinguishing progressive increasing response requirements for reinforcement. *The Behavior Analyst*, 33(1), 119–125. https://doi.org/10.1007/BF03392206
+- Jarmolowicz, D. P., & Lattal, K. A. (2010). On distinguishing progressively increasing response requirements for reinforcement. *The Behavior Analyst*, 33(1), 119–125. https://doi.org/10.1007/BF03392207
 - Killeen, P. R., Posadas-Sanchez, D., Johansen, E. B., & Thrailkill, E. A. (2009). Progressive ratio schedules of reinforcement. *Journal of Experimental Psychology: Animal Behavior Processes*, 35(1), 35–50. https://doi.org/10.1037/a0012497
 - Stafford, D., & Branch, M. N. (1998). Effects of step size and break-point criterion on progressive-ratio performance. *Journal of the Experimental Analysis of Behavior*, 70(2), 123–138. https://doi.org/10.1901/jeab.1998.70-123

@@ -57,4 +57,4 @@ T-tau パラメタ化された手続きを 3×3 格子に変換することで�
 ## 参考文献
 
 - Schoenfeld, W. N., & Cole, B. K. (1972). *Stimulus schedules: The t-τ systems*. Harper & Row.
-- Schoenfeld, W. N., & Cole, B. K. (1975). What is a "schedule of reinforcement"? *Pavlovian Journal of Biological Science*, 10(1), 5–13. https://doi.org/10.1007/BF03000622
+- Schoenfeld, W. N., & Cole, B. K. (1975). What is a "schedule of reinforcement"? *Pavlovian Journal of Biological Science*, 10(1), 52–61. https://doi.org/10.1007/BF03000622

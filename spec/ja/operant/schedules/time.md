@@ -12,7 +12,7 @@
 |---|---|---|---|
 | **FT(t)** | Fixed | `t` 秒ごとに強化子が呈示される | Zeiler (1968); Herrnstein & Morse (1957) |
 | **VT(t)** | Variable | 平均 `t` の可変時隔で強化子が呈示される（Fleshler-Hoffman） | Zeiler (1968) |
-| **RT(t)** | Random | 平均 `t` の無作為時隔で強化子が呈示される | Lachter, Cole, & Schoenfeld (1971) |
+| **RT(t)** | Random | 平均 `t` の無作為時隔で強化子が呈示される | Lachter (1971) |
 
 ## 2. 操作的定義
 
@@ -46,7 +46,7 @@ VT 60-s     -- 平均 60 秒、反応非依存
 RT 60-s     -- Poisson 分布呈示、平均 60 秒
 ```
 
-経験的には、RT は FT/VT ほど一般的に用いられない。最も近い標準例は Lachter, Cole, & Schoenfeld (1971)。
+経験的には、RT は FT/VT ほど一般的に用いられない。最も近い標準例は Lachter (1971)。
 
 ## 3. Time vs Interval — 反応非依存性
 
@@ -95,8 +95,8 @@ FT と VT は Catania (2013) および Zeiler (1968) によって形式的な Do
 
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan.
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 5(4), 529–530. https://doi.org/10.1901/jeab.1962.5-529
-- Herrnstein, R. J., & Morse, W. H. (1957). Some effects of response-independent positive reinforcement on maintained operant behavior. *Journal of Comparative and Physiological Psychology*, 50(5), 461–467. https://doi.org/10.1037/h0048673
-- Lachter, G. D., Cole, B. K., & Schoenfeld, W. N. (1971). Some temporal parameters of non-contingent reinforcement. *Journal of the Experimental Analysis of Behavior*, 16(2), 207–217. https://doi.org/10.1901/jeab.1971.16-207
+- Herrnstein, R. J., & Morse, W. H. (1957). Some effects of response-independent positive reinforcement on maintained operant behavior. *Journal of Comparative and Physiological Psychology*, 50(5), 461–467. https://doi.org/10.1037/h0041506
+- Lachter, G. D. (1971). Some temporal parameters of non-contingent reinforcement. *Journal of the Experimental Analysis of Behavior*, 16(2), 207–217. https://doi.org/10.1901/jeab.1971.16-207
 - Lattal, K. A. (1972). Response-reinforcer independence and conventional extinction after fixed-interval and variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 18(1), 133–140. https://doi.org/10.1901/jeab.1972.18-133
 - Rachlin, H., & Baum, W. M. (1972). Effects of alternative reinforcement: Does the source matter? *Journal of the Experimental Analysis of Behavior*, 18(2), 231–241. https://doi.org/10.1901/jeab.1972.18-231
 - Sizemore, O. J., & Lattal, K. A. (1978). Unsignalled delay of reinforcement in variable-interval schedules. *Journal of the Experimental Analysis of Behavior*, 30(2), 169–175. https://doi.org/10.1901/jeab.1978.30-169

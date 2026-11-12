@@ -75,4 +75,4 @@ The `method=percentile` form of the shaping primitive (`operant/grammar.md §3.8
 ## References
 
 See §1. Additional background:
-- Alleman, H. D., & Platt, J. R. (1973). Differential reinforcement of interresponse times with controlled probability of reinforcement per response. *Learning and Motivation*, 4(1), 40–73. https://doi.org/10.1016/0023-9690(73)90036-2
+- Alleman, H. D., & Platt, J. R. (1973). Differential reinforcement of interresponse times with controlled probability of reinforcement per response. *Learning and Motivation*, 4(1), 40–73. https://doi.org/10.1016/0023-9690(73)90038-6

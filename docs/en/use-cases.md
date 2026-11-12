@@ -55,7 +55,7 @@ Conc(VI 30-s, VI 60-s, FRCO=2)
 **When to use FRCO instead of COD:** FRCO imposes a *response-based* cost on switching, whereas COD imposes a *time-based* cost. In published within-subject comparisons (Hunter & Davison, 1985), FRCO tends to produce overmatching (response allocation more biased toward the richer alternative) while COD tends to produce undermatching (response allocation less biased). Use FRCO when studying the effects of response-based changeover costs or when replicating FRCO-based experiments.
 
 **Reference:**
-- Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer function: White-noise analysis of session-to-session response-ratio dynamics on concurrent VI VI schedules. *Animal Learning & Behavior*, *13*(3), 293–299. https://doi.org/10.3758/BF03197983
+- Hunter, I., & Davison, M. (1985). Determination of a behavioral transfer function: White-noise analysis of session-to-session response-ratio dynamics on concurrent VI VI schedules. *Journal of the Experimental Analysis of Behavior*, *43*(1), 43–59. https://doi.org/10.1901/jeab.1985.43-43
 - Pliskoff, S. S., & Fetterman, J. G. (1981). Undermatching and overmatching: The fixed-ratio changeover requirement. *JEAB*, *36*(1), 21–27. https://doi.org/10.1901/jeab.1981.36-21
 
 ---
@@ -170,7 +170,7 @@ PR(hodos)
 
 **References:**
 - Hodos, W. (1961). Progressive ratio as a measure of reward strength. *Science*, *134*(3483), 943-944. https://doi.org/10.1126/science.134.3483.943
-- Richardson, N. R., & Roberts, D. C. S. (1996). Progressive ratio schedules in drug self-administration studies in rats. *Psychopharmacology*, *128*(4), 327-335. https://doi.org/10.1007/s002130050138
+- Richardson, N. R., & Roberts, D. C. S. (1996). Progressive ratio schedules in drug self-administration studies in rats. *Journal of Neuroscience Methods*, *66*(1), 1-11. https://doi.org/10.1016/0165-0270(95)00153-0
 
 ---
 

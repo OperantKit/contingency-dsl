@@ -21,7 +21,7 @@ This document formalizes T-tau as a **representation** of the contingency-dsl ty
 - Schoenfeld, W. N., & Cole, B. K. (1972). *Stimulus schedules: The t-τ systems*.
   Harper & Row.
 - Schoenfeld, W. N., & Cole, B. K. (1975). What is a "schedule of reinforcement"?
-  *Pavlovian Journal of Biological Science*, 10(1), 5–13.
+  *Pavlovian Journal of Biological Science*, 10(1), 52–61.
   https://doi.org/10.1007/BF03000622
 
 ---

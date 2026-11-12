@@ -75,4 +75,4 @@ Percentile は DRL/DRH の動的閾値への一般化である。両者ともに
 ## 参考文献
 
 §1 を参照。追加の背景:
-- Alleman, H. D., & Platt, J. R. (1973). Differential reinforcement of interresponse times with controlled probability of reinforcement per response. *Learning and Motivation*, 4(1), 40–73. https://doi.org/10.1016/0023-9690(73)90036-2
+- Alleman, H. D., & Platt, J. R. (1973). Differential reinforcement of interresponse times with controlled probability of reinforcement per response. *Learning and Motivation*, 4(1), 40–73. https://doi.org/10.1016/0023-9690(73)90038-6
