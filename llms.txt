@@ -33,7 +33,7 @@ Layout: `spec/{en,ja}/` formal specification per layer, `schema/**/grammar.ebnf`
 
 ## Docs
 
-- [README](https://github.com/OperantKit/contingency-dsl/blob/main/README.md): layers, 30-second example, why not to hand-roll a parser, syntax examples
+- [README](https://github.com/OperantKit/contingency-dsl/blob/main/README.md): layers, example, why not to hand-roll a parser, syntax examples
 - [AGENTS.md](https://github.com/OperantKit/contingency-dsl/blob/main/AGENTS.md): when to use this specification and what not to do
 - [Syntax guide](https://github.com/OperantKit/contingency-dsl/blob/main/docs/en/syntax-guide.md): operant, respondent, and composed constructs
 - [Conformance suite](https://github.com/OperantKit/contingency-dsl/blob/main/conformance/README.md): case format and layout
