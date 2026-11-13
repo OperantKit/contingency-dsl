@@ -360,7 +360,7 @@ to `Tand(CRF, Modifier)` is optional and implementation-defined.
 contingent on the absence of the target response for 10 s." The implicit
 CRF applies to the *reinforcement delivery*, not to the target response
 class (which is under extinction by definition of the omission
-contingency). See [design-rationale.md §1](../../../docs/en/design-rationale.md#1-dro-why-other-behavior-is-a-misnomer).
+contingency). See [design-rationale.md §2](../../docs/en/design-rationale.md#2-dro-why-other-behavior-is-a-misnomer).
 
 References:
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*.
@@ -373,7 +373,7 @@ References:
 
 `Lag` is a differential reinforcement modifier for operant
 variability (see grammar.ebnf `lag_mod` production and
-[spec/en/theory.md §2.8](spec/en/theory.md)). The parameter `n` is positional
+[spec/en/operant/theory.md §2.8](../../spec/en/operant/theory.md)). The parameter `n` is positional
 to match literature notation ("Lag 5", Page & Neuringer, 1985). The keyword
 argument `length` specifies the response unit size.
 
@@ -415,7 +415,7 @@ References:
 
 Sidman is a dedicated aversive-schedule primitive
 (see grammar.ebnf `aversive_schedule` production and
-[spec/en/theory.md §2.7](spec/en/theory.md)). Both parameters are
+[spec/en/operant/theory.md §2.7](../../spec/en/operant/theory.md)). Both parameters are
 mandatory; **there is no default value**.
 
 | Parameter | Alias | Syntax | Dimension |
@@ -451,7 +451,7 @@ References:
 
 `Escape` is a dedicated aversive-schedule primitive for free-operant escape
 (see grammar.ebnf `escape_schedule` production and
-[spec/en/theory.md §2.7b](spec/en/theory.md)). `SafeDuration` is mandatory;
+[spec/en/operant/theory.md §2.7b](../../spec/en/operant/theory.md)). `SafeDuration` is mandatory;
 `MaxShock` is optional.
 
 | Parameter | Syntax | Dimension | Required |
@@ -539,7 +539,7 @@ References:
 
 `DiscriminatedAvoidance` (alias `DiscrimAv`) is a dedicated
 aversive-schedule primitive (see grammar.ebnf `discriminated_avoidance`
-production and [spec/en/theory.md §2.9](spec/en/theory.md)). Three
+production and [spec/en/operant/theory.md §2.9](../../spec/en/operant/theory.md)). Three
 parameters are mandatory; **there is no default value** for any of them.
 
 | Parameter | Alias | Syntax | Dimension | Required |
