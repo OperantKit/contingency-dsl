@@ -131,6 +131,8 @@ pytest tests/test_conformance.py
 ./scripts/gen-treesitter.sh   # dist/tree-sitter/grammar.js
 ```
 
+`scripts/grammar_diff.py` は EBNF から 2 つ目のパーサ（Lark、Earley）を作り、参照パーサと受理が食い違う入力を並べます。`lark` と `contingency-dsl-py` が要ります: `python -m venv .venv && .venv/bin/python -m pip install lark git+https://github.com/OperantKit/contingency-dsl-py` のあと `.venv/bin/python scripts/grammar_diff.py`。
+
 この README と `README.md` の `python` ブロックは、すべて `scripts/check_readme_examples.py` で実行されます。AI のコーディングエージェント向けの説明は [AGENTS.md](AGENTS.md) にあります。
 
 ## 引用とライセンス

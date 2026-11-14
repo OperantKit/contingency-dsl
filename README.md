@@ -131,6 +131,8 @@ pytest tests/test_conformance.py
 ./scripts/gen-treesitter.sh   # dist/tree-sitter/grammar.js
 ```
 
+`scripts/grammar_diff.py` builds a second parser from the EBNF (Lark, Earley) and lists the inputs on which it and the reference parser disagree. It needs `lark` and `contingency-dsl-py`: `python -m venv .venv && .venv/bin/python -m pip install lark git+https://github.com/OperantKit/contingency-dsl-py`, then `.venv/bin/python scripts/grammar_diff.py`.
+
 Every `python` block in this README and in `README.ja.md` is run by `scripts/check_readme_examples.py`. Notes for AI coding agents are in [AGENTS.md](AGENTS.md).
 
 ## Citation and license
