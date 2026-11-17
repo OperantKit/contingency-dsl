@@ -10,11 +10,11 @@
 - Mazur, J. E. (1987). An adjusting procedure for studying delayed reinforcement. In M. L. Commons et al. (Eds.), *Quantitative analyses of behavior* (Vol. 5, pp. 55–73). Erlbaum.
 - Richards, J. B., Mitchell, S. H., de Wit, H., & Seiden, L. S. (1997). Determination of discount functions in rats with an adjusting-amount procedure. *Journal of the Experimental Analysis of Behavior*, 67(3), 353–366. https://doi.org/10.1901/jeab.1997.67-353
 
-Adjusting スケジュールは、最近の試行結果に基づく双方向（増加／減少）のパラメータ適応を提供する。標準的な用途は、遅延割引の測定のための Mazur (1987) の adjusting-delay 手続きである。
+Adjusting スケジュールは、最近の試行結果に基づく双方向 (増加／減少) のパラメータ適応を提供する。標準的な用途は、遅延割引の測定のための Mazur (1987) の adjusting-delay 手続きである。
 
 ## 2. 承認ゲート
 
-`Adj` は `spec/en/design-philosophy.md §2.1` の下で Operant.Stateful に資格を有する。命名された手続きであり、一次文献（Blough, 1958; Mazur, 1987）を持ち、60 年以上の使用歴、広範な JEAB 掲載、遅延割引研究における研究室間再現、応用／翻訳的使用（ヒト選択実験）を有する。すべてのパラメータは宣言的である（ランタイムが調整方向を解釈するが、規則は解析時固定である）。
+`Adj` は `spec/en/design-philosophy.md §2.1` の下で Operant.Stateful に資格を有する。命名された手続きであり、一次文献 (Blough, 1958; Mazur, 1987) を持ち、60 年以上の使用歴、広範な JEAB 掲載、遅延割引研究における研究室間再現、応用／翻訳的使用 (ヒト選択実験) を有する。すべてのパラメータは宣言的である (ランタイムが調整方向を解釈するが、規則は解析時固定である)。
 
 ## 3. 構文
 
@@ -32,7 +32,7 @@ Adjusting(delay, start=10s, step=1s)               -- 冗長なエイリアス
 |---|---|---|---|---|---|
 | `target` | 位置 1 | enum | YES | — | 調整対象: `delay`, `ratio`, `amount` |
 | `start` | キーワード | 値 | YES | — | 初期パラメータ値 |
-| `step` | キーワード | 値 | YES | — | ステップごとの調整幅（加算） |
+| `step` | キーワード | 値 | YES | — | ステップごとの調整幅 (加算) |
 | `min` | キーワード | 値 | NO | なし | 調整後パラメータの下限 |
 | `max` | キーワード | 値 | NO | なし | 調整後パラメータの上限 |
 
@@ -40,9 +40,9 @@ Adjusting(delay, start=10s, step=1s)               -- 冗長なエイリアス
 
 | Target | 調整対象パラメータ | 次元 | 暗黙のベース随伴性 | 参照 |
 |---|---|---|---|---|
-| `delay` | 強化遅延 | 時間（単位必須） | CRF + 調整遅延 | Mazur (1987) |
-| `ratio` | 反応比率要件 | 無次元（整数） | Adjusting FR | Ferster & Skinner (1957) |
-| `amount` | 強化子大きさ | 無次元（ランタイム解釈） | CRF + 調整大きさ | Richards et al. (1997) |
+| `delay` | 強化遅延 | 時間 (単位必須) | CRF + 調整遅延 | Mazur (1987) |
+| `ratio` | 反応比率要件 | 無次元 (整数) | Adjusting FR | Ferster & Skinner (1957) |
+| `amount` | 強化子大きさ | 無次元 (ランタイム解釈) | CRF + 調整大きさ | Richards et al. (1997) |
 
 ## 6. 意味論
 
@@ -56,7 +56,7 @@ P(0) = start.
   いずれでもない場合:             P(t+1) = P(t)
 ```
 
-**増加／減少方向規則** はランタイムに委譲される。DSL はパラメトリック構造を宣言し、調整アルゴリズム（例: Mazur の 4 試行ブロック多数決規則）はランタイム実装詳細である。これは VI 値生成における `@algorithm("fleshler-hoffman")` と同様の位置付けである。
+**増加／減少方向規則** はランタイムに委譲される。DSL はパラメトリック構造を宣言し、調整アルゴリズム (例: Mazur の 4 試行ブロック多数決規則) はランタイム実装詳細である。これは VI 値生成における `@algorithm("fleshler-hoffman")` と同様の位置付けである。
 
 ## 7. 統合点
 
@@ -70,10 +70,10 @@ base_schedule ::= ... | adj_schedule
 
 | | `PR(linear, start=1, increment=5)` | `Adj(ratio, start=5, step=2)` |
 |---|---|---|
-| 方向 | 単調増加のみ | 双方向（行動依存） |
-| 変化規則 | 決定論的（強化ごとに固定増分） | 行動依存（最近のパフォーマンス） |
-| 収束 | なし（破断点まで増加） | あり（無差異点） |
-| 層 | Operant.Literal（schedules/progressive.md） | Operant.Stateful（本ファイル） |
+| 方向 | 単調増加のみ | 双方向 (行動依存) |
+| 変化規則 | 決定論的 (強化ごとに固定増分) | 行動依存 (最近のパフォーマンス) |
+| 収束 | なし (破断点まで増加) | あり (無差異点) |
+| 層 | Operant.Literal (schedules/progressive.md) | Operant.Stateful (本ファイル) |
 
 区別基準: PR のステップ関数は強化数のみをインデックスとする。`Adj` は最近の試行結果に条件付けされる。
 

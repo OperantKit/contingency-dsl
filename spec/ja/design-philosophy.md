@@ -10,12 +10,12 @@
 
 ## 1. 最上位の目的
 
-**現在までの（特に行動分析学の）すべての実験手続きを、正確に DSL 上で表現できるようにする。**
+**現在までの (特に行動分析学の) すべての実験手続きを、正確に DSL 上で表現できるようにする。**
 
 これが最上位のゴールであり、他のすべての設計判断はこの目標に奉仕する。
 この目標を達成するため、**Foundations + Operant + Respondent 文法の
-安定性を最重要視し、破壊的変更を必要としない設計を追求する**（詳細は §2
-および §8 を参照）。
+安定性を最重要視し、破壊的変更を必要としない設計を追求する**(詳細は §2
+および §8 を参照)。
 
 ## 2. 経験的に安定な基礎 — 科学的カテゴリによる六層構造
 
@@ -29,33 +29,33 @@
 基盤として固定するのであって、「永久不変の真理」を主張するものではない。
 
 本 DSL は **抽象的な技術軸ではなく科学的カテゴリ** によって構造化される。
-主たる利用者は実験的行動分析（EAB）の研究者および学生であり、主たる
+主たる利用者は実験的行動分析 (EAB) の研究者および学生であり、主たる
 カバー範囲は JEAB に掲載される手続きである。したがって operant 手続きが
 中心的な分量を占め、respondent 手続きは必要最低限にとどめ、それ以上の
-深さは拡張パッケージ（`contingency-respondent-dsl`）に委譲する。
+深さは拡張パッケージ (`contingency-respondent-dsl`) に委譲する。
 
 本 DSL は次の **六層構造** を取る:
 
 | 層 | 内容 | 変化の許容度 |
 |---|---|---|
-| **Foundations（paradigm-neutral 形式基盤）** | CFG/LL(2) 形式文法、contingency 型論（contingent vs non-contingent、二項 vs 三項）、時間スケール、刺激型付け（SD, SΔ, CS, US, Sr+, Sr−）、valence 軸（appetitive/aversive）、context。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける（例外は §8 参照） |
-| **Operant（三項随伴性: SD-R-SR）** | 伝統分類（ratio / interval / time / differential / compound / progressive）による強化スケジュール、stateful operant スケジュール（Percentile, Adjusting, Interlocking）、trial-based operant スケジュール（MTS, Go/NoGo）。パラメータは宣言的（リテラル値またはランタイム算出）。 | §8.1 additive 手順 + §2.1 admission gate（stateful / trial-based の拡張について） |
-| **Respondent（二項随伴性: CS-US）** | 最低限の Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`、`Extinction`、`CSOnly`、`USOnly`、`Contingency(p_us_given_cs, p_us_given_no_cs)`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential(cs+, cs−)`。3rd-party 追加のための Tier-A 級 extension point を含む（§5）。この最低限を超える深さは `contingency-respondent-dsl` に委譲。 | Additive only；新 primitive は §2.1 admission 基準を満たす必要がある |
-| **Composed（operant × respondent）** | operant ベースラインと respondent ペアリングを組み合わせた合成手続き: conditioned suppression (CER)、Pavlovian-to-Instrumental Transfer (PIT)、autoshaping、omission（negative automaintenance）、two-process theory。operant + respondent 文法だけでは表現できない合成手続きが追加対象。 | Additive；既存の合成手続きは意味的に変更しない |
-| **Experiment（宣言的フェーズ構造）** | 多フェーズ実験デザイン。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準（Stability, FixedSessions, PerformanceCriterion 等）とともに順序付きフェーズに編成する。JEAB 慣習に準拠: 共有アノテーションはフェーズ間で継承、フェーズ単位で override 可。Phase と Context は first-class 構成素。`schema/experiment/` 参照。 | Additive（新 Criterion 型の追加可）。他層のスキーマは変更しない |
-| **Annotation（metadata、program-scoped）** | 拡張理論・詳細手続き・解釈依存の付加情報。標準カテゴリは JEAB Method 節に準拠（Subjects / Apparatus / Procedure / Measurement）。拡張（例: `@cs`, `@us`, `@iti`, `@cs_interval` を提供する `respondent-annotator`、`@model(RW/PH/TD)` を提供する `learning-models-annotator`）は `annotations/extensions/` 配下。 | 理論の発展・衰退に追従して自由に増減。program-scoped |
+| **Foundations (paradigm-neutral 形式基盤)** | CFG/LL(2) 形式文法、contingency 型論 (contingent vs non-contingent、二項 vs 三項)、時間スケール、刺激型付け (SD, SΔ, CS, US, Sr+, Sr−)、valence 軸 (appetitive/aversive)、context。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける (例外は §8 参照) |
+| **Operant (三項随伴性: SD-R-SR)** | 伝統分類 (ratio / interval / time / differential / compound / progressive) による強化スケジュール、stateful operant スケジュール (Percentile, Adjusting, Interlocking)、trial-based operant スケジュール (MTS, Go/NoGo)。パラメータは宣言的 (リテラル値またはランタイム算出)。 | §8.1 additive 手順 + §2.1 admission gate (stateful / trial-based の拡張について) |
+| **Respondent (二項随伴性: CS-US)** | 最低限の Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`、`Extinction`、`CSOnly`、`USOnly`、`Contingency(p_us_given_cs, p_us_given_no_cs)`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential(cs+, cs−)`。3rd-party 追加のための Tier-A 級 extension point を含む (§5)。この最低限を超える深さは `contingency-respondent-dsl` に委譲。 | Additive only；新 primitive は §2.1 admission 基準を満たす必要がある |
+| **Composed (operant × respondent)** | operant ベースラインと respondent ペアリングを組み合わせた合成手続き: conditioned suppression (CER)、Pavlovian-to-Instrumental Transfer (PIT)、autoshaping、omission (negative automaintenance)、two-process theory。operant + respondent 文法だけでは表現できない合成手続きが追加対象。 | Additive；既存の合成手続きは意味的に変更しない |
+| **Experiment (宣言的フェーズ構造)** | 多フェーズ実験デザイン。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準 (Stability, FixedSessions, PerformanceCriterion 等) とともに順序付きフェーズに編成する。JEAB 慣習に準拠: 共有アノテーションはフェーズ間で継承、フェーズ単位で override 可。Phase と Context は first-class 構成素。`schema/experiment/` 参照。 | Additive (新 Criterion 型の追加可)。他層のスキーマは変更しない |
+| **Annotation (metadata、program-scoped)** | 拡張理論・詳細手続き・解釈依存の付加情報。標準カテゴリは JEAB Method 節に準拠 (Subjects / Apparatus / Procedure / Measurement)。拡張 (例: `@cs`, `@us`, `@iti`, `@cs_interval` を提供する `respondent-annotator`、`@model(RW/PH/TD)` を提供する `learning-models-annotator`) は `annotations/extensions/` 配下。 | 理論の発展・衰退に追従して自由に増減。program-scoped |
 
 **Foundations**、**Operant**、**Respondent**、**Composed**、**Experiment** は
 いずれも**全プログラム共通**の共有語彙である。Operant 層内部の構造的
-区別は維持される: リテラル基準の operant スケジュール（`FR 5`: 基準 =
-5反応）、ランタイム状態から算出される基準を持つ operant スケジュール
-（`Pctl(IRT, 50)`: 基準 = 直近 IRT 分布の中央値）、operant trial-based
+区別は維持される: リテラル基準の operant スケジュール (`FR 5`: 基準 =
+5反応)、ランタイム状態から算出される基準を持つ operant スケジュール
+(`Pctl(IRT, 50)`: 基準 = 直近 IRT 分布の中央値)、operant trial-based
 スケジュール。詳細は §2.1 を参照。
 
-**Annotation**（`respondent-annotator` などの拡張を含む）は **program-scoped**
+**Annotation**(`respondent-annotator` などの拡張を含む) は **program-scoped**
 で、各プログラムが独自の registry を定義・採用・拒否できる。Annotation
 層に加えて、**Respondent 文法への 3rd-party 拡張** も respondent extension
-point（§5）を通じてサポートされる。本プロジェクトにおける代表例は、
+point (§5) を通じてサポートされる。本プロジェクトにおける代表例は、
 higher-order conditioning、blocking、overshadowing、latent inhibition、
 renewal、reinstatement などの Tier-B primitive を提供する伴走パッケージ
 `contingency-respondent-dsl` である。
@@ -73,19 +73,19 @@ renewal、reinstatement などの Tier-B primitive を提供する伴走パッ�
 | 性質 | Operant.Literal (`operant/schedules/`) | Operant.Stateful (`operant/stateful/`) |
 |---|---|---|
 | 構文 | CFG | CFG |
-| パラメータ | リテラル値（パース時確定） | リテラル値（パース時確定） |
+| パラメータ | リテラル値 (パース時確定) | リテラル値 (パース時確定) |
 | 強化基準 | リテラル値と比較 | ランタイム状態から算出した値と比較 |
-| 構造的等価性 | 決定可能 | 決定不能（分布依存） |
+| 構造的等価性 | 決定可能 | 決定不能 (分布依存) |
 | 通用範囲 | 全プログラム共通 | 全プログラム共通 |
 
 **Admission gate:** スケジュールが Operant.Stateful に昇格するためには、
 (1) 以下の学派確立基準を充足し、
-(2) 全パラメータが宣言的（パース時にリテラル値で確定）であることが必要。
+(2) 全パラメータが宣言的 (パース時にリテラル値で確定) であることが必要。
 
 学派確立基準:
-- **N1（命名された手続き）:** 複数の独立した研究グループが同一の名称を使用。
-- **N2（一次文献）:** 再現可能な精度の操作的定義を含む査読付き出版物が存在。
-- **N3（時間的持続）:** 初出から 20 年以上経過し、非重複の 2 デカード以上で出版物あり。
+- **N1 (命名された手続き):** 複数の独立した研究グループが同一の名称を使用。
+- **N2 (一次文献):** 再現可能な精度の操作的定義を含む査読付き出版物が存在。
+- **N3 (時間的持続):** 初出から 20 年以上経過し、非重複の 2 デカード以上で出版物あり。
 - **証拠スコア ≥ 3/5:** (E1) JEAB/JABA 掲載、(E2) EAB/ABA 文脈での研究室横断再現、
   (E3) 教科書記載、(E4) パラメトリック研究 or 理論的統合、
   (E5) ヒト被験者対象の応用/翻訳的使用。
@@ -93,8 +93,8 @@ renewal、reinstatement などの Tier-B primitive を提供する伴走パッ�
 **昇格プロセス:** スケジュールを Operant.Stateful に昇格させる際は、以下の手順に従う。
 
 1. **提案:** 昇格候補を RFC として spec/ja/ に提出する。RFC には
-   (a) 対象スケジュールの操作的定義、(b) N1-N3 + E1-E5 の充足根拠（引用付き）、
-   (c) パラメータが宣言的であることの確認、(d) 提案する構文（grammar 追記案）を含める。
+   (a) 対象スケジュールの操作的定義、(b) N1-N3 + E1-E5 の充足根拠 (引用付き)、
+   (c) パラメータが宣言的であることの確認、(d) 提案する構文 (grammar 追記案) を含める。
 2. **査読:** プロジェクトオーナーが RFC を承認する。判断に迷う場合は
    eab-researcher エージェントに学派確立基準の充足度を検証させ、
    pl-theorist エージェントに構文の文法的整合性を検証させる。
@@ -125,8 +125,8 @@ renewal、reinstatement などの Tier-B primitive を提供する伴走パッ�
 ### 3.2 Annotation 付き DSL の使い手
 
 Annotation 付きの状態で DSL を **直接書き下ろせるようになることは、
-本 DSL の目的ではない**（書き手は主に変換ツール、またはツールの補助下にある
-人間である）。
+本 DSL の目的ではない**(書き手は主に変換ツール、またはツールの補助下にある
+人間である)。
 
 一方で annotation 付き DSL は、**読まれる対象としては教育的価値が高い**。
 特に、実験手続きを明示的に言語化することで、**学生に「この実験の従属変数は
@@ -136,10 +136,10 @@ Annotation 付きの状態で DSL を **直接書き下ろせるようになる�
 
 想定される使い手は、次の 2 系統に整理される:
 
-1. **書き手（機械的変換の担い手）**
+1. **書き手 (機械的変換の担い手)**
    追試や論証を目的として、論文に記載されたプログラムまたは DSL を
    変換する人、およびそのための変換ツール。
-2. **読み手（人間）**
+2. **読み手 (人間)**
    - 学生 — 実験手続きの従属変数・独立変数・統制条件を読み取る学習者
    - 研究者 — 追試・査読・再現確認のために実験デザインを検証する読者
 
@@ -156,17 +156,17 @@ Annotation 層自身も拡張可能である。下記の 4 つの JEAB カテゴ
 加え、`annotations/extensions/` にはこれら 4 カテゴリに収まらない annotator
 パッケージが配置される。本 DSL プロジェクトは次の 2 つの拡張を同梱する:
 
-- **`respondent-annotator`**（新設） — `@cs`、`@us`、`@iti`、`@cs_interval`
+- **`respondent-annotator`**(新設) — `@cs`、`@us`、`@iti`、`@cs_interval`
   を提供し、合成 operant × respondent 手続きが respondent 層 primitive の
   最小形式で表現される場合にも注釈できるようにする。§5 および
   `annotations/extensions/respondent-annotator.md` 参照。
 - **`learning-models-annotator`** — `@model(RW/PH/TD)` を提供し、schedule 式を
   連合学習モデル仕様と関連付ける。
 
-### 4.1 推奨カテゴリ体系（JEAB Method 節に準拠）
+### 4.1 推奨カテゴリ体系 (JEAB Method 節に準拠)
 
 Annotation は以下のカテゴリに分類することを推奨する。カテゴリ名は JEAB の
-Method 節の伝統的区分（Subjects / Apparatus / Procedure）に準拠し、
+Method 節の伝統的区分 (Subjects / Apparatus / Procedure) に準拠し、
 行動分析学の読み手が馴染みのある構造を保つ。Measurement は測定基準の
 独立性を担保するため別カテゴリとして分離する。
 
@@ -178,11 +178,11 @@ Method 節の伝統的区分（Subjects / Apparatus / Procedure）に準拠し�
 | **Measurement** | `measurement-annotator` | 測定基準 | 安定性基準・基底率・phase 終了条件・dependent measures 等、Core の随伴性効果を *いつ・どう読み取るか* を規定する情報。 |
 
 Annotator 名と JEAB カテゴリは **1:1 で対応** する
-（[annotations/design.md §3.7](annotations/design.md) 参照）。annotator 名を
+([annotations/design.md §3.7](annotations/design.md) 参照)。annotator 名を
 見れば属するカテゴリが即座にわかる。JEAB 4 カテゴリに収まらない annotator は
 `annotations/extensions/` 配下に置かれる。
 
-Procedure カテゴリの 3 目的（明文化・等価性判定・相互変換補足）は、本 DSL が
+Procedure カテゴリの 3 目的 (明文化・等価性判定・相互変換補足) は、本 DSL が
 当初から annotation に求めてきた中核的役割であり、他カテゴリはこれを
 補完する位置付けにある。
 
@@ -190,7 +190,7 @@ Procedure カテゴリの 3 目的（明文化・等価性判定・相互変換�
 
 §4.1 のカテゴリ体系は DSL プロジェクトから公開される **推奨分類** である。
 DSL 文法はカテゴリの存在を知らず、annotation の実際のカテゴリ判定は
-annotation registry と各プログラム（runtime / interpreter）が行う。
+annotation registry と各プログラム (runtime / interpreter) が行う。
 
 したがって **カテゴリの追加・削除・無視・再定義は、DSL 文法の変更を
 伴わない**。この性質により:
@@ -198,7 +198,7 @@ annotation registry と各プログラム（runtime / interpreter）が行う。
 - ある 3rd-party プログラムが「環境条件は外部で管理するので DSL 側では
   扱わない」と決めた場合、Apparatus カテゴリの annotation を黙って
   無視する実装が可能である。DSL 文法は一切変更不要。
-- 別の研究グループが独自のカテゴリ（例: 派生的関係・臨床分類等）を
+- 別の研究グループが独自のカテゴリ (例: 派生的関係・臨床分類等) を
   定義して自身のプログラムに載せることが可能である。本家 DSL の改訂を
   待つ必要はない。
 - 対立理論を扱うプログラムは、既存カテゴリを再解釈または置換できる。
@@ -216,8 +216,8 @@ annotation registry と各プログラム（runtime / interpreter）が行う。
 
 1. **同一 annotation が複数カテゴリに属し得る場合、生成プログラムが
    同一なら、どちらの分類も有効である。**
-   例えば `@body_weight(80%)` を Subjects（確立操作としての絶食水準）と
-   解釈するか、Procedure（セッション前操作）と解釈するかは、生成される
+   例えば `@body_weight(80%)` を Subjects (確立操作としての絶食水準) と
+   解釈するか、Procedure (セッション前操作) と解釈するかは、生成される
    実験プログラムが同一である限り問題とならない。学派による分類観の
    違いは許容される。
 
@@ -233,17 +233,17 @@ annotation registry と各プログラム（runtime / interpreter）が行う。
    用意しない。annotation の重複や両立性の責任は、それを受け取る
    プログラム側が負う。
 
-### 4.4 推奨分類に含まれない領域（拡張可能性の例示）
+### 4.4 推奨分類に含まれない領域 (拡張可能性の例示)
 
 JEAB Method 節の構造に直接対応しないが、将来的に 3rd-party によって
 拡張されうる領域を例示する。以下は **形式的予約ではなく、拡張可能性の
 例示** である。§4.2 の原則により、これらはいずれも DSL 文法の変更なしに
 定義可能である。
 
-- **臨床関連** — FBA 結果、介入の臨床的分類ラベル（DRA / DRI / NCR 等）、
+- **臨床関連** — FBA 結果、介入の臨床的分類ラベル (DRA / DRI / NCR 等)、
   社会的妥当性。応用行動分析の実務で必要となる場合がある。
 - **派生的関係関連** — 派生的関係反応の事前予測、文脈手がかりの
-  機能的役割（Crel / Cfunc）、Baseline / Probe / Test 区別。刺激等価性や
+  機能的役割 (Crel / Cfunc)、Baseline / Probe / Test 区別。刺激等価性や
   関係フレーム理論を扱う手続きで必要となる場合がある。
 - **Provenance メタデータ** — author・version・date・修正履歴等、
   手続きの外側にある文書管理情報。
@@ -254,22 +254,22 @@ JEAB Method 節の構造に直接対応しないが、将来的に 3rd-party に
 
 DSL は **文法レベルの拡張点を 2 つ** 提供する: Operant 層内部の
 Schedule Extension と、Respondent 層内部の Respondent extension point
-である。いずれも Annotation 層（§4.2）と同じ program-scoped closure
+である。いずれも Annotation 層 (§4.2) と同じ program-scoped closure
 原則に従うが、metadata レベルではなく文法レベルで動作する。
 
 ### 5.1 Schedule Extension — 未標準化・ユーザー定義の operant schedule 構成素
 
-Annotation 層は **metadata**（手続きに付加する情報）を扱う層である。
-Operant.Stateful admission gate（§2.1）は、学派で確立された
+Annotation 層は **metadata**(手続きに付加する情報) を扱う層である。
+Operant.Stateful admission gate (§2.1) は、学派で確立された
 **状態依存基準を持つ三項随伴性スケジュール** を扱う。しかし operant
 実験手続きには、これらの層に収まらない **schedule 構造そのものの拡張**
 が必要なものも存在する。代表例:
 
 - **Conjugate reinforcement** — 反応量に比例して強化子が連続的に提示される。
   反応と強化の関係が離散的な schedule event ではない。§2.1 の学派確立
-  基準 E2（研究室横断再現）が未充足。
-- **研究室独自のスケジュール** — 未標準化のため §2.1 の命名基準（N1）や
-  時間的持続基準（N3）を充足しない構成素。
+  基準 E2 (研究室横断再現) が未充足。
+- **研究室独自のスケジュール** — 未標準化のため §2.1 の命名基準 (N1) や
+  時間的持続基準 (N3) を充足しない構成素。
 - **パラメータが計算式のスケジュール** — パラメータ値自体がリテラルで
   なく式であるスケジュール。
 
@@ -281,17 +281,17 @@ annotation でもない」構成素を収容するため、DSL は Operant 層�
 
 | 層 | 役割 | closure | 例 |
 |---|---|---|---|
-| Operant.Literal (`operant/schedules/`) | 不変の schedule 基盤（リテラル基準） | 全プログラム共通 | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
+| Operant.Literal (`operant/schedules/`) | 不変の schedule 基盤 (リテラル基準) | 全プログラム共通 | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Chain(FR 5, FI 30-s)` |
 | Operant.Stateful (`operant/stateful/`) | 確立された状態依存基準のスケジュール | 全プログラム共通 | `Pctl(IRT, 50)`, `Adj(start=FR 1, step=2)` |
-| **Schedule Extension**（Operant 文法レベル） | 未標準化・ユーザー定義の operant schedule 構成素 | program-scoped | 研究室独自スケジュール、conjugate reinforcement |
+| **Schedule Extension**(Operant 文法レベル) | 未標準化・ユーザー定義の operant schedule 構成素 | program-scoped | 研究室独自スケジュール、conjugate reinforcement |
 | Annotation | metadata | program-scoped | `@reinforcer`, `@species`, `@chamber` |
 
 Schedule Extension は annotation と並ぶ **第 2 の program-scoped 拡張次元**
 だが、役割が異なる:
 
-- **Annotation** は schedule 式に付加情報を載せる（metadata）
+- **Annotation** は schedule 式に付加情報を載せる (metadata)
 - **Schedule Extension** は operant schedule 式そのものの **新 construct を
-  追加する**（grammar-level）
+  追加する**(grammar-level)
 
 ### 5.3 Schedule Extension の性質
 
@@ -301,37 +301,37 @@ Schedule Extension は annotation と並ぶ **第 2 の program-scoped 拡張次
    その構成素は未知語として parse error になる。
 
 2. **Program-scoped closure**
-   各プログラム（runtime / interpreter）は自身の extension registry を持つ。
+   各プログラム (runtime / interpreter) は自身の extension registry を持つ。
    プログラム A が `Percentile` を解釈できても、プログラム B は解釈できない
    場合がある。両プログラムとも Operant 部分は同一の parser で処理できる。
 
 3. **静的検証の境界**
-   Operant 層内の schedule 構造は完全に静的検証可能（reachability,
-   dead code 等）。Schedule Extension は各 extension モジュールが自身の
+   Operant 層内の schedule 構造は完全に静的検証可能 (reachability,
+   dead code 等)。Schedule Extension は各 extension モジュールが自身の
    検証規則を提供する。Operant + 特定プログラムの extension registry の
    組で、決定可能な静的検証範囲が定まる。
 
 4. **TC 境界の保護**
-   Schedule Extension モジュールが TC 近傍の機能（動的計算、状態、履歴）を
+   Schedule Extension モジュールが TC 近傍の機能 (動的計算、状態、履歴) を
    導入することは許容される。**Foundations + Operant 層が TC を持ち込まない**
    ことが重要であり、extension 層への TC 機能の委譲は方針と整合する。
 
 5. **等価性判定は extension の責務**
-   同一 Schedule Extension 構成素の等価性（例: 2 つの `Percentile` 式が等価か）
+   同一 Schedule Extension 構成素の等価性 (例: 2 つの `Percentile` 式が等価か)
    は extension モジュールが判定ルールを提供する。core 側の等価性規則は
    extension 構成素に対して適用されない。
 
 ### 5.4 Respondent Extension Point
 
-Respondent 層（`respondent/`）には §2 に列挙した Tier-A Pavlovian
+Respondent 層 (`respondent/`) には §2 に列挙した Tier-A Pavlovian
 primitive のみを置く: `Pair.{ForwardDelay, ForwardTrace, Simultaneous,
 Backward}`、`Extinction`、`CSOnly`、`USOnly`、
 `Contingency(p_us_given_cs, p_us_given_no_cs)`、`TrulyRandom`、
 `ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、
 `Differential(cs+, cs−)`。これ以上の深い Pavlovian 手続き空間
-（blocking、overshadowing、latent inhibition、conditioned inhibition、
+(blocking、overshadowing、latent inhibition、conditioned inhibition、
 reinstatement、renewal、spontaneous recovery、counterconditioning、
-occasion-setting など）はこの最小集合の外に配置し、伴走パッケージ
+occasion-setting など) はこの最小集合の外に配置し、伴走パッケージ
 `contingency-respondent-dsl` に委譲する。
 
 Respondent 層の文法を書き換えずにこの委譲を可能にするため、
@@ -365,11 +365,11 @@ Respondent extension point の性質は Schedule Extension の §5.3 を
 
 | 問い | Annotation | Schedule Extension | Respondent extension |
 |---|---|---|---|
-| 手続きの structure を変えるか | No（metadata のみ） | Yes（新 operant-schedule 構成素） | Yes（新 CS–US primitive） |
-| 三項随伴性（SD-R-SR）に関わるか | 参照することはある | Yes | No — 二項（CS-US） |
-| §2.1 の学派確立基準を充足しているか | （該当しない — metadata は昇格対象外） | No（充足すれば Operant.Stateful 昇格候補） | （該当しない — respondent の深さは `contingency-respondent-dsl` に委譲） |
-| 既存 Operant 式の評価結果を変えるか | No | Yes | （該当しない — respondent 式に対する操作） |
-| Source の構文位置 | 式に後置（`FR 5 @name(...)`） | operant-式そのものの形（`Name(...)`） | respondent-式そのものの形（`Name(...)`） |
+| 手続きの structure を変えるか | No (metadata のみ) | Yes (新 operant-schedule 構成素) | Yes (新 CS–US primitive) |
+| 三項随伴性 (SD-R-SR) に関わるか | 参照することはある | Yes | No — 二項 (CS-US) |
+| §2.1 の学派確立基準を充足しているか | (該当しない — metadata は昇格対象外) | No (充足すれば Operant.Stateful 昇格候補) | (該当しない — respondent の深さは `contingency-respondent-dsl` に委譲) |
+| 既存 Operant 式の評価結果を変えるか | No | Yes | (該当しない — respondent 式に対する操作) |
+| Source の構文位置 | 式に後置 (`FR 5 @name(...)`) | operant-式そのものの形 (`Name(...)`) | respondent-式そのものの形 (`Name(...)`) |
 
 Percentile schedule は「DRL の閾値を動的に計算」し、**operant schedule 式の
 評価結果を変える**ため annotation では扱えない。Schedule Extension 点
@@ -387,7 +387,7 @@ Schedule Extension にも Annotation 層にも属さない。
 プログラムはいずれの extension point でも自由に拡張モジュールを作成・
 ロード・省略できる:
 
-- ある研究室が独自の `TitrationSchedule(...)`（Schedule Extension）を
+- ある研究室が独自の `TitrationSchedule(...)` (Schedule Extension) を
   定義してプログラムに組み込む
 - 別の研究室が全く異なる設計の `AdaptiveFR(...)` を定義する
 - 伴走パッケージ `contingency-respondent-dsl` が Respondent extension
@@ -406,20 +406,20 @@ Operant 層と Respondent 層の両方について文法レベルにまで拡張
 Percentile および Adjusting は §2.1 の学派確立基準充足により
 Operant.Stateful に昇格した。残る Schedule Extension 候補:
 
-- `conjugate-extension` — Rovee-Collier 系の連続強化手続き（昇格基準 E2
-  未充足）
-- `yoked-extension` — Yoked 統制手続き（Church, 1964）。被験体間の強化
+- `conjugate-extension` — Rovee-Collier 系の連続強化手続き (昇格基準 E2
+  未充足)
+- `yoked-extension` — Yoked 統制手続き (Church, 1964)。被験体間の強化
   パラメータ参照を要するため、単一プログラムスコープの Operant では表現
   できない。social-annotator 等の multi-subject 拡張層で対応する。
 
 これらの候補は admission 時に §8.1 の additive extension 手順に従う。
 admission 自体はバージョン更新を意味しない。
 
-`contingency-respondent-dsl` が提供する Respondent 拡張候補（Tier B）
+`contingency-respondent-dsl` が提供する Respondent 拡張候補 (Tier B)
 には、second-order conditioning、sensory preconditioning、blocking、
 overshadowing、latent inhibition、conditioned inhibition /
 feature-negative discrimination、occasion-setting、US preexposure
-effect、reinstatement、renewal（ABA / ABC / AAB）、spontaneous
+effect、reinstatement、renewal (ABA / ABC / AAB)、spontaneous
 recovery、counterconditioning、overexpectation、super-conditioning、
 contextual extinction、retrospective revaluation / backward blocking、
 mediated conditioning、conditioned taste aversion、Pavlovian stimulus
@@ -436,10 +436,10 @@ conditioning、inhibition of delay、summation / retardation test が
 - **Rust:** HIL・タイミング保証・組み込み・速度
 
 この二言語並立は、DSL が「特定ランタイムの方言」に堕ちることを防ぐ
-構造的な歯止めとして機能する。単一の spec（grammar / AST schema /
-annotation 定義）が両実装を駆動できなければならない。
+構造的な歯止めとして機能する。単一の spec (grammar / AST schema /
+annotation 定義) が両実装を駆動できなければならない。
 
-**含意:** 言語非依存性（language independence）は本 DSL の実質的要件である。
+**含意:** 言語非依存性 (language independence) は本 DSL の実質的要件である。
 Annotation の値表現を特定言語の型システムに依存させる設計は許容しない。
 
 ## 7. 近期ゴールと後回しにできること
@@ -470,17 +470,17 @@ Foundations + Operant + Respondent 文法に対する破壊的変更は **原則
 ### 8.1 通常時の手順 — Additive-only 方針
 
 1. 新たな実験手続きを表現する必要が生じた場合、次の順で検討する
-   （最初に該当するものを採用する）:
+   (最初に該当するものを採用する):
    a. **Annotation 層** — metadata 層、§4
-   b. **Schedule Extension**（operant 層の拡張、§5.1–5.3）または
-      **Respondent extension point**（respondent 層の拡張、§5.4） —
+   b. **Schedule Extension**(operant 層の拡張、§5.1–5.3) または
+      **Respondent extension point**(respondent 層の拡張、§5.4) —
       手続きが構造的に属する層を選ぶ
    c. **`composed/` への admission** — operant × respondent の合成手続き
-      であって `composed/` の admission 基準（`architecture.md` 参照）
+      であって `composed/` の admission 基準 (`architecture.md` 参照)
       を満たすもの
    d. **新しい Operant または Respondent primitive の追加** — 最終手段
       であり、§2.1 の学派確立基準に従う
-2. いずれの追加も **additive only**（既存の構文・意味を変更しない）と
+2. いずれの追加も **additive only**(既存の構文・意味を変更しない) と
    する。
 
 ### 8.2 例外として破壊的変更が許される条件
@@ -501,7 +501,7 @@ Foundations + Operant + Respondent 文法に対する破壊的変更は **原則
 
 1. git コミットメッセージに変更を記録し、§8.2 のいずれの条件に該当するか、
    および旧構造・新構造を明示する。当リポジトリは現時点で外部公開
-   チェックポイントを持たない（git remote 未設定）; git 履歴が正式な記録である。
+   チェックポイントを持たない (git remote 未設定); git 履歴が正式な記録である。
 2. 変換ツールを同時に提供し、直前の設計で書かれた DSL を新しい設計に
    機械的に移行可能にする。
 3. 本文書および正典 spec ツリーをそれに応じて更新する。
@@ -512,10 +512,10 @@ Foundations + Operant + Respondent 文法に対する破壊的変更は **原則
 
 本文書は「設計の *なぜ*」を述べる上位文書であり、以下の spec 群の上位に位置する:
 
-- [evaluation-criteria.md](evaluation-criteria.md) — 設計判断を評価する 6 軸（本文書から導出）
+- [evaluation-criteria.md](evaluation-criteria.md) — 設計判断を評価する 6 軸 (本文書から導出)
 - [design-rationale.md](design-rationale.md) — 検討した代替案と現行設計が選ばれた理由
-- [schema/foundations/grammar.ebnf](../../schema/foundations/grammar.ebnf) — DSL 文法（パラダイム中立な入口。パラダイム別文法は `schema/{operant,respondent}/` 配下）
-- [schema/foundations/types.schema.json](../../schema/foundations/types.schema.json) — 共通 AST 型定義（パラダイム別 AST スキーマは `schema/{operant,respondent,composed,experiment}/` 配下）
+- [schema/foundations/grammar.ebnf](../../schema/foundations/grammar.ebnf) — DSL 文法 (パラダイム中立な入口。パラダイム別文法は `schema/{operant,respondent}/` 配下)
+- [schema/foundations/types.schema.json](../../schema/foundations/types.schema.json) — 共通 AST 型定義 (パラダイム別 AST スキーマは `schema/{operant,respondent,composed,experiment}/` 配下)
 - [annotations/design.md](annotations/design.md) — Annotation 境界原則と AnnotationModule Protocol
 - [annotations/validation-modes.md](annotations/validation-modes.md) — Tier × Mode による検証体系
 - [representations/DESIGN.md](representations/DESIGN.md) — 代替座標系の設計

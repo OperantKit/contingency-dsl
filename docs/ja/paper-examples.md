@@ -5,8 +5,8 @@
 > 構文の詳細は [syntax-guide.md](syntax-guide.md)、個別構文の例は [use-cases.md](use-cases.md) を参照。
 
 > **用語ノート: 被験体 vs 有機体** — 本文書では以下の使い分けに従う。
-> - **被験体**（subject）: 手続き・実験計画の記述（例:「被験体は左レバーで反応した」）
-> - **有機体**（organism）: 行動原理・理論的記述（例:「有機体が多段階の随伴性をどう学習するかを研究できない」）
+> - **被験体**(subject): 手続き・実験計画の記述 (例:「被験体は左レバーで反応した」)
+> - **有機体**(organism): 行動原理・理論的記述 (例:「有機体が多段階の随伴性をどう学習するかを研究できない」)
 
 ---
 
@@ -102,7 +102,7 @@ Conc(
 
 **論文:** McLean, A. P., Grace, R. C., & Nevin, J. A. (2012). Response strength in extreme multiple schedules. *JEAB*, *97*(1), 51-70. https://doi.org/10.1901/jeab.2012.97-51
 
-**デザイン:** 極端な強化率比を持つ多元スケジュール。各条件で安定したベースラインを確立し（最低 20 セッション + 5 セッションにわたる視覚的安定性）、プレフィーディングによる変化への抵抗を検証する。条件間で成分間の強化率比を変動させる。
+**デザイン:** 極端な強化率比を持つ多元スケジュール。各条件で安定したベースラインを確立し (最低 20 セッション + 5 セッションにわたる視覚的安定性)、プレフィーディングによる変化への抵抗を検証する。条件間で成分間の強化率比を変動させる。
 
 **示される DSL 機能:** `sessions >=`, `stable()`, `Mult`, `@session_end`, `@clock`
 
@@ -169,7 +169,7 @@ phase RTC_Test2:
 
 **論文:** Craig, A. R., Cunningham, P. E., & Shahan, T. A. (2015). Behavioral momentum and accumulation of behavioral mass. *JEAB*, *103*(3), 437-449. https://doi.org/10.1002/jeab.145
 
-**デザイン:** 多元 VI 30-s VI 120-s。7 条件でスケジュール-刺激連合のセッション数を変動させる（1, 2, 3, 5, 20 セッション）。各条件の後に 5 セッションの消去テストを実施。
+**デザイン:** 多元 VI 30-s VI 120-s。7 条件でスケジュール-刺激連合のセッション数を変動させる (1, 2, 3, 5, 20 セッション)。各条件の後に 5 セッションの消去テストを実施。
 
 **示される DSL 機能:** `Mult`, `BO`, `@baseline`, `@algorithm`, フェーズレベル annotation
 
@@ -227,9 +227,9 @@ phase Extinction_C2:
 ```
 
 **注記:**
-- `BO=30-s` はブラックアウト（成分間インターバル）を指定する。`component_duration` とは異なる。
-- `@baseline(...)` はセッション構造のメタデータ（成分持続時間、交替パターン）を提供する。
-- 同一スケジュールを持つフェーズの繰り返しは、フェーズ再利用のための `use` キーワードの動機となる（syntax guide 参照）。
+- `BO=30-s` はブラックアウト (成分間インターバル) を指定する。`component_duration` とは異なる。
+- `@baseline(...)` はセッション構造のメタデータ (成分持続時間、交替パターン) を提供する。
+- 同一スケジュールを持つフェーズの繰り返しは、フェーズ再利用のための `use` キーワードの動機となる (syntax guide 参照)。
 
 ---
 
@@ -237,7 +237,7 @@ phase Extinction_C2:
 
 **論文:** Broomer, M. C., & Bouton, M. E. (2022). A comparison of renewal, spontaneous recovery, and reacquisition after punishment and extinction. *Learning & Behavior*, *51*(3), 262-273. https://doi.org/10.3758/s13420-022-00552-2
 
-**デザイン:** 罰と消去を比較する ABA リニューアルデザイン。文脈 A で反応訓練、文脈 B で罰（または消去）、その後両文脈でテスト。文脈変更が罰された行動を復活させるかを検証する。
+**デザイン:** 罰と消去を比較する ABA リニューアルデザイン。文脈 A で反応訓練、文脈 B で罰 (または消去)、その後両文脈でテスト。文脈変更が罰された行動を復活させるかを検証する。
 
 **示される DSL 機能:** `Overlay`, `@context`, `@punisher`, `@session_end`
 
@@ -280,7 +280,7 @@ phase RenewalTest:
 ```
 
 **注記:**
-- `Overlay(RI 30-s, VI 90-s)` は維持された強化に罰を重畳する — 罰研究の定義的特徴（Azrin & Holz, 1966）。
+- `Overlay(RI 30-s, VI 90-s)` は維持された強化に罰を重畳する — 罰研究の定義的特徴 (Azrin & Holz, 1966)。
 - `@context("A")` / `@context("B")` は環境文脈をアノテートする。リニューアルデザインにおける決定的な独立変数。
 - テストフェーズは両文脈で実施される。テスト順序のカウンターバランスは DSL のスコープ外。
 
@@ -290,9 +290,9 @@ phase RenewalTest:
 
 **論文:** Estes, W. K., & Skinner, B. F. (1941). Some quantitative properties of anxiety. *Journal of Experimental Psychology*, *29*(5), 390-400. https://doi.org/10.1037/h0062283
 
-**デザイン:** 食物系オペラント・ベースライン（レバー押しに対する VI 強化）を安定性まで確立する。その後、パヴロフ型 CS-shock ペアリングを重畳する: CS 提示中、CS 終了時に反応に関わらず無信号ショックを提示する。CS 提示中の反応抑制（CS 前ベースラインとの比）が従属変数となる。
+**デザイン:** 食物系オペラント・ベースライン (レバー押しに対する VI 強化) を安定性まで確立する。その後、パヴロフ型 CS-shock ペアリングを重畳する: CS 提示中、CS 終了時に反応に関わらず無信号ショックを提示する。CS 提示中の反応抑制 (CS 前ベースラインとの比) が従属変数となる。
 
-**主要 DSL 機能:** 合成層（オペラント × レスポンデント）、`Pair.ForwardDelay`、`@cs`、`@us`、`PhaseSequence`、`Stability`
+**主要 DSL 機能:** 合成層 (オペラント × レスポンデント)、`Pair.ForwardDelay`、`@cs`、`@us`、`PhaseSequence`、`Stability`
 
 ```
 -- Estes & Skinner (1941) — 条件性情動反応
@@ -319,7 +319,7 @@ PhaseSequence(
 ```
 
 **注記:**
-- US 提示はパヴロフ型（反応非依存）であり、これが CER を罰から構造的に区別する。
+- US 提示はパヴロフ型 (反応非依存) であり、これが CER を罰から構造的に区別する。
 - オペラント・ベースラインとパヴロフ型オーバーレイは同一 `Phase` 内で共存する。両随伴性が同時に作用するためである。
 - 合成仕様の全体は [composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md) を参照。
 
@@ -329,7 +329,7 @@ PhaseSequence(
 
 **論文:** Annau, Z., & Kamin, L. J. (1961). The conditioned emotional response as a function of intensity of the US. *Journal of Comparative and Physiological Psychology*, *54*(4), 428-432. https://doi.org/10.1037/h0042199
 
-**デザイン:** 抑制比指標 `SR = B / (A + B)`（A は CS 前区間の反応数、B は CS 中の反応数）を用いた CER のパラメトリック検証。ショック強度の異なる 5 群を比較。
+**デザイン:** 抑制比指標 `SR = B / (A + B)` (A は CS 前区間の反応数、B は CS 中の反応数) を用いた CER のパラメトリック検証。ショック強度の異なる 5 群を比較。
 
 **主要 DSL 機能:** 合成層、抑制比測定アノテーション、`progressive` によるパラメトリック・フェーズ展開
 
@@ -361,18 +361,18 @@ progressive SuppressionAcquisition:
 
 **注記:**
 - `@dependent_measure` アノテーションで抑制比手続きと A / B 窓を明示する。再現性のため必要。
-- `progressive` は 5 つのフェーズ（強度別）に展開し、ベースライン構造を保ったまま各強度を設定する。
+- `progressive` は 5 つのフェーズ (強度別) に展開し、ベースライン構造を保ったまま各強度を設定する。
 - Annau & Kamin の知見: 抑制比の獲得は US 強度の段階的関数であり、強いショックほど抑制が急峻かつ深い。
 
 ---
 
-## 7. ハトのキーつつきオートシェイピング (Brown & Jenkins, 1968)
+## 7. ハトのキーつつき自動反応形成 (Brown & Jenkins, 1968)
 
 **論文:** Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, *11*(1), 1-8. https://doi.org/10.1901/jeab.1968.11-1
 
 **デザイン:** 実験ナイーブなハトにキー光 CS とグレイン US の前向きパヴロフ型ペアリングを呈示する。オペラント反応随伴性は設定されず、グレイン提示にキーつつきは不要である。少数試行内にハトは点灯したキーをつつき始める — パヴロフ型の創発反応。
 
-**主要 DSL 機能:** 合成層（オートシェイピングをオペラント × レスポンデント配置として記述）、局在的 CS を持つ `Pair.ForwardDelay`、`@cs` モダリティ注釈
+**主要 DSL 機能:** 合成層 (自動反応形成をオペラント × レスポンデント配置として記述)、局在的 CS を持つ `Pair.ForwardDelay`、`@cs` モダリティ注釈
 
 ```
 -- Brown & Jenkins (1968) — ハトのキーつつきオートシェイピング
@@ -392,9 +392,9 @@ Phase(
 ```
 
 **注記:**
-- オペラント production は出現しない。創発キーつつきはパヴロフ型で、測定アノテーション（図示せず）経由で記録する。
-- CS は**局在的**（特定チャンバー操作体に紐づく）。これがサイン・トラッキングをゴール・トラッキングから区別する。
-- オートシェイピングを Operant ではなく Composed に置く根拠は [composed/autoshaping.md](../../spec/ja/composed/autoshaping.md) を参照。
+- オペラント production は出現しない。創発キーつつきはパヴロフ型で、測定アノテーション (図示せず) 経由で記録する。
+- CS は**局在的**(特定チャンバー操作体に紐づく)。これがサイン・トラッキングをゴール・トラッキングから区別する。
+- 自動反応形成を Operant ではなく Composed に置く根拠は [composed/autoshaping.md](../../spec/ja/composed/autoshaping.md) を参照。
 
 ---
 
@@ -402,9 +402,9 @@ Phase(
 
 **論文:** Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, *12*(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511
 
-**デザイン:** Brown & Jenkins のオートシェイピングの改変版で、パヴロフ型ペアリングはそのまま、CS 提示中のキーつつきが当該試行の予定 US を直ちに打ち消す。つつきがオペラントなら省略随伴性下で消去するはずだが、パヴロフ型であれば強化子を失いつつも持続するはずである。
+**デザイン:** Brown & Jenkins の自動反応形成の改変版で、パヴロフ型ペアリングはそのまま、CS 提示中のキーつつきが当該試行の予定 US を直ちに打ち消す。つつきがオペラントなら省略随伴性下で消去するはずだが、パヴロフ型であれば強化子を失いつつも持続するはずである。
 
-**主要 DSL 機能:** 合成層、反応→US キャンセル随伴性、オートシェイピングとの比較
+**主要 DSL 機能:** 合成層、反応→US キャンセル随伴性、自動反応形成との比較
 
 ```
 -- Williams & Williams (1969) — ネガティブ自動維持
@@ -425,7 +425,7 @@ phase omission_contingency:
 
 **注記:**
 - `@omission(response="key_peck", during="cs")` 注釈がパヴロフ型 primitive に対する反応→US キャンセル規則を宣言する。アナライザ／実行器のパスが注釈を解釈し、指定窓内で該当反応が出現するたびにその試行の US 呈示を抑制する。
-- Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した — これがオートシェイピング反応に対するパヴロフ型（非オペラント）制御の実証的根拠である。
+- Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した — これが自動反応形成反応に対するパヴロフ型 (非オペラント) 制御の実証的根拠である。
 - 仕様全体は [composed/omission.md](../../spec/ja/composed/omission.md) を参照。
 
 ---
@@ -434,7 +434,7 @@ phase omission_contingency:
 
 **論文:** Estes, W. K. (1948). Discriminative conditioning. II. Effects of a Pavlovian conditioned stimulus upon a subsequently established operant response. *Journal of Experimental Psychology*, *38*(2), 173-177. https://doi.org/10.1037/h0057525; Lovibond, P. F. (1983). Facilitation of instrumental behavior by a Pavlovian appetitive conditioned stimulus. *Journal of Experimental Psychology: Animal Behavior Processes*, *9*(3), 225-247. https://doi.org/10.1037/0097-7403.9.3.225
 
-**デザイン:** 三相構造。(1) パヴロフ訓練: オペラント反応のない状態で CS-US ペアリング。(2) 道具的訓練: CS 曝露なしで US を強化子としてオペラント反応を訓練。(3) 転移テスト: オペラント反応が利用可能な状態で CS を提示（通常は消去下）。CS 中とマッチ非-CS 区間のオペラント反応率の変化で転移効果を定量する。
+**デザイン:** 三相構造。(1) パヴロフ訓練: オペラント反応のない状態で CS-US ペアリング。(2) 道具的訓練: CS 曝露なしで US を強化子としてオペラント反応を訓練。(3) 転移テスト: オペラント反応が利用可能な状態で CS を提示 (通常は消去下)。CS 中とマッチ非-CS 区間のオペラント反応率の変化で転移効果を定量する。
 
 **主要 DSL 機能:** 合成層、独立訓練履歴を持つ `PhaseSequence`、消去テスト、テストフェーズ用 `CSOnly`
 
@@ -468,7 +468,7 @@ PhaseSequence(
 ```
 
 **注記:**
-- 三相は**別セッション**（または明確に分離されたブロック）で実施される。`PhaseSequence` 構文がこれを保証する。
+- 三相は**別セッション**(または明確に分離されたブロック) で実施される。`PhaseSequence` 構文がこれを保証する。
 - 転移テストではオペラント・スケジュールを `EXT` に置き、ベースライン強化ゼロの下で CS 効果を読み取る。
 - 一般型 PIT と結果特異型 PIT の区別は [composed/pit.md](../../spec/ja/composed/pit.md) を参照。
 
@@ -476,7 +476,7 @@ PhaseSequence(
 
 ## 10. 二次スケジュールによるコカイン自己投与の用量反応掃引
 
-**論文:** John, W. S., & Nader, M. A. (2016). Dose-response procedures for cocaine self-administration in rhesus monkeys（Method スタイル参照。二次スケジュールの標準形式については Goldberg, 1973 も参照）.
+**論文:** John, W. S., & Nader, M. A. (2016). Dose-response procedures for cocaine self-administration in rhesus monkeys (Method スタイル参照。二次スケジュールの標準形式については Goldberg, 1973 も参照).
 
 **デザイン:** 各テスト用量の後にベースライン復帰期間を挟む行動薬理学的な用量反応掃引。強化スケジュールは二次スケジュールで、FR 30 反応単位の達成で短時間の刺激が提示され、FI 600-s 経過後に最初に完了する FR 30 でコカイン注入が生じる。6 つの単位用量を順次テストし、各ペアの間に被験体は固定参照用量に 3 セッション以上安定するまで戻る。
 
@@ -506,8 +506,8 @@ progressive DoseResponse:
 **注記:**
 - `FI 600-s(FR 30)` は二次スケジュール: 強化スケジュールは FI 600-s だが、各反応単位が FR 30。区間中に FR 30 を完了すると短時間刺激、600-s 経過後の最初の FR 30 完了で注入。
 - `phase Recovery` は `progressive` ブロックの**前**に宣言される。`interleave` が参照するため、**template** となり timeline に standalone で現れない。
-- `interleave Recovery` は 12 phase（6 用量 + 6 recovery）に展開され、Method の「*each dose was followed by a return to baseline*」と 1:1 で一致する。
-- Clone された recovery はリテラル `@reinforcer("cocaine", dose="0.1mg/kg")` を保持する。`{dose}` プレースホルダは clone に漏出しない（annotation locality）。
+- `interleave Recovery` は 12 phase (6 用量 + 6 recovery) に展開され、Method の「*each dose was followed by a return to baseline*」と 1:1 で一致する。
+- Clone された recovery はリテラル `@reinforcer("cocaine", dose="0.1mg/kg")` を保持する。`{dose}` プレースホルダは clone に漏出しない (annotation locality)。
 
 ---
 
@@ -515,7 +515,7 @@ progressive DoseResponse:
 
 **論文:** Fernando, A. B. P., Urcelay, G. P., Mar, A. C., Dickinson, A., & Robbins, T. W. (2014). Free-operant avoidance behavior by rats after reinforcer revaluation using opioid agonists and d-amphetamine. *Journal of Neuroscience*, *34*(18), 6286-6293. https://doi.org/10.1523/JNEUROSCI.4146-13.2014
 
-**デザイン:** 自由オペラント回避のための三相強化子再評価パラダイム。(1) 反応随伴のフィードバック刺激を伴う Sidman スケジュール下での獲得。(2) 再評価: レバー非存在下で、全身性薬物処置とペア（または非ペア）された非随伴ショック提示。(3) 元の回避スケジュールでの消去テスト（強化子送達なし）。著者らは Adams and Dickinson (1981) の goal-directed / habitual 枠組みでこの手続きを解釈する: その枠組みの下では、テスト期反応が目標指向的であれば再評価操作はテスト期反応率を変化させるはずであり、反応が習慣的になっていれば再評価操作は反応率を変化させないはずである。DSL は手続き的配置のみを表現する。goal-directed / habitual 枠組みは著者らの理論的動機であり、DSL のコミットメントではない。
+**デザイン:** 自由オペラント回避のための三相強化子再評価パラダイム。(1) 反応随伴のフィードバック刺激を伴う Sidman スケジュール下での獲得。(2) 再評価: レバー非存在下で、全身性薬物処置とペア (または非ペア) された非随伴ショック提示。(3) 元の回避スケジュールでの消去テスト (強化子送達なし)。著者らは Adams and Dickinson (1981) の goal-directed / habitual 枠組みでこの手続きを解釈する: その枠組みの下では、テスト期反応が目標指向的であれば再評価操作はテスト期反応率を変化させるはずであり、反応が習慣的になっていれば再評価操作は反応率を変化させないはずである。DSL は手続き的配置のみを表現する。goal-directed / habitual 枠組みは著者らの理論的動機であり、DSL のコミットメントではない。
 
 **主要 DSL 機能:** `Sidman`, `no_schedule`, `advance when manual`, manual gating による `progressive` shaping
 
@@ -556,17 +556,17 @@ phase ExtinctionTest:
 - `Sidman(SSI=5-s, RSI=5-s)` は最終的な自由オペラント回避スケジュール: 反応はショックを RSI だけ先送りし、無反応時はショックが SSI ごとに再発する。
 - Revaluation phase の `no_schedule` はオペラント随伴性を停止しつつパヴロフ US 曝露を許す — これが再評価を消去から構造的に区別する特徴。
 - `advance when manual` は `sessions = N` や `sessions >= N` と併用可能で、論文の「RSI was reduced incrementally」という数値基準のない記述に対応する。
-- 薬理操作（morphine または d-amphetamine、ショックとのペア／非ペア）は `@pharmacology` アノテーションに載せる。スケジュール層の構文は薬物非依存のまま。
+- 薬理操作 (morphine または d-amphetamine、ショックとのペア／非ペア) は `@pharmacology` アノテーションに載せる。スケジュール層の構文は薬物非依存のまま。
 
 ---
 
-## 12. DRL + Peak 手続き（タイミング精度）
+## 12. DRL + Peak 手続き (タイミング精度)
 
 **論文:** Eckard, M. L., & Kyonka, E. G. E. (2018). Differential reinforcement of low rates differentially decreased timing precision. *Behavioural Processes*, *151*, 111-118. https://doi.org/10.1016/j.beproc.2018.02.022
 
-**デザイン:** 三相のタイミング精度研究。(1) FI shaping: 反応率基準で強化区間を 2-s から 18-s まで段階的に延長。(2) Peak 手続きベースライン: 1 セッションあたり 45 試行の強化 FI 18-s 試行 + 15 試行の非強化 54-s probe 試行をランダム順序で呈示。(3) DRL 介入: FI の反応を DRL（9-s、18-s、27-s のいずれか）で置き換え。タイミング正確性と精度を probe 試行の反応分布から測定する。
+**デザイン:** 三相のタイミング精度研究。(1) FI shaping: 反応率基準で強化区間を 2-s から 18-s まで段階的に延長。(2) Peak 手続きベースライン: 1 セッションあたり 45 試行の強化 FI 18-s 試行 + 15 試行の非強化 54-s probe 試行をランダム順序で呈示。(3) DRL 介入: FI の反応を DRL (9-s、18-s、27-s のいずれか) で置き換え。タイミング正確性と精度を probe 試行の反応分布から測定する。
 
-**主要 DSL 機能:** `advance when criterion(...)` を伴う `progressive`、`@trial_mix` 構造化アノテーション、自由オペラント試行構成のための `Mix`、`LH`（limited hold）
+**主要 DSL 機能:** `advance when criterion(...)` を伴う `progressive`、`@trial_mix` 構造化アノテーション、自由オペラント試行構成のための `Mix`、`LH` (limited hold)
 
 ```
 -- Eckard & Kyonka (2018) — DRL が peak 手続きのタイミングに与える効果
@@ -603,10 +603,10 @@ phase DRL_Intervention:
 ```
 
 **注記:**
-- `Mix(FI 18-s LH 3-s, EXT)` は peak 手続きの 2 試行型を構成する: 強化 FI 成分と非強化 probe 成分（EXT）。`@trial_mix` がセッション内の構成比と順序を指定する。
-- probe role の `duration=54-s` は probe 試行長を指定する（FI の 3 倍、peak 手続きの標準的パラメータ）。
+- `Mix(FI 18-s LH 3-s, EXT)` は peak 手続きの 2 試行型を構成する: 強化 FI 成分と非強化 probe 成分 (EXT)。`@trial_mix` がセッション内の構成比と順序を指定する。
+- probe role の `duration=54-s` は probe 試行長を指定する (FI の 3 倍、peak 手続きの標準的パラメータ)。
 - `progressive` + `advance when criterion(metric="rate", ...)` は timing 研究に典型的な反応率基準 shaping を表現する: 3 セッション窓で反応率が ≥10/min を維持したら進行。
-- 群間の DRL パラメータ変動（9-s / 18-s / 27-s）はプログラムレベルで `@group` により扱うか、別 DSL ファイルに分割する。
+- 群間の DRL パラメータ変動 (9-s / 18-s / 27-s) はプログラムレベルで `@group` により扱うか、別 DSL ファイルに分割する。
 
 ---
 
@@ -644,9 +644,9 @@ progressive ExchangeRequirement:
 ```
 
 **注記:**
-- オペラントスケジュール（`Conc(VI 60-s, VI 60-s)`）は条件間で変化せず、交換要件のみが操作される。これが一次強化までの遅延という変数を単離する。
-- トークン経済は専用結合子ではなく強化子のアノテーションとして表現される: トークン自体が近位強化子で、交換端は解析パイプライン（マッチング則フィッティング、双曲遅延フィッティング）のためのメタデータとして保持される。
-- progressive phase 数（本例示では 4）は論文 Method のパラメトリック掃引を反映する。被験体あたりの正確な条件数はカウンターバランスされ、DSL の対象外。
+- オペラントスケジュール (`Conc(VI 60-s, VI 60-s)`) は条件間で変化せず、交換要件のみが操作される。これが一次強化までの遅延という変数を単離する。
+- トークン経済は専用結合子ではなく強化子のアノテーションとして表現される: トークン自体が近位強化子で、交換端は解析パイプライン (マッチング則フィッティング、双曲遅延フィッティング) のためのメタデータとして保持される。
+- progressive phase 数 (本例示では 4) は論文 Method のパラメトリック掃引を反映する。被験体あたりの正確な条件数はカウンターバランスされ、DSL の対象外。
 
 ---
 
@@ -654,7 +654,7 @@ progressive ExchangeRequirement:
 
 **論文:** Rickard, J. F., Body, S., Zhang, Z., Bradshaw, C. M., & Szabadi, E. (2009). Effect of reinforcer magnitude on performance maintained by progressive-ratio schedules. *Journal of the Experimental Analysis of Behavior*, *91*(1), 75-87. https://doi.org/10.1901/jeab.2009.91-75
 
-**デザイン:** ラットが累進比（指数）スケジュール下で反応し、0.6-M スクロース溶液の強化子容量が 6–300 μL の範囲で条件間にパラメトリックに変動する。従属測度は最高達成比（break point）、比を通じた反応率、強化後休止。Killeen (1994) の MPR が予測する反応率-比の bitonic 関数を評価する。
+**デザイン:** ラットが累進比 (指数) スケジュール下で反応し、0.6-M スクロース溶液の強化子容量が 6–300 μL の範囲で条件間にパラメトリックに変動する。従属測度は最高達成比 (break point)、比を通じた反応率、強化後休止。Killeen (1994) の MPR が予測する反応率-比の bitonic 関数を評価する。
 
 **主要 DSL 機能:** `PR(exponential)`、大きさパラメータ横断の `step` による `progressive`、`@reinforcer` プレースホルダ置換
 
@@ -679,7 +679,7 @@ progressive MagnitudeAssay:
 ```
 
 **注記:**
-- `PR(exponential)` は指数進行形式 `a·e^(bn) − 1` を選ぶ（Roberts & Richardson, 1992）。固定ステップ進行は `PR(fixed, step=N)` で表現可能。
+- `PR(exponential)` は指数進行形式 `a·e^(bn) − 1` を選ぶ (Roberts & Richardson, 1992)。固定ステップ進行は `PR(fixed, step=N)` で表現可能。
 - 7 段階の容量掃引は論文 Method と `conformance/experiment/progressive-training.json` の conformance fixture に一致する。
 - `@dependent_measure` は MPR 関連の測定セットを宣言し、下流解析パイプラインが Method を再解析せずに正しい派生変数を発行できるようにする。
 
@@ -689,7 +689,7 @@ progressive MagnitudeAssay:
 
 **論文:** Rey, C. N., Thrailkill, E. A., Goldberg, K. L., & Bouton, M. E. (2020). Relapse of operant behavior after response elimination with an extinction or an omission contingency. *Journal of the Experimental Analysis of Behavior*, *113*(1), 124-140. https://doi.org/10.1002/jeab.568
 
-**デザイン:** 反応除去手続きとして消去と省略（DRO）を比較する ABA リニューアル。(1) Context A での VI スケジュール下の獲得。(2) Context B での除去: 消去、または標的行動非出現区間を最終値まで段階的に上げた DRO のいずれか。(3) Context A と B でのテスト（反応非依存強化子送達の有無を問う）。省略が ABA リニューアルを消去に比べて減弱するかを問う。
+**デザイン:** 反応除去手続きとして消去と省略 (DRO) を比較する ABA リニューアル。(1) Context A での VI スケジュール下の獲得。(2) Context B での除去: 消去、または標的行動非出現区間を最終値まで段階的に上げた DRO のいずれか。(3) Context A と B でのテスト (反応非依存強化子送達の有無を問う)。省略が ABA リニューアルを消去に比べて減弱するかを問う。
 
 **主要 DSL 機能:** `@context`、`advance when manual` + `sessions = N` を伴う `progressive`、`DRO` スケジュール、文脈切替デザインのアノテーション合成
 
@@ -732,7 +732,7 @@ phase RenewalTest:
 ```
 
 **注記:**
-- `advance when manual` と `sessions = N` の組み合わせは、各ステップに固定セッション数を持つパラメータ漸増を実験者判断で進行させる合法構文（Constraint 79 例外）。
+- `advance when manual` と `sessions = N` の組み合わせは、各ステップに固定セッション数を持つパラメータ漸増を実験者判断で進行させる合法構文 (Constraint 79 例外)。
 - 省略群と消去群は並列 phase として表現される。群割当はスケジュール文法の外で、プログラムレベルの `@group` で持たせる。
 - `@context("A")` / `@context("B")` は環境文脈をラベルする — リニューアルデザインにおける決定的独立変数。文脈固有の弁別刺激は随伴性自体の一部ではない。
 
@@ -748,7 +748,7 @@ phase RenewalTest:
 | Broomer & Bouton (2022) | `Overlay`, `@context`, `@punisher` | リニューアル / 嫌悪制御 |
 | Estes & Skinner (1941) | `Pair.ForwardDelay`, `@cs`, `@us`, composed | CER / 嫌悪系パヴロフ |
 | Annau & Kamin (1961) | `progressive`, 抑制比, composed | CER パラメトリック / 強度 |
-| Brown & Jenkins (1968) | `Pair.ForwardDelay`, オペラントなし, composed | オートシェイピング / サイン・トラッキング |
+| Brown & Jenkins (1968) | `Pair.ForwardDelay`, オペラントなし, composed | 自動反応形成 / サイン・トラッキング |
 | Williams & Williams (1969) | operant_constraint, 省略, composed | ネガティブ自動維持 |
 | Estes (1948) / Lovibond (1983) | `PhaseSequence`, `CSOnly`, composed | パヴロフ-道具的転移 |
 | John & Nader (2016) | `FI(FR)`, `progressive`, `interleave` | 行動薬理 / 二次スケジュール |

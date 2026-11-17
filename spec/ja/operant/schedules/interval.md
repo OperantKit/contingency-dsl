@@ -6,13 +6,13 @@
 
 ## 1. スコープ
 
-時隔スケジュールは、3×3 アトミック分類（`operant/theory.md §1.1`）の Interval 列を成す。パラメータ `t` は時間持続を指定する。強化は **時隔が経過した後の最初の反応** に随伴する — 時間要件と反応要件の連言である。
+時隔スケジュールは、3×3 アトミック分類 (`operant/theory.md §1.1`) の Interval 列を成す。パラメータ `t` は時間持続を指定する。強化は **時隔が経過した後の最初の反応** に随伴する — 時間要件と反応要件の連言である。
 
 | スケジュール | Distribution | 意味論 | 標準参照 |
 |---|---|---|---|
 | **FI(t)** | Fixed | ちょうど `t` 秒経過後の最初の反応 | Ferster & Skinner (1957, 第 5 章) |
-| **VI(t)** | Variable | 平均 `t` の可変時隔（Fleshler-Hoffman）後の最初の反応 | Ferster & Skinner (1957, 第 6 章); Fleshler & Hoffman (1962) |
-| **RI(t)** | Random | 平均 `t` の無作為時隔（指数サンプリング）後の最初の反応 | Farmer (1963) |
+| **VI(t)** | Variable | 平均 `t` の変動する間隔 (Fleshler-Hoffman) 後の最初の反応 | Ferster & Skinner (1957, 第 6 章); Fleshler & Hoffman (1962) |
+| **RI(t)** | Random | 平均 `t` の無作為時隔 (指数サンプリング) 後の最初の反応 | Farmer (1963) |
 
 ## 2. 操作的定義
 
@@ -24,16 +24,16 @@
 FI 30-s     -- 30 秒後の最初の反応を強化
 ```
 
-特徴的な行動パターン: 強化後休止を伴うスキャロップ反応または break-and-run 反応（Ferster & Skinner, 1957, 第 5 章）。
+特徴的な行動パターン: 強化後休止を伴うスキャロップ反応または break-and-run 反応 (Ferster & Skinner, 1957, 第 5 章)。
 
-表示: `⟦Atomic(Fixed, Interval, t)⟧`（`operant/theory.md §2.13.3` 参照）。
+表示: `⟦Atomic(Fixed, Interval, t)⟧` (`operant/theory.md §2.13.3` 参照)。
 
 ### 2.2 VI — 変動時隔
 
-各強化の後、スケジュールは平均 `t` 秒の Fleshler-Hoffman (1962) 系列からドローされた可変時隔を待機する。VI 生成器は以下を保証する。
+各強化の後、スケジュールは平均 `t` 秒の Fleshler-Hoffman (1962) 系列からドローされた変動する間隔を待機する。VI 生成器は以下を保証する。
 
 - 平均時隔 = `t`
-- 単位時間あたりの強化確率が（近似的に）一定
+- 単位時間あたりの強化確率が (近似的に) 一定
 - 単一通過内で時隔値の重複なし
 
 ```
@@ -56,13 +56,13 @@ RI 60-s     -- 指数分布時隔、平均 60 秒
 
 ## 3. Interval vs Time — 反応要件
 
-時隔スケジュール（FI, VI, RI）は **連言的** である: 時間 `t` の経過 (a) と反応 (b) の両方を要求する。時隔スケジュール（FT, VT, RT; `operant/schedules/time.md` 参照）は **反応非依存** である: 反応に関わらず時間閾値で強化子が呈示される。
+時隔スケジュール (FI, VI, RI) は **連言的** である: 時間 `t` の経過 (a) と反応 (b) の両方を要求する。時隔スケジュール (FT, VT, RT; `operant/schedules/time.md` 参照) は **反応非依存** である: 反応に関わらず時間閾値で強化子が呈示される。
 
 この区別は Domain レベルで捉えられる: `Domain ∈ {Ratio, Interval, Time}`。
 
 ## 4. Limited Hold
 
-時隔スケジュールは、時隔後の最初の反応が強化可能である時間窓を制限する **Limited Hold**（LH）限定子を一般に伴う。
+時隔スケジュールは、時隔後の最初の反応が強化可能である時間窓を制限する **Limited Hold**(LH) 限定子を一般に伴う。
 
 ```
 FI 30-s LH 10-s      -- 時隔経過から 10 秒以内の最初の反応を強化
@@ -73,7 +73,7 @@ LH の意味論は `operant/theory.md §1.6`、デフォルト伝播属性文法
 
 ## 5. 時隔スケジュールを含む合成
 
-時隔スケジュールは、すべての合成コンビネータに参加する（`operant/schedules/compound.md` 参照）。
+時隔スケジュールは、すべての合成コンビネータに参加する (`operant/schedules/compound.md` 参照)。
 
 ```
 Conc(VI 30-s, VI 60-s, COD=2-s)       -- 並行 VI-VI、マッチング法則の準備
@@ -81,11 +81,11 @@ Chain(FR 5, FI 30-s)                  -- 固定比率リンクに連鎖された
 Mult(VI 30-s, EXT)                    -- 多元 VI-EXT（行動コントラスト・パラダイム）
 ```
 
-**並行 VI-VI マッチング法則**（Herrnstein, 1961）は行動的帰結であり、DSL のパラメータではない。手続き-効果境界は `operant/theory.md §2.6` を参照。
+**並行 VI-VI マッチング法則**(Herrnstein, 1961) は行動的帰結であり、DSL のパラメータではない。手続き-効果境界は `operant/theory.md §2.6` を参照。
 
 ## 6. 2 次時隔スケジュール
 
-`FI t(Unit)` は、全体時隔と内部単位スケジュールを合成する（Kelleher, 1966）。
+`FI t(Unit)` は、全体時隔と内部単位スケジュールを合成する (Kelleher, 1966)。
 
 ```
 FI 300-s(FR 10)      -- 10 反応単位を 300 秒時隔でゲート

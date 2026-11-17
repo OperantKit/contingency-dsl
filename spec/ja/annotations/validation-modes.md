@@ -8,11 +8,11 @@
 本文書に記載する Tier × Mode モデルは、**DSL プロジェクトが提示する検証体系の
 一例** であり、同時に Python リファレンス実装がどのような validator を
 提供するかの仕様でもある。design-philosophy §4.2 の program-scoped closure
-原則に従い、各プログラム（runtime / interpreter）は本モデルを採用・拡張・
+原則に従い、各プログラム (runtime / interpreter) は本モデルを採用・拡張・
 置換する自由を持つ。本文書の記述は **強制ではなく推奨** である。
 
 関連文書:
-- [design-philosophy.md](../design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
+- [design-philosophy.md](../design-philosophy.md) §4 — Annotation 層の構造とカテゴリ (正典)
 - [design.md](design.md) — 推奨 annotator とその境界原則
 - [architecture.md](../architecture.md) §4.7 — annotation architecture
 - [grammar.ebnf](../../../schema/foundations/grammar.ebnf) — 形式文法
@@ -67,7 +67,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)     -- 選択手続きの学習
 
 ## 2. 設計原則: 文法は permissive、validator は strict
 
-Rust の型システム（parser は寛容、borrow checker は厳格）や
+Rust の型システム (parser は寛容、borrow checker は厳格) や
 TypeScript の `--strict` モード、ESLint の rule set と同じ構造を採用する。
 
 ```
@@ -109,16 +109,16 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 |---|---|---|
 | `@clock(unit="s")` | `"s"` | ratio schedules は dimensionless、interval/time は秒 |
 | `@algorithm("fleshler-hoffman")` | Fleshler-Hoffman (1962) | 事実上の lab standard |
-| `@hardware`（省略時） | virtual | デフォルト; 省略はシミュレーションを意味する — `@hardware` 記述不要 |
+| `@hardware` (省略時) | virtual | デフォルト; 省略はシミュレーションを意味する — `@hardware` 記述不要 |
 | `@random(seed=<current_time>)` | 現在時刻 | 非再現でも実行は可能 |
 
 **省略時の挙動**: validator が default を使って動作。warning なし。
-**該当 annotator**: temporal, apparatus（一部）
+**該当 annotator**: temporal, apparatus (一部)
 
 ### Tier 2 — Production Requirements
 
-**`@hardware` が存在する（物理 HW を宣言する）とき必須となる要素。**
-**`@hardware` 省略時（virtual がデフォルト）は不要。**
+**`@hardware` が存在する (物理 HW を宣言する) とき必須となる要素。**
+**`@hardware` 省略時 (virtual がデフォルト) は不要。**
 
 | 要素 | 根拠 |
 |---|---|
@@ -130,10 +130,10 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 | `@interface("serial", port=...)` | 物理接続情報 |
 
 **省略時の挙動**:
-- `mode="dev"`（virtual HW 想定）では無視
-- `mode="production"`（physical HW 想定）では **production error**
+- `mode="dev"` (virtual HW 想定) では無視
+- `mode="production"` (physical HW 想定) では **production error**
 
-**依存条件**: `@hardware` の値により発動/非発動が決まる（Tier は動的）
+**依存条件**: `@hardware` の値により発動/非発動が決まる (Tier は動的)
 
 ### Tier 3 — Publication Requirements
 
@@ -157,7 +157,7 @@ lint(src, mode="publication")     → 論文化できるか   (Tier 0-3)
 - `mode="dev"`, `mode="production"` では無視
 - `mode="publication"` では **publication error**
 
-**該当 annotator**: subject, apparatus（詳細）, ethics（将来）
+**該当 annotator**: subject, apparatus (詳細), ethics (将来)
 
 ### Tier の独立性
 
@@ -197,9 +197,9 @@ lint("Conc(VI 30-s, VI 60-s, COD=2-s)", mode="dev")
 
 - **対象**: Tier 0-1
 - **用途**: 学生の学習、理論検証、シミュレーション実行、CI テスト
-- **前提**: `@hardware` 省略 → virtual（シミュレーションモード）
+- **前提**: `@hardware` 省略 → virtual (シミュレーションモード)
 - **エラー**: parse/semantic error
-- **警告**: Tier 1 の defaulted 要素が未指定なら info 出力（エラーにしない）
+- **警告**: Tier 1 の defaulted 要素が未指定なら info 出力 (エラーにしない)
 - **例**: `FR 5` 単体でシミュレーション実行可能
 
 ### 4.3 mode="production" — 実機実行
@@ -214,9 +214,9 @@ lint("FR 5 @hardware(\"teensy41\")", mode="production")
 
 - **対象**: Tier 0-2
 - **用途**: 実機実験のゲートキーパー、実験前の最終検証
-- **発動条件**: `@hardware` が存在するとき自動発動（値を問わず、物理 HW を意味する）
+- **発動条件**: `@hardware` が存在するとき自動発動 (値を問わず、物理 HW を意味する)
 - **エラー**: Tier 2 要素の欠落
-- **警告**: Tier 3 要素の欠落（publication で困る旨）
+- **警告**: Tier 3 要素の欠落 (publication で困る旨)
 
 **§8 で示した「必須化」要求はここで実現される**。parser は拒否しないが、
 物理実機を繋いだ瞬間に validator が止める。
@@ -315,10 +315,10 @@ parse ⊆ dev ⊆ production ⊆ publication
 
 ### 6.1 境界テストと Tier の関係
 
-design.md §2 の境界テスト（Q1-Q3）が **Core vs Annotation** を判定する。
+design.md §2 の境界テスト (Q1-Q3) が **Core vs Annotation** を判定する。
 3 問の具体的な内容は §2 の唯一の定義に従い、本文書では再掲しない。
 本節の Tier 分類は、§2 が「annotation 候補」と判定した後に
-**特定プログラム（この Python リファレンス実装）内で** どのモードで
+**特定プログラム (この Python リファレンス実装) 内で** どのモードで
 要求されるかを決定する。両者は責任範囲が異なる。
 
 本 Python リファレンス実装が採用する意思決定フロー:
@@ -429,8 +429,8 @@ design.md §8.4 で提案された
 「`subject_id`, `experiment_id` は DSL」という分類は、
 この document で **manifest 層へ移す**ことを提案する:
 
-- DSL は **実験計画の構造** を定義する（"どういう実験か"）
-- 「誰が・どの試行か」は計画の**適用**（"誰にこの計画を使うか"）であり、
+- DSL は **実験計画の構造** を定義する ("どういう実験か")
+- 「誰が・どの試行か」は計画の**適用**("誰にこの計画を使うか") であり、
   計画そのものではない
 - 同一の DSL ファイルを複数の被験体・複数の日に適用可能にするには、
   `subject_id` / `experiment_id` / `date` は外部 manifest に分離する必要がある
@@ -447,8 +447,8 @@ subjects:
 ```
 
 DSL ファイルは複数の実行インスタンスに**再利用可能**になる。
-これは「再現性の単位」設計原則とも整合する（DSL が "同じ実験" を定義し、
-manifest が "どの試行か" を定義する）。
+これは「再現性の単位」設計原則とも整合する (DSL が "同じ実験" を定義し、
+manifest が "どの試行か" を定義する)。
 
 ---
 
@@ -500,7 +500,7 @@ for mode in ["parse", "dev", "production", "publication"]:
 ```
 
 `FR 5` のような最小例は**全モードで通る**ことを保証する
-（全 mode で Tier 0 のみを要求するプログラムは常に OK）。
+(全 mode で Tier 0 のみを要求するプログラムは常に OK)。
 
 ### 8.4 エラーメッセージの tier 表示
 
@@ -516,7 +516,7 @@ error[E-tier2]: @session_end is required for physical HW
   = help: add @session_end(rule="first", time=60min, reinforcers=60)
 ```
 
-tier, mode, 回避方法をエラーメッセージに明示する（Rust の diagnostic 形式を参考）。
+tier, mode, 回避方法をエラーメッセージに明示する (Rust の diagnostic 形式を参考)。
 
 ---
 
@@ -532,19 +532,19 @@ tier, mode, 回避方法をエラーメッセージに明示する（Rust の di
 
 ### 9.2 Tier の所有
 
-- Tier 分類は annotation 自身が宣言する（自己記述）のか?
+- Tier 分類は annotation 自身が宣言する (自己記述) のか?
 - それとも external tier registry を作るのか?
 
-メタDSL（design.md §7）導入時にこの決定を行う。
+メタDSL (design.md §7) 導入時にこの決定を行う。
 
 ### 9.3 mode の階層の柔軟性
 
 `"dev"`, `"production"`, `"publication"` 以外のモードが必要か:
-- `"teaching"` — Tier 0 のみ、警告もなし（教材用）
+- `"teaching"` — Tier 0 のみ、警告もなし (教材用)
 - `"simulation_precise"` — dev と production の中間
 - `"preregistration"` — publication より厳しく pre-analysis plan まで要求
 
-将来の拡張は mode の set を増やすことで対応可能（単調性が保たれる限り）。
+将来の拡張は mode の set を増やすことで対応可能 (単調性が保たれる限り)。
 
 ### 9.4 Warning vs Error の境界
 
@@ -558,6 +558,6 @@ ESLint のような rule set の有効化/無効化を許すか。
 - Sidman, M. (1960). *Tactics of scientific research*. Basic Books.
 - Baron, A., & Perone, M. (1998). Experimental design and analysis in the laboratory study of human operant behavior. In K. A. Lattal & M. Perone (Eds.), *Handbook of research methods in human operant behavior* (pp. 45-91). Plenum.
 - Fleshler, M., & Hoffman, H. S. (1962). A progression for generating variable-interval schedules. *JEAB*, 5(4), 529-530. https://doi.org/10.1901/jeab.1962.5-529
-- design.md §2（境界テスト）, §6（二層スコーピング）, §8（プログラムレベル拡張）
-- en/architecture.md §4.7（annotation architecture）
-- docs/en/annotations.md / docs/ja/annotations.md（Progressive Enrichment の非形式的記述）
+- design.md §2 (境界テスト), §6 (二層スコーピング), §8 (プログラムレベル拡張)
+- en/architecture.md §4.7 (annotation architecture)
+- docs/en/annotations.md / docs/ja/annotations.md (Progressive Enrichment の非形式的記述)

@@ -2,19 +2,19 @@
 
 :gb: [English README](README.md)
 
-contingency-dsl は、強化スケジュールと Pavlov 型条件づけの手続きを `Conc(VI 30-s, VI 60-s, COD=2-s)` や `Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)` のような短いテキストで書くための記法です。このリポジトリはその仕様で、文法、式を構文解析した結果の JSON 形式、テストケースの集まりを収めています。[OperantKit](https://github.com/OperantKit) の共通言語で、パーサ・スケジュールエンジン・方法セクション（Method 節）の道具はどれも同じ式を読みます。
+contingency-dsl は、強化スケジュールと Pavlov 型条件づけの手続きを `Conc(VI 30-s, VI 60-s, COD=2-s)` や `Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)` のような短いテキストで書くための記法です。このリポジトリはその仕様で、文法、式を構文解析した結果の JSON 形式、テストケースの集まりを収めています。[OperantKit](https://github.com/OperantKit) の共通言語で、パーサ・スケジュールエンジン・方法セクション (Method 節) の道具はどれも同じ式を読みます。
 
 **要点**
 
-- スケジュールが 1 文や表の 1 マスに収まり、切替遅延（changeover delay, COD）や制限時間（limited hold）のようなパラメータをプログラム任せにせず式の中に書けます。
-- 記法は Method 節ですでに使われている略記（`FR 5`、`VI 60-s`、`Conc(...)`、`Mult(...)`）に沿っています。
+- スケジュールが 1 文や表の 1 マスに収まり、切り替え遅延 (changeover delay, COD) や制限時間 (limited hold) のようなパラメータをプログラム任せにせず式の中に書けます。
+- 記法は Method 節ですでに使われている略記 (`FR 5`、`VI 60-s`、`Conc(...)`、`Mult(...)`) に沿っています。
 - どの言語のパーサも、`conformance/` にある同じテストケースで確かめられます。
 
-「並立 VI 30 秒 VI 60 秒」と書かれた Method 節では、切替遅延をどう扱ったか、間隔をどう生成したかが省かれることが多く、その空白を研究室ごとのプログラムがそれぞれ違うやり方で埋めています。文法のある記法で手続きを書けば、そうした選択がはっきり書かれ、他の人が同じ手続きを再実行できます。
+「並立 VI 30 秒 VI 60 秒」と書かれた Method 節では、切り替え遅延をどう扱ったか、間隔をどう生成したかが省かれることが多く、その空白を研究室ごとのプログラムがそれぞれ違うやり方で埋めています。文法のある記法で手続きを書けば、そうした選択がはっきり書かれ、他の人が同じ手続きを再実行できます。
 
 ## インストール
 
-このリポジトリにはコードがありません。Python からこの記法を使うには、パーサ [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) を入れます（Python 3.11 以上）。パッケージはまだ PyPI に登録されていないので、GitHub から入れます。
+このリポジトリにはコードがありません。Python からこの記法を使うには、パーサ [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) を入れます (Python 3.11 以上)。パッケージはまだ PyPI に登録されていないので、GitHub から入れます。
 
 ```bash
 git clone https://github.com/OperantKit/contingency-dsl
@@ -72,32 +72,32 @@ Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)
 
 | レイヤ | 記述する内容 |
 |---|---|
-| **Foundations** | すべてのレイヤに共通するメタ文法と型（随伴性、時間尺度、刺激、文脈） |
-| **Operant** | 三項随伴性: 比率・時隔・時間・分化強化・複合・累進比率の各スケジュール、嫌悪性制御（Sidman 型回避、弁別回避、逃避、反応コスト）、状態を持つスケジュール（パーセンタイル、調整、連動）、試行型の手続き（見本合わせ、go/no-go）、制限時間・タイムアウト・強化遅延 |
-| **Respondent** | 二項（CS-US）随伴性: `Pair.*`、`Extinction`、`CSOnly`、`USOnly`、`Contingency`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential` |
-| **Composed** | オペラントとレスポンデントの部品を組み合わせた手続き（条件性抑制、Pavlov 型–道具的転移、オートシェイピング、省略など） |
+| **Foundations** | すべてのレイヤに共通するメタ文法と型 (随伴性、時間尺度、刺激、文脈) |
+| **Operant** | 三項随伴性: 比率・時隔・時間・分化強化・複合・累進比率の各スケジュール、嫌悪性制御 (Sidman 型回避、弁別回避、逃避、反応コスト)、状態を持つスケジュール (パーセンタイル、調整、連動)、試行型の手続き (見本合わせ、go/no-go)、制限時間・タイムアウト・強化遅延 |
+| **Respondent** | 二項 (CS-US) 随伴性: `Pair.*`、`Extinction`、`CSOnly`、`USOnly`、`Contingency`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential` |
+| **Composed** | オペラントとレスポンデントの部品を組み合わせた手続き (条件性抑制、Pavlov 型–道具的転移、自動反応形成、省略など) |
 | **Experiment** | 複数フェーズのデザイン。フェーズと文脈をプログラムの一部として書けます |
-| **Annotation** | Method 節の区分（Subjects、Apparatus、Procedure、Measurement）に沿ったメタデータ（`@reinforcer`、`@sd`、`@species`、`@apparatus` など） |
+| **Annotation** | Method 節の区分 (Subjects、Apparatus、Procedure、Measurement) に沿ったメタデータ (`@reinforcer`、`@sd`、`@species`、`@apparatus` など) |
 
-より複雑な Pavlov 型の手続き（阻止、隠蔽、潜在制止、リニューアル、復位、機会設定など）は、姉妹パッケージ [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl) で定義されています。
+より複雑な Pavlov 型の手続き (阻止、隠蔽、潜在制止、リニューアル、復位、機会設定など) は、姉妹パッケージ [contingency-respondent-dsl](https://github.com/OperantKit/contingency-respondent-dsl) で定義されています。
 
 ## このリポジトリの中身
 
-- `spec/en/`、`spec/ja/`: 各レイヤの形式仕様（理論、文法、プリミティブ、設計の根拠）
+- `spec/en/`、`spec/ja/`: 各レイヤの形式仕様 (理論、文法、プリミティブ、設計の根拠)
 - `schema/`: 各レイヤの EBNF 文法と、構文解析の結果を表す JSON Schema
-- `conformance/`: テストケース（入力テキストと、期待される構文解析の結果またはエラー）
+- `conformance/`: テストケース (入力テキストと、期待される構文解析の結果またはエラー)
 - `docs/en/`、`docs/ja/`: 利用者向けの文書
 - `scripts/`: EBNF 文法から Langium と Tree-sitter の文法を作る変換スクリプト
 
 パーサは別のパッケージにあります。
 
-- **contingency-dsl-py** — Python のリファレンスパーサ（唯一のリファレンス実装）
+- **contingency-dsl-py** — Python のリファレンスパーサ (唯一のリファレンス実装)
 
 ## 文書
 
 - [構文ガイド](docs/ja/syntax-guide.md): 記法を順を追って説明します
 - [構文例](docs/ja/syntax-examples.md): すべてのレイヤの例
-- [ユースケース](docs/ja/use-cases.md): 各構文が何のためにあるか（文献つき）
+- [ユースケース](docs/ja/use-cases.md): 各構文が何のためにあるか (文献つき)
 - [アノテーション](docs/ja/annotations.md): `@reinforcer`、`@punisher`、`@sd`、`@cs`、`@us`、`@species`、`@apparatus` などのメタデータのキーワード
 - [論文例](docs/ja/paper-examples.md): 公刊された研究をこの記法で書いたもの
 - [ツーリング](docs/ja/tooling.md): Tree-sitter と Langium の文法
@@ -119,19 +119,19 @@ pytest tests/test_conformance.py
 
 ## 制限
 
-- contingency-dsl-py は、ここで定義されたすべての構文を受け付けるわけではありません。同梱されているアノテーション拡張は 6 つで、Composed の例で使うレスポンデント用のアノテーション（`@cs`、`@us`）はここで定義されていますが、それらの拡張では受け付けられません。
-- `conformance/foundations/` にはケースがありません。既存の字句のテストはオペラントのスケジュールのキーワードを含むため、`conformance/operant/` に置かれています（[理由](conformance/foundations/README.md)）。
+- contingency-dsl-py は、ここで定義されたすべての構文を受け付けるわけではありません。同梱されているアノテーション拡張は 6 つで、Composed の例で使うレスポンデント用のアノテーション (`@cs`、`@us`) はここで定義されていますが、それらの拡張では受け付けられません。
+- `conformance/foundations/` にはケースがありません。既存の字句のテストはオペラントのスケジュールのキーワードを含むため、`conformance/operant/` に置かれています ([理由](conformance/foundations/README.md))。
 
 ## 開発に参加する人へ
 
-`dist/`（生成した Langium と Tree-sitter の文法）は git で管理していません。`schema/**/grammar.ebnf` から作り直します。
+`dist/` (生成した Langium と Tree-sitter の文法) は git で管理していません。`schema/**/grammar.ebnf` から作り直します。
 
 ```bash
 ./scripts/gen-langium.sh      # dist/langium/contingency-dsl.langium
 ./scripts/gen-treesitter.sh   # dist/tree-sitter/grammar.js
 ```
 
-`scripts/grammar_diff.py` は EBNF から 2 つ目のパーサ（Lark、Earley）を作り、参照パーサと受理が食い違う入力を並べます。`lark` と `contingency-dsl-py` が要ります: `python -m venv .venv && .venv/bin/python -m pip install lark git+https://github.com/OperantKit/contingency-dsl-py` のあと `.venv/bin/python scripts/grammar_diff.py`。
+`scripts/grammar_diff.py` は EBNF から 2 つ目のパーサ (Lark、Earley) を作り、参照パーサと受理が食い違う入力を並べます。`lark` と `contingency-dsl-py` が要ります: `python -m venv .venv && .venv/bin/python -m pip install lark git+https://github.com/OperantKit/contingency-dsl-py` のあと `.venv/bin/python scripts/grammar_diff.py`。
 
 この README と `README.md` の `python` ブロックは、すべて `scripts/check_readme_examples.py` で実行されます。AI のコーディングエージェント向けの説明は [AGENTS.md](AGENTS.md) にあります。
 

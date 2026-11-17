@@ -1,8 +1,8 @@
-# オペラント文法 — 三項随伴性（SD–R–SR）
+# オペラント文法 — 三項随伴性 (SD–R–SR)
 
-> contingency-dsl オペラント層の一部。オペラント固有の EBNF 産出規則を定義する: `ScheduleExpr`、コンビネータ群（Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay）、修飾子（DRL, DRH, DRO, PR, Lag, Repeat）、限定子（LH, TO, ResponseCost）、嫌悪的スケジュール（Sidman, DiscriminatedAvoidance）。パラダイム中立なメタ文法は `foundations/grammar.md` で定義される。スケジュールクラスごとの仕様は `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md` に置く。状態依存および試行ベースの下位層は `operant/stateful/` および `operant/trial-based/` にある。
+> contingency-dsl オペラント層の一部。オペラント固有の EBNF 産出規則を定義する: `ScheduleExpr`、コンビネータ群 (Conc, Alt, Conj, Chain, Tand, Mult, Mix, Overlay)、修飾子 (DRL, DRH, DRO, PR, Lag, Repeat)、限定子 (LH, TO, ResponseCost)、嫌悪的スケジュール (Sidman, DiscriminatedAvoidance)。パラダイム中立なメタ文法は `foundations/grammar.md` で定義される。スケジュールクラスごとの仕様は `operant/schedules/{ratio,interval,time,differential,compound,progressive}.md` に置く。状態依存および試行ベースの下位層は `operant/stateful/` および `operant/trial-based/` にある。
 
-**関連文書:** [LL(2) 形式的証明](../foundations/ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ 集合、LL(2) 構文解析表、曖昧性のなさの証明。オペラント文法の LL(2) 決定点はちょうど 1 つのみ（合成の `arg_list` 内の `PosTail`）であり、他のすべての決定点は LL(1) である。
+**関連文書:** [LL(2) 形式的証明](../foundations/ll2-proof.md) — FIRST₁/FIRST₂/FOLLOW₂ 集合、LL(2) 構文解析表、曖昧性のなさの証明。オペラント文法の LL(2) 決定点はちょうど 1 つのみ (合成の `arg_list` 内の `PosTail`) であり、他のすべての決定点は LL(1) である。
 
 ---
 
@@ -37,9 +37,9 @@
 <ws>            ::= " "+
 ```
 
-`<dist><domain>` プレフィックスは 3×3 のアトミック・スケジュール格子（FR, VR, RR, FI, VI, RI, FT, VT, RT）を生成し、`operant/schedules/{ratio, interval, time}.md` で特殊化される。`EXT` と `CRF` は境界事例（消去および連続強化。`operant/theory.md §1.3` 参照）。
+`<dist><domain>` プレフィックスは 3×3 のアトミック・スケジュール格子 (FR, VR, RR, FI, VI, RI, FT, VT, RT) を生成し、`operant/schedules/{ratio, interval, time}.md` で特殊化される。`EXT` と `CRF` は境界事例 (消去および連続強化。`operant/theory.md §1.3` 参照)。
 
-### 1.1 予約キーワード集合（オペラント層）
+### 1.1 予約キーワード集合 (オペラント層)
 
 ```bnf
 <reserved>      ::= "let" | "def"
@@ -103,7 +103,7 @@
                      | <dir_ref>
 ```
 
-コンビネータごとの意味論は `operant/schedules/compound.md` で規定される。修飾子ごとの意味論はスケジュールクラス別ファイル（`ratio.md`, `interval.md`, `time.md`, `differential.md`, `progressive.md`）で規定される。
+コンビネータごとの意味論は `operant/schedules/compound.md` で規定される。修飾子ごとの意味論はスケジュールクラス別ファイル (`ratio.md`, `interval.md`, `time.md`, `differential.md`, `progressive.md`) で規定される。
 
 ### 1.3 修飾子産出規則
 
@@ -123,7 +123,7 @@
 <lag_kw_arg>    ::= "length" "=" <number>
 ```
 
-DR 修飾子は `operant/schedules/differential.md` で詳述される。PR は `operant/schedules/progressive.md` で詳述される。`Repeat` は構文糖衣である（§3 参照）。`Lag` はオペラント変動性の修飾子である（Page & Neuringer, 1985）。
+DR 修飾子は `operant/schedules/differential.md` で詳述される。PR は `operant/schedules/progressive.md` で詳述される。`Repeat` は構文糖衣である (§3 参照)。`Lag` はオペラント変動性の修飾子である (Page & Neuringer, 1985)。
 
 ### 1.4 限定子および嫌悪的スケジュールの産出規則
 
@@ -158,7 +158,7 @@ DR 修飾子は `operant/schedules/differential.md` で詳述される。PR は 
 <escape_kw>         ::= "SafeDuration" | "MaxShock"
 ```
 
-Sidman 自由オペラント回避・DiscriminatedAvoidance・自由オペラント Escape は、嫌悪的統制の一級プリミティブである（`operant/theory.md §2.7–§2.9` 参照、Escape は §2.7b）。
+Sidman 自由オペラント回避・DiscriminatedAvoidance・自由オペラント Escape は、嫌悪的統制の一級プリミティブである (`operant/theory.md §2.7–§2.9` 参照、Escape は §2.7b)。
 
 ## 2. 表記の柔軟性
 
@@ -195,13 +195,13 @@ DSL の計算能力を増加させない。構文解析器は解析時に let �
 
 DSL は 2 つの等価なインターフェースを提供する。
 
-**A. テキスト DSL（設定ファイル、ドキュメント）:**
+**A. テキスト DSL (設定ファイル、ドキュメント):**
 ```python
 from contingency_dsl import parse
 schedule = parse("Conc(VI 30-s, VI 60-s)")
 ```
 
-**B. Python コンストラクタ（プログラマティックな合成）:**
+**B. Python コンストラクタ (プログラマティックな合成):**
 ```python
 from contingency_dsl import FR, VI, Conc, Chain, Tand, Repeat
 schedule = Conc(VI(30), VI(60))
@@ -209,7 +209,7 @@ nested = Conc(Chain(FR(5), VI(60)), FR(10))
 repeated = Tand(Repeat(3, FR(10)), VI(60))
 ```
 
-Python コンストラクタ API は OperantKit の `ScheduleBuilder.swift` パターン（`FR(5)`, `Conc(...)`, `Alt(...)`, `Chain(...)`）を踏襲する。
+Python コンストラクタ API は OperantKit の `ScheduleBuilder.swift` パターン (`FR(5)`, `Conc(...)`, `Alt(...)`, `Chain(...)`) を踏襲する。
 
 ## 5. 例
 
@@ -258,11 +258,11 @@ Overlay(Conc(VI 30-s, VI 60-s, COD=2-s), FR 1,
 
 ## 6. エラー回復
 
-オペラント固有のエラーコードは `conformance/operant/errors.json` に記載される。エラー回復方針自身（panic-mode、同期トークン、マルチエラー報告）はパラダイム中立であり、`foundations/grammar.md §7` で規定される。
+オペラント固有のエラーコードは `conformance/operant/errors.json` に記載される。エラー回復方針自身 (panic-mode、同期トークン、マルチエラー報告) はパラダイム中立であり、`foundations/grammar.md §7` で規定される。
 
 ## 7. 実験層拡張
 
-多相実験計画（フェーズ列、漸進的訓練、シェイピング）は、オペラント文法を加法的に拡張する。文法は `experiment/phase-sequence.md`、相変化基準は `experiment/criteria.md` を参照。
+多相実験計画 (フェーズ列、漸進的訓練、シェイピング) は、オペラント文法を加法的に拡張する。文法は `experiment/phase-sequence.md`、相変化基準は `experiment/criteria.md` を参照。
 
 ## 参考文献
 

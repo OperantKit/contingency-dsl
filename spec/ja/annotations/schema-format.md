@@ -14,13 +14,13 @@
 
 Annotation Schema Format は annotation keyword 定義の
 **single source of truth** として機能する。すべての実装言語
-（Python, Rust, Kotlin 等）が同じスキーマファイルを読み取り、
+(Python, Rust, Kotlin 等) が同じスキーマファイルを読み取り、
 等価な `AnnotationModule` 実装を生成する。
 
 ### 設計判断: JSON Schema 拡張
 
 本フォーマットは [JSON Schema 2020-12](https://json-schema.org/draft/2020-12/schema)
-に DSL 固有の拡張を載せた形式を採る。代替案（EBNF 拡張、独自スキーマ DSL）
+に DSL 固有の拡張を載せた形式を採る。代替案 (EBNF 拡張、独自スキーマ DSL)
 ではなくこれを選択した理由:
 
 1. **既存エコシステム** — Python (`jsonschema`), Rust (`jsonschema-rs`),
@@ -29,8 +29,8 @@ Annotation Schema Format は annotation keyword 定義の
 3. **ツーリング** — LSP 補完、lint、ドキュメント生成が標準ツールで実現可能
 4. **低い採用コスト** — 新しいパーサやジェネレータの実装が不要
 
-DSL 固有の拡張プロパティ（`keywords`, `scope`, `positional`,
-`required_if`, `forbidden_if`, `aliases`, `errors`）は標準 JSON Schema
+DSL 固有の拡張プロパティ (`keywords`, `scope`, `positional`,
+`required_if`, `forbidden_if`, `aliases`, `errors`) は標準 JSON Schema
 バリデータが無視するため、ファイルは有効な JSON Schema 文書のまま
 DSL セマンティクスも保持する。
 
@@ -40,12 +40,12 @@ DSL セマンティクスも保持する。
 
 | 用語 | 定義 |
 |---|---|
-| **Annotator** | annotation keyword の集合を所有する名前付きモジュール。JEAB Method 節のカテゴリと 1:1 対応（design-philosophy §3.7） |
-| **Keyword** | 個別の annotation 名（例: `reinforcer`, `session_end`）。DSL ソースでは `@keyword(...)` として出現 |
+| **Annotator** | annotation keyword の集合を所有する名前付きモジュール。JEAB Method 節のカテゴリと 1:1 対応 (design-philosophy §3.7) |
+| **Keyword** | 個別の annotation 名 (例: `reinforcer`, `session_end`)。DSL ソースでは `@keyword(...)` として出現 |
 | **位置引数 (Positional)** | annotation の最初の無名引数: `@species("rat")`。keyword あたり最大 1 個 |
 | **キーワード引数 (Keyword arg)** | 名前付き引数: `@session_end(rule="first", time=60min)`。0 個以上 |
-| **Scope** | annotation の出現位置: `program`（セッション全体のデフォルト）または `schedule`（特定のスケジュール式に付加） |
-| **Registry** | 特定のプログラム（runtime/interpreter）がロードする annotator の集合。design-philosophy §4.2 により program-scoped |
+| **Scope** | annotation の出現位置: `program` (セッション全体のデフォルト) または `schedule` (特定のスケジュール式に付加) |
+| **Registry** | 特定のプログラム (runtime/interpreter) がロードする annotator の集合。design-philosophy §4.2 により program-scoped |
 | **スキーマファイル** | 本仕様に準拠し、1 つの annotator を定義する JSON ファイル |
 
 ---
@@ -58,14 +58,14 @@ DSL セマンティクスも保持する。
 schema/annotations/<annotator-name>.schema.json
 ```
 
-Sub-annotator を持つ場合（例: procedure-annotator）:
+Sub-annotator を持つ場合 (例: procedure-annotator):
 
 ```
 schema/annotations/procedure-stimulus.schema.json
 schema/annotations/procedure-temporal.schema.json
 ```
 
-Extension annotator（JEAB 4 カテゴリ外）:
+Extension annotator (JEAB 4 カテゴリ外):
 
 ```
 schema/annotations/extensions/<name>.schema.json
@@ -75,15 +75,15 @@ schema/annotations/extensions/<name>.schema.json
 
 - ファイル名は kebab-case: `procedure-stimulus.schema.json`
 - `.schema.json` サフィックスが必須
-- ファイル名（サフィックス除去後）は `title` フィールドと一致すること
+- ファイル名 (サフィックス除去後) は `title` フィールドと一致すること
 
 ### 3.3 エンコーディング
 
-UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
+UTF-8、BOM なし。標準 JSON (末尾カンマ・コメント不可)。
 
 ---
 
-## 4. トップレベル構造（メタスキーマ）
+## 4. トップレベル構造 (メタスキーマ)
 
 すべてのスキーマファイルは以下のトップレベルプロパティを含まなければならない:
 
@@ -106,13 +106,13 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 |---|---|---|---|
 | `$schema` | string | YES | 常に `"https://json-schema.org/draft/2020-12/schema"` |
 | `$id` | string (URI) | YES | このスキーマの正規 URI |
-| `title` | string | YES | Annotator 名。ファイル名（`.schema.json` 除去後）と一致 |
+| `title` | string | YES | Annotator 名。ファイル名 (`.schema.json` 除去後) と一致 |
 | `description` | string | YES | 1 行の説明 |
 | `category` | string | YES | JEAB カテゴリ: `"Procedure"`, `"Subjects"`, `"Apparatus"`, `"Measurement"`, `"Extension"` |
-| `sub_annotator` | string | NO | カテゴリ内の sub-annotator 名（例: `"stimulus"`, `"temporal"`） |
+| `sub_annotator` | string | NO | カテゴリ内の sub-annotator 名 (例: `"stimulus"`, `"temporal"`) |
 | `version` | string | YES | このスキーマのセマンティックバージョン |
-| `status` | string | YES | ライフサイクル段階（§4.1 参照） |
-| `keywords` | object | YES | Keyword 定義（§5 参照） |
+| `status` | string | YES | ライフサイクル段階 (§4.1 参照) |
+| `keywords` | object | YES | Keyword 定義 (§5 参照) |
 | `future_keywords` | array of strings | NO | 計画中だが未定義の keyword 名 |
 
 ### 4.1 ライフサイクル段階
@@ -129,7 +129,7 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 
 ## 5. Keyword 定義
 
-`keywords` 内の各エントリは keyword 名（string）を keyword 定義
+`keywords` 内の各エントリは keyword 名 (string) を keyword 定義
 オブジェクトにマッピングする。
 
 ```json
@@ -151,11 +151,11 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 |---|---|---|---|
 | `description` | string | YES | この annotation が宣言するもの |
 | `scope` | array of strings | YES | 許可されるスコープ: `"program"`, `"schedule"`, またはその両方 |
-| `positional` | object or null | YES | 位置引数の定義（§5.1）。keyword-only なら `null` |
-| `params` | object | YES | キーワード引数の定義（§6）。なければ空 `{}` |
-| `aliases` | array of strings | NO | 別名 keyword（§8） |
+| `positional` | object or null | YES | 位置引数の定義 (§5.1)。keyword-only なら `null` |
+| `params` | object | YES | キーワード引数の定義 (§6)。なければ空 `{}` |
+| `aliases` | array of strings | NO | 別名 keyword (§8) |
 | `alias_note` | string | NO | alias の動作説明 |
-| `errors` | object | NO | エラーコード定義（§9） |
+| `errors` | object | NO | エラーコード定義 (§9) |
 | `reference` | string or null | YES | APA 形式の引用。単一の正典参照がなければ `null` |
 
 ### 5.1 位置引数
@@ -167,11 +167,11 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 
 | プロパティ | 型 | 必須 | 説明 |
 |---|---|---|---|
-| `type` | string | YES | 値の型（§7） |
+| `type` | string | YES | 値の型 (§7) |
 | `required` | boolean | YES | 位置引数が必須か |
 | `description` | string | NO | 値が表すもの |
 
-`positional` が `null` の場合、その keyword はキーワード引数のみを受け付ける（`params` も空であれば、引数なしで使用される）。
+`positional` が `null` の場合、その keyword はキーワード引数のみを受け付ける (`params` も空であれば、引数なしで使用される)。
 
 **DSL 表面構文マッピング:**
 
@@ -201,14 +201,14 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 
 | プロパティ | 型 | 必須 | デフォルト | 説明 |
 |---|---|---|---|---|
-| `type` | string | YES | — | 値の型（§7） |
+| `type` | string | YES | — | 値の型 (§7) |
 | `required` | boolean | NO | `false` | 無条件に必須か |
-| `required_if` | object | NO | — | 条件付き必須（§6.1） |
-| `forbidden_if` | object | NO | — | 条件付き禁止（§6.1） |
+| `required_if` | object | NO | — | 条件付き必須 (§6.1) |
+| `forbidden_if` | object | NO | — | 条件付き禁止 (§6.1) |
 | `enum` | array | NO | — | 許可される値の完全リスト |
-| `minimum` | number | NO | — | 最小値（inclusive）。`number` / `integer` 型に適用 |
+| `minimum` | number | NO | — | 最小値 (inclusive)。`number` / `integer` 型に適用 |
 | `default` | any | NO | — | 省略時のデフォルト値 |
-| `default_expr` | string | NO | — | 別パラメータの値から導出されるデフォルト（§6.2） |
+| `default_expr` | string | NO | — | 別パラメータの値から導出されるデフォルト (§6.2) |
 | `description` | string | YES | — | パラメータが表すもの |
 
 ### 6.1 条件付き制約: `required_if` / `forbidden_if`
@@ -227,9 +227,9 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 - `required_if`: `<param_name>` の値がリスト内のいずれかであれば、
   このパラメータは**必須**。
 - `forbidden_if`: `<param_name>` の値がリスト内のいずれかであれば、
-  このパラメータは**指定禁止**（指定するとエラー）。
+  このパラメータは**指定禁止**(指定するとエラー)。
 
-**例**（`measurement.schema.json` より）:
+**例**(`measurement.schema.json` より):
 
 ```json
 "time": {
@@ -244,8 +244,8 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 - `rule="reinforcers_only"` のとき、`time` は指定禁止。
 
 **制約:**
-- `required_if` と `forbidden_if` のリストは重複してはならない（同一値が
-  両方の配列に同時に現れてはならない）。
+- `required_if` と `forbidden_if` のリストは重複してはならない (同一値が
+  両方の配列に同時に現れてはならない)。
 - 同一 keyword 定義内のパラメータのみ参照可能
 - 1 パラメータあたり `required_if` と `forbidden_if` は各 1 つまで
 
@@ -269,7 +269,7 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 **制約:**
 - `default_expr` は同一 keyword の `params` 内に存在する別パラメータの名前を
   含む文字列。
-- `default` と `default_expr` は排他的（同時指定不可）。
+- `default` と `default_expr` は排他的 (同時指定不可)。
 - 参照先パラメータは同一 keyword の `params` 内に必ず定義されていなければ
   ならない。
 
@@ -277,44 +277,44 @@ UTF-8、BOM なし。標準 JSON（末尾カンマ・コメント不可）。
 
 ## 7. 型語彙
 
-DSL grammar の `annotation_val` プロダクション（grammar.ebnf §4.7）に
+DSL grammar の `annotation_val` プロダクション (grammar.ebnf §4.7) に
 対応する型識別子を定義する。
 
 | 型識別子 | DSL 表面構文 | JSON 表現 | Grammar プロダクション |
 |---|---|---|---|
 | `"string"` | `"quoted text"` | JSON string | `string_literal` |
 | `"number"` | `3.14` | JSON number | `number` |
-| `"integer"` | `42` | JSON integer | `number`（意味論: 小数点なし） |
-| `"time_value"` | `60min`, `30s`, `2000ms` | JSON number（秒に正規化） | `time_value` → `number time_unit` |
+| `"integer"` | `42` | JSON integer | `number` (意味論: 小数点なし) |
+| `"time_value"` | `60min`, `30s`, `2000ms` | JSON number (秒に正規化) | `time_value` → `number time_unit` |
 | `"object"` | `{key1=val1, key2=val2}` | JSON object | `annotation_object` |
 | `"array<T>"` | `[val1, val2, ...]` | JSON array | `annotation_array` |
 
-### 7.0 `array<T>` と `object`（構造化値）
+### 7.0 `array<T>` と `object` (構造化値)
 
-Additive grammar 拡張（design-philosophy §8.1）として追加。対応する
+Additive grammar 拡張 (design-philosophy §8.1) として追加。対応する
 grammar プロダクション `annotation_array` / `annotation_object`
-は [grammar.ebnf](../../../schema/foundations/grammar.ebnf)（注釈付与セクション）に定義。
+は [grammar.ebnf](../../../schema/foundations/grammar.ebnf) (注釈付与セクション) に定義。
 
 **`array<T>`** — 要素型 T の順序付き均一配列。T は本型語彙の任意の識別子
-（`object` を含む）を取れる:
+(`object` を含む) を取れる:
 
-- `array<string>` — 文字列配列（例: `["AB", "BC"]`）
-- `array<integer>` — 整数配列（例: `[1, 2, 3]`）
-- `array<time_value>` — 時間値配列（例: `["3s", "150ms"]`）
-- `array<object>` — オブジェクト配列（例: `[{role="probe", count=15}, ...]`）
+- `array<string>` — 文字列配列 (例: `["AB", "BC"]`)
+- `array<integer>` — 整数配列 (例: `[1, 2, 3]`)
+- `array<time_value>` — 時間値配列 (例: `["3s", "150ms"]`)
+- `array<object>` — オブジェクト配列 (例: `[{role="probe", count=15}, ...]`)
 
-**`object`** — ident → 値の写像。キーは `ident` プロダクション（英数字 +
-アンダースコア）に従う。値は任意の `annotation_val` を取れるため
+**`object`** — ident → 値の写像。キーは `ident` プロダクション (英数字 +
+アンダースコア) に従う。値は任意の `annotation_val` を取れるため
 任意深度のネストが可能。
 
 **後方互換:** 型識別子 `"array_of_string"` は `"array<string>"` の alias
-として維持する（構造化値拡張以前に作成された schema — 例:
+として維持する (構造化値拡張以前に作成された schema — 例:
 `procedure-stimulus.schema.json` の `relations` / `_variadic_named` —
-との後方互換のため）。新規 schema は `"array<string>"` を使用すること。
+との後方互換のため)。新規 schema は `"array<string>"` を使用すること。
 
 ### 7.1 `time_value` の正規化
 
-DSL ソースでは時間値は明示的な単位（`s`, `ms`, `min`）を伴う。
+DSL ソースでは時間値は明示的な単位 (`s`, `ms`, `min`) を伴う。
 AST およびスキーマ検証では**秒**に正規化した JSON number として扱う。
 元の単位は正規化後に破棄される。
 
@@ -340,22 +340,22 @@ AST およびスキーマ検証では**秒**に正規化した JSON number と�
 以降の拡張は `grammar.ebnf` と本仕様の additive な同時更新を要する。
 
 **サポート済み**:
-- `array<T>` による任意型の配列（§7.0）
-- `object` によるネストオブジェクト（§7.0）
+- `array<T>` による任意型の配列 (§7.0)
+- `object` によるネストオブジェクト (§7.0)
 
 **`annotation_val` が現時点でサポートしない**もの:
-- スケジュール式への参照（整数インデックスまたは識別子による参照は
-  validator レベルではサポート済みだが、型としてのファーストクラス化は未実装）
-- ブールリテラル（`true` / `false`）
+- スケジュール式への参照 (整数インデックスまたは識別子による参照は
+  validator レベルではサポート済みだが、型としてのファーストクラス化は未実装)
+- ブールリテラル (`true` / `false`)
 
 これらが必要になった場合、`annotation_val` への additive 拡張
-（design-philosophy §8.1）と本仕様の型識別子追加が必要となる。
+(design-philosophy §8.1) と本仕様の型識別子追加が必要となる。
 
 ---
 
 ## 8. エイリアス
 
-keyword は alias（同一 AST ノードに collapse する代替名）を宣言してよい。
+keyword は alias (同一 AST ノードに collapse する代替名) を宣言してよい。
 
 ### 意味論
 
@@ -367,7 +367,7 @@ keyword は alias（同一 AST ノードに collapse する代替名）を宣言
 
 ### 制約
 
-- Alias 名は他の keyword 名（同一 annotator 内および推奨 annotator 間）
+- Alias 名は他の keyword 名 (同一 annotator 内および推奨 annotator 間)
   と衝突してはならない
 - Primary keyword は `keywords` のキーとして記載される。
   Alias は `aliases` 配列に記載される
@@ -390,9 +390,9 @@ keyword は検証失敗時に実装が使用すべきエラーコードを宣言
 ### 規約
 
 - エラーコード名は UPPER_SNAKE_CASE
-- keyword 名（大文字化）をプレフィックスとし、keyword 間の衝突を避ける
+- keyword 名 (大文字化) をプレフィックスとし、keyword 間の衝突を避ける
 - 値は人間が読めるエラーメッセージテンプレート
-- 実装はこれらのコード（またはスーパーセット）を使用しなければならない
+- 実装はこれらのコード (またはスーパーセット) を使用しなければならない
 
 ---
 
@@ -405,7 +405,7 @@ keyword は検証失敗時に実装が使用すべきエラーコードを宣言
 | `"program"` | `param_decl*` / `binding*` / `schedule` の前 | セッション全体のデフォルト |
 | `"schedule"` | `schedule` 式の後 | その式に付加。program-level を上書き |
 
-**スコープ解決**（grammar.ebnf §4.7 より）:
+**スコープ解決**(grammar.ebnf §4.7 より):
 
 ```
 resolve(key, S) = S.annotations[key]  if key in S.annotations
@@ -424,7 +424,7 @@ schedule-level の annotation は、その式についてのみ program-level �
 ## 11. Registry 構築プロトコル
 
 **registry** とは、特定のプログラムが認識する annotator の集合である。
-registry はプログラム単位（design-philosophy §4.2）でスコープされる。
+registry はプログラム単位 (design-philosophy §4.2) でスコープされる。
 
 ### 11.1 スキーマファイルからランタイム registry へ
 
@@ -439,7 +439,7 @@ AnnotationRegistry（ランタイムオブジェクト）
 各実装言語のスキーマローダは:
 
 1. 設定されたスキーマディレクトリから `*.schema.json` を読み取る
-2. 各ファイルを本仕様（§4 メタスキーマ）に対して検証する
+2. 各ファイルを本仕様 (§4 メタスキーマ) に対して検証する
 3. keyword → validator のマッピングを構築する
 4. alias → primary keyword のマッピングを登録する
 5. `validate(keyword, args) → Result` インターフェースを公開する
@@ -448,8 +448,8 @@ AnnotationRegistry（ランタイムオブジェクト）
 
 3rd-party のプログラムは本フォーマットで独自の registry を構築する:
 
-- DSL プロジェクトの推奨スキーマファイル（全部または部分）を採用する
-- 自身のスキーマファイル（同一フォーマット）を追加する
+- DSL プロジェクトの推奨スキーマファイル (全部または部分) を採用する
+- 自身のスキーマファイル (同一フォーマット) を追加する
 - 推奨 annotator を無視・置換する
 
 すべての registry が同一スキーマフォーマットを共有するため、スキーマレベル
@@ -461,8 +461,8 @@ AnnotationRegistry（ランタイムオブジェクト）
 プログラムは複数のスキーマファイルから自身の registry を合成してよい。
 合成時の規則:
 
-- スキーマファイル間で keyword 名の衝突はエラー（同一 annotator 内の
-  alias → primary マッピングを除く）
+- スキーマファイル間で keyword 名の衝突はエラー (同一 annotator 内の
+  alias → primary マッピングを除く)
 - カテゴリメタデータは情報的であり、検証には影響しない
 
 ---
@@ -475,7 +475,7 @@ Annotation Schema Format は grammar.ebnf とは**異なるレイヤ**で機能�
 |---|---|
 | Annotation **構文** (`@name(args)`) | grammar.ebnf §4.7 |
 | Annotation **名前と引数スキーマ** | 本仕様 |
-| Annotation **名前解決**（既知 vs 未知） | プログラム registry |
+| Annotation **名前解決**(既知 vs 未知) | プログラム registry |
 
 grammar.ebnf は annotation の構文形を以下のように定義する:
 
@@ -486,7 +486,7 @@ annotation_val   ::= string_literal | time_value | number
 
 本仕様は **どの `annotation_name` 値が存在するか** と
 **それぞれが受け付ける引数形** を定義する。文法は意図的に開かれており
-（任意の `annotation_name` が構文的に妥当）、スキーマは特定プログラムの
+(任意の `annotation_name` が構文的に妥当)、スキーマは特定プログラムの
 registry が名前と引数を検証するために使う意味論層を提供する。
 
 ---
@@ -514,7 +514,7 @@ registry が名前と引数を検証するために使う意味論層を提供�
 2. ロードしたスキーマに対して annotation を検証すること
 3. 検証失敗時に指定されたエラーコードを使用すること
 4. §10 に従いスコープ解決を実装すること
-5. `time_value` を秒に正規化すること（または規約を文書化すること）
+5. `time_value` を秒に正規化すること (または規約を文書化すること)
 6. alias を AST 上で primary keyword と等価に扱うこと
 
 ---
@@ -534,7 +534,7 @@ registry が名前と引数を検証するために使う意味論層を提供�
 
 合計: 6 アノテーションスキーマファイル、18 keyword、JEAB 4 カテゴリ完全カバー。
 
-注: `schema/experiment/` ディレクトリには多フェーズ実験デザイン用の構造スキーマ（`phase-sequence.schema.json`, `experiment.schema.json`）が別途存在する。これらはアノテーションスキーマではなく、Core AST 型とアノテーションを `$ref` で参照する構造スキーマである。
+注: `schema/experiment/` ディレクトリには多フェーズ実験デザイン用の構造スキーマ (`phase-sequence.schema.json`, `experiment.schema.json`) が別途存在する。これらはアノテーションスキーマではなく、Core AST 型とアノテーションを `$ref` で参照する構造スキーマである。
 
 ---
 
@@ -542,10 +542,10 @@ registry が名前と引数を検証するために使う意味論層を提供�
 
 本文書は [design-philosophy.md](../design-philosophy.md) に従属する:
 
-- §4.2（program-scoped closure）が registry 構成を統治
-- §4.3（カテゴリ中立的等価性）がカテゴリ意味論を統治
-- §6（言語非依存性）が本仕様の動機
-- §8（破壊的変更ポリシー）がスキーマ進化を統治
+- §4.2 (program-scoped closure) が registry 構成を統治
+- §4.3 (カテゴリ中立的等価性) がカテゴリ意味論を統治
+- §6 (言語非依存性) が本仕様の動機
+- §8 (破壊的変更ポリシー) がスキーマ進化を統治
 
 本文書の同格文書:
 

@@ -30,12 +30,12 @@ MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + �
 | `comparisons` | キーワード | 正整数 ≥ 2 | YES | — | 試行あたりの比較刺激数 |
 | `consequence` | キーワード | スケジュール | YES | — | 正反応に対するオペラント・スケジュール |
 | `incorrect` | キーワード | スケジュール | NO | `EXT` | 誤反応に対するオペラント・スケジュール |
-| `ITI` | キーワード | 時間値 | YES | — | 試行間隔 |
+| `ITI` | キーワード | 時間値 | YES | — | 試行間間隔 |
 | `type` | キーワード | enum | NO | `"arbitrary"` | マッチング型: `"identity"` または `"arbitrary"` |
-| `delay` | キーワード | 時間値 ≥ 0 | NO | `0s` | 見本 offset と比較 onset の間の保持時間。`delay=0s` は同時 MTS に等価、`delay>0` は DMTS（Blough, 1959）となる。 |
-| `correction` | キーワード | boolean / 正整数 / `"repeat_until_correct"` | NO | `false` | 訂正手続き（Harrison, 1970）。`true` / `"repeat_until_correct"` は正答まで同一試行を繰り返す。正整数 `N` は再試行を `N` 回に制限する。 |
+| `delay` | キーワード | 時間値 ≥ 0 | NO | `0s` | 見本 offset と比較 onset の間の保持時間。`delay=0s` は同時 MTS に等価、`delay>0` は DMTS (Blough, 1959) となる。 |
+| `correction` | キーワード | boolean / 正整数 / `"repeat_until_correct"` | NO | `false` | 訂正手続き (Harrison, 1970)。`true` / `"repeat_until_correct"` は正答まで同一試行を繰り返す。正整数 `N` は再試行を `N` 回に制限する。 |
 
-すべてのパラメータはキーワード限定である（位置引数なし）。
+すべてのパラメータはキーワード限定である (位置引数なし)。
 
 ## 4. マッチング型
 
@@ -44,18 +44,18 @@ MTS(comparisons=3, consequence=CRF, ITI=5s, delay=2s, correction=3) -- DMTS + �
 | `identity` | 見本と物理的に同一な比較を選択 | Cumming & Berryman (1965) |
 | `arbitrary` | 見本と同じ刺激クラスに属する比較を選択 | Sidman (1971); Sidman & Tailby (1982) |
 
-`type=arbitrary` の場合、クラス所属は `@stimulus_classes` 注釈で定義される（MTS プリミティブ自体では定義しない）。
+`type=arbitrary` の場合、クラス所属は `@stimulus_classes` 注釈で定義される (MTS プリミティブ自体では定義しない)。
 
 ## 5. 結果パラメータ
 
-`consequence` と `incorrect` は、構文的には任意のオペラント `schedule` 式を受け付けるが、意味制約により制限される（合成および再帰的な試行ベース・スケジュールは拒否される）。典型的な選択:
+`consequence` と `incorrect` は、構文的には任意のオペラント `schedule` 式を受け付けるが、意味制約により制限される (合成および再帰的な試行ベース・スケジュールは拒否される)。典型的な選択:
 
 | 適切な選択 | 説明 |
 |---|---|
-| `CRF` / `FR 1` | すべての正反応を強化（最も一般的） |
-| `EXT` | フィードバックなし（プローブ試行） |
-| `VR 3` | 間欠強化（部分強化） |
-| `FT 5-s` | タイムアウト（通常は `incorrect` 用） |
+| `CRF` / `FR 1` | すべての正反応を強化 (最も一般的) |
+| `EXT` | フィードバックなし (プローブ試行) |
+| `VR 3` | 間欠強化 (部分強化) |
+| `FT 5-s` | タイムアウト (通常は `incorrect` 用) |
 
 ## 6. 試行状態機械
 
@@ -106,15 +106,15 @@ type=identity:   correct ⟺ response_stimulus == sample_stimulus
 type=arbitrary:  correct ⟺ class(response_stimulus) == class(sample_stimulus)
 ```
 
-## 7. DMTS（遅延）
+## 7. DMTS (遅延)
 
-`delay > 0` のとき、見本 offset の後に保持時間が挿入される（Delayed Matching-to-Sample; Blough, 1959）。保持時間中は見本が除去され、比較刺激はまだ呈示されない（標準 DMTS）。`delay=0s` は形式的に同時 MTS と等価である（既存の振る舞い）。明示的に書くことは意図の文書化である。
+`delay > 0` のとき、見本 offset の後に保持時間が挿入される (Delayed Matching-to-Sample; Blough, 1959)。保持時間中は見本が除去され、比較刺激はまだ呈示されない (標準 DMTS)。`delay=0s` は形式的に同時 MTS と等価である (既存の振る舞い)。明示的に書くことは意図の文書化である。
 
-出版されたパラメトリック範囲は通常 0〜60 秒である（Grant, 1975; White, 1985）。`delay > 60s` は WARNING `MTS_LONG_DELAY` を発する。
+出版されたパラメトリック範囲は通常 0〜60 秒である (Grant, 1975; White, 1985)。`delay > 60s` は WARNING `MTS_LONG_DELAY` を発する。
 
 ## 8. 訂正手続き
 
-誤反応時の扱いを宣言的に制御する（Harrison, 1970; Saunders & Green, 1999）。
+誤反応時の扱いを宣言的に制御する (Harrison, 1970; Saunders & Green, 1999)。
 
 ```
 correction=false                    → 誤答時に次試行へ進む（デフォルト）
@@ -123,38 +123,38 @@ correction="repeat_until_correct"   → correction=true へ脱糖衣（冪等）
 correction=N（整数 N ≥ 1）          → 最大 N 回繰り返してから進む
 ```
 
-位置バイアスのリスク（Dube & McIlvane, 1996）に留意すること。Sidman の伝統では、等価性テスト試行は通常、訂正なし・分化強化なしで行う。`delay > 0` と `correction=true` / `"repeat_until_correct"` を組み合わせることは保持手続きと獲得手続きを混同させるため、WARNING `DMTS_WITH_CORRECTION` を発する。
+位置バイアスのリスク (Dube & McIlvane, 1996) に留意すること。Sidman の伝統では、等価性テスト試行は通常、訂正なし・分化強化なしで行う。`delay > 0` と `correction=true` / `"repeat_until_correct"` を組み合わせることは保持手続きと獲得手続きを混同させるため、WARNING `DMTS_WITH_CORRECTION` を発する。
 
-## 9. AST 表現（正規化）
+## 9. AST 表現 (正規化)
 
 `delay` と `correction` は以下の規則で AST に具現化される。
 
 | 表層構文 | AST |
 |---|---|
 | `delay` 省略 | `delay` / `delay_unit` フィールドなし |
-| `delay=0s` | `delay: 0.0, delay_unit: "s"`（意図マーカー） |
-| `delay=Xu`（X>0） | `delay: X, delay_unit: "u"` |
+| `delay=0s` | `delay: 0.0, delay_unit: "s"` (意図マーカー) |
+| `delay=Xu` (X>0) | `delay: X, delay_unit: "u"` |
 | `correction` 省略 | `correction` フィールドなし |
 | `correction=false` | `correction: { mode: "disabled" }` |
 | `correction=true` | `correction: { mode: "unlimited" }` |
-| `correction="repeat_until_correct"` | `correction: { mode: "unlimited" }`（`true` と同一 AST、脱糖衣） |
-| `correction=N`（N≥1） | `correction: { mode: "bounded", limit: N }` |
+| `correction="repeat_until_correct"` | `correction: { mode: "unlimited" }` (`true` と同一 AST、脱糖衣) |
+| `correction=N` (N≥1) | `correction: { mode: "bounded", limit: N }` |
 
-**省略形と明示形は AST レベルで区別可能である**（ラウンドトリップ保存のため）。ただし**ランタイム上は行動的に等価である**。下流の消費者（シミュレータ、リンター、ビジュアライザ）はこれらを同一として扱わねばならない（MUST）。
+**省略形と明示形は AST レベルで区別可能である**(ラウンドトリップ保存のため)。ただし**ランタイム上は行動的に等価である**。下流の消費者 (シミュレータ、リンター、ビジュアライザ) はこれらを同一として扱わねばならない (MUST)。
 
 ### 後方互換性
 
-拡張前のプログラム `P`（`delay` も `correction` も含まない）に対して、現在のパーサは拡張前のパーサと同一の AST を生成する。`mts_kw_arg` 拡張は加法的である。拡張前の代替は `P` のトークン列に逐語的に一致し、新たな産出規則は `P` からは到達不能である。
+拡張前のプログラム `P` (`delay` も `correction` も含まない) に対して、現在のパーサは拡張前のパーサと同一の AST を生成する。`mts_kw_arg` 拡張は加法的である。拡張前の代替は `P` のトークン列に逐語的に一致し、新たな産出規則は `P` からは到達不能である。
 
 ### 警告発行順
 
-単一の MTS 式に複数の警告が該当する場合、定義順（W1 → W2 → W3 → W4 → W5 → W7 → W8 → W9 → W1b）ですべて発行される。抑制や優先順位規則は適用されない。リンターはレポートで警告をグループ化してよい（MAY）が、いずれも捨ててはならない（MUST NOT）。
+単一の MTS 式に複数の警告が該当する場合、定義順 (W1 → W2 → W3 → W4 → W5 → W7 → W8 → W9 → W1b) ですべて発行される。抑制や優先順位規則は適用されない。リンターはレポートで警告をグループ化してよい (MAY) が、いずれも捨ててはならない (MUST NOT)。
 
 ## 10. 刺激等価性と注釈
 
-MTS は刺激等価性研究の手続き基盤である（Sidman, 1971）。DSL は関心事を分離する。
+MTS は刺激等価性研究の手続き基盤である (Sidman, 1971)。DSL は関心事を分離する。
 
-- **MTS プリミティブ** — 試行構造（呈示 → 選択 → 結果 → ITI）
+- **MTS プリミティブ** — 試行構造 (呈示 → 選択 → 結果 → ITI)
 - **注釈** — 刺激内容、クラス関係、訓練／テスト相、習得基準
 
 ```
@@ -176,9 +176,9 @@ MTS(comparisons=3, consequence=EXT, ITI=5s)
 セッション構造とプローブ混合方針については、`measurement-annotator` から 2 つのキーワードを用いる。
 
 - **`@session(trials=N)`** / **`@session(blocks=K, block_size=M)`** — 試行ベースのセッション構造。JEAB Method セクションの「セッションあたり 72 試行」パターンを直接表現する。`annotations/measurement-annotator/README.md` の `@session` 節を参照。
-- **`@probe_policy(baseline_reinforced, probe_ratio, interspersed, order)`** — 等価性テスト用の強く定義されたプローブ／ベースライン試行混合方針（Fields et al., 1997）。同 README の `@probe_policy` 節を参照。
+- **`@probe_policy(baseline_reinforced, probe_ratio, interspersed, order)`** — 等価性テスト用の強く定義されたプローブ／ベースライン試行混合方針 (Fields et al., 1997)。同 README の `@probe_policy` 節を参照。
 
-例（Arntzen 2012 + Fields 1997 の推奨設定）:
+例 (Arntzen 2012 + Fields 1997 の推奨設定):
 
 ```
 @session(blocks=6, block_size=12)
@@ -233,7 +233,7 @@ MTS(comparisons=3, consequence=CRF, ITI=5s) LH 10-s
 | `MTS_CORRECTION_LIMIT_NONPOSITIVE` | `correction=N` で `N ≤ 0` | SemanticError |
 | `MTS_INVALID_CORRECTION` | `correction` が boolean / 正整数 / `"repeat_until_correct"` のいずれでもない | SemanticError |
 | `MTS_MANY_COMPARISONS` | `comparisons > 9` | WARNING |
-| `MTS_TWO_COMPARISONS_WEAK`（W1b） | `comparisons = 2` — reject-control のみで 100% 正答となり select-control が検出不能になりうる（Sidman, 1987; Carrigan & Sidman, 1992） | WARNING |
+| `MTS_TWO_COMPARISONS_WEAK` (W1b) | `comparisons = 2` — reject-control のみで 100% 正答となり select-control が検出不能になりうる (Sidman, 1987; Carrigan & Sidman, 1992) | WARNING |
 | `MTS_NO_REINFORCEMENT` | `consequence=EXT` | WARNING |
 | `MTS_IDENTITY_WITH_CLASSES` | `type=identity` に `@stimulus_classes` | WARNING |
 | `MTS_ARBITRARY_WITHOUT_CLASSES` | `@stimulus_classes` のない `type=arbitrary` | WARNING |
@@ -245,8 +245,8 @@ MTS(comparisons=3, consequence=CRF, ITI=5s) LH 10-s
 
 DSL は以下を表現しない。
 
-1. **創発的関係**（反射性、対称性、推移性）— これらは MTS 訓練 *後* に観察される行動的帰結であり、手続き仕様ではない。
-2. **派生刺激関係**（Hayes et al., 2001）— 等価性の根底にある *過程* に関する理論的構成。
+1. **創発的関係**(反射性、対称性、推移性) — これらは MTS 訓練 *後* に観察される行動的帰結であり、手続き仕様ではない。
+2. **派生刺激関係**(Hayes et al., 2001) — 等価性の根底にある *過程* に関する理論的構成。
 3. **機能の転移** — 刺激クラス間で観察される行動現象。
 
 これらは `operant/theory.md §2.6` で確立された手続き-効果境界に従う意図的な省略である。*DSL は手続きを規定する — 実験者が配置するもの。DSL は効果を予測しない — 有機体がすること。*

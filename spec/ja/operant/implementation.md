@@ -78,7 +78,7 @@ ScheduleExpr = Union[AtomicSchedule, CompoundSchedule, ModifierSchedule, Limited
 
 ## 5.3 `to_schedule()` ブリッジ
 
-現行のモノリシックな if-elif 連鎖は、構造的パターンマッチング（Python 3.10+）に置き換えるべきである。
+現行のモノリシックな if-elif 連鎖は、構造的パターンマッチング (Python 3.10+) に置き換えるべきである。
 
 ```python
 def to_runtime(expr: ScheduleExpr) -> Schedule:
@@ -120,9 +120,9 @@ def to_runtime(expr: ScheduleExpr) -> Schedule:
 
 contingency-py は現状、以下を欠いている。
 
-- `RandomRatio`, `RandomInterval`, `RandomTime`（OperantKit Swift 版に存在: `RR.swift`, `RI.swift`, `RT.swift`）
+- `RandomRatio`, `RandomInterval`, `RandomTime` (OperantKit Swift 版に存在: `RR.swift`, `RI.swift`, `RT.swift`)
 - `Distribution` / `Domain` 列挙型
-- `CRF` の利便エイリアス（`FixedRatio(target=1)`）
+- `CRF` の利便エイリアス (`FixedRatio(target=1)`)
 
 Random スケジュールは Swift パターンに従う。`RR(n)` は `next()` 呼び出しごとに `random.randint(1, n)` を生成する一方、`VR(n)` は事前計算された Fleshler-Hoffman 系列からドローする。
 
@@ -134,9 +134,9 @@ Random スケジュールは Swift パターンに従う。`RR(n)` は `next()` 
 
 1. **2 次元型システム.** `PrepositionSchedule × PostpositionSchedule` は、Distribution と Domain の基本的な独立性を捉えた、理論的に根拠のある分解である。
 
-2. **ビルダー API.** `ScheduleBuilder.swift` は、文献に合致する API（`FR(5)`, `Conc(FR(5), VI(30))`）を提供し、Python DSL の表層として的確である。
+2. **ビルダー API.** `ScheduleBuilder.swift` は、文献に合致する API (`FR(5)`, `Conc(FR(5), VI(30))`) を提供し、Python DSL の表層として的確である。
 
-3. **プロトコル指向設計.** `ScheduleUseCase` はすべてのスケジュール（アトミックおよび合成）に対して一様なインターフェースを定義し、多相的な合成を可能にする。
+3. **プロトコル指向設計.** `ScheduleUseCase` はすべてのスケジュール (アトミックおよび合成) に対して一様なインターフェースを定義し、多相的な合成を可能にする。
 
 4. **合成のための Template Method.** `CompoundScheduleUseCaseBase` は共有された `updateValue()` ロジックを提供し、個別の合成が `decision()` をオーバーライドする。
 
@@ -144,9 +144,9 @@ Random スケジュールは Swift パターンに従う。`RR(n)` は `next()` 
 
 ### 6.2 改善可能な点
 
-1. **ビットパッキング → 列挙ペア.** UInt64 符号化は Swift では慣用的（`OptionSet`）だが、Python では不要である。次元的問い合わせ可能性を保つ列挙ペアに置き換える。
+1. **ビットパッキング → 列挙ペア.** UInt64 符号化は Swift では慣用的 (`OptionSet`) だが、Python では不要である。次元的問い合わせ可能性を保つ列挙ペアに置き換える。
 
-2. **フラットな ScheduleConfig → 代数的 ADT.** 現行の `ScheduleConfig`（12 個のオプショナルフィールドを持つ単一 Pydantic モデル）はスケールしない。ADT アプローチは無関係なフィールドを排除する。
+2. **フラットな ScheduleConfig → 代数的 ADT.** 現行の `ScheduleConfig` (12 個のオプショナルフィールドを持つ単一 Pydantic モデル) はスケールしない。ADT アプローチは無関係なフィールドを排除する。
 
 3. **Concurrent のみ → 7 コンビネータ全体.** contingency-py は 7 つすべてを既に実装しているが、DSL は現状 Concurrent のみを露出している。
 

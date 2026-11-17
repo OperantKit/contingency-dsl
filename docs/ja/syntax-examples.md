@@ -42,7 +42,7 @@ Conc(VI30s, VI60s, COD=2s, PUNISH(1->2)=FR1, PUNISH(2->1)=FR1)
                               -- 切替の向きごとの反応クラスへの罰
 ```
 
-> **参照パーサについて:** 上の `@punisher` を使う 2 例は、[contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) に同梱されたアノテーション拡張では解析できません。仕様では `@punisher` は `@reinforcer` の別名です（`schema/annotations/procedure-stimulus.schema.json`）が、パーサは別名を解決する前に書かれたままのキーワードを照合するため、`unknown annotation '@punisher'` を報告します。`scripts/check_docs_examples.py` はこのキーワードだけを別に登録し、例の残りの部分を検査します。
+> **参照パーサについて:** 上の `@punisher` を使う 2 例は、[contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) に同梱されたアノテーション拡張では解析できません。仕様では `@punisher` は `@reinforcer` の別名です (`schema/annotations/procedure-stimulus.schema.json`) が、パーサは別名を解決する前に書かれたままのキーワードを照合するため、`unknown annotation '@punisher'` を報告します。`scripts/check_docs_examples.py` はこのキーワードだけを別に登録し、例の残りの部分を検査します。
 
 ## Operant — 状態を持つスケジュールと試行型の手続き
 
@@ -74,7 +74,7 @@ Extinction(cs=Tone)
 ITI(distribution=exponential, mean=120s)
 ```
 
-## Composed（operant × respondent）
+## Composed (operant × respondent)
 
 ```
 -- CER (Estes & Skinner, 1941): オペラントのベースライン + Pavlov 型の対提示 + ベースラインの再利用

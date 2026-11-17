@@ -192,7 +192,7 @@ Experiment / Annotation) は [design-philosophy.md §2](design-philosophy.md)
   Case B はこのテストに失敗する。評価に影響しないことを契約で保証する
   層に、文法的に load-bearing な構築物を置こうとするためである。
 
-**Case C（採用）** — レスポンデントの深さに対する拡張ポイントを備えた
+**Case C (採用)** — レスポンデントの深さに対する拡張ポイントを備えた
 科学的カテゴリ命名: トップレベルディレクトリを、それが扱う科学的
 カテゴリ (foundations / operant / respondent / composed / experiment /
 annotations) によって命名する。Operant 層が最大の分量を担う。

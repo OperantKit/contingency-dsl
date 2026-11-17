@@ -33,7 +33,7 @@ JEAB 準拠の推奨カテゴリのうち、この annotator はどれに属す�
 - [ ] **Apparatus** — チャンバー、オペランダム、HW バインディング、タイミング契約
 - [ ] **Measurement** — 安定状態、ベースライン、フェーズロジック、従属変数仕様
 - [ ] **Extension** — 臨床、派生的、来歴、ドメイン固有
-      （新カテゴリの場合は正当化が必要）
+      (新カテゴリの場合は正当化が必要)
 
 ---
 
@@ -49,17 +49,17 @@ JEAB 準拠の推奨カテゴリのうち、この annotator はどれに属す�
 
 **この annotation がないと理論的議論ができないか: YES / NO**
 
-- （スケジュールの理論的性質がこの annotation を必要としない理由を説明）
+- (スケジュールの理論的性質がこの annotation を必要としない理由を説明)
 
 **この annotation が DSL 内にあるべき理由:**
 
-- （DSL 内にあることで何が検証可能・コンパイル可能・再現可能になるか説明）
+- (DSL 内にあることで何が検証可能・コンパイル可能・再現可能になるか説明)
 
 ---
 
 ## 包含基準
 
-- この annotator に*属する*もの（1つの次元、明確に記述）
+- この annotator に*属する*もの (1つの次元、明確に記述)
 
 ## 除外基準
 
@@ -101,13 +101,13 @@ JEAB 準拠の推奨カテゴリのうち、この annotator はどれに属す�
 
 ## 依存関係
 
-この annotator が必要とする他の annotator（もしあれば）。なるべく依存なしが望ましい。
+この annotator が必要とする他の annotator (もしあれば)。なるべく依存なしが望ましい。
 
 ---
 
 ## 実装リファレンス
 
-実装の所在（例: `apps/experiment/contingency-dsl-py/src/contingency_dsl.annotations/<name>_annotator/`）。
+実装の所在 (例: `apps/experiment/contingency-dsl-py/src/contingency_dsl.annotations/<name>_annotator/`)。
 
 注: サードパーティのプログラムは、リファレンス実装を使用せずに
 このスキーマに準拠した独自の annotator を実装できる。

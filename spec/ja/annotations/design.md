@@ -6,8 +6,8 @@
 両者が矛盾する場合は **design-philosophy.md が正典として優先する**。
 
 関連文書:
-- [design-philosophy.md](../design-philosophy.md) §4 — Annotation 層の構造とカテゴリ（正典）
-- [schema-format.md](schema-format.md) — Annotation Schema Format（言語非依存メタDSL）
+- [design-philosophy.md](../design-philosophy.md) §4 — Annotation 層の構造とカテゴリ (正典)
+- [schema-format.md](schema-format.md) — Annotation Schema Format (言語非依存メタDSL)
 - [validation-modes.md](validation-modes.md) — 各プログラムにおける tier × mode 検証の設計例
 - [grammar.ebnf](../../../schema/foundations/grammar.ebnf) §4.7 — Annotation 構文とプログラムスコープ closure
 
@@ -15,15 +15,15 @@
 
 ## 1. 方針: 言語非依存な annotation schema
 
-Annotation の意味定義は、特定の実装言語（Python / Rust / Kotlin 等）の
+Annotation の意味定義は、特定の実装言語 (Python / Rust / Kotlin 等) の
 型システムに閉じ込めず、**言語非依存な schema 記述**として定義する。
-これは design-philosophy §6（言語非依存性は実質的要件）の具体化である。
+これは design-philosophy §6 (言語非依存性は実質的要件) の具体化である。
 
 ### 動機
 
 1. **言語非依存性** — 同一の annotation schema を複数言語の実装が参照し、
    等価に解釈できる。
-2. **実験の正準表現** — DSL ソース（Core + annotations）が実験手続きの
+2. **実験の正準表現** — DSL ソース (Core + annotations) が実験手続きの
    single source of truth として機能する。
 3. **論文コンパイル** — DSL ソースを自然言語の Method / Procedure セクションに
    コンパイルできる。曖昧性ゼロの再現可能な手続き記述。
@@ -34,9 +34,9 @@ Annotation の意味定義は、特定の実装言語（Python / Rust / Kotlin �
 すべての実装がそれに準拠する」という前提で書かれていた。
 design-philosophy §4.2 以降、この前提は **撤回** されている:
 
-- Annotation の schema は **プログラム（runtime / interpreter）が提供する
+- Annotation の schema は **プログラム (runtime / interpreter) が提供する
   registry** に属する。DSL spec 自身は「推奨」を提示するのみ。
-- カテゴリ（Procedure / Subjects / Apparatus / Measurement 等）は
+- カテゴリ (Procedure / Subjects / Apparatus / Measurement 等) は
   **推奨分類** であり強制ではない。3rd-party は自由に新カテゴリを定義し、
   既存カテゴリを無視・再定義できる。
 - したがって「メタDSL」という言葉が意味するのは、
@@ -46,9 +46,9 @@ design-philosophy §4.2 以降、この前提は **撤回** されている:
 ### 現状との関係
 
 言語非依存なスキーマフォーマットは [schema-format.md](schema-format.md)
-（Annotation Schema Format）として正式に仕様化された。JSON Schema 2020-12
-ベースに DSL 固有の拡張（`keywords`, `scope`, `positional`,
-`required_if`/`forbidden_if`, `aliases`, `errors`）を載せた形式である。
+(Annotation Schema Format) として正式に仕様化された。JSON Schema 2020-12
+ベースに DSL 固有の拡張 (`keywords`, `scope`, `positional`,
+`required_if`/`forbidden_if`, `aliases`, `errors`) を載せた形式である。
 推奨 5 annotator スキーマすべてが本フォーマットに適合する。
 
 本 spec は、既存の `contingency-dsl-py` の `AnnotationModule` Protocol を
@@ -84,16 +84,16 @@ FI 10 @clock(unit="s")          -- 実験を実行するには必要だが
       @subject(species="rat")
 ```
 
-### 境界テスト（Core vs Annotation の判定）
+### 境界テスト (Core vs Annotation の判定)
 
 提案された候補 `@X` に対し、以下の質問で Core 文法への昇格が必要か、
 それとも annotation として扱えるかを判定する:
 
 | # | 質問 | YES → | NO → |
 |---|---|---|---|
-| 1 | `@X` がないと schedule の理論的性質（FI スキャロップ等）を議論できないか | Core 文法の一部である。Annotation ではなく Core への追加を検討 | annotation 候補 |
-| 2 | `@X` は schedule 式の評価意味論を変えるか | Core 文法の variant（例: FI-resetting）である。Core への追加を検討 | annotation 候補 |
-| 3 | `@X` は Core 文法レベルで必須か（プログラムの registry に依存せず、DSL spec 全体で必須と主張できるか） | Core 文法への昇格を検討。ただし design-philosophy §8 により破壊的変更は原則回避 | annotation 候補 |
+| 1 | `@X` がないと schedule の理論的性質 (FI スキャロップ等) を議論できないか | Core 文法の一部である。Annotation ではなく Core への追加を検討 | annotation 候補 |
+| 2 | `@X` は schedule 式の評価意味論を変えるか | Core 文法の variant (例: FI-resetting) である。Core への追加を検討 | annotation 候補 |
+| 3 | `@X` は Core 文法レベルで必須か (プログラムの registry に依存せず、DSL spec 全体で必須と主張できるか) | Core 文法への昇格を検討。ただし design-philosophy §8 により破壊的変更は原則回避 | annotation 候補 |
 
 ### 注記: 「Parse error になるか」は DSL レベルでは判定不能
 
@@ -147,15 +147,15 @@ FI 10 @clock(unit="s")       -- also valid (registry が @clock を知ってい�
 | extensions/social-annotator | `@subject`, `@ibc` | 多被験体随伴性、協調課題。`@ibc` = Interlocking Behavioral Contingencies (Glenn, 2004) |
 | extensions/clinical-annotator | `@function`, `@target`, `@replacement` | ABA 臨床メタデータ |
 
-カテゴリ分類は [design-philosophy.md](../design-philosophy.md#41-推奨カテゴリ体系jeab-method-節に準拠) §4.1 に準拠する。
+カテゴリ分類は [design-philosophy.md](../design-philosophy.md#41-推奨カテゴリ体系-jeab-method-節に準拠) §4.1 に準拠する。
 annotator 名と JEAB カテゴリの 1:1 対応原則は §3.7 を参照。
 
 ### 3rd-party が自由にできること
 
 - DSL プロジェクトの推奨 annotator を **そのまま採用する**
-- 一部を **無視する**（例: 環境条件を外部管理するプログラムは Apparatus を使わない）
-- 独自の **新カテゴリを定義する**（例: Clinical, Derivational, Pharmacology）
-- 既存 annotator を **再解釈・置換する**（対立理論の実装）
+- 一部を **無視する**(例: 環境条件を外部管理するプログラムは Apparatus を使わない)
+- 独自の **新カテゴリを定義する**(例: Clinical, Derivational, Pharmacology)
+- 既存 annotator を **再解釈・置換する**(対立理論の実装)
 
 いずれの場合も Core DSL の変更は不要である。
 
@@ -171,13 +171,13 @@ annotator 名と JEAB カテゴリの 1:1 対応原則は §3.7 を参照。
 ```
 
 各層は **optional かつ additive**。`FI 10` はどのプログラムの registry でも valid
-（その registry が Core を解釈できる限り）。
+(その registry が Core を解釈できる限り)。
 
 ### 新しい annotation を定義するには
 
 1. [template.md](template.md) をテンプレートとしてコピー
 2. §2 の境界テストに回答し、Core ではなく annotation として妥当であることを示す
-3. 対応するカテゴリ（Procedure / Subjects / Apparatus / Measurement / 拡張）を選ぶ
+3. 対応するカテゴリ (Procedure / Subjects / Apparatus / Measurement / 拡張) を選ぶ
 4. §4 のレビュー機構を経て、該当パッケージまたは独自 registry に追加
 
 ---
@@ -187,7 +187,7 @@ annotator 名と JEAB カテゴリの 1:1 対応原則は §3.7 を参照。
 ### 問題
 
 行動分析学の中核概念である **強化子 (reinforcer)** と **罰子 (punisher)** は、
-radical behaviorism の立場では **機能的（効果による事後的）定義** を持つ。
+radical behaviorism の立場では **機能的 (効果による事後的) 定義** を持つ。
 つまり、ある刺激が強化子か罰子かは、それが行動を増加させるか減少させるかで
 事後的にのみ決まる。手続き記述の段階で "これは強化子" とラベル付けすることには、
 mentalism との混同や a priori ラベリングの批判がある。
@@ -240,9 +240,9 @@ Annotation alias は以下の条件を満たす場合に採用してよい:
 
 本文書では「基本形 (primary / base form)」という表現を用いる。プログラミング /
 型理論で広く使われる `canonical form` は JEAB 文献の普遍的な術語ではなく
-（EAB の一部 JEAB 論文では `canonical taxonomy`、`canonical data` のような
+(EAB の一部 JEAB 論文では `canonical taxonomy`、`canonical data` のような
 形容詞的用法で現れるが、特定の keyword の標準形を指す技術用語としては
-確立されていない）、行動分析学者に最も馴染みのある用語選択として `primary`
+確立されていない)、行動分析学者に最も馴染みのある用語選択として `primary`
 または `base` を採用する。
 
 ### 3rd-party への含意
@@ -250,11 +250,11 @@ Annotation alias は以下の条件を満たす場合に採用してよい:
 Alias 関係は DSL プロジェクトが推奨するが、強制ではない。3rd-party の registry は:
 
 - Alias を全部採用する
-- 基本形のみ採用する（`@reinforcer` だけ認識、`@punisher` は parse error）
-- 独自の alias を追加する（例: `@stimulus`）
-- Alias 関係を再定義する（非推奨）
+- 基本形のみ採用する (`@reinforcer` だけ認識、`@punisher` は parse error)
+- 独自の alias を追加する (例: `@stimulus`)
+- Alias 関係を再定義する (非推奨)
 
-いずれも design-philosophy §4.2（program-scoped closure）の原則に従う。
+いずれも design-philosophy §4.2 (program-scoped closure) の原則に従う。
 
 ## 3.6 Annotation カテゴリ監査 — JEAB Method 節との整合
 
@@ -263,9 +263,9 @@ Alias 関係は DSL プロジェクトが推奨するが、強制ではない。
 ### 3.6.1 `@operandum` は Apparatus カテゴリに属する
 
 **理由:**
-- JEAB Method 節では operandum（レバー、キー等）は **Apparatus** セクションで
-  記述されるのが伝統的慣習である（例: "Two retractable levers (ENV-112CM,
-  Med Associates) were mounted on the front wall"）
+- JEAB Method 節では operandum (レバー、キー等) は **Apparatus** セクションで
+  記述されるのが伝統的慣習である (例: "Two retractable levers (ENV-112CM,
+  Med Associates) were mounted on the front wall")
 - 現 DSL で `@operandum("left_lever", component=1)` が schedule 成分へ
   割り当てる procedural な用法を持つ場合も、根本的には物理的装置の同定であり、
   Apparatus カテゴリへの所属が自然
@@ -275,12 +275,12 @@ Alias 関係は DSL プロジェクトが推奨するが、強制ではない。
 **`@algorithm`** — Procedure に維持。schedule 値の生成方法を指定するもので、
 効果の測定方法ではない。JEAB 慣習でも Procedure 節に記述される。
 
-**`@hardware`** — 物理ハードウェア専用（Apparatus カテゴリ）。省略時は
-virtual/シミュレーションモード（validation-modes §4.2 参照）。
+**`@hardware`** — 物理ハードウェア専用 (Apparatus カテゴリ)。省略時は
+virtual/シミュレーションモード (validation-modes §4.2 参照)。
 
 **`@session_end` / `@baseline` / `@steady_state`** — Measurement カテゴリ。
-`measurement-annotator` が提供する。将来の拡張候補（`@phase_end`,
-`@dependent_measure`, `@logging`）は
+`measurement-annotator` が提供する。将来の拡張候補 (`@phase_end`,
+`@dependent_measure`, `@logging`) は
 [measurement-annotator/README.md](../../../annotations/measurement-annotator/README.md)
 に記録。
 
@@ -291,7 +291,7 @@ virtual/シミュレーションモード（validation-modes §4.2 参照）。
 **推奨 annotator の名前は JEAB Method 節の見出しと 1:1 で一致する** という
 命名規則を採用する:
 
-| Annotator 名 | JEAB カテゴリ（Method 節見出し） |
+| Annotator 名 | JEAB カテゴリ (Method 節見出し) |
 |---|---|
 | `procedure-annotator` | Procedure |
 | `subjects-annotator` | Subjects |
@@ -340,9 +340,9 @@ Extension 配置の意図は「これらは JEAB 4 カテゴリの外である�
 
 ### 3rd-party の自由度
 
-Program-scoped closure 原則（§4.2 in design-philosophy）により、3rd-party は:
+Program-scoped closure 原則 (§4.2 in design-philosophy) により、3rd-party は:
 
-- この命名規則に従う（推奨）
+- この命名規則に従う (推奨)
 - 異なる命名規則を採用する
 - Extensions を無視する
 - 独自の annotator を追加する
@@ -354,15 +354,15 @@ Program-scoped closure 原則（§4.2 in design-philosophy）により、3rd-par
 ## 4. レビュー機構: DSL プロジェクト推奨 annotator の追加プロセス
 
 本節は **DSL プロジェクトが推奨 annotator を追加する場合** のレビュー手順を定める。
-3rd-party の独自 registry には本節の手続きは強制されない（各プロジェクトが
-自身のレビュー手続きを決定する）。
+3rd-party の独自 registry には本節の手続きは強制されない (各プロジェクトが
+自身のレビュー手続きを決定する)。
 
 ### 問題: 推奨 annotator の追加時に何を検証するか
 
 推奨候補が現れたとき、以下を判定する:
 
-- Core 文法への昇格が必要か（§2 の境界テスト Q1-Q3）、annotation でよいか
-- どの推奨カテゴリ（Procedure / Subjects / Apparatus / Measurement）に属するか
+- Core 文法への昇格が必要か (§2 の境界テスト Q1-Q3)、annotation でよいか
+- どの推奨カテゴリ (Procedure / Subjects / Apparatus / Measurement) に属するか
 - 推奨 registry の既存 annotator と keyword 衝突しないか
 
 ### レビュー構造
@@ -411,7 +411,7 @@ Layer 2: 境界テスト（構造化 markdown）
 
 ---
 
-## 5. コンパイルターゲット（将来ビジョン）  <!-- was §5 before §6 scoping insert -->
+## 5. コンパイルターゲット (将来ビジョン)  <!-- was §5 before §6 scoping insert -->
 
 ```
 DSL source (with annotations)
@@ -434,7 +434,7 @@ VI 30 @clock(unit="s")
   @reinforcer("sucrose", concentration="10%", duration=3)
 ```
 
-出力（APA Methods section）:
+出力 (APA Methods section):
 > Responses were reinforced according to a variable-interval 30-s schedule
 > (Fleshler & Hoffman, 1962; list length = 12) with a 2-s changeover delay.
 > Each reinforcer delivery consisted of 3-s access to 10% sucrose solution.
@@ -448,7 +448,7 @@ VI 30 @clock(unit="s")
 科学論文の Method セクションは明確な階層構造を持つ:
 **Subjects** → **Apparatus** → **Procedure** (Sidman, 1960; Ferster & Skinner, 1957)。
 被験体条件や装置は実験セッション全体に適用される境界条件であり、
-強化スケジュール（独立変数）より上位の概念である。
+強化スケジュール (独立変数) より上位の概念である。
 
 DSL でもこの構造を反映する: `@species("rat")` は `FR 5` の修飾ではなく、
 プログラム全体の前提条件として宣言されるべきである。
@@ -481,12 +481,12 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
 
 | スコープ | アノテーション | 根拠 |
 |---|---|---|
-| **プログラムレベル（Subjects）** | `@species`, `@strain`, `@n`, `@history`, `@deprivation` | セッション内不変。被験体は境界条件 |
-| **プログラムレベル（Apparatus）** | `@chamber`, `@hardware`, `@interface` | 装置はセッション通じて固定 |
-| **プログラムレベル（Session）** | `@clock`, `@warmup`, `@algorithm` | セッション時間パラメータ |
-| **プログラムレベル（Measurement）** | `@session_end`, `@baseline`, `@steady_state` | 測定基準はセッション全体に適用。安定性判断・ベースライン条件は境界条件 |
-| **スケジュールレベル** | `@operandum`, `@sd`, `@brief` | 成分ごとに異なる（concurrent, multiple） |
-| **両方（デフォルト+上書き）** | `@reinforcer` | 通常統一、選択手続きで異なる場合あり |
+| **プログラムレベル (Subjects)** | `@species`, `@strain`, `@n`, `@history`, `@deprivation` | セッション内不変。被験体は境界条件 |
+| **プログラムレベル (Apparatus)** | `@chamber`, `@hardware`, `@interface` | 装置はセッション通じて固定 |
+| **プログラムレベル (Session)** | `@clock`, `@warmup`, `@algorithm` | セッション時間パラメータ |
+| **プログラムレベル (Measurement)** | `@session_end`, `@baseline`, `@steady_state` | 測定基準はセッション全体に適用。安定性判断・ベースライン条件は境界条件 |
+| **スケジュールレベル** | `@operandum`, `@sd`, `@brief` | 成分ごとに異なる (concurrent, multiple) |
+| **両方 (デフォルト+上書き)** | `@reinforcer` | 通常統一、選択手続きで異なる場合あり |
 
 注: これは推奨分類であり、文法レベルでの制約ではない。任意の annotation keyword は
 構文的には両レベルに出現可能。意味的制約はセマンティックパスで検証する。
@@ -494,7 +494,7 @@ resolve(key, S) = S.annotations[key]  if key ∈ S.annotations
 ### 意味的制約
 
 - `@operandum(component=N)` をプログラムレベルに置く → `SemanticError: PROGRAM_ANNOTATION_COMPONENT`
-  （成分インデクスはスケジュール文脈でのみ意味を持つ）
+  (成分インデクスはスケジュール文脈でのみ意味を持つ)
 - プログラムレベルで成分固有パラメータを持つアノテーション → linter WARNING
 
 ### 完全な例
@@ -539,13 +539,13 @@ Conc(left, right)
 
 **PL 理論的根拠:**
 - `session { }` ブロック構文は既存文法に前例がなく過剰 — 位置による区別で十分
-- `param_decl` に統合するのは boundary principle 違反（param_decl = コア意味論に影響、
-  annotation = 直交メタデータ）
+- `param_decl` に統合するのは boundary principle 違反 (param_decl = コア意味論に影響、
+  annotation = 直交メタデータ)
 - Rust inner/outer attributes (`#![...]` vs `#[...]`) に近い設計だが、
   位置スコーピングの方が non-TC DSL には自然
 
 **行動分析学的根拠:**
-- 被験体 = 境界条件（Sidman, 1960 の steady-state design における baseline）
+- 被験体 = 境界条件 (Sidman, 1960 の steady-state design における baseline)
 - スケジュール = 独立変数
 - 因果構造をそのまま DSL の構文階層に写像する
 
@@ -553,7 +553,7 @@ Conc(left, right)
 
 ## 7. 未解決の設計課題
 
-### メタDSL の文法（形式）
+### メタDSL の文法 (形式)
 
 Annotation schema を言語非依存に記述するための **形式** は未確定。候補:
 
@@ -567,27 +567,27 @@ Annotation schema を言語非依存に記述するための **形式** は未�
 ### annotation_name の検証責任
 
 grammar.ebnf §4.7 が定める通り、annotation_name の検証は **プログラム側**
-の responsibility である。DSL 文法は syntactic form（`@name(args)`）のみを
+の responsibility である。DSL 文法は syntactic form (`@name(args)`) のみを
 定義する。推奨 schema を採用するプログラムは推奨 keyword を、独自 registry を
 持つプログラムは自身の keyword を検証する。
 
 ### annotator 間の依存関係の上限
 
-annotator が他の annotator を requires できる（例: extensions/social-annotator →
-procedure-annotator/stimulus）。依存チェーンの深さに上限を設けるべきかは、具体的な
+annotator が他の annotator を requires できる (例: extensions/social-annotator →
+procedure-annotator/stimulus)。依存チェーンの深さに上限を設けるべきかは、具体的な
 推奨 annotator が増えてから判断する。
 
 ---
 
-## 8. 推奨 annotator への拡張提案リスト（Draft）
+## 8. 推奨 annotator への拡張提案リスト (Draft)
 
 ### Status: Draft - awaiting review
 
 本節は、DSL プロジェクトの **推奨** annotator に追加候補となる
-annotation のリストである。複数の専門領域観点（EAB 基礎、行動薬理、
-ABA 実務、再現性設計）から独立に挙がった候補を統合している。
+annotation のリストである。複数の専門領域観点 (EAB 基礎、行動薬理、
+ABA 実務、再現性設計) から独立に挙がった候補を統合している。
 
-> **重要な読み替え（design-philosophy 確定後）:**
+> **重要な読み替え (design-philosophy 確定後):**
 >
 > 本節の「必須」「必須化すべき」等の語は **DSL プロジェクト推奨集合への
 > 組み込み推奨度** を表す。DSL 文法レベルで「必須」になるものは存在しない。
@@ -595,11 +595,11 @@ ABA 実務、再現性設計）から独立に挙がった候補を統合して�
 > 決定する。具体例は [validation-modes.md](validation-modes.md) の
 > tier × mode モデルを参照。
 >
-> 同じ annotation が、あるプログラムでは必須（tier 2）、別のプログラムでは
+> 同じ annotation が、あるプログラムでは必須 (tier 2)、別のプログラムでは
 > optional、さらに別のプログラムでは未使用ということがあり得る。これは
 > [design-philosophy.md §4.2](../design-philosophy.md#42-カテゴリは-推奨分類であって強制ではない) の必然的帰結である。
 
-### 8.1 完全合意された追加提案（Core EAB Extensions）
+### 8.1 完全合意された追加提案 (Core EAB Extensions)
 
 EAB 基礎研究で必須の拡張:
 
@@ -631,9 +631,9 @@ EAB 基礎研究で必須の拡張:
 
 - 「2つのラボで同じ `FR 10` が別実験になる」のを防ぐ
 - force threshold は反応定義そのもの
-- プログラムレベル（セッション内で不変）
+- プログラムレベル (セッション内で不変)
 
-#### 8.1.3 `@pretraining` — 手続き史（`@history` と分離） `Tier 3 (publication)`
+#### 8.1.3 `@pretraining` — 手続き史 (`@history` と分離) `Tier 3 (publication)`
 
 ```
 @pretraining(
@@ -643,7 +643,7 @@ EAB 基礎研究で必須の拡張:
 )
 ```
 
-- 被験体史（`@history`）と手続き史は別次元
+- 被験体史 (`@history`) と手続き史は別次元
 - Shaping / autoshaping の履歴
 
 #### 8.1.4 `@context` — 刺激文脈 `Tier 2 (production)`
@@ -656,8 +656,8 @@ EAB 基礎研究で必須の拡張:
 )
 ```
 
-- Renewal 研究（Bouton, 2004）で文脈定義が決定的
-- プログラムレベル（セッション全体で一定）
+- Renewal 研究 (Bouton, 2004) で文脈定義が決定的
+- プログラムレベル (セッション全体で一定)
 
 #### 8.1.5 `@logging` — データ記録仕様 `Tier 2 (production)`
 
@@ -692,7 +692,7 @@ EAB 基礎研究で必須の拡張:
 - `@random(seed=..., scope="global")` は counterbalance / stimulus order / その他全て
 - 両者を分離して宣言可能にする
 
-### 8.2 追加提案（JEAB 査読観点）
+### 8.2 追加提案 (JEAB 査読観点)
 
 #### 8.2.1 `@session_onset` — スケジュール開始タイミング `Tier 2 (production)`
 
@@ -734,9 +734,9 @@ DSL は `@scheduled(VI=60)` を宣言するが、ランタイムは `obtained_ra
 @timeout(duration=5s, stimuli_off=true, lever_retracted=false)
 ```
 
-### 8.3 ドメイン特化拡張（個別 annotator）
+### 8.3 ドメイン特化拡張 (個別 annotator)
 
-#### 8.3.1 行動薬理学系 — `pharmacology-annotator`（新設） `Tier 3 (publication) / @phase: Tier 2`
+#### 8.3.1 行動薬理学系 — `pharmacology-annotator` (新設) `Tier 3 (publication) / @phase: Tier 2`
 
 ```
 @drug(
@@ -761,12 +761,12 @@ DSL は `@scheduled(VI=60)` を宣言するが、ランタイムは `obtained_ra
 @pr_breakpoint(idle="10min")
 ```
 
-- `@preparation` は `@history` から分離（catheter patency は session-level 変数）
-- `@phase` は手続きの identity を決める（同じ FR 1 でも acquisition/extinction は別実験）
+- `@preparation` は `@history` から分離 (catheter patency は session-level 変数)
+- `@phase` は手続きの identity を決める (同じ FR 1 でも acquisition/extinction は別実験)
 
-#### 8.3.2 ABA 臨床系 — `subject-human`（`subject-animal` と分離） `Tier 3 (publication)`
+#### 8.3.2 ABA 臨床系 — `subject-human` (`subject-animal` と分離) `Tier 3 (publication)`
 
-倫理フレームワーク（IACUC vs IRB）が全く異なるため、**annotator を分離する**ことを推奨。
+倫理フレームワーク (IACUC vs IRB) が全く異なるため、**annotator を分離する**ことを推奨。
 
 ```
 @client(
@@ -795,22 +795,22 @@ DSL は `@scheduled(VI=60)` を宣言するが、ランタイムは `obtained_ra
 **設計原則:**
 - `@species`, `@strain`, `@deprivation` は subject-animal 専用
 - `@client`, `@setting`, `@function`, `@ioa` は subject-human 専用
-- 共通の中立フィールド（age 等）のみ subject-base に
-- **介入合成（DRA+extinction）はスケジュール合成で表現**（プログラムレベルに書くと procedural fidelity 評価ができない）
+- 共通の中立フィールド (age 等) のみ subject-base に
+- **介入合成 (DRA+extinction) はスケジュール合成で表現**(プログラムレベルに書くと procedural fidelity 評価ができない)
 
 ### 8.4 セッション識別 — 実装/記録層との責務分離
 
 > **詳細**: [validation-modes.md](validation-modes.md) §7 に
 > Layer Responsibility Matrix として再整理済み。
 > 本節は概要のみ。特に §7.4 で `experiment_id` / `subject_id` の
-> DSL 外（manifest 層）への移動を提案している。
+> DSL 外 (manifest 層) への移動を提案している。
 
 再現性単位原則: **「次回も同じ実験ができるか」は DSL、「今回何が起きたか」は recorder**
 
 | 項目 | 担当 | 理由 |
 |---|---|---|
 | schedule expression | DSL (Tier 0) | 文法の中核 |
-| `@hardware`, `@clock`, `@random` | DSL (Tier 1) | 実行パラメータ（defaulted） |
+| `@hardware`, `@clock`, `@random` | DSL (Tier 1) | 実行パラメータ (defaulted) |
 | `@session_end`, `@response`, `@logging` | DSL (Tier 2) | 実機実行の宣言 |
 | `@species`, `@strain`, `@chamber(model)` | DSL (Tier 3) | 論文化メタデータ |
 | `experiment_id`, `subject_id` | **manifest** (DSL の外) | 計画の**適用**であり計画ではない |
@@ -837,39 +837,39 @@ sessions:
 
 ### 8.6 DSL 範囲外で合意された項目
 
-- **Steady-state criteria の自動判定**: データ解析層の責務。DSL で判定すると「手続きと効果を混同」する。ただし安定性**基準の宣言**（いつ安定とみなすか）は measurement-annotator の `@steady_state` として実装済み。ここで「範囲外」とするのは基準に基づく**自動判定の実行**である。
+- **Steady-state criteria の自動判定**: データ解析層の責務。DSL で判定すると「手続きと効果を混同」する。ただし安定性**基準の宣言**(いつ安定とみなすか) は measurement-annotator の `@steady_state` として実装済み。ここで「範囲外」とするのは基準に基づく**自動判定の実行**である。
 - **Institution, grant number, preregistration ID**: 実験計画ではない。外部 `study.yaml` に分離。
 - **Microdialysis / photometry 生データ** (行動薬理観点): `@coregister(stream="photometry")` 程度のフックのみ。
-- **IRB/IACUC approval number**: opaque field で保持（DSL 意味論に影響させない）。
+- **IRB/IACUC approval number**: opaque field で保持 (DSL 意味論に影響させない)。
 
 ### 8.7 実装の優先順位
 
-**Phase 1（最優先 — EAB 基礎研究で必須）:**
+**Phase 1 (最優先 — EAB 基礎研究で必須):**
 1. ~~`@session_end`~~ — **実装済み** (measurement-annotator)
 2. `@response` — 必須化すべき
 3. `@pretraining` — `@history` からの分離
 4. `@context` — renewal 研究の前提
 5. `@logging` + `@clock` 拡張
 
-**Phase 2（再現性強化）:**
+**Phase 2 (再現性強化):**
 6. `@random` グローバル seed
 7. `@session_onset` / `@reinforcer` clock_resume
 8. `@scheduled` vs `obtained` スキーマ分離
 
-**Phase 3（ドメイン特化 — 各アプリが所有）:**
-9. `pharmacology-annotator`（`@drug`, `@phase`, `@preparation`, `@pr_breakpoint`）
-10. `subject-human` annotator（`@client`, `@setting`, `@function`, `@ioa`, `@ethics`）
+**Phase 3 (ドメイン特化 — 各アプリが所有):**
+9. `pharmacology-annotator` (`@drug`, `@phase`, `@preparation`, `@pr_breakpoint`)
+10. `subject-human` annotator (`@client`, `@setting`, `@function`, `@ioa`, `@ethics`)
 
-**Phase 4（未決）:**
+**Phase 4 (未決):**
 11. 多セッション構造 vs manifest 層での束ね
 
 ### 8.8 次のステップ
 
 1. Phase 1 の各アノテーションについて `spec/ja/annotation-template.md` に従った
-   境界テスト（§2 参照）への回答を作成
+   境界テスト (§2 参照) への回答を作成
 2. `subject-animal` と `subject-human` annotator の分離リファクタリング
 3. `pharmacology-annotator` の新規 spec 作成
-4. 実装前にもう一度各専門領域観点（JEAB、行動薬理、ABA、再現性設計）で cross-review を実施
+4. 実装前にもう一度各専門領域観点 (JEAB、行動薬理、ABA、再現性設計) で cross-review を実施
 
 ### 8.9 参照
 

@@ -3,8 +3,8 @@
 > **Status:** Stable
 >
 > **Core vs. Annotation の境界テスト** とそれに続く **Tier 分類** の
-> 単一情報源（single source of truth）。
-> 他の文書（design.md, validation-modes.md, template.md）は判定ロジックを
+> 単一情報源 (single source of truth)。
+> 他の文書 (design.md, validation-modes.md, template.md) は判定ロジックを
 > 重複記述せず、本ファイルを参照する。
 
 ---
@@ -13,8 +13,8 @@
 
 新しい候補 `@X` が提案されたとき、2 つの判定を順に行う必要がある。
 
-1. **Phase A — Core vs. Annotation**（DSL 仕様レベル、普遍的）
-2. **Phase B — Tier 分類**（プログラムレベル、実装ごと）
+1. **Phase A — Core vs. Annotation**(DSL 仕様レベル、普遍的)
+2. **Phase B — Tier 分類**(プログラムレベル、実装ごと)
 
 Phase A はすべての実装に対して権威的である。Phase B は Python 参照実装が
 従う規則であり、他のプログラムは design-philosophy §4.2 に従って異なる
@@ -22,7 +22,7 @@ Tier 分類を採用してよい。
 
 ---
 
-## 2. Phase A — Core vs. Annotation（Q1–Q3）
+## 2. Phase A — Core vs. Annotation (Q1–Q3)
 
 ```
 Q1. @X はスケジュールの理論的性質（例: FI スキャロップ）を議論するために
@@ -57,16 +57,16 @@ FI 10 @clock(unit="s")       -- これも妥当（@clock を認識するレジ�
 ### Parse Error に関する注記
 
 `@X` の不在が parse error を生じさせるかは **DSL 仕様レベルでは決定できない**。
-これはプログラムのレジストリに依存する（design-philosophy §4.2）。
+これはプログラムのレジストリに依存する (design-philosophy §4.2)。
 各プログラムは、自身のレジストリにおいて何が必須で何が任意かを定義する
 責任を負う。
 
 ---
 
-## 3. Phase B — Tier 分類（T-A–T-C）
+## 3. Phase B — Tier 分類 (T-A–T-C)
 
 前提条件: Phase A において、その要素が **アノテーション候補** と判定された
-こと（3 質問すべてに NO/NO/NO で答えた状態）。
+こと (3 質問すべてに NO/NO/NO で答えた状態)。
 
 ```
 T-A. @X はデフォルト値を持つパラメータか？（例: @clock の unit はデフォルト "s"）
@@ -87,10 +87,10 @@ T-C. @X は出版段階で必須か？（例: @species）
 
 | Tier | 必須となる場面 | 例 |
 |---|---|---|
-| Tier 0 | 常時（Core 文法） | スケジュール式そのもの |
-| Tier 1 | 必須化されない（デフォルト付き、または情報的） | `@clock(unit)`, `@random(seed)` |
-| Tier 2 | プロダクションモード（物理 HW 接続時） | `@session_end`, `@response(force)` |
-| Tier 3 | 出版モード（論文準備時） | `@species`, `@strain`, `@deprivation` |
+| Tier 0 | 常時 (Core 文法) | スケジュール式そのもの |
+| Tier 1 | 必須化されない (デフォルト付き、または情報的) | `@clock(unit)`, `@random(seed)` |
+| Tier 2 | プロダクションモード (物理 HW 接続時) | `@session_end`, `@response(force)` |
+| Tier 3 | 出版モード (論文準備時) | `@species`, `@strain`, `@deprivation` |
 
 ---
 
@@ -112,7 +112,7 @@ T-C. @X は出版段階で必須か？（例: @species）
 | `@clock(unit)` | N | N | N | Annotation | Y | — | — | **Tier 1** |
 | `@clock(precision, sampling, sync)` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@random(seed)` | N | N | N | Annotation | Y | — | — | **Tier 1** |
-| `@timeout` | N | N | N | Annotation | N | Y | — | **Tier 2**（条件付き） |
+| `@timeout` | N | N | N | Annotation | N | Y | — | **Tier 2**(条件付き) |
 | `@session_onset` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@reinforcer(clock_resume)` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@species`, `@strain` | N | N | N | Annotation | N | N | Y | **Tier 3** |
@@ -121,14 +121,14 @@ T-C. @X は出版段階で必須か？（例: @species）
 | `@chamber(model)` | N | N | N | Annotation | N | N | Y | **Tier 3** |
 | `@context(houselight)` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@drug`, `@preparation` | N | N | N | Annotation | N | N | Y | **Tier 3** |
-| `@phase` | N | N | N | Annotation | N | N | Y | **Tier 3**（§5 参照） |
+| `@phase` | N | N | N | Annotation | N | N | Y | **Tier 3**(§5 参照) |
 | `@pr_breakpoint` | N | N | N | Annotation | N | Y | — | **Tier 2** |
 | `@ioa`, `@ethics`, `@function` | N | N | N | Annotation | N | N | Y | **Tier 3** |
 
-### 4.2 境界テスト・テンプレート（新規提案用）
+### 4.2 境界テスト・テンプレート (新規提案用)
 
-`@X` を提案する場合、以下を完成させること（[template.md](template.md)
-も参照）。
+`@X` を提案する場合、以下を完成させること ([template.md](template.md)
+も参照)。
 
 ```markdown
 ## 境界レビュー: @X → <annotator>
@@ -152,7 +152,7 @@ T-C. @X は出版段階で必須か？（例: @species）
 
 ## 5. 解決済み: `@phase` の分類
 
-`@phase` は **プログラムレベル限定の情報的アノテーション（Tier 3）** である。
+`@phase` は **プログラムレベル限定の情報的アノテーション (Tier 3)** である。
 
 ### 判定根拠
 
@@ -169,7 +169,7 @@ Q2 への一見の緊張は、よく見れば解消する。**消去は `FR5` �
 @phase("B2-replication")    FR5 @reinforcer("pellet")
 ```
 
-`@phase` はスケジュール式の評価意味論を決して変えない（Q2 = NO）。
+`@phase` はスケジュール式の評価意味論を決して変えない (Q2 = NO)。
 それは多セッション・データを整理するために実験計画期間にラベルを付ける。
 スケジュール式単独で動作中の随伴性を符号化する。
 
@@ -181,14 +181,14 @@ Q2 への一見の緊張は、よく見れば解消する。**消去は `FR5` �
 | Q2 | **NO** | 消去は `EXT` であり、`FR5 + @phase("extinction")` ではない。評価意味論を決めるのはスケジュール式であり phase ラベルではない |
 | Q3 | NO | 普遍的には要求されない。多くの単相研究には `@phase` が無い |
 
-Phase B: T-A = NO, T-B = NO, T-C = YES → **Tier 3（出版）**。
+Phase B: T-A = NO, T-B = NO, T-C = YES → **Tier 3 (出版)**。
 
 ### 制約
 
 - `@phase` は **プログラムレベル限定** である。スケジュールレベルでの使用は
   `SemanticError: PHASE_ONLY_PROGRAM_LEVEL` となる。
-- `@phase` は tier ルール動態のトリガとして機能してよい（例:
-  `@phase("extinction")` は `@reinforcer` の Tier 2 要求を免除する）が、
+- `@phase` は tier ルール動態のトリガとして機能してよい (例:
+  `@phase("extinction")` は `@reinforcer` の Tier 2 要求を免除する) が、
   これはバリデータの問題であり、文法の問題ではない。
 
 ---
@@ -208,9 +208,9 @@ Phase B: T-A = NO, T-B = NO, T-C = YES → **Tier 3（出版）**。
 
 ## 7. 参照
 
-- [design.md](design.md) §2（元の境界テスト、現在は本ファイルへ委譲）
-- [validation-modes.md](validation-modes.md) §6.1（元の tier 分類、
-  現在は本ファイルへ委譲）
-- [design-philosophy.md](../design-philosophy.md) §4.2（プログラムスコープの
-  クロージャ）, §8（破壊的変更制約）
-- [template.md](template.md)（アノテーション提案テンプレート）
+- [design.md](design.md) §2 (元の境界テスト、現在は本ファイルへ委譲)
+- [validation-modes.md](validation-modes.md) §6.1 (元の tier 分類、
+  現在は本ファイルへ委譲)
+- [design-philosophy.md](../design-philosophy.md) §4.2 (プログラムスコープの
+  クロージャ), §8 (破壊的変更制約)
+- [template.md](template.md) (アノテーション提案テンプレート)
