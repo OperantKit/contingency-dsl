@@ -1,0 +1,49 @@
+[
+  {
+    "equivalence": "superstition-ft",
+    "description": "Response-independent food every 15 s (fixed time). No response->stimulus dependency is programmed, so every response sequence yields the same stimulus sequence.",
+    "source": {
+      "procedure": "Skinner, B. F. (1948). 'Superstition' in the pigeon. Journal of Experimental Psychology, 38(2), 168-172. https://doi.org/10.1037/h0055873",
+      "values": "The values (15 s from the start or from each food offset to the next food onset, 3-s food presentation) are chosen for this fixture and are not taken from the original study."
+    },
+    "programs": {
+      "respondent": {
+        "input": "USOnly(food, trials=4) @iti(distribution=fixed, mean=15-s)",
+        "ast": {
+          "type": "AnnotatedSchedule",
+          "expr": {"type": "USOnly", "us": "food", "trials": 4},
+          "annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "iti",
+              "params": {"distribution": "fixed", "mean": {"value": 15, "time_unit": "s"}}
+            }
+          ]
+        }
+      },
+      "operant": {
+        "input": "FT 15-s",
+        "ast": {"type": "Atomic", "dist": "F", "domain": "T", "value": 15.0, "time_unit": "s"}
+      }
+    },
+    "presentation_s": {"food": 3.0},
+    "end": {"stimulus_offsets": {"food": 4}},
+    "inputs": [
+      {"name": "no_responses", "responses": []},
+      {
+        "name": "responses_between_and_during_food",
+        "responses": [[3.0, "key_peck"], [16.0, "key_peck"], [40.0, "key_peck"], [70.0, "key_peck"]]
+      }
+    ],
+    "expected": [
+      [15.0, "food", "on"],
+      [18.0, "food", "off"],
+      [33.0, "food", "on"],
+      [36.0, "food", "off"],
+      [51.0, "food", "on"],
+      [54.0, "food", "off"],
+      [69.0, "food", "on"],
+      [72.0, "food", "off"]
+    ]
+  }
+]

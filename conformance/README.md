@@ -15,6 +15,7 @@ conformance/
 ├── respondent/            — Respondent (Pavlovian) primitive tests (Tier A: Pair variants, elementary, contingency controls, compound stimuli)
 ├── composed/              — Programs using both vocabularies (CER, PIT, two-process)
 ├── experiment/            — Experiment-layer tests (phase-sequence, criterion, annotation inheritance)
+├── equivalence/           — Same-experiment fixtures: one arrangement in two vocabularies, compared by execution
 ├── annotations/           — Annotation system tests (program-level, measurement, errors)
 │   └── extensions/        — Annotator extension tests (respondent-annotator)
 └── representations/
@@ -164,6 +165,49 @@ Three fixtures (CER, PIT, two-process), each using both vocabularies. See `compo
 | `progressive-training.json` | ProgressiveTraining expansion (single/multi-variable, mixed with phases, parametric, interleave, advance conditions) |
 | `shaping.json` | Skinner Shaping (artful / percentile / staged methods; error cases) |
 | `errors.json` | Experiment-layer semantic errors (constraints 63–82, including R-4 progressive_advance errors) |
+
+### equivalence/
+
+Two programs are **the same experiment** when the same response sequence yields the same stimulus sequence. Each fixture writes one arrangement in the respondent and the operant vocabularies and gives the stimulus sequence both must produce. Unlike the other directories, these fixtures are checked by **execution**, not by comparing ASTs.
+
+| File | Scope |
+|------|-------|
+| `autoshaping.json` | Autoshaping (Brown & Jenkins, 1968): `Pair.ForwardDelay` with a fixed ITI / signaled FT `Chain(FT 52-s, FT 8-s) @sd("key_light", component=2)` |
+| `superstition-ft.json` | Response-independent food (Skinner, 1948): `USOnly` with a fixed ITI / `FT 15-s` |
+
+Each file is an array with one object (no `id` field, so the AST runners skip it):
+
+```json
+[
+  {
+    "equivalence": "name",
+    "description": "...",
+    "source": {"procedure": "APA reference", "values": "where the values come from"},
+    "programs": {
+      "respondent": {"input": "DSL text", "ast": { ... }},
+      "operant":    {"input": "DSL text", "ast": { ... }}
+    },
+    "presentation_s": {"food": 3.0},
+    "end": {"stimulus_offsets": {"food": 3}},
+    "inputs": [{"name": "...", "responses": [[10.0, "key_peck"]]}],
+    "expected": [[52.0, "key_light", "on"], [60.0, "key_light", "off"]]
+  }
+]
+```
+
+- `ast` is the parser's output for `input` (without the `kwargs` mirror of annotation `params`), so a runner that does not parse DSL text can read it directly.
+- `presentation_s` is the duration of each presented stimulus that neither program carries (a property of the apparatus). Both runners use the same value.
+- `end` stops the session after the given number of offsets of each named stimulus.
+- `expected` is a list of `[time_s, stimulus, "on" | "off"]`, sorted by time; at the same time, offsets come before onsets, then by stimulus name.
+
+Timing rules the expected sequences follow:
+
+- The session starts with the interval before the first trial (the ITI, or the first link of the chain).
+- In the respondent program, the ITI runs from the offset of the last stimulus of a trial to the next trial start.
+- In the operant program, the schedule clock stops while the reinforcer is presented and restarts at its offset.
+- Values are fixed (no `VT`, no variable ITI), so every run gives one sequence.
+
+How to run: each theory's runner executes **only its own vocabulary's program** with each `inputs[].responses` and compares the result with `expected`. No test package imports both runners; the expected sequence stands between them. The respondent program is run by respondent-sim (`tests/test_equivalence.py`). A fixture is added only when both vocabularies can write the arrangement with fixed values.
 
 ### annotations/
 

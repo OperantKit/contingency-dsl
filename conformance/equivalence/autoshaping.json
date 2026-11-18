@@ -1,0 +1,78 @@
+[
+  {
+    "equivalence": "autoshaping",
+    "description": "Autoshaping arrangement: a key light is presented for 8 s and food follows at its offset, with a 52-s interval between trials. No response->stimulus dependency is programmed, so every response sequence yields the same stimulus sequence.",
+    "source": {
+      "procedure": "Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. Journal of the Experimental Analysis of Behavior, 11(1), 1-8. https://doi.org/10.1901/jeab.1968.11-1",
+      "values": "The procedure values are those of the specification examples (spec/en/respondent/autoshaping.md, spec/en/operant/schedules/time.md section 6.1), not of the original study. The 3-s food presentation is chosen for this fixture."
+    },
+    "programs": {
+      "respondent": {
+        "input": "Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @iti(distribution=fixed, mean=52-s)",
+        "ast": {
+          "type": "AnnotatedSchedule",
+          "expr": {
+            "type": "PairForwardDelay",
+            "cs": "key_light",
+            "us": "food",
+            "isi": {"value": 8.0, "unit": "s"},
+            "cs_duration": {"value": 8.0, "unit": "s"}
+          },
+          "annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "iti",
+              "params": {"distribution": "fixed", "mean": {"value": 52, "time_unit": "s"}}
+            }
+          ]
+        }
+      },
+      "operant": {
+        "input": "Chain(FT 52-s, FT 8-s) @sd(\"key_light\", component=2)",
+        "ast": {
+          "type": "Compound",
+          "combinator": "Chain",
+          "components": [
+            {"type": "Atomic", "dist": "F", "domain": "T", "value": 52.0, "time_unit": "s"},
+            {"type": "Atomic", "dist": "F", "domain": "T", "value": 8.0, "time_unit": "s"}
+          ],
+          "annotations": [
+            {
+              "type": "Annotation",
+              "keyword": "sd",
+              "positional": "key_light",
+              "params": {"component": 2}
+            }
+          ]
+        }
+      }
+    },
+    "presentation_s": {"food": 3.0},
+    "end": {"stimulus_offsets": {"food": 3}},
+    "inputs": [
+      {"name": "no_responses", "responses": []},
+      {
+        "name": "pecks_in_iti_and_cs",
+        "responses": [[10.0, "key_peck"], [55.0, "key_peck"], [56.5, "key_peck"], [120.0, "key_peck"], [180.0, "key_peck"]]
+      },
+      {
+        "name": "pecks_at_stimulus_edges",
+        "responses": [[52.0, "key_peck"], [60.0, "key_peck"], [63.0, "key_peck"], [115.0, "key_peck"], [189.0, "key_peck"]]
+      }
+    ],
+    "expected": [
+      [52.0, "key_light", "on"],
+      [60.0, "key_light", "off"],
+      [60.0, "food", "on"],
+      [63.0, "food", "off"],
+      [115.0, "key_light", "on"],
+      [123.0, "key_light", "off"],
+      [123.0, "food", "on"],
+      [126.0, "food", "off"],
+      [178.0, "key_light", "on"],
+      [186.0, "key_light", "off"],
+      [186.0, "food", "on"],
+      [189.0, "food", "off"]
+    ]
+  }
+]
