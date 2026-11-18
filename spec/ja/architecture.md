@@ -28,7 +28,7 @@ DSL は **科学的カテゴリ** によって構造化される。`contingency-
 │ │  - trial-based/    │                     ││
 │ ├────────────────────┴────────────────────┤│
 │ │ Foundations（CFG/LL(2), contingency type,││
-│ │              time, stimulus, valence,    ││
+│ │              time, stimulus,             ││
 │ │              context）                    ││
 │ └─────────────────────────────────────────┘│
 ├───────────────────────────────────────────┤
@@ -38,7 +38,7 @@ DSL は **科学的カテゴリ** によって構造化される。`contingency-
 └───────────────────────────────────────────┘
 ```
 
-**Operant と Respondent が姉妹カテゴリである理由 (共通の「Paradigm」ノード下に階層化しない理由)。** 2 つの伝統は手続きを別々の語彙で書くので、DSL はそれぞれに層を与える。operant 的分析 (Skinner, 1938) は「どの弁別刺激の下で反応が結果を生むか」を問い、respondent 的分析 (Pavlov, 1927) は「どの CS-US の時間的・確率的関係が US を予測するか」を問う。層を分けておけば、それぞれの語彙が自分の文法を保てる。根にある関係が 1 種か 2 種かは、この構成の文書ではなく理論の層 (`operant/theory.md`、`respondent/theory.md`) が扱う問いである。両者が共有するのは中立な基盤 (時間スケール、刺激型付け、valence、context) と、operant × respondent の合成のための第一級合成点 (`composed/`) のみである。
+**Operant と Respondent が姉妹カテゴリである理由 (共通の「Paradigm」ノード下に階層化しない理由)。** 2 つの伝統は手続きを別々の語彙で書くので、DSL はそれぞれに層を与える。operant 的分析 (Skinner, 1938) は「どの弁別刺激の下で反応が結果を生むか」を問い、respondent 的分析 (Pavlov, 1927) は「どの CS-US の時間的・確率的関係が US を予測するか」を問う。層を分けておけば、それぞれの語彙が自分の文法を保てる。根にある関係が 1 種か 2 種かは、この構成の文書ではなく理論の層 (`operant/theory.md`、`respondent/theory.md`) が扱う問いである。両者が共有するのは中立な基盤 (刺激、依存の型、時間スケール、context) と、operant × respondent の合成のための第一級合成点 (`composed/`) のみである。
 
 **TC vs 非TC の境界 (不変)。** Foundations + Operant + Respondent はいずれも CFG かつ非TC にとどまる。`contingency-core` と `experiment-core` は引き続きチューリング完全である。Composed 層は構成要素である Operant × Respondent から非TC 性を継承する; 既存の非TC 文法を合成するのみで新しい計算能力を導入しない。
 
@@ -75,7 +75,7 @@ Respondent 層はこの解像度では一様である: design-philosophy §2 に
 | **Composed** | `composed/` | 非TC (構成要素から継承) | operant × respondent の合成 | `CER`, `PIT`, `Autoshaping`, `Omission`, `TwoProcess` |
 | **Operant** | `operant/` | CFG (非TC) | 三項随伴性 (SD-R-SR) | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Pctl(IRT, 50)`, `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
 | **Respondent** | `respondent/` | CFG (非TC) | 二項随伴性 (CS-US) — Tier A primitive + extension point | `Pair.ForwardDelay(cs, us)`, `Contingency(0.9, 0.1)`, `Differential(cs+, cs−)` |
-| **Foundations** | `foundations/` | CFG / 型論 (非TC) | paradigm-neutral 形式基盤: CFG/LL(2)、contingency 型 (二項 vs 三項、contingent vs non-contingent)、時間スケール、刺激型付け (SD, SΔ, CS, US, Sr+, Sr−)、valence、context | meta-grammar、型定義 |
+| **Foundations** | `foundations/` | CFG / 型論 (非TC) | paradigm-neutral 形式基盤: CFG/LL(2)、依存の型 (反応→刺激、刺激→刺激、時間→刺激、条件つき確率。contingent vs non-contingent)、時間スケール、刺激 (名前・物理的属性・onset/offset)、context | meta-grammar、型定義 |
 | **contingency-core** | 姉妹パッケージ | TC | 随伴性の動的遷移 | 反応率に基づくスケジュール切替、任意の GTS 遷移 |
 | **experiment-core** | 姉妹パッケージ | TC + 制約 | 実験の有限化・検証 | 終了条件、ABA デザイン、安全性制約 |
 
@@ -574,7 +574,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 `schema/` ツリーは ディレクトリ構造を反映する:
 
-- `schema/foundations/` — meta-grammar、contingency 型定義、時間スケール、刺激型付け、valence、context 型
+- `schema/foundations/` — meta-grammar、依存の型の定義、時間スケール、刺激、context 型
 - `schema/operant/grammar.ebnf`、`schema/operant/ast.schema.json` — Operant 層の文法と AST
 - `schema/operant/schedules/{ratio,interval,time,differential,compound,progressive}.ebnf` — クラス別 schedule EBNF
 - `schema/operant/stateful/grammar.ebnf` — Operant.Stateful (Percentile, Adjusting, Interlocking)

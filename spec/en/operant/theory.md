@@ -8,12 +8,52 @@ Paradigm-neutral material (CFG/LL(2) skeleton, the general definition of conting
 
 - [foundations/grammar.md](../foundations/grammar.md) — Paradigm-neutral CFG/LL(2) skeleton and meta-grammar
 - [foundations/theory.md](../foundations/theory.md) — General contingency definition, determinism, non-TC
-- [foundations/contingency-types.md](../foundations/contingency-types.md) — Two-term vs three-term distinction
+- [foundations/contingency-types.md](../foundations/contingency-types.md) — Paradigm-neutral dependency types
+- [foundations/stimulus-typing.md](../foundations/stimulus-typing.md) — Stimuli (name, physical properties, onset and offset)
 - [foundations/ll2-proof.md](../foundations/ll2-proof.md) — LL(2) parse table and proof
 - [grammar.md](grammar.md) — Operant-specific EBNF productions
 - [implementation.md](implementation.md) — Python type mapping, legacy assessment
 - [../architecture.md](../architecture.md) — six-layer architecture, computability, annotation system
 - [../representations/overview.md](../representations/overview.md) — Alternative coordinate systems (T-tau)
+
+---
+
+## Stimulus Roles as Aliases
+
+The foundations layer defines stimuli by name and physical properties ([Stimuli](../foundations/stimulus-typing.md)) and defines the paradigm-neutral dependency types ([Dependency Types §2](../foundations/contingency-types.md)). The operant layer's role names are aliases for positions in those dependency types. An alias adds no meaning beyond the position; it does not say what the stimulus does to behavior.
+
+**Three-term contingency.** The operant layer's name for a response→stimulus dependency that holds while another stimulus is present, written `(SD, R, SR)`: in the presence of SD, response R produces the stimulus presentation SR (Skinner, 1938; 1953). Reinforcement schedules, stateful operant procedures, and trial-based operant procedures all express particular shapes of it.
+
+| Alias | Symbol | Position in the paradigm-neutral dependency types |
+|---|---|---|
+| Positive reinforcer | Sr+ | A stimulus presented by a response→stimulus dependency |
+| Negative reinforcer | Sr− | A stimulus removed, cancelled, or postponed by a response→stimulus dependency |
+| Punisher | — | A stimulus presented by a response→stimulus dependency arranged with `Overlay` or the `PUNISH` directive |
+| Discriminative stimulus | SD, `S^D` | A stimulus present while a response→stimulus dependency is in effect |
+| S-delta | SΔ, `S^Δ` | A stimulus present while that response→stimulus dependency is not in effect |
+
+**SD and SΔ are annotation-level.** SD and SΔ are attached via `@sd` and `@s_delta` to operant schedule expressions. They do not appear in the CFG as primitive constructors; the three-term contingency is materialized by the pair (schedule expression, `@sd` annotation). The `procedure-annotator/stimulus` module (`@sd`, `@s_delta`, `@reinforcer`) provides the annotations.
+
+```
+Mult(VI 30-s @sd("tone"), EXT @s_delta("light"))
+```
+
+The operant layer also has stimulus→stimulus and time→stimulus dependencies in its own vocabulary (the link transitions of `Chain`; `FT`, `VT`, `RT`).
+
+### Notes: the Operant Tradition's Effect Definitions and Valence
+
+These notes record how the operant tradition defines the roles by their effects on behavior. They are readings of this tradition, not part of the alias definitions above, and the DSL does not check them.
+
+- **Effect definitions.** The tradition defines a positive reinforcer as a consequence whose presentation increases R (Skinner, 1953), a negative reinforcer as one whose removal increases R (Sidman, 1953), a punisher as one whose presentation decreases R (Azrin & Holz, 1966), an SD as a stimulus that signals when a response will be reinforced, and an SΔ as one that signals when it will not (Skinner, 1938).
+- **Valence.** The tradition calls a stimulus *appetitive* when the subject works to obtain its presentation (or to avoid its removal), and *aversive* when the subject works to avoid, escape, or terminate it (or to produce its removal). Valence in this reading is a functional property relative to a subject and its state, not a property of the stimulus in isolation: a food pellet is appetitive to a food-deprived rat and may be irrelevant to a satiated one (Catania, 2013, Ch. 3). The DSL does not record valence; no annotation schema has a valence parameter.
+- **The four quadrants.** Combining valence with the operation (presentation or removal) gives the tradition's four quadrants. The DSL makes the *operation* explicit through the combinator or annotation (`Overlay(baseline, punisher)` vs a bare `VI 60-s`; `@reinforcer` vs `@punisher`); which quadrant a procedure belongs to is the tradition's reading and is not enforced at parse time.
+
+|  | Presentation | Removal |
+|---|---|---|
+| **Appetitive** | Positive reinforcement (Sr+) | Negative punishment |
+| **Aversive** | Positive punishment | Negative reinforcement (Sr−) |
+
+- **Aversive control.** The operant layer has two first-class primitives that the tradition classes as aversive control: `Sidman(SSI, RSI)` — free-operant avoidance (Sidman, 1953; §2.7) — and `DiscriminatedAvoidance(CSUSInterval, ITI, mode, ...)` — trial-based avoidance (Solomon & Wynne, 1953; §2.9). Punishment is expressed via the `Overlay` combinator and the `PUNISH(...)` directive on `Conc` (§2.10).
 
 ---
 
@@ -1798,7 +1838,9 @@ This generalizes to `m × n` copies, yielding `⟦Repeat(m × n, S)⟧`. ∎
 - Miller, N., & Neuringer, A. (2000). Reinforcing variability in adolescents with autism. *Journal of Applied Behavior Analysis*, 33(2), 151-165. https://doi.org/10.1901/jaba.2000.33-151
 - Lee, R., McComas, J. J., & Jawor, J. (2002). The effects of differential and lag reinforcement schedules on varied verbal responding by individuals with autism. *Journal of Applied Behavior Analysis*, 35(4), 391-402. https://doi.org/10.1901/jaba.2002.35-391
 - Zeiler, M. D. (1968). Fixed and variable schedules of response-independent reinforcement. *Journal of the Experimental Analysis of Behavior*, *11*(4), 405–414. https://doi.org/10.1901/jeab.1968.11-405
+- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
 - Skinner, B. F. (1948). 'Superstition' in the pigeon. *Journal of Experimental Psychology*, 38(2), 168-172. https://doi.org/10.1037/h0055873
+- Skinner, B. F. (1953). *Science and human behavior*. Macmillan.
 - Denney, J., & Neuringer, A. (1998). Behavioral variability is controlled by discriminative stimuli. *Animal Learning & Behavior*, *26*(2), 154-162. https://doi.org/10.3758/BF03199208
 - Neuringer, A., & Jensen, G. (2010). Operant variability and voluntary action. *Psychological Review*, *117*(3), 972-993. https://doi.org/10.1037/a0019499
 - Stokes, P. D. (1995). Learned variability. *Animal Learning & Behavior*, *23*(2), 164-176. https://doi.org/10.3758/BF03199931

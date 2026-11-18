@@ -16,7 +16,7 @@ by an abstract formal axis. The layers are:
 
 | Layer | What it holds |
 |---|---|
-| **Foundations** | Paradigm-neutral formal base: CFG/LL(2), contingency-type theory (contingent vs. non-contingent; two-term vs. three-term), time scales, stimulus typing (SD, SΔ, CS, US, Sr+, Sr−), valence, context. |
+| **Foundations** | Paradigm-neutral formal base: CFG/LL(2), dependency types (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability; contingent vs. non-contingent), time scales, stimuli (name, physical properties, onset/offset), context. Role names (SD, SΔ, CS, US, Sr+, Sr−) are aliases defined in the operant and respondent layers. |
 | **Operant** | Three-term contingency (SD-R-SR): reinforcement schedules, stateful schedules with runtime-computed criteria, trial-based (discrete-trial) schedules. |
 | **Respondent** | Two-term contingency (CS-US): Tier A Pavlovian primitives + an extension point for third-party additions. |
 | **Composed** | Operant × respondent composites: CER, PIT, autoshaping, omission, two-process theory. |

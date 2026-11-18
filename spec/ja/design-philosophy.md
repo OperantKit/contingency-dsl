@@ -38,7 +38,7 @@
 
 | 層 | 内容 | 変化の許容度 |
 |---|---|---|
-| **Foundations (paradigm-neutral 形式基盤)** | CFG/LL(2) 形式文法、contingency 型論 (contingent vs non-contingent、二項 vs 三項)、時間スケール、刺激型付け (SD, SΔ, CS, US, Sr+, Sr−)、valence 軸 (appetitive/aversive)、context。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける (例外は §8 参照) |
+| **Foundations (paradigm-neutral 形式基盤)** | CFG/LL(2) 形式文法、依存の型 (反応→刺激、刺激→刺激、時間→刺激、条件つき確率。contingent vs non-contingent)、時間スケール、刺激 (名前・物理的属性・onset/offset)、context。役割の名前 (SD, SΔ, CS, US, Sr+, Sr−) はオペラント層とレスポンデント層が定義する別名。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける (例外は §8 参照) |
 | **Operant (三項随伴性: SD-R-SR)** | 伝統分類 (ratio / interval / time / differential / compound / progressive) による強化スケジュール、stateful operant スケジュール (Percentile, Adjusting, Interlocking)、trial-based operant スケジュール (MTS, Go/NoGo)。パラメータは宣言的 (リテラル値またはランタイム算出)。 | §8.1 additive 手順 + §2.1 admission gate (stateful / trial-based の拡張について) |
 | **Respondent (二項随伴性: CS-US)** | 最低限の Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`、`Extinction`、`CSOnly`、`USOnly`、`Contingency(p_us_given_cs, p_us_given_no_cs)`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential(cs+, cs−)`。3rd-party 追加のための Tier-A 級 extension point を含む (§5)。この最低限を超える深さは `contingency-respondent-dsl` に委譲。 | Additive only；新 primitive は §2.1 admission 基準を満たす必要がある |
 | **Composed (operant × respondent)** | operant ベースラインと respondent ペアリングを組み合わせた合成手続き: conditioned suppression (CER)、Pavlovian-to-Instrumental Transfer (PIT)、autoshaping、omission (negative automaintenance)、two-process theory。operant + respondent 文法だけでは表現できない合成手続きが追加対象。 | Additive；既存の合成手続きは意味的に変更しない |

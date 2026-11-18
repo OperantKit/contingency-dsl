@@ -1,78 +1,38 @@
-# 刺激型付け — SD, SΔ, CS, US, Sr+, Sr−, 罰子
+# 刺激 — 名前、物理的属性、onset と offset
 
-> contingency-dsl 基盤層の一部。オペラント・レスポンデント・合成の各層にまたがって用いられる標準的な刺激型格子を固定する。パラダイム層はこれらの型を再利用し、層ごとに再導入することはない。
+> contingency-dsl 基盤層の一部。刺激が行動に何をするかの理論から独立に、DSL における刺激とは何かを定義する。役割の名前 (弁別刺激、強化子、条件刺激、無条件刺激 等) はここでは定義しない。各パラダイム層が、[`contingency-types.md`](contingency-types.md) のパラダイム中立な依存の型の位置に、それぞれの役割の名前を別名として与える。
 
 ---
 
-## 1. 刺激型格子
+## 1. 刺激
 
-DSL は刺激型を、物理的モダリティ (光、音、電撃、餌) ではなく、**随伴性における役割** により区別する。物理的モダリティは注釈レベルの属性である (`@reinforcer`, `@sd`, `@cs`, `@punisher`)。
+**定義 1 (刺激).** 刺激とは、装置の中の名前を持つ物理的な事象源である。刺激は次を持つ。
 
-| 型 | 記号 | 役割 | パラダイム | 標準参照 |
-|---|---|---|---|---|
-| 弁別刺激 | SD, `S^D` | 反応が強化されるタイミングを合図 | オペラント | Skinner (1938) |
-| S-デルタ | SΔ, `S^Δ` | 同じ反応が強化されないタイミングを合図 | オペラント | Skinner (1938) |
-| 条件刺激 | CS | レスポンデント手続きで US と対提示される信号 | レスポンデント | Pavlov (1927) |
-| 無条件刺激 | US | UR を誘発する生物学的に有意な刺激 | レスポンデント | Pavlov (1927) |
-| 正の強化子 | Sr+ | 呈示により R を増加させる結果 | オペラント | Skinner (1953) |
-| 負の強化子 | Sr− | 除去により R を増加させる結果 | オペラント | Sidman (1953) |
-| 罰子 | — | 呈示により R を減少させる結果 | オペラント | Azrin & Holz (1966) |
+- **名前** — プログラムと注釈が刺激を指すための識別子 (`tone`, `food`, `shock`, `key_light`)。
+- **物理的属性** — モダリティ (聴覚、視覚、触覚、味覚、嗅覚、電気)、強度、持続時間などのパラメータ。物理的属性は注釈レベルであり、文法には現れない。
 
-## 2. 直交する軸
+**定義 2 (刺激の事象).** 刺激の事象はちょうど 2 種類である。**onset** (刺激が始まる) と **offset** (刺激が終わる)。瞬間的な刺激とは、onset から一定の持続時間の後に offset が来る刺激である。
 
-刺激型は他の 2 つの軸と直交する。
+**1 つの名前は 1 つの刺激.** 1 つのプログラムの中で、1 つの名前は 1 つの刺激を指す。式の中の識別子 `food`、`@reinforcer("food")`、`@us(label="food")` は、どれも同じ刺激を指す。2 つの名前は、物理的属性が一致していても 2 つの刺激を指す。
 
-- **valence (誘発価)** — 食欲的 vs 嫌悪的。`valence.md` を参照。
-- **モダリティ** — 聴覚、視覚、触覚、味覚、嗅覚。注釈レベル (`@cs`, `@reinforcer` のパラメータ)。
+## 2. 1 つの刺激、異なる役割
 
-同一の物理的刺激が、手続き間で異なる役割を果たしうる (例: レスポンデント対提示で CS だった音が、後に弁別オペラント手続きで SD として機能する)。DSL は役割を記録する。手続き間での再利用は、注釈レベルの刺激識別子に対する `let` 束縛によって実現される。
+同一の物理的刺激が、手続き間で異なる役割を果たしうる (例: ある段階で餌と対提示された音が、後の段階では、その音が出ている間に反応が餌を生む刺激になる)。刺激は名前で 1 回だけ定義される。刺激が果たす役割は、刺激が入る依存の性質であって、刺激の性質ではない。手続き間での再利用は、注釈レベルの刺激識別子に対する `let` 束縛によって実現される。
 
-## 3. オペラント層における SD / SΔ
+## 3. 役割の名前を定義している場所
 
-オペラント層において、SD と SΔ は **注釈レベル** のラベルであり、オペラント・スケジュール式に `@sd` および `@s_delta` を介して付与される。これらは CFG にプリミティブ・コンストラクタとして現れない。三項随伴性 `(SD, R, SR)` は、(スケジュール式, `@sd` 注釈) の対によって具現化される。
+各パラダイム層は、刺激がその層の依存の中で占める位置に名前を付ける。これらの名前は別名であり、パラダイム中立な依存の型の中の位置を越える意味を足さない。
 
-例:
+- オペラントの役割の名前: [オペラント理論「別名としての刺激の役割」](../operant/theory.md)。
+- レスポンデントの役割の名前: [レスポンデント理論 §0](../respondent/theory.md)。
 
-```
-Mult(VI 30-s @sd("tone"), EXT @s_delta("light"))
-```
+## 4. 本ファイルが扱わ **ない** もの
 
-オペラント層の `procedure-annotator/stimulus` モジュール (`@sd`, `@s_delta`, `@reinforcer`) は、三項随伴性のための刺激型付け装置一式を提供する。
-
-## 4. レスポンデント層における CS / US
-
-レスポンデント層において、CS と US は **プリミティブレベル** のコンストラクタ引数である: `Pair.ForwardDelay(cs, us, isi, cs_duration)`, `Contingency(p_us_given_cs, p_us_given_no_cs)` 等。物理属性は `@cs` および `@us` 注釈 (`annotations/extensions/respondent-annotator` が提供) により付与される。
-
-例:
-
-```
-Pair.ForwardDelay(tone, shock, isi=5-s, cs_duration=10-s)
-  @cs("tone", frequency=4000, modality="auditory")
-  @us("shock", intensity="0.5mA", modality="electrical")
-```
-
-## 5. 強化子と罰子の四象限
-
-valence (食欲的 / 嫌悪的) と操作 (呈示 / 除去) の組み合わせは、オペラントの 4 象限を生む。
-
-|  | 呈示 | 除去 |
-|---|---|---|
-| **食欲的** | 正の強化 (Sr+) | 負の罰 |
-| **嫌悪的** | 正の罰 | 負の強化 (Sr−) |
-
-これらの象限は注釈レベルで (valence／操作パラメータを伴う `@reinforcer` と `@punisher` を介して) 解決される。文法的なものではない。DSL は解析時に象限の整合性を強制しない。リンターは明らかな不整合 (例: valence の明示的宣言を伴わない `@reinforcer("shock")`) について警告を発することができる。
-
-## 6. このファイルが **カバーしない** もの
-
-- 物理モダリティのパラメータ (周波数、強度、持続時間)。これらは注釈レベルである。
-- 無条件反応 (UR)、条件反応 (CR)、オペラント反応 (R) のような **反応側** の型付け。反応側の分類は `operant/theory.md` および `respondent/theory.md` で扱う。
-- 派生刺激クラス (等価クラス、関係フレーム)。これらは行動的帰結であり、刺激型ではない。
+- 物理的属性のパラメータ (周波数、強度、持続時間) の詳細。これらは注釈レベルである。
+- 反応側の型付け (オペラント反応、誘発される反応)。反応側の分類は `operant/theory.md` と `respondent/theory.md` で扱う。
+- 刺激の行動への効果 (反応を増やす・減らす、反応を誘発する、得ようと働かれる・避けられる)。これらは各パラダイム層の中の読みであり、その層の注記に記す。
+- 派生的刺激クラス (等価クラス、関係フレーム)。これらは行動的帰結であって刺激の定義ではない。
 
 ## 参考文献
 
-- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380–447). Appleton-Century-Crofts.
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan.
-- Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
-- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, 46(4), 253–261. https://doi.org/10.1037/h0060730
-- Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
-- Skinner, B. F. (1953). *Science and human behavior*. Macmillan.

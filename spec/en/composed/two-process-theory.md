@@ -49,6 +49,15 @@ These are the arguments of two-process theory, not conclusions of the DSL. Singl
 
 Two-process theory accommodates all four procedures in a unified framework and motivates the DSL's decision to treat `composed/` as a sibling category of `operant/` and `respondent/` rather than as a subordinate of either. A composed procedure admitted in the future that could not be specified within this frame would require articulation of an alternative unifying account.
 
+### 3.1 Appetitive and Aversive Stimuli in the Two-Process Reading
+
+Two-process theory reads the composed procedures as requiring a match between the stimuli of the two constituents, classed as appetitive or aversive in the operant tradition's sense ([Operant Theory, Notes](../operant/theory.md#stimulus-roles-as-aliases)):
+
+- On this reading, CER requires that the CS be aversive at test time (Estes & Skinner, 1941). The CS acquires this through the respondent pairing, not through the operant baseline.
+- On this reading, PIT requires that the operant baseline and the respondent pairing use matching classes of stimulus (appetitive with appetitive for positive PIT; aversive with aversive for fear-potentiated startle variants).
+
+These are requirements stated by the theory. The DSL's grammar and annotations do not record whether a stimulus is appetitive or aversive and do not check the match.
+
 ## 4. Relationship to Contemporary Theory
 
 Two-process theory continues to inform contemporary accounts. Appetitive PIT remains a widely used procedure in the study of what Flagel et al. (2011) and related literatures label "cue-triggered motivation" — the DSL observes the underlying empirical phenomenon (an appetitive CS presented during an appetitive-maintained operant baseline increases operant response rate) and notes that the "cue-triggered motivation" label is vocabulary contributed by that literature, not by the DSL. Conditioned suppression remains a standard measure of Pavlovian fear conditioning strength (Annau & Kamin, 1961). Modern outcome-specific PIT procedures refine the theory by dissociating general from outcome-specific S–O associations.

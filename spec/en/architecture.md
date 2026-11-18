@@ -28,7 +28,7 @@ The DSL is organized by **scientific category**. Layers inside `contingency-dsl`
 │ │  - trial-based/    │                     ││
 │ ├────────────────────┴────────────────────┤│
 │ │ Foundations (CFG/LL(2), contingency type,││
-│ │              time, stimulus, valence,    ││
+│ │              time, stimulus,             ││
 │ │              context)                     ││
 │ └─────────────────────────────────────────┘│
 ├───────────────────────────────────────────┤
@@ -39,7 +39,7 @@ The DSL is organized by **scientific category**. Layers inside `contingency-dsl`
 └───────────────────────────────────────────┘
 ```
 
-**Why Operant and Respondent are sibling categories (not nested under a common "Paradigm" node).** The two traditions describe procedures in separate vocabularies, so the DSL gives each its own layer. The operant analysis (Skinner, 1938) asks under what discriminative stimulus a response produces a consequence; the respondent analysis (Pavlov, 1927) asks what CS-US temporal / probabilistic relationship predicts the US. Keeping the layers separate lets each vocabulary keep its own grammar; whether the underlying relations are one kind of thing or two is a question for the theory layers (`operant/theory.md`, `respondent/theory.md`), not for this architecture. They share only the neutral foundations (time scales, stimulus typing, valence, context) and a first-class composition point (`composed/`) for operant × respondent procedures.
+**Why Operant and Respondent are sibling categories (not nested under a common "Paradigm" node).** The two traditions describe procedures in separate vocabularies, so the DSL gives each its own layer. The operant analysis (Skinner, 1938) asks under what discriminative stimulus a response produces a consequence; the respondent analysis (Pavlov, 1927) asks what CS-US temporal / probabilistic relationship predicts the US. Keeping the layers separate lets each vocabulary keep its own grammar; whether the underlying relations are one kind of thing or two is a question for the theory layers (`operant/theory.md`, `respondent/theory.md`), not for this architecture. They share only the neutral foundations (stimuli, dependency types, time scales, context) and a first-class composition point (`composed/`) for operant × respondent procedures.
 
 **TC vs non-TC boundary (unchanged).** Foundations + Operant + Respondent remain CFG and non-TC. `contingency-core` and `experiment-core` remain Turing-complete. The Composed layer inherits the non-TC property from its Operant × Respondent constituents; it composes existing non-TC grammars and does not introduce new computational power.
 
@@ -76,7 +76,7 @@ The Respondent layer is uniform at this resolution: it hosts the Tier-A primitiv
 | **Composed** | `composed/` | Non-TC (inherits from components) | Operant × Respondent composites | `CER`, `PIT`, `Autoshaping`, `Omission`, `TwoProcess` |
 | **Operant** | `operant/` | CFG (non-TC) | Three-term contingency (SD-R-SR) | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Pctl(IRT, 50)`, `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
 | **Respondent** | `respondent/` | CFG (non-TC) | Two-term contingency (CS-US) — Tier A primitives + extension point | `Pair.ForwardDelay(cs, us)`, `Contingency(0.9, 0.1)`, `Differential(cs+, cs−)` |
-| **Foundations** | `foundations/` | CFG / type theory (non-TC) | Paradigm-neutral formal base: CFG/LL(2), contingency type (2-term vs 3-term, contingent vs non-contingent), time scales, stimulus typing (SD, SΔ, CS, US, Sr+, Sr−), valence, context | Meta-grammar, type definitions |
+| **Foundations** | `foundations/` | CFG / type theory (non-TC) | Paradigm-neutral formal base: CFG/LL(2), dependency types (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability; contingent vs non-contingent), time scales, stimuli (name, physical properties, onset/offset), context | Meta-grammar, type definitions |
 | **contingency-core** | sibling package | Turing-complete | Dynamic contingency transitions | Rate-based schedule switching, arbitrary GTS transitions |
 | **experiment-core** | sibling package | TC + constraints | Experimental finalization and verification | Exit conditions, ABA designs, safety constraints |
 
@@ -646,7 +646,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 The `schema/` tree mirrors the directory structure:
 
-- `schema/foundations/` — meta-grammar, contingency-type definitions, time scales, stimulus typing, valence, context types
+- `schema/foundations/` — meta-grammar, dependency-type definitions, time scales, stimuli, context types
 - `schema/operant/grammar.ebnf`, `schema/operant/ast.schema.json` — Operant layer grammar and AST
 - `schema/operant/schedules/{ratio,interval,time,differential,compound,progressive}.ebnf` — per-class schedule EBNF fragments
 - `schema/operant/stateful/grammar.ebnf` — Operant.Stateful (Percentile, Adjusting, Interlocking)

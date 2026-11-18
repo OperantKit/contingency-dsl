@@ -6,7 +6,36 @@
 - [Respondent Grammar](grammar.md) — EBNF productions and extension point.
 - [Respondent Primitives](primitives.md) — R1–R14 operational definitions.
 - [Foundations Theory](../foundations/theory.md) — paradigm-neutral definition of contingency.
-- [Contingency Types](../foundations/contingency-types.md) — two-term versus three-term typing.
+- [Dependency Types](../foundations/contingency-types.md) — paradigm-neutral dependency types.
+- [Stimuli](../foundations/stimulus-typing.md) — stimulus name, physical properties, onset and offset.
+
+---
+
+## 0. Stimulus Roles as Aliases
+
+The foundations layer defines stimuli by name and physical properties and defines the paradigm-neutral dependency types. The respondent layer's role names are aliases for positions in those types. An alias adds no meaning beyond the position.
+
+| Alias | Symbol | Position in the paradigm-neutral dependency types |
+|---|---|---|
+| Unconditioned stimulus | US | The later stimulus of a stimulus→stimulus dependency |
+| Conditioned stimulus | CS | The earlier stimulus of a stimulus→stimulus dependency |
+
+**CS and US are primitive-level.** In the respondent layer, CS and US are constructor arguments: `Pair.ForwardDelay(cs, us, isi, cs_duration)`, `Contingency(p_us_given_cs, p_us_given_no_cs)`, etc. Their physical properties are attached via `@cs` and `@us` annotations (provided by `annotations/extensions/respondent-annotator`).
+
+```
+Pair.ForwardDelay(tone, shock, isi=5-s, cs_duration=10-s)
+  @cs("tone", frequency=4000, modality="auditory")
+  @us("shock", intensity="0.5mA", modality="electrical")
+```
+
+The respondent layer also has response→stimulus dependencies in its own vocabulary (`@omission`, `@avoidance`).
+
+### Notes: the Respondent Tradition's Effect Definitions and Valence
+
+These notes record readings of the respondent tradition; they are not part of the alias definitions, and the DSL does not check them.
+
+- **Effect definitions.** The tradition defines the US as a biologically significant stimulus that elicits an unconditioned response (UR), and the CS as a stimulus that comes to elicit a conditioned response (CR) through its pairing with the US (Pavlov, 1927).
+- **Valence.** Respondent primitives (`Pair.*`, `Contingency(...)`, etc.) do not encode whether the US is appetitive or aversive. Fear conditioning (an aversive US in the tradition's reading) and appetitive conditioning share identical respondent-layer grammar; they differ only in which stimulus is named as the US. The DSL does not record valence; no annotation schema has a valence parameter.
 
 ---
 

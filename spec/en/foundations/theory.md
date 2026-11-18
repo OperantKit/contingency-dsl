@@ -8,17 +8,18 @@
 
 In the experimental analysis of behavior, a **contingency** is a probabilistic / logical relation between events. The foundations layer defines the relation abstractly; the operant and respondent layers specialize it.
 
-**Definition 1 (Event).** An event is an occurrence at a point in time, belonging to one of the following categories defined in `stimulus-typing.md` and `time-scales.md`:
+**Definition 1 (Event).** An event is an occurrence at a point in time, belonging to one of the following three categories defined in `stimulus-typing.md` and `time-scales.md`:
 
-- Stimulus onsets and offsets (CS, US, SD, SΔ)
+- Stimulus onsets and offsets
 - Responses (R)
-- Consequences (Sr+, Sr−, punisher)
 - Time ticks (clock advances)
 
-**Definition 2 (Contingency).** A contingency is a triple `(A, B, P)` where `A` and `B` are event types and `P` is a conditional probability structure relating them. Two canonical specializations exist:
+A consequence is not a separate category of event: it is the presentation of a stimulus produced by a response→stimulus dependency. "Consequence" and "reinforcer delivery" are the operant layer's names for that stimulus presentation.
 
-- **Two-term contingency** (respondent): `P(US | CS)` vs `P(US | ¬CS)` — the Pavlovian contingency space (Rescorla, 1967). Detailed in `contingency-types.md` and `respondent/theory.md`.
-- **Three-term contingency** (operant): `P(Sr+ | R, SD)` — the Skinnerian three-term contingency (SD–R–SR). Detailed in `contingency-types.md` and `operant/theory.md`.
+**Definition 2 (Contingency).** A contingency is a triple `(A, B, P)` where `A` and `B` are event types and `P` is a conditional probability structure relating them. The dependency types the DSL uses (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability) are listed in `contingency-types.md §2`. The paradigm layers name particular shapes of them:
+
+- **Two-term contingency** — the respondent layer's name for a stimulus→stimulus dependency with conditional probability (Rescorla, 1967). Detailed in `respondent/theory.md`.
+- **Three-term contingency** — the operant layer's name for a response→stimulus dependency that holds while another stimulus is present. Detailed in `operant/theory.md`.
 
 The distinction between contingent and non-contingent (response-independent) arrangements is foundational and is treated separately in `contingency-types.md`.
 
@@ -57,7 +58,7 @@ All paradigm layers share the following relations on expressions. Paradigm-speci
 
 **Definition 3 (Syntactic equality, `=_syn`).** Two expressions `E₁` and `E₂` are *syntactically equal* iff their AST representations are structurally identical — every node type, operator, parameter value, and child ordering matches. Syntactic equality is decidable by recursive structural comparison.
 
-**Definition 4 (Semantic equivalence, `≡`).** Two expressions are *semantically equivalent* iff they produce identical outcomes for every possible observation trace (the trace universe is paradigm-specific; operant uses response streams with time ticks, respondent uses CS/US event streams with time ticks). The negation is written `≢`.
+**Definition 4 (Semantic equivalence, `≡`).** Two expressions are *semantically equivalent* iff they produce identical outcomes for every possible observation trace (the trace universe is paradigm-specific; operant uses response streams with time ticks, respondent uses stimulus onset/offset streams with time ticks). The negation is written `≢`.
 
 **Definition 5 (Sound rewrite rule, `→`).** A *sound rewrite rule* `E₁ → E₂` is a directed AST transformation such that `E₁ ≡ E₂`. Conforming implementations MAY apply sound rewrites as optimization passes but MUST NOT apply unsound ones.
 

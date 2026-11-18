@@ -23,6 +23,45 @@
 
 ---
 
+## 別名としての刺激の役割
+
+基盤層は、刺激を名前と物理的属性で定義し ([刺激](../foundations/stimulus-typing.md))、パラダイム中立な依存の型を定義する ([依存の型 §2](../foundations/contingency-types.md))。オペラント層の役割の名前は、それらの依存の型の中の位置に対する別名である。別名は位置を越える意味を足さない。刺激が行動に何をするかは言わない。
+
+**三項随伴性.** 別の刺激が出ている間に成り立つ反応→刺激の依存に対するオペラント層の名前で、`(SD, R, SR)` と書く。SD が出ている間に、反応 R が刺激の呈示 SR を生む (Skinner, 1938; 1953)。強化スケジュール、状態依存のオペラント手続き、試行ベースのオペラント手続きは、どれもその特定の形を表す。
+
+| 別名 | 記号 | パラダイム中立な依存の型の中の位置 |
+|---|---|---|
+| 正の強化子 | Sr+ | 反応→刺激の依存によって呈示される刺激 |
+| 負の強化子 | Sr− | 反応→刺激の依存によって除去・取りやめ・先送りされる刺激 |
+| 罰子 | — | `Overlay` または `PUNISH` 指令で組まれた反応→刺激の依存によって呈示される刺激 |
+| 弁別刺激 | SD, `S^D` | 反応→刺激の依存が有効な間に出ている刺激 |
+| S-デルタ | SΔ, `S^Δ` | その反応→刺激の依存が有効でない間に出ている刺激 |
+
+**SD と SΔ は注釈レベル.** SD と SΔ は `@sd` と `@s_delta` でオペラントのスケジュール式に付ける。CFG にプリミティブの構成子としては現れない。三項随伴性は (スケジュール式, `@sd` 注釈) の組で具体化される。注釈は `procedure-annotator/stimulus` モジュール (`@sd`, `@s_delta`, `@reinforcer`) が提供する。
+
+```
+Mult(VI 30-s @sd("tone"), EXT @s_delta("light"))
+```
+
+オペラント層は、刺激→刺激と時間→刺激の依存も自分の語彙で持つ (`Chain` の連鎖の切り替わり、`FT`・`VT`・`RT`)。
+
+### 注記: オペラントの伝統による効果の定義と valence
+
+この注記は、オペラントの伝統が役割を行動への効果でどう定義するかを記す。上の別名の定義の一部ではなく、この伝統の読みであり、DSL はこれを検査しない。
+
+- **効果の定義.** この伝統は、正の強化子を呈示により R を増やす結果 (Skinner, 1953)、負の強化子を除去により R を増やす結果 (Sidman, 1953)、罰子を呈示により R を減らす結果 (Azrin & Holz, 1966)、SD を反応が強化されるときを合図する刺激、SΔ を強化されないときを合図する刺激 (Skinner, 1938) と定義する。
+- **valence (誘発価).** この伝統は、被験体がその呈示を得ようと (またはその除去を避けようと) 働く刺激を *食欲的*、被験体がそれを避け・逃れ・終わらせようと (またはその除去を生じさせようと) 働く刺激を *嫌悪的* と呼ぶ。この読みでの valence は、被験体とその状態に相対的な機能的属性であり、孤立した刺激の属性ではない。餌は食物を遮断されたラットには食欲的で、飽和したラットには無関係でありうる (Catania, 2013, Ch. 3)。DSL は valence を記録しない。どの注釈の schema にも valence の引数は無い。
+- **4 象限.** valence と操作 (呈示または除去) を組み合わせると、この伝統の 4 象限になる。DSL は *操作* をコンビネータまたは注釈で明示する (`Overlay(baseline, punisher)` と裸の `VI 60-s`、`@reinforcer` と `@punisher`)。手続きがどの象限に入るかはこの伝統の読みであり、構文解析時には強制しない。
+
+|  | 呈示 | 除去 |
+|---|---|---|
+| **食欲的** | 正の強化 (Sr+) | 負の罰 |
+| **嫌悪的** | 正の罰 | 負の強化 (Sr−) |
+
+- **嫌悪性制御.** オペラント層には、この伝統が嫌悪性制御に分類する一級のプリミティブが 2 つある。`Sidman(SSI, RSI)` — フリーオペラント回避 (Sidman, 1953; §2.7) — と `DiscriminatedAvoidance(CSUSInterval, ITI, mode, ...)` — 試行ベースの回避 (Solomon & Wynne, 1953; §2.9)。罰は `Overlay` コンビネータと `Conc` の `PUNISH(...)` 指令で表す (§2.10)。
+
+---
+
 ## Part I: アトミック・スケジュール分類 — 積型 Distribution × Domain
 
 ### 1.1 2 つの独立次元
@@ -102,6 +141,7 @@
 
 完全な参考文献リストは英語版 `../en/operant/theory.md` の References セクションを参照。中核となる参照は以下。
 
+- Azrin, N. H., & Holz, W. C. (1966). Punishment. In W. K. Honig (Ed.), *Operant behavior: Areas of research and application* (pp. 380-447). Appleton-Century-Crofts.
 - Baum, W. M. (1974). On two types of deviation from the matching law: Bias and undermatching. *Journal of the Experimental Analysis of Behavior*, 22(1), 231–242. https://doi.org/10.1901/jeab.1974.22-231
 - Catania, A. C. (2013). *Learning* (5th ed.). Sloan.
 - Ferster, C. B., & Skinner, B. F. (1957). *Schedules of reinforcement*. Appleton-Century-Crofts.
@@ -109,4 +149,7 @@
 - Herrnstein, R. J. (1961). Relative and absolute strength of response as a function of frequency of reinforcement. *Journal of the Experimental Analysis of Behavior*, 4(3), 267–272. https://doi.org/10.1901/jeab.1961.4-267
 - Mizutani, Y. (2018). OperantKit: A Swift framework for reinforcement schedule simulation [Computer software]. GitHub. https://github.com/YutoMizutani/OperantKit
 - Pierce, B. C. (2002). *Types and programming languages*. MIT Press.
+- Sidman, M. (1953). Two temporal parameters of the maintenance of avoidance behavior by the white rat. *Journal of Comparative and Physiological Psychology*, *46*(4), 253–261. https://doi.org/10.1037/h0060730
 - Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
+- Skinner, B. F. (1953). *Science and human behavior*. Macmillan.
+- Solomon, R. L., & Wynne, L. C. (1953). Traumatic avoidance learning: Acquisition in normal dogs. *Psychological Monographs: General and Applied*, 67(4), 1-19. https://doi.org/10.1037/h0093649

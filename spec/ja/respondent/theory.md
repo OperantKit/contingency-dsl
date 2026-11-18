@@ -6,7 +6,36 @@
 - [レスポンデント文法](grammar.md) — EBNF 産出規則と拡張ポイント。
 - [レスポンデント・プリミティブ](primitives.md) — R1〜R14 の操作的定義。
 - [基盤理論](../foundations/theory.md) — パラダイム中立な随伴性の定義。
-- [随伴性の型](../foundations/contingency-types.md) — 二項 vs 三項の型付け。
+- [依存の型](../foundations/contingency-types.md) — パラダイム中立な依存の型。
+- [刺激](../foundations/stimulus-typing.md) — 刺激の名前、物理的属性、onset と offset。
+
+---
+
+## 0. 別名としての刺激の役割
+
+基盤層は、刺激を名前と物理的属性で定義し、パラダイム中立な依存の型を定義する。レスポンデント層の役割の名前は、それらの型の中の位置に対する別名である。別名は位置を越える意味を足さない。
+
+| 別名 | 記号 | パラダイム中立な依存の型の中の位置 |
+|---|---|---|
+| 無条件刺激 | US | 刺激→刺激の依存の、後に来る側の刺激 |
+| 条件刺激 | CS | 刺激→刺激の依存の、先に来る側の刺激 |
+
+**CS と US はプリミティブレベル.** レスポンデント層では、CS と US は構成子の引数である: `Pair.ForwardDelay(cs, us, isi, cs_duration)`、`Contingency(p_us_given_cs, p_us_given_no_cs)` 等。物理的属性は `@cs` と `@us` の注釈 (`annotations/extensions/respondent-annotator` が提供) で付ける。
+
+```
+Pair.ForwardDelay(tone, shock, isi=5-s, cs_duration=10-s)
+  @cs("tone", frequency=4000, modality="auditory")
+  @us("shock", intensity="0.5mA", modality="electrical")
+```
+
+レスポンデント層は、反応→刺激の依存も自分の語彙で持つ (`@omission`、`@avoidance`)。
+
+### 注記: レスポンデントの伝統による効果の定義と valence
+
+この注記はレスポンデントの伝統の読みを記す。別名の定義の一部ではなく、DSL はこれを検査しない。
+
+- **効果の定義.** この伝統は、US を無条件反応 (UR) を誘発する生物学的に重要な刺激、CS を US との対提示を通じて条件反応 (CR) を誘発するようになる刺激と定義する (Pavlov, 1927)。
+- **valence (誘発価).** レスポンデント・プリミティブ (`Pair.*`, `Contingency(...)` 等) は、US が食欲的か嫌悪的かをエンコードしない。恐怖条件づけ (この伝統の読みでは嫌悪的な US) と食欲的条件づけは同一のレスポンデント層文法を共有し、どの刺激を US と名付けるかだけが異なる。DSL は valence を記録しない。どの注釈の schema にも valence の引数は無い。
 
 ---
 

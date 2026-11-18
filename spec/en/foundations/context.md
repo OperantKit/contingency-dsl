@@ -35,7 +35,7 @@ This dual positioning — foundational type + experiment-layer construct — is 
 
 A context and a discriminative stimulus (SD) are formally distinguishable:
 
-- An **SD** is a stimulus whose presence signals when a specific response will be reinforced. The SD is part of the three-term contingency `(SD, R, SR)`; its control is differential.
+- An **SD** (the operant layer's alias; see [Operant Theory, Stimulus Roles as Aliases](../operant/theory.md#stimulus-roles-as-aliases)) is a stimulus inside the contingency: a response→stimulus dependency holds while it is present. Its control is differential.
 - A **context** sets the conditions under which the contingency applies at all. Context control modulates retrieval of the whole contingency rather than differentially selecting a response.
 
 This distinction is operationally subtle — a discriminative stimulus, sustained continuously, can function as a context. The DSL's convention: label a stimulus SD (`@sd`) when it differentially controls response rate within a contingency; label it context (`@context`) when it modulates which contingency is retrieved. Linters may emit advisory warnings when the distinction is unclear, but no hard grammatical constraint enforces it.
