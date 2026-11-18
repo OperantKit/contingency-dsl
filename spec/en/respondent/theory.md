@@ -12,12 +12,12 @@
 
 ## 1. The Two-Term Contingency as a Distinct Formal Object
 
-Skinner (1938) drew a structural distinction between **operant** (three-term) and **respondent** (two-term) contingencies. The three-term contingency specifies a relation `P(Sr+ | R, SD)` in which a response `R` emitted in the presence of a discriminative stimulus `SD` is followed by a reinforcer; the two-term contingency specifies a relation `P(US | CS)` in which the presence of a conditional stimulus `CS` is differentially correlated, in the statistical sense, with the occurrence of an unconditional stimulus `US`. The two are not parameterizations of a common super-relation — the response `R` is *absent* from the respondent arrangement, and this absence is structural rather than trivial.
+Skinner (1938) drew a structural distinction between **operant** (three-term) and **respondent** (two-term) contingencies. The three-term contingency specifies a relation `P(Sr+ | R, SD)` in which a response `R` emitted in the presence of a discriminative stimulus `SD` is followed by a reinforcer; the two-term contingency specifies a relation `P(US | CS)` in which the presence of a conditional stimulus `CS` is differentially correlated, in the statistical sense, with the occurrence of an unconditional stimulus `US`. Both are specializations of the paradigm-neutral contingency `(A, B, P)` of [Foundations Definition 2](../foundations/theory.md); they differ in the event types they relate. The response `R` is *absent* from the respondent arrangement, and the respondent tradition treats this absence as structural rather than trivial.
 
-A common misreading treats the two-term contingency as a "degenerate" three-term contingency in which the response position has been erased. This misreading collapses the CS into an `SD` role and the CR into an operant `R`. Three considerations refute the collapse:
+The respondent tradition does not treat the two-term contingency as a "degenerate" three-term contingency in which the response position has been erased, because that reading would collapse the CS into an `SD` role and the CR into an operant `R`. The tradition gives three considerations against the collapse:
 
 1. **The CR is elicited, not emitted.** In Pavlov (1927), salivation is elicited by the CS after training; it is not a behavior whose future probability is modulated by its consequence. An operant response, by contrast, is emitted and is selected by the consequence that follows it (Skinner, 1938).
-2. **The US is unconditional on the subject's behavior.** In the canonical Pavlovian arrangement, the US is delivered whether or not the subject responds. When a response *is* required (or prohibited) for US delivery, the arrangement is no longer a pure two-term contingency; it becomes a composed operant × respondent procedure (see `composed/omission.md`, `composed/autoshaping.md`).
+2. **The US is unconditional on the subject's behavior.** In the canonical Pavlovian arrangement, the US is delivered whether or not the subject responds. When a response *is* required (or prohibited) for US delivery, the arrangement adds a response→stimulus dependency to the two-term contingency (see `composed/omission.md`).
 3. **CS predictiveness, not response strength, is the semantic target.** Rescorla (1967, 1968) established that the CS must *predict* the US in the statistical sense — `P(US | CS) ≠ P(US | ¬CS)` — for a CR to acquire. The semantic currency of the respondent layer is CS-US contingency, not response-reinforcer contingency.
 
 Accordingly, the contingency-dsl respondent grammar (`grammar.md §2`) has its own productions for `PairExpr`, `ContingencyExpr`, `ExtinctionExpr`, and so on, and does not reduce to operant productions. The two-term and three-term contingencies share only the paradigm-neutral foundations layer (`foundations/contingency-types.md`).
@@ -94,11 +94,22 @@ The present layer does not itself define the composed procedures; it provides th
 
 ---
 
+## 6. Interpretive Notes: the Respondent Tradition's Reading of Autoshaping and Omission
+
+The procedure documents (`composed/autoshaping.md`, `composed/omission.md`) record the arrangements and the observations only. This section states how the respondent tradition reads them. These are readings by that tradition, not conclusions of the DSL; the operant layer reserves a place for its own reading ([Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission)).
+
+**Autoshaping.** The respondent tradition reads the key peck that emerges in Brown and Jenkins (1968) as an elicited / evoked response directed at a CS, not a response selected by its consequence. On this reading, the response class emerges under the CS–US dependency alone.
+
+**Omission.** The respondent tradition reads the result of Williams and Williams (1969) as follows. If autoshaped pecking were maintained by its consequence, pecking should extinguish under the omission procedure, because each peck during the CS now cancels the US. If pecking is controlled by the CS–US dependency, pecking should persist because the CS still elicits it, even though the US is intermittently lost. Pigeons continued to peck, and the respondent tradition takes this persistence as its standard empirical argument that autoshaped pecking is under Pavlovian rather than operant control, and that omission separates the two kinds of control.
+
+---
+
 ## References
 
 - Ayres, J. J. B., Benedict, J. O., & Witcher, E. S. (1975). Systematic manipulation of individual events in a truly random control in rats. *Journal of Comparative and Physiological Psychology*, 88(1), 97–103. https://doi.org/10.1037/h0076215
 - Bouton, M. E. (2004). Context and behavioral processes in extinction. *Learning & Memory*, 11(5), 485–494. https://doi.org/10.1101/lm.78804
 - Bouton, M. E., & Bolles, R. C. (1979). Contextual control of the extinction of conditioned fear. *Learning and Motivation*, 10(4), 445–466. https://doi.org/10.1016/0023-9690(79)90057-2
+- Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, 11(1), 1–8. https://doi.org/10.1901/jeab.1968.11-1
 - Gallistel, C. R., & Gibbon, J. (2000). Time, rate, and conditioning. *Psychological Review*, 107(2), 289–344. https://doi.org/10.1037/0033-295X.107.2.289
 - Gibbon, J., & Balsam, P. (1981). Spreading association in time. In C. M. Locurto, H. S. Terrace, & J. Gibbon (Eds.), *Autoshaping and conditioning theory* (pp. 219–253). Academic Press.
 - Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
@@ -107,3 +118,4 @@ The present layer does not itself define the composed procedures; it provides th
 - Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475
 - Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian conditioning: Variations in the effectiveness of reinforcement and nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), *Classical conditioning II: Current research and theory* (pp. 64–99). Appleton-Century-Crofts.
 - Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
+- Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, 12(4), 511–520. https://doi.org/10.1901/jeab.1969.12-511

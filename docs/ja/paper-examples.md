@@ -392,9 +392,9 @@ Phase(
 ```
 
 **注記:**
-- オペラント production は出現しない。創発キーつつきはパヴロフ型で、測定アノテーション (図示せず) 経由で記録する。
+- オペラント production は出現しない。反応→US の依存は設定されていない。創発キーつつきは測定アノテーション (図示せず) 経由で記録する。
 - CS は**局在的**(特定チャンバー操作体に紐づく)。これがサイン・トラッキングをゴール・トラッキングから区別する。
-- 自動反応形成を Operant ではなく Composed に置く根拠は [composed/autoshaping.md](../../spec/ja/composed/autoshaping.md) を参照。
+- 手続きは [composed/autoshaping.md](../../spec/ja/composed/autoshaping.md)、それについてのレスポンデントの伝統の読みは [respondent/theory.md §6](../../spec/ja/respondent/theory.md) を参照。
 
 ---
 
@@ -402,7 +402,7 @@ Phase(
 
 **論文:** Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, *12*(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511
 
-**デザイン:** Brown & Jenkins の自動反応形成の改変版で、パヴロフ型ペアリングはそのまま、CS 提示中のキーつつきが当該試行の予定 US を直ちに打ち消す。つつきがオペラントなら省略随伴性下で消去するはずだが、パヴロフ型であれば強化子を失いつつも持続するはずである。
+**デザイン:** Brown & Jenkins の自動反応形成の改変版で、パヴロフ型ペアリングはそのまま、CS 提示中のキーつつきが当該試行の予定 US を直ちに打ち消す。
 
 **主要 DSL 機能:** 合成層、反応→US キャンセル随伴性、自動反応形成との比較
 
@@ -425,7 +425,7 @@ phase omission_contingency:
 
 **注記:**
 - `@omission(response="key_peck", during="cs")` 注釈がパヴロフ型 primitive に対する反応→US キャンセル規則を宣言する。アナライザ／実行器のパスが注釈を解釈し、指定窓内で該当反応が出現するたびにその試行の US 呈示を抑制する。
-- Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した — これが自動反応形成反応に対するパヴロフ型 (非オペラント) 制御の実証的根拠である。
+- Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した。この持続性についてのレスポンデントの伝統の読みは [respondent/theory.md §6](../../spec/ja/respondent/theory.md) にある。
 - 仕様全体は [composed/omission.md](../../spec/ja/composed/omission.md) を参照。
 
 ---

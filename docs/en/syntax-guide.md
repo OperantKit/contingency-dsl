@@ -395,7 +395,7 @@ Phase(
 @us(label="food", intensity="3s_access", delivery="unsignaled")
 ```
 
-No operant contingency is programmed; the emergent key-peck is Pavlovian (Brown & Jenkins, 1968).
+No response→US dependency is programmed; US delivery is set by CS offset alone, and pigeons come to peck the lit key (Brown & Jenkins, 1968). How the theory layers read the emergent key-peck is in the respondent theory notes (`spec/en/respondent/theory.md` §6).
 
 ### Omission (Negative Automaintenance)
 
@@ -407,7 +407,7 @@ phase omission_training:
   Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
-A response during CS cancels the scheduled US for that trial. The `@omission(response, during)` annotation on the Pavlovian primitive declares the cancellation rule, which an analyzer/executor pass interprets at runtime. Persistence of pecking under this negative contingency is the signature empirical argument for Pavlovian (not operant) control of autoshaped responding (Williams & Williams, 1969).
+A response during CS cancels the scheduled US for that trial. The `@omission(response, during)` annotation on the Pavlovian primitive declares the cancellation rule, which an analyzer/executor pass interprets at runtime. Pigeons kept pecking under this negative dependency (Williams & Williams, 1969); the respondent tradition's reading of that persistence is in `spec/en/respondent/theory.md` §6.
 
 ---
 

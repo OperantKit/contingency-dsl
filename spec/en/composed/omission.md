@@ -1,10 +1,10 @@
 # Omission (Negative Automaintenance)
 
-> Part of the contingency-dsl composed layer. Omission is a diagnostic procedure: a forward Pavlovian pairing is programmed as in autoshaping, but with the additional constraint that any response during the CS **cancels** the scheduled US on that trial. Omission separates Pavlovian from operant control of autoshaped responding: if the response were operant in nature, the omission contingency would quickly extinguish it; if the response is Pavlovian, it often persists despite the omission.
+> Part of the contingency-dsl composed layer. In omission, a forward Pavlovian pairing is programmed as in autoshaping, with the additional constraint that any response during the CS **cancels** the scheduled US on that trial. How the theory layers read the responding maintained under this procedure is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission) and [Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission).
 
 **Companion documents:**
-- [Autoshaping](autoshaping.md) — the procedure from which omission diverges diagnostically.
-- [Two-Process Theory](two-process-theory.md) — the theoretical framework that motivates the diagnostic distinction.
+- [Autoshaping](autoshaping.md) — the same procedure without the response→US-cancellation term.
+- [Two-Process Theory](two-process-theory.md) — an interpretive framework that spans the operant and respondent layers.
 - [Respondent Primitives](../respondent/primitives.md) — `Pair.ForwardDelay` as the underlying arrangement.
 - [Operant Schedules](../operant/schedules/differential.md) — related operant omission schedules (DRO).
 
@@ -12,22 +12,17 @@
 
 ## 1. Procedure
 
-Williams and Williams (1969) trained pigeons under a modified autoshaping procedure: the key light (CS) was presented for a fixed duration and followed by grain (US) as in standard autoshaping, **except** that a key peck during CS presentation immediately cancelled the US for that trial. Under a purely operant account, pecking should extinguish because it no longer produces food; indeed, pecking is now an operant that *prevents* food.
+Williams and Williams (1969) trained pigeons under a modified autoshaping procedure: the key light (CS) was presented for a fixed duration and followed by grain (US) as in standard autoshaping, **except** that a key peck during CS presentation immediately cancelled the US for that trial.
 
-Contrary to this prediction, pigeons continued to peck the key light at substantial rates across many sessions, losing reinforcement on trial after trial. Williams and Williams (1969) termed the effect "negative automaintenance" — the auto-maintained response persisted under a negative response–outcome contingency. This persistence is not compatible with a simple operant account of autoshaped pecking.
+Pigeons continued to peck the key light at substantial rates across many sessions, and the US was cancelled on those trials. Williams and Williams (1969) termed the effect "negative automaintenance" — the auto-maintained response persisted under a negative response–outcome dependency.
 
-## 2. Diagnostic Function
+## 2. Interpretation
 
-The omission procedure is **diagnostic** for the locus of control of autoshaped responding:
-
-- If autoshaping were operant in origin, pecking should extinguish under the omission contingency (because pecking now reduces reinforcement).
-- If autoshaping is Pavlovian in origin, pecking should persist because the Pavlovian CS–US contingency still elicits the response — even though the US is intermittently lost.
-
-The persistence observed by Williams and Williams (1969) is the standard empirical argument for the Pavlovian-control account of autoshaping.
+The procedure document records only the arrangement and the observation in §1. The respondent tradition's reading of the persistence is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission); the operant layer reserves a place for its reading in [Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission).
 
 ## 3. Relationship to Autoshaping
 
-Omission is a structural modification of autoshaping (`autoshaping.md`): same CS, same US, same forward Pavlovian arrangement, with an **added operant constraint** (response during CS → US cancellation on that trial). The modification introduces an operant constituent into what would otherwise be a pure Pavlovian procedure, which is why omission lives in the composed layer rather than the respondent layer.
+Omission is a structural modification of autoshaping (`autoshaping.md`): same CS, same US, same forward Pavlovian arrangement, with one **added response→stimulus dependency** (a response during the CS cancels the US on that trial).
 
 The response–US relationship in omission is **negative-contingent**: the response reduces the probability of the US. This is structurally distinct from punishment (which adds an aversive US contingent on a response) and from differential reinforcement of other behavior (DRO), which is an operant arrangement where the reinforcer is withheld unless the target response has been absent for a specified duration.
 
@@ -53,7 +48,7 @@ An analyzer / executor pass interprets the annotation: whenever a matching respo
 
 ## 5. Classification within the Taxonomy
 
-Omission is the single clearest case where a **diagnostic** procedure (rather than a theoretically novel one) earns a place in the composed layer. Its contingency structure is identical to autoshaping except for the response→US-cancellation term; that small structural addition is decisive for the interpretation of the maintained responding, and for that reason it is documented as a named procedure rather than left implicit.
+Omission's contingency structure is identical to autoshaping except for the response→US-cancellation term. Because that one term changes the programmed arrangement, omission is documented as a named procedure rather than left implicit.
 
 ## 6. Citation
 

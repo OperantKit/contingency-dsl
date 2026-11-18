@@ -12,7 +12,7 @@
 
 ## 1. Procedure
 
-Estes and Skinner (1941) introduced the CER procedure. A subject is first trained on an operant appetitive schedule (typically a variable-interval schedule maintaining a stable baseline response rate). After baseline stability, a Pavlovian forward-delay pairing is superimposed: a CS (e.g., tone) is presented for a fixed duration, terminating with an aversive US (e.g., unsignaled brief shock). The US is delivered **independently of the subject's responding** — the CS–US relation is Pavlovian, not operant.
+Estes and Skinner (1941) introduced the CER procedure. A subject is first trained on an operant appetitive schedule (typically a variable-interval schedule maintaining a stable baseline response rate). After baseline stability, a Pavlovian forward-delay pairing is superimposed: a CS (e.g., tone) is presented for a fixed duration, terminating with an aversive US (e.g., unsignaled brief shock). The US is delivered **independently of the subject's responding**: there is a stimulus→stimulus dependency (CS→US) and no response→stimulus dependency for the US.
 
 Response rate during the CS is suppressed relative to response rate in the pre-CS baseline interval. The suppression magnitude is the primary dependent measure.
 
@@ -51,7 +51,7 @@ phase test:
   use baseline
 ```
 
-Each phase carries a single schedule body. The pairing phase substitutes a Pavlovian primitive for the operant baseline; the US is delivered on the Pavlovian schedule independently of the operant response class. This temporal independence is what makes CER a composed procedure rather than a punishment procedure on the operant baseline. The `use baseline` form in the test phase reinstates the baseline schedule by reference.
+Each phase carries a single schedule body. The pairing phase substitutes a Pavlovian primitive for the operant baseline; the US is delivered on the Pavlovian schedule independently of the operant response class. This is the procedural difference from punishment: in CER the US does not depend on the response, whereas in a punishment procedure the punisher is delivered contingent on the response. The `use baseline` form in the test phase reinstates the baseline schedule by reference.
 
 ## 4. Distinction from Punishment
 

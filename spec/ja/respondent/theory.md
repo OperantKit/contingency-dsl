@@ -12,12 +12,12 @@
 
 ## 1. 別個の形式オブジェクトとしての二項随伴性
 
-Skinner (1938) は **オペラント**(三項) と **レスポンデント**(二項) の随伴性の間に構造的区別を引いた。三項随伴性は `P(Sr+ | R, SD)` という関係を指定する。ここで弁別刺激 `SD` の存在下で発せられた反応 `R` に強化子が続く。二項随伴性は `P(US | CS)` という関係を指定する。ここで条件刺激 `CS` の存在が、統計的意味で、無条件刺激 `US` の生起と差分的に相関する。両者は共通の上位関係のパラメータ化ではない — 反応 `R` はレスポンデント配置には *不在* であり、この不在は自明ではなく構造的である。
+Skinner (1938) は **オペラント**(三項) と **レスポンデント**(二項) の随伴性の間に構造的区別を引いた。三項随伴性は `P(Sr+ | R, SD)` という関係を指定する。ここで弁別刺激 `SD` の存在下で発せられた反応 `R` に強化子が続く。二項随伴性は `P(US | CS)` という関係を指定する。ここで条件刺激 `CS` の存在が、統計的意味で、無条件刺激 `US` の生起と差分的に相関する。両者は、[基盤の定義 2](../foundations/theory.md) のパラダイム中立の随伴性 `(A, B, P)` の特殊化であり、関係づける出来事の型が違う。反応 `R` はレスポンデント配置には *不在* であり、レスポンデントの伝統はこの不在を自明ではなく構造的なものとして扱う。
 
-しばしばある誤読は、二項随伴性を反応位置が消去された「退化した」三項随伴性として扱う。この誤読は CS を `SD` 役割に、CR をオペラント `R` に倒壊させる。この倒壊を退ける 3 つの論点:
+レスポンデントの伝統は、二項随伴性を反応位置が消去された「退化した」三項随伴性として扱わない。その読みは CS を `SD` 役割に、CR をオペラント `R` に倒壊させるからである。この伝統が倒壊に反対して挙げる 3 つの論点:
 
 1. **CR は誘発されるのであり、発せられるのではない.** Pavlov (1927) において、訓練後の唾液分泌は CS により誘発される。それは結果によって将来の確率が調整される行動ではない。一方、オペラント反応は発せられ、それに続く結果によって選択される (Skinner, 1938)。
-2. **US は被験体の行動に無条件である.** 標準的なパヴロフ型配置において、US は被験体が反応するかどうかに関わらず呈示される。US 呈示のために反応が *要求される*(または禁止される) とき、その配置はもはや純粋な二項随伴性ではない — それは合成的なオペラント × レスポンデント手続きとなる (`composed/omission.md`, `composed/autoshaping.md` 参照)。
+2. **US は被験体の行動に無条件である.** 標準的なパヴロフ型配置において、US は被験体が反応するかどうかに関わらず呈示される。US 呈示のために反応が *要求される*(または禁止される) とき、その配置は二項随伴性に反応→刺激の依存を足したものになる (`composed/omission.md` 参照)。
 3. **意味論的ターゲットは反応強度ではなく CS の予告性である.** Rescorla (1967, 1968) は、CR が獲得するためには CS が統計的意味で US を *予告* せねばならない — `P(US | CS) ≠ P(US | ¬CS)` — ことを確立した。レスポンデント層の意味論的通貨は、反応-強化子随伴性ではなく CS-US 随伴性である。
 
 したがって、contingency-dsl のレスポンデント文法 (`grammar.md §2`) は `PairExpr`, `ContingencyExpr`, `ExtinctionExpr` 等のための固有の産出規則を持ち、オペラント産出規則に還元されない。二項随伴性と三項随伴性が共有するのはパラダイム中立の基盤層のみである (`foundations/contingency-types.md`)。
@@ -94,11 +94,22 @@ Gallistel and Gibbon (2000) はこれを Rate Estimation Theory (RET) に一般�
 
 ---
 
+## 6. 解釈の注記: レスポンデントの伝統による自動形成と省略手続きの読み
+
+手続きの文書 (`composed/autoshaping.md`、`composed/omission.md`) は、配置と観察だけを記す。この節は、レスポンデントの伝統がそれらをどう読むかを書く。これはその伝統の読みであり、DSL の結論ではない。オペラントの層は、その側の読みを書く場所を [オペラント理論の「解釈の注記」](../operant/theory.md) に空けている。
+
+**自動形成.** レスポンデントの伝統は、Brown and Jenkins (1968) で出現するキー突きを、CS に向けた誘発／喚起反応であり、その結果によって選択された反応ではないと読む。この読みでは、反応クラスは CS–US の依存だけの下で出現する。
+
+**省略手続き.** レスポンデントの伝統は、Williams and Williams (1969) の結果を次のように読む。自動形成された突きがその結果によって維持されているなら、CS 中の突きのたびに US が取りやめられるので、省略手続きの下で突きは消去するはずである。突きが CS–US の依存によって統制されているなら、US が断続的に失われても CS が依然として突きを誘発するので、突きは持続するはずである。ハトは突き続けた。レスポンデントの伝統は、この持続性を、自動形成された突きがオペラントではなくパヴロフ型の統制の下にあり、省略手続きが 2 種の統制を分離することの標準的な経験的論拠とする。
+
+---
+
 ## 参考文献
 
 - Ayres, J. J. B., Benedict, J. O., & Witcher, E. S. (1975). Systematic manipulation of individual events in a truly random control in rats. *Journal of Comparative and Physiological Psychology*, 88(1), 97–103. https://doi.org/10.1037/h0076215
 - Bouton, M. E. (2004). Context and behavioral processes in extinction. *Learning & Memory*, 11(5), 485–494. https://doi.org/10.1101/lm.78804
 - Bouton, M. E., & Bolles, R. C. (1979). Contextual control of the extinction of conditioned fear. *Learning and Motivation*, 10(4), 445–466. https://doi.org/10.1016/0023-9690(79)90057-2
+- Brown, P. L., & Jenkins, H. M. (1968). Auto-shaping of the pigeon's key-peck. *Journal of the Experimental Analysis of Behavior*, 11(1), 1–8. https://doi.org/10.1901/jeab.1968.11-1
 - Gallistel, C. R., & Gibbon, J. (2000). Time, rate, and conditioning. *Psychological Review*, 107(2), 289–344. https://doi.org/10.1037/0033-295X.107.2.289
 - Gibbon, J., & Balsam, P. (1981). Spreading association in time. In C. M. Locurto, H. S. Terrace, & J. Gibbon (Eds.), *Autoshaping and conditioning theory* (pp. 219–253). Academic Press.
 - Pavlov, I. P. (1927). *Conditioned reflexes: An investigation of the physiological activity of the cerebral cortex* (G. V. Anrep, Trans.). Oxford University Press.
@@ -107,3 +118,4 @@ Gallistel and Gibbon (2000) はこれを Rate Estimation Theory (RET) に一般�
 - Rescorla, R. A., & Solomon, R. L. (1967). Two-process learning theory: Relationships between Pavlovian conditioning and instrumental learning. *Psychological Review*, 74(3), 151–182. https://doi.org/10.1037/h0024475
 - Rescorla, R. A., & Wagner, A. R. (1972). A theory of Pavlovian conditioning: Variations in the effectiveness of reinforcement and nonreinforcement. In A. H. Black & W. F. Prokasy (Eds.), *Classical conditioning II: Current research and theory* (pp. 64–99). Appleton-Century-Crofts.
 - Skinner, B. F. (1938). *The behavior of organisms*. Appleton-Century.
+- Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, 12(4), 511–520. https://doi.org/10.1901/jeab.1969.12-511

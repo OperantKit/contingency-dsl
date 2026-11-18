@@ -59,7 +59,7 @@ Both PIT and CER (see `conditioned-suppression.md`) involve a Pavlovian CS modul
 - **CER**: Pavlovian overlay is superimposed on an already-trained operant baseline, typically within the same session; the CS acquires its properties while the operant is concurrently being maintained.
 - **PIT**: Pavlovian and instrumental training are explicitly **independent**; the critical test presents a CS that has never been paired with the instrumental response.
 
-This independence is what makes PIT a diagnostic procedure for the transfer of Pavlovian learning into instrumental performance, rather than a within-session modulation.
+Conducting the two trainings separately, so that the test CS has never been presented with the instrumental response, is the procedural point on which PIT differs from CER.
 
 ## 5. Citations
 

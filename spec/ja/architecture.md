@@ -38,7 +38,7 @@ DSL は **科学的カテゴリ** によって構造化される。`contingency-
 └───────────────────────────────────────────┘
 ```
 
-**Operant と Respondent が姉妹カテゴリである理由 (共通の「Paradigm」ノード下に階層化しない理由)。** 三項随伴性 (SD-R-SR) と二項随伴性 (CS-US) は構造的に別の関係であって、共通のスーパー関係の二つのパラメータ化ではない。operant 的分析 (Skinner, 1938) は「どの弁別刺激の下で反応が結果を生むか」を問い、respondent 的分析 (Pavlov, 1927) は「どの CS-US の時間的・確率的関係が US を予測するか」を問う。これらを共通の「Paradigm」ノード下に階層化しようとすると、(a) 両者の異なる文法を隠す不自然なパラメータ化を強いるか、(b) 三項と二項の構造を一つに潰して学派を誤表現するかのいずれかになる。両者が共有するのは中立な基盤 (時間スケール、刺激型付け、valence、context) と、operant × respondent の合成のための第一級合成点 (`composed/`) のみである。
+**Operant と Respondent が姉妹カテゴリである理由 (共通の「Paradigm」ノード下に階層化しない理由)。** 2 つの伝統は手続きを別々の語彙で書くので、DSL はそれぞれに層を与える。operant 的分析 (Skinner, 1938) は「どの弁別刺激の下で反応が結果を生むか」を問い、respondent 的分析 (Pavlov, 1927) は「どの CS-US の時間的・確率的関係が US を予測するか」を問う。層を分けておけば、それぞれの語彙が自分の文法を保てる。根にある関係が 1 種か 2 種かは、この構成の文書ではなく理論の層 (`operant/theory.md`、`respondent/theory.md`) が扱う問いである。両者が共有するのは中立な基盤 (時間スケール、刺激型付け、valence、context) と、operant × respondent の合成のための第一級合成点 (`composed/`) のみである。
 
 **TC vs 非TC の境界 (不変)。** Foundations + Operant + Respondent はいずれも CFG かつ非TC にとどまる。`contingency-core` と `experiment-core` は引き続きチューリング完全である。Composed 層は構成要素である Operant × Respondent から非TC 性を継承する; 既存の非TC 文法を合成するのみで新しい計算能力を導入しない。
 

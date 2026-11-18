@@ -1962,6 +1962,12 @@ where `merge(shared, local)` = `local` for keys present in both, `shared` for ke
 
 ---
 
+## Interpretive Notes — the Operant Tradition's Reading of Autoshaping and Omission
+
+The procedure documents `composed/autoshaping.md` and `composed/omission.md` record the arrangements and the observations only, and the respondent tradition's reading of them is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission). This section is the place for the operant tradition's reading of the same procedures. It is not written yet; readings are added here only with citations to the primary sources.
+
+---
+
 ## Non-goals / Out of Scope
 
 The DSL covers declarative static semantics of within-session contingencies (Parts I–II) and declarative composition of phase sequences (Part III). The following domains are outside the DSL's design scope; the experiment-core runtime or higher-layer lab management systems bear their responsibility. This section makes explicit the boundary between *cannot be expressed* and *intentionally not expressed*, to prevent user misexpectations.

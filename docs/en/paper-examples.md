@@ -388,9 +388,9 @@ Phase(
 ```
 
 **Notes:**
-- No operant production appears; the emerged key-peck is Pavlovian and is recorded via measurement annotations (not shown).
+- No operant production appears: no response→US dependency is programmed. The emerged key-peck is recorded via measurement annotations (not shown).
 - The CS is **localized** (attached to a chamber operandum); this is what distinguishes sign-tracking from goal-tracking.
-- See [composed/autoshaping.md](../../spec/en/composed/autoshaping.md) for the rationale placing autoshaping under Composed rather than Operant.
+- See [composed/autoshaping.md](../../spec/en/composed/autoshaping.md) for the procedure, and [respondent/theory.md §6](../../spec/en/respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission) for the respondent tradition's reading of it.
 
 ---
 
@@ -398,7 +398,7 @@ Phase(
 
 **Paper:** Williams, D. R., & Williams, H. (1969). Auto-maintenance in the pigeon: Sustained pecking despite contingent non-reinforcement. *Journal of the Experimental Analysis of Behavior*, *12*(4), 511-520. https://doi.org/10.1901/jeab.1969.12-511
 
-**Design:** A modification of Brown and Jenkins' autoshaping: the Pavlovian pairing is as in autoshaping, but a key-peck during CS presentation immediately cancels the scheduled US on that trial. If pecking were operant, it should extinguish under the omission contingency; if pecking is Pavlovian, it should persist despite losing reinforcers.
+**Design:** A modification of Brown and Jenkins' autoshaping: the Pavlovian pairing is as in autoshaping, but a key-peck during CS presentation immediately cancels the scheduled US on that trial.
 
 **DSL features demonstrated:** Composed layer, response→US-cancellation contingency, comparison with autoshaping
 
@@ -421,7 +421,7 @@ phase omission_contingency:
 
 **Notes:**
 - The `@omission(response="key_peck", during="cs")` annotation declares the response→US-cancellation rule on the Pavlovian primitive. An analyzer/executor pass interprets the annotation: any matching response during the specified window suppresses US delivery on that trial.
-- Williams and Williams (1969) showed that pecking persists across ~40 sessions under the omission contingency despite losing most reinforcers — the empirical argument for Pavlovian (not operant) control of autoshaped pecking.
+- Williams and Williams (1969) showed that pecking persists across ~40 sessions under the omission contingency despite losing most reinforcers. The respondent tradition's reading of this persistence is in [respondent/theory.md §6](../../spec/en/respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission).
 - See [composed/omission.md](../../spec/en/composed/omission.md) for the full specification.
 
 ---

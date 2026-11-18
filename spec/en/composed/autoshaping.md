@@ -4,7 +4,7 @@
 
 **Companion documents:**
 - [Two-Process Theory](two-process-theory.md) — Pavlovian-instrumental framework.
-- [Omission](omission.md) — the diagnostic procedure that distinguishes Pavlovian from operant control of autoshaped responding.
+- [Omission](omission.md) — the variant in which a response during the CS cancels that trial's US.
 - [Respondent Primitives](../respondent/primitives.md) — `Pair.ForwardDelay` as the underlying Pavlovian arrangement.
 
 ---
@@ -20,21 +20,19 @@ The procedure spread beyond pigeons: rats approach and contact inserted levers t
 Two response topographies are distinguished:
 
 - **Sign-tracking.** The subject approaches and engages the CS itself (the key light, the lever). Sign-tracking is the signature effect that Brown and Jenkins (1968) described.
-- **Goal-tracking.** The subject approaches the US delivery location (the food magazine) during CS presentation. Goal-tracking is likewise Pavlovian but is directed at the US source rather than the CS.
+- **Goal-tracking.** The subject approaches the US delivery location (the food magazine) during CS presentation. Goal-tracking emerges under the same CS–US procedure but is directed at the US source rather than the CS.
 
 Both topographies emerge under the same CS–US contingency but are differentially expressed across individuals and species. The DSL expresses the procedure identically in both cases; topography is an observable, not a grammar-level distinction.
 
 ## 3. Classification: Composed, Not Operant
 
-Some reviews classify autoshaping as an operant procedure on the grounds that the emergent response (key peck) is the same topography that operant reinforcement typically maintains. This classification misreads the **contingency arrangement**: no operant contingency is programmed. The response is not required for US delivery and is in fact irrelevant to the programmed schedule.
+The procedural facts that the DSL encodes are these:
 
-The DSL places autoshaping under `composed/` rather than `operant/` for the following reasons:
+1. **US delivery is set by CS offset and does not depend on the subject's response.** No response is required for US delivery, and the programmed schedule makes no reference to the key peck.
+2. **The key peck is not part of the programmed arrangement.** It is an observed response, recorded through `@measurement` annotations (§4), not a term of the schedule.
+3. **The omission variant adds one response→stimulus dependency.** In `omission.md`, a response during the CS cancels that trial's US.
 
-1. **The US–schedule relation is Pavlovian.** US delivery is contingent on CS offset, not on the subject's response.
-2. **The response class emerges under Pavlovian contingencies.** The subject's key peck is an elicited / evoked response directed at a CS, not a response selected by its consequence.
-3. **The diagnostic procedure (omission; see `omission.md`) decisively separates Pavlovian from operant control.** When responses during CS cancel the US, autoshaped pecking often persists — the hallmark of Pavlovian-rather-than-operant maintenance.
-
-Classifying autoshaping as composed preserves the structural distinction the DSL enforces between the two-term and three-term contingencies.
+How the emergent key peck should be interpreted is a question for the theory layers, not for this procedure document. The respondent tradition's reading of autoshaping and omission is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission); the operant layer reserves a place for its reading in [Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission).
 
 ## 4. DSL Encoding
 

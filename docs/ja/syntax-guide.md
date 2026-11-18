@@ -394,7 +394,7 @@ Phase(
 @us(label="food", intensity="3s_access", delivery="unsignaled")
 ```
 
-オペラント随伴性は一切設定されないが、出現するキーつつきはパヴロフ型である (Brown & Jenkins, 1968)。
+反応→US の依存は設定されず、US の呈示は CS の offset だけで決まる。ハトは点灯したキーをつつくようになる (Brown & Jenkins, 1968)。出現するキーつつきを理論の層がどう読むかは、レスポンデント理論の注記 (`spec/ja/respondent/theory.md` §6) にある。
 
 ### 省略 (ネガティブ自動維持)
 
@@ -406,7 +406,7 @@ phase omission_training:
   Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s) @omission(response="key_peck", during="cs")
 ```
 
-CS 提示中の反応が当該試行の予定 US をキャンセルする。`@omission(response, during)` 注釈をパヴロフ型 primitive に付与してキャンセル規則を宣言し、アナライザ／実行器のパスが実行時にこれを解釈する。この負の反応-結果随伴性にもかかわらず反応が維持されることが、自動反応形成に対するパヴロフ型 (非オペラント) 制御の実証的根拠となる (Williams & Williams, 1969)。
+CS 提示中の反応が当該試行の予定 US をキャンセルする。`@omission(response, during)` 注釈をパヴロフ型 primitive に付与してキャンセル規則を宣言し、アナライザ／実行器のパスが実行時にこれを解釈する。この負の依存の下でもハトはつつき続けた (Williams & Williams, 1969)。その持続性についてのレスポンデントの伝統の読みは `spec/ja/respondent/theory.md` §6 にある。
 
 ---
 
