@@ -13,7 +13,7 @@ conformance/
 │   ├── stateful/          — Stateful operant schedules (percentile, adjusting, interlocking)
 │   └── trial-based/       — Trial-based operant procedures (MTS matching-to-sample, GoNoGo)
 ├── respondent/            — Respondent (Pavlovian) primitive tests (Tier A: Pair variants, elementary, contingency controls, compound stimuli)
-├── composed/              — Composed procedures (CER, PIT, autoshape, omission, two-process; placeholder)
+├── composed/              — Programs using both vocabularies, and composed-annotator tests (CER, PIT, two-process, autoshape, omission)
 ├── experiment/            — Experiment-layer tests (phase-sequence, criterion, annotation inheritance)
 ├── annotations/           — Annotation system tests (program-level, measurement, errors)
 │   └── extensions/        — Annotator extension tests (respondent-annotator)
@@ -152,7 +152,7 @@ Tier B respondent primitives (blocking, overshadowing, latent inhibition, renewa
 
 ### composed/
 
-Empty (placeholder). See `composed/README.md`. CER / PIT / autoshape / omission / two-process fixtures forthcoming.
+Five fixtures (CER, PIT, two-process, autoshape, omission). See `composed/README.md` for which of them use both vocabularies.
 
 ### experiment/
 

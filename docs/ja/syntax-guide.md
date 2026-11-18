@@ -349,7 +349,7 @@ Differential(tone_plus, tone_minus)          -- 短縮形（US は @us 注釈か
 
 ## レベル 4.6: 合成手続き
 
-> **合成手続き (Composed)** はオペラント・ベースラインとレスポンデント (パヴロフ型) 成分を組み合わせる。単独の Operant / Respondent 文法では表現できない構造を持つため、独立した最上位層 (`composed/`) に置かれる。正式仕様は [composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md)、[composed/pit.md](../../spec/ja/composed/pit.md)、[composed/autoshaping.md](../../spec/ja/composed/autoshaping.md)、[composed/omission.md](../../spec/ja/composed/omission.md) を参照。
+> **合成手続き (Composed)** はオペラント・ベースラインとレスポンデント (パヴロフ型) 成分を組み合わせる。1 つの phase の列で両方の語彙を使うプログラムは合成の層 (`composed/`) に置き、単独の語彙で書ける手続きはその語彙の層に置く。正式仕様は [composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md)、[composed/pit.md](../../spec/ja/composed/pit.md)、[composed/autoshaping.md](../../spec/ja/composed/autoshaping.md)、[composed/omission.md](../../spec/ja/composed/omission.md) を参照。
 
 ### 条件性抑制 (CER)
 

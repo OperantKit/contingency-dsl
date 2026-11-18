@@ -75,7 +75,7 @@ More examples, grouped by layer, are in [Syntax examples](docs/en/syntax-example
 | **Foundations** | The meta-grammar and the types shared by every layer (contingency, time scales, stimuli, context) |
 | **Operant** | Three-term contingencies: ratio, interval, time, differential, compound, and progressive-ratio schedules; aversive control (Sidman avoidance, discriminated avoidance, escape, response cost); stateful schedules (percentile, adjusting, interlocking); trial-based procedures (matching-to-sample, go/no-go); limited hold, timeout, reinforcement delay |
 | **Respondent** | Two-term (CS-US) contingencies: `Pair.*`, `Extinction`, `CSOnly`, `USOnly`, `Contingency`, `TrulyRandom`, `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`, `Differential` |
-| **Composed** | Procedures built from operant and respondent parts, such as conditioned suppression, Pavlovian-instrumental transfer, autoshaping, and omission |
+| **Composed** | Ways of writing a program that uses both vocabularies at once, such as conditioned suppression and Pavlovian-instrumental transfer, and interpretive tools that span both theories, such as two-process theory |
 | **Experiment** | Multi-phase designs, with phases and contexts as part of the program |
 | **Annotation** | Metadata in the Method-section categories (Subjects, Apparatus, Procedure, Measurement), such as `@reinforcer`, `@sd`, `@species`, `@apparatus` |
 

@@ -19,7 +19,7 @@ by an abstract formal axis. The layers are:
 | **Foundations** | Paradigm-neutral formal base: CFG/LL(2), dependency types (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability; contingent vs. non-contingent), time scales, stimuli (name, physical properties, onset/offset), context. Role names (SD, SΔ, CS, US, Sr+, Sr−) are aliases defined in the operant and respondent layers. |
 | **Operant** | Three-term contingency (SD-R-SR): reinforcement schedules, stateful schedules with runtime-computed criteria, trial-based (discrete-trial) schedules. |
 | **Respondent** | Two-term contingency (CS-US): Tier A Pavlovian primitives + an extension point for third-party additions. |
-| **Composed** | Operant × respondent composites: CER, PIT, autoshaping, omission, two-process theory. |
+| **Composed** | Programs that use both vocabularies in one expression or phase sequence (CER, PIT), and interpretive tools that span both theory layers (two-process theory). Not a category of procedures. |
 | **Experiment** | Declarative multi-phase experimental designs with first-class Context. |
 | **Annotation** | Program-scoped metadata, including two shipped extensions (`respondent-annotator`, `learning-models-annotator`). |
 
@@ -50,12 +50,13 @@ the same axis produces an architecture that:
    Operant and Respondent are therefore first-class siblings, not
    specializations of a common super-relation.
 
-3. **Gives composed procedures a principled home.** CER, PIT, autoshaping,
-   and omission are not sub-cases of either operant or respondent — they
-   are operant × respondent composites. A scientific-category organization
-   represents this directly (`composed/` is a sibling of `operant/` and
-   `respondent/`), whereas an axial organization would be forced to
-   either duplicate them or fabricate a cross-cutting category.
+3. **Gives programs that use both vocabularies a place of their own.**
+   Every procedure is expected to be writable in one vocabulary, and a
+   procedure that can be written in one vocabulary is placed in that
+   layer. Some programs, such as CER and PIT, still use both vocabularies
+   in one phase sequence, and some interpretive tools, such as two-process
+   theory, read procedures across both theories. `composed/` holds these,
+   so neither theory layer has to take in the other's vocabulary.
 
 4. **Matches JEAB publication structure.** Method sections in JEAB papers
    describe operant baseline schedules, Pavlovian overlays, and composed

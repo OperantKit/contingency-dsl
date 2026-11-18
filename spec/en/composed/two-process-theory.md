@@ -1,6 +1,6 @@
 # Two-Process Theory
 
-> Part of the contingency-dsl composed layer. Two-process theory is one theoretical account under which the composed procedures in this layer can be unified. It posits that Pavlovian and instrumental learning are distinct processes whose products interact to generate observed behavior. This file documents the framework itself rather than any particular procedure; it summarizes the Rescorla–Solomon (1967) account and distinguishes, paragraph by paragraph, what is *observed* when the composed procedures are run from what two-process theory *says about* those observations.
+> Part of the contingency-dsl composed layer. Two-process theory is one theoretical account that reads several procedures (CER, PIT, autoshaping, omission) together; it is placed in the composed layer as an interpretive tool that spans both theory layers. It posits that Pavlovian and instrumental learning are distinct processes whose products interact to generate observed behavior. This file documents the framework itself rather than any particular procedure; it summarizes the Rescorla–Solomon (1967) account and distinguishes, paragraph by paragraph, what is *observed* when the procedures are run from what two-process theory *says about* those observations.
 
 **Companion documents:**
 - [Conditioned Suppression (CER)](conditioned-suppression.md)
@@ -20,7 +20,7 @@ Rescorla and Solomon (1967) refined and generalized the bifurcation into a unifi
 
 ## 2. Central Propositions of Rescorla and Solomon (1967)
 
-Rescorla and Solomon (1967) commit to four interlocking claims. Each claim is stated here in two parts: the *empirical pattern* that the composed procedures generate (what is observed when the procedures are run) and the *theoretical explanation* that two-process theory offers for that pattern.
+Rescorla and Solomon (1967) commit to four interlocking claims. Each claim is stated here in two parts: the *empirical pattern* that the procedures generate (what is observed when the procedures are run) and the *theoretical explanation* that two-process theory offers for that pattern.
 
 1. **Two distinct learning processes exist.**
    - *Empirical pattern:* procedures that arrange only a two-term CS–US contingency (respondent layer) and procedures that arrange only a three-term SD–R–SR contingency (operant layer) produce distinguishable behavioral effects (e.g., the persistence of pecking under omission; see `composed/omission.md`).
@@ -38,16 +38,16 @@ Rescorla and Solomon (1967) commit to four interlocking claims. Each claim is st
    - *Empirical pattern:* procedures such as PIT (independent Pavlovian and instrumental training phases, followed by a transfer test) and omission (Pavlovian pairing combined with a response → US cancellation rule) produce distinctive behavioral effects (e.g., persistence of autoshaped pecking under omission; see `composed/omission.md`).
    - *Theoretical explanation (two-process theory):* a single-process description of these procedures cannot accommodate the effects without contradiction; the procedures isolate the contributions of the two processes; behavior on a transfer test that depends on prior Pavlovian training — when that training was conducted without operant-response opportunity — cannot be attributed to the operant process alone.
 
-## 3. Why Composed Procedures Need a Unifying Frame
+## 3. Why Two-Process Theory Reads Four Procedures Together
 
-The four composed procedures documented in this layer — CER, PIT, autoshaping, omission — are grouped here because two-process theory reads them together. Two-process theory argues that a single-process account that treats all learning as operant (or all as Pavlovian) leaves at least one of the four procedures without a coherent explanation:
+Two-process theory reads four procedures together: CER, PIT, autoshaping, and omission. Two-process theory argues that a single-process account that treats all learning as operant (or all as Pavlovian) leaves at least one of the four procedures without a coherent explanation:
 
 - *Two-process theory's argument against a single-process operant account:* such an account, it argues, does not explain autoshaping (no response→US dependency is programmed) or the persistence of pecking under omission's negative response–US dependency.
 - *Two-process theory's argument against a single-process Pavlovian account:* such an account, it argues, does not explain the independence of instrumental training from Pavlovian training in PIT (on two-process theory, the transfer effect requires instrumental learning that then interacts with the products of Pavlovian training).
 
 These are the arguments of two-process theory, not conclusions of the DSL. Single-process accounts have their own readings of the same procedures; the respondent tradition's reading of autoshaping and omission is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission), and the operant layer reserves a place for its reading in [Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission).
 
-Two-process theory accommodates all four procedures in a unified framework and motivates the DSL's decision to treat `composed/` as a sibling category of `operant/` and `respondent/` rather than as a subordinate of either. A composed procedure admitted in the future that could not be specified within this frame would require articulation of an alternative unifying account.
+Two-process theory accommodates all four procedures in a unified framework. The DSL places this reading in `composed/` because it is an interpretive tool that spans both theory layers, not because the procedures it reads can only be written there. Each of the four is placed by the vocabulary its program uses: CER and PIT use both vocabularies in one phase sequence and stay in `composed/`, and a procedure that can be written in one vocabulary belongs to that vocabulary's layer.
 
 ### 3.1 Appetitive and Aversive Stimuli in the Two-Process Reading
 
@@ -71,7 +71,7 @@ This file is intentionally more theoretical than procedural. The procedural inst
 - **Procedural files** (`conditioned-suppression.md`, `pit.md`, `autoshaping.md`, `omission.md`) describe the arrangement that the DSL encodes and the empirical patterns the arrangement generates. Theoretical vocabulary from two-process theory or any other account is tagged as such where it appears.
 - **This file** documents the theoretical frame (Rescorla & Solomon, 1967) under which the four procedures are grouped. The Rescorla–Solomon vocabulary ("motivational state," "central state," "mediated by") appears here, but only as the explanation *two-process theory offers* — not as part of the DSL's own voice.
 
-Additional composed procedures admitted in the future (see design-philosophy §8.1) are expected to fit within this frame or to motivate an articulated alternative; a composed procedure that cannot be specified within either frame would require a new unifying account, which would then be documented here or in a sibling file.
+Another interpretive account that reads procedures across both theory layers would be documented here or in a sibling file. Such an account does not change where a procedure is placed: that follows the vocabulary its program uses (design-philosophy §8.1).
 
 ## 6. Citations
 

@@ -49,7 +49,7 @@ Accordingly, the DSL adopts the following **six-layer architecture**:
 | **Foundations (paradigm-neutral formal base)** | CFG/LL(2) formal grammar, dependency types (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability; contingent vs. non-contingent), time scales, stimuli (name, physical properties, onset/offset), context. Role names (SD, SΔ, CS, US, Sr+, Sr−) are aliases defined in the operant and respondent layers. Criteria are literal values determined at parse time. CFG + non-TC. | Breaking changes are avoided in principle (see §8 for exceptions) |
 | **Operant (three-term contingency: SD-R-SR)** | Reinforcement schedules by traditional class (ratio / interval / time / differential / compound / progressive), stateful operant schedules (Percentile, Adjusting, Interlocking), trial-based operant schedules (MTS, Go/NoGo). Parameters are declarative (literal or runtime-computed). | §8.1 additive procedure + §2.1 admission gate for stateful/trial-based extensions |
 | **Respondent (two-term contingency: CS-US)** | Minimal Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`, `Extinction`, `CSOnly`, `USOnly`, `Contingency(p_us_given_cs, p_us_given_no_cs)`, `TrulyRandom`, `ExplicitlyUnpaired`, `Compound`, `Serial`, `ITI`, `Differential(cs+, cs−)`. Includes a Tier-A-level extension point (§5) for third-party additions. Depth beyond this minimum is delegated to `contingency-respondent-dsl`. | Additive only; new primitives must satisfy §2.1 admission criteria |
-| **Composed (operant × respondent)** | Procedures where an operant baseline and respondent pairing are combined: conditioned suppression (CER), Pavlovian-to-Instrumental Transfer (PIT), autoshaping, omission (negative automaintenance), two-process theory. Additional composed procedures are admitted when they cannot be expressed by operant + respondent grammar alone. | Additive; existing composed procedures are not semantically modified |
+| **Composed (both vocabularies in one program)** | Not a category of procedures. Every procedure is expected to be writable in a single vocabulary (operant or respondent), and a procedure that can be written in one vocabulary is placed in that layer. This layer holds (a) ways of writing a program that uses both vocabularies in one expression or one phase sequence, with conditioned suppression (CER) and Pavlovian-to-Instrumental Transfer (PIT) as the worked examples, and (b) interpretive tools that read procedures across both theory layers, such as two-process theory. An addition is admitted when a program needs both vocabularies in one expression or phase sequence, or when an interpretive tool spans both theory layers. | Additive; the parse result of existing programs is not changed |
 | **Experiment (declarative phase structure)** | Multi-phase experimental designs. Arranges Core ScheduleExpr nodes into ordered phases with declarative phase-change criteria (Stability, FixedSessions, PerformanceCriterion, etc.). Follows JEAB conventions: shared annotations inherited across phases, per-phase overrides. See `schema/experiment/`. Phase and Context are first-class constructs. | Additive (new Criterion types may be added). Other layers' schemas are not modified. |
 | **Annotation (metadata, program-scoped)** | Extended theories, detailed procedures, interpretation-dependent supplementary information. Standard categories follow JEAB Method sections (Subjects / Apparatus / Procedure / Measurement). Extensions (e.g., `respondent-annotator` providing `@cs`, `@us`, `@iti`, `@cs_interval`; `learning-models-annotator` providing `@model(RW/PH/TD)`) live under `annotations/extensions/`. | Freely added or removed in step with theoretical development and decline. Program-scoped |
 
@@ -185,9 +185,9 @@ packages that fall outside those four categories. Two such extensions
 are shipped with this DSL project:
 
 - **`respondent-annotator`** (new) provides `@cs`, `@us`, `@iti`, and
-  `@cs_interval` so that composed operant × respondent procedures can be
-  annotated even when the respondent-layer primitive is expressed in its
-  minimal form. See §5 and `annotations/extensions/respondent-annotator.md`.
+  `@cs_interval` so that programs using respondent primitives, alone or
+  together with operant schedules, can be annotated even when the
+  respondent-layer primitive is expressed in its minimal form. See §5 and `annotations/extensions/respondent-annotator.md`.
 - **`learning-models-annotator`** provides `@model(RW/PH/TD)` for
   associating a schedule expression with an associative-learning model
   specification.
@@ -539,9 +539,10 @@ acknowledged.
    b. **Schedule Extension** (for operant-layer extensions, §5.1–5.3)
       **or Respondent extension point** (for respondent-layer extensions,
       §5.4) — whichever layer the procedure structurally belongs to.
-   c. **`composed/` admission** — for procedures that are operant ×
-      respondent composites and satisfy the `composed/` admission
-      criteria (see `architecture.md`).
+   c. **`composed/` admission** — when a program needs both vocabularies
+      in one expression or one phase sequence (see `architecture.md`).
+      A procedure that can be written in one vocabulary goes to that
+      layer instead.
    d. **Addition of a new Operant or Respondent primitive** — last
       resort, subject to §2.1 disciplinary-establishment criteria.
 2. Any addition must be **additive only** (no modification of existing
@@ -570,8 +571,7 @@ When a breaking change is judged unavoidable:
 
 1. Record the change in the git commit message, specifying which
    condition in §8.2 applies and what the old and new structures are.
-   This repository has no external publication checkpoint yet (no git
-   remote is configured); the git history is the authoritative record.
+   The git history is the authoritative record of the change.
 2. Simultaneously provide a conversion tool that enables mechanical
    migration of DSL written against the previous design to the new one.
 3. Update this document and the canonical spec tree accordingly.

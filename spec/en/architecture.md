@@ -8,7 +8,7 @@
 
 Reinforcement schedules describe inherently **infinite processes**. A VI 60 schedule can run indefinitely; an FR 10 continues producing reinforcement as long as responses continue. This is not a defect but an essential property of behavioral contingencies. Pavlovian (respondent) procedures introduce an orthogonal structural axis: two-term CS–US relations that do not require an operant response.
 
-The DSL is organized by **scientific category**. Layers inside `contingency-dsl` follow the Pavlov / Skinner distinction (two-term vs three-term contingency) at the directory level; composed procedures (e.g., conditioned suppression, Pavlovian-to-instrumental transfer) are a first-class sibling category, not a sub-case of either. Turing-complete runtime is delegated to sibling packages (`contingency-core`, `experiment-core`):
+The DSL is organized by **scientific category**. Layers inside `contingency-dsl` follow the Pavlov / Skinner distinction (two-term vs three-term contingency) at the directory level; the composed layer (`composed/`) is not a category of procedures: it holds ways of writing a program that uses both vocabularies in one expression or phase sequence (e.g., conditioned suppression, Pavlovian-to-instrumental transfer) and interpretive tools that span both theory layers (two-process theory). A procedure that can be written in one vocabulary is placed in that vocabulary's layer. Turing-complete runtime is delegated to sibling packages (`contingency-core`, `experiment-core`):
 
 ```
 ┌───────────────────────────────────────────┐
@@ -19,8 +19,8 @@ The DSL is organized by **scientific category**. Layers inside `contingency-dsl`
 │ │ Experiment (phase-sequence, context,     ││
 │ │             criteria)                     ││
 │ ├─────────────────────────────────────────┤│
-│ │ Composed (CER, PIT, autoshape, omission, ││
-│ │           two-process)                    ││
+│ │ Composed (both vocabularies: CER, PIT;   ││
+│ │           interpretive: two-process)      ││
 │ ├────────────────────┬────────────────────┤│
 │ │ Operant (3-term)   │ Respondent (2-term)││
 │ │  - schedules/      │  - Tier A primitives││
@@ -39,7 +39,7 @@ The DSL is organized by **scientific category**. Layers inside `contingency-dsl`
 └───────────────────────────────────────────┘
 ```
 
-**Why Operant and Respondent are sibling categories (not nested under a common "Paradigm" node).** The two traditions describe procedures in separate vocabularies, so the DSL gives each its own layer. The operant analysis (Skinner, 1938) asks under what discriminative stimulus a response produces a consequence; the respondent analysis (Pavlov, 1927) asks what CS-US temporal / probabilistic relationship predicts the US. Keeping the layers separate lets each vocabulary keep its own grammar; whether the underlying relations are one kind of thing or two is a question for the theory layers (`operant/theory.md`, `respondent/theory.md`), not for this architecture. They share only the neutral foundations (stimuli, dependency types, time scales, context) and a first-class composition point (`composed/`) for operant × respondent procedures.
+**Why Operant and Respondent are sibling categories (not nested under a common "Paradigm" node).** The two traditions describe procedures in separate vocabularies, so the DSL gives each its own layer. The operant analysis (Skinner, 1938) asks under what discriminative stimulus a response produces a consequence; the respondent analysis (Pavlov, 1927) asks what CS-US temporal / probabilistic relationship predicts the US. Keeping the layers separate lets each vocabulary keep its own grammar; whether the underlying relations are one kind of thing or two is a question for the theory layers (`operant/theory.md`, `respondent/theory.md`), not for this architecture. They share only the neutral foundations (stimuli, dependency types, time scales, context) and a place (`composed/`) for programs that use both vocabularies at once and for interpretive tools that span both.
 
 **TC vs non-TC boundary (unchanged).** Foundations + Operant + Respondent remain CFG and non-TC. `contingency-core` and `experiment-core` remain Turing-complete. The Composed layer inherits the non-TC property from its Operant × Respondent constituents; it composes existing non-TC grammars and does not introduce new computational power.
 
@@ -73,7 +73,7 @@ The Respondent layer is uniform at this resolution: it hosts the Tier-A primitiv
 |-------|-----------|---------------------|-----------|----------|
 | **Annotation** | `annotations/` | Metadata (program-scoped) | Subjects, Apparatus, Procedure, Measurement; extensions (respondent-annotator, learning-models-annotator) | `@species("rat")`, `@cs("tone", duration=10s)`, `@model(RW)` |
 | **Experiment** | `experiment/` | Declarative (enumerated criteria) | Multi-phase experimental designs, phase-change criteria, first-class Context | `PhaseSequence(Acquisition→Extinction→Test)`, `Stability(5, 10%)`, `FixedSessions(10)` |
-| **Composed** | `composed/` | Non-TC (inherits from components) | Operant × Respondent composites | `CER`, `PIT`, `Autoshaping`, `Omission`, `TwoProcess` |
+| **Composed** | `composed/` | Non-TC (inherits from components) | Programs using both vocabularies in one expression or phase sequence; interpretive tools spanning both theory layers | `CER`, `PIT`, `TwoProcess` |
 | **Operant** | `operant/` | CFG (non-TC) | Three-term contingency (SD-R-SR) | `FR 5`, `Conc(VI 30-s, VI 60-s)`, `Pctl(IRT, 50)`, `MTS(comparisons=3, consequence=CRF, ITI=5s)` |
 | **Respondent** | `respondent/` | CFG (non-TC) | Two-term contingency (CS-US) — Tier A primitives + extension point | `Pair.ForwardDelay(cs, us)`, `Contingency(0.9, 0.1)`, `Differential(cs+, cs−)` |
 | **Foundations** | `foundations/` | CFG / type theory (non-TC) | Paradigm-neutral formal base: CFG/LL(2), dependency types (response→stimulus, stimulus→stimulus, time→stimulus, conditional probability; contingent vs non-contingent), time scales, stimuli (name, physical properties, onset/offset), context | Meta-grammar, type definitions |
@@ -635,7 +635,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 
 | Layer | Computational Power | Responsibility | Expressible Range |
 |-------|-------------------|----------------|-------------------|
-| **contingency-dsl** (Foundations + Operant + Respondent + Composed + Experiment + Annotation) | CFG (non-TC) | Static contingency structure (SEI: P1-P3 hold, §4.1.1), covering both three-term operant and two-term respondent relations and their composites | Operant: 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings + stateful (Pctl, Adj, Interlocking) + trial-based (MTS, Go/NoGo). Respondent: Tier A primitives + respondent extension point. Composed: CER, PIT, autoshaping, omission, two-process. Experiment: phase sequences + context + criteria. |
+| **contingency-dsl** (Foundations + Operant + Respondent + Composed + Experiment + Annotation) | CFG (non-TC) | Static contingency structure (SEI: P1-P3 hold, §4.1.1), covering both three-term operant and two-term respondent relations and their composites | Operant: 3×3 atomic + 7 combinators + DR modifiers + PR + Repeat + let bindings + stateful (Pctl, Adj, Interlocking) + trial-based (MTS, Go/NoGo). Respondent: Tier A primitives + respondent extension point. Composed: CER, PIT (both vocabularies in one program), two-process theory (interpretive tool). Experiment: phase sequences + context + criteria. |
 | **contingency-core** | TC | Dynamic contingency transitions (SEI: any of P1-P3 violated, §4.1.1) | Guarded transitions between DSL expressions, conditional-branching titration/DRO, yoking |
 | **experiment-core** | TC + constraints | Experimental finalization/verification | Exit conditions, ABA designs, safety constraints, static verification |
 | **contingency-py** | Runtime | Evaluation engine | `is_satisfied()` judgment, state management, FH sequence cycling |
@@ -652,7 +652,7 @@ The `schema/` tree mirrors the directory structure:
 - `schema/operant/stateful/grammar.ebnf` — Operant.Stateful (Percentile, Adjusting, Interlocking)
 - `schema/operant/trial-based/grammar.ebnf` — Operant.TrialBased (MTS, Go/NoGo)
 - `schema/respondent/grammar.ebnf`, `schema/respondent/ast.schema.json` — Respondent Tier A primitives + extension point
-- `schema/experiment/phase-sequence.schema.json` — Experiment layer (composed procedures — CER, PIT, autoshaping, omission, two-process-theory — are encoded as `PhaseSequence` AST trees built from operant + respondent + annotation primitives; no dedicated composed-procedure AST schema is needed)
+- `schema/experiment/phase-sequence.schema.json` — Experiment layer (programs that use both vocabularies, such as CER and PIT, are encoded as `PhaseSequence` AST trees built from operant + respondent + annotation primitives; no dedicated composed-layer AST schema is needed)
 - `schema/annotations/extensions/composed-annotator.schema.json` — composed-layer annotations (`@omission`, `@avoidance`) that express response-contingent US-modulation rules on Pavlovian primitives
 - `schema/annotations/extensions/` — annotator extension schemas (learning-models, respondent-annotator, etc.)
 - `schema/representations/` — alternative coordinate systems

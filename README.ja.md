@@ -75,7 +75,7 @@ Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)
 | **Foundations** | すべてのレイヤに共通するメタ文法と型 (随伴性、時間尺度、刺激、文脈) |
 | **Operant** | 三項随伴性: 比率・時隔・時間・分化強化・複合・累進比率の各スケジュール、嫌悪性制御 (Sidman 型回避、弁別回避、逃避、反応コスト)、状態を持つスケジュール (パーセンタイル、調整、連動)、試行型の手続き (見本合わせ、go/no-go)、制限時間・タイムアウト・強化遅延 |
 | **Respondent** | 二項 (CS-US) 随伴性: `Pair.*`、`Extinction`、`CSOnly`、`USOnly`、`Contingency`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential` |
-| **Composed** | オペラントとレスポンデントの部品を組み合わせた手続き (条件性抑制、Pavlov 型–道具的転移、自動反応形成、省略など) |
+| **Composed** | 両方の語彙を同時に使うプログラムの書き方 (条件性抑制、Pavlov 型–道具的転移など) と、両方の理論にまたがる解釈の道具 (2 過程理論など) |
 | **Experiment** | 複数フェーズのデザイン。フェーズと文脈をプログラムの一部として書けます |
 | **Annotation** | Method 節の区分 (Subjects、Apparatus、Procedure、Measurement) に沿ったメタデータ (`@reinforcer`、`@sd`、`@species`、`@apparatus` など) |
 

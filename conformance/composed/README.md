@@ -1,16 +1,21 @@
 # conformance/composed/
 
-Conformance fixtures for composed procedures that combine operant and respondent paradigms.
+Conformance fixtures for the composed layer: programs that use both the operant and the respondent vocabulary in one phase sequence, and the composed-annotator annotations (`@omission`, `@avoidance`).
 
 ## Scope
 
-Tests here validate parsing, semantic analysis, and canonicalization of composed-layer procedures. These procedures layer Pavlovian (respondent) contingencies over operant baselines — the classical JEAB preparations:
+Tests here validate parsing, semantic analysis, and canonicalization. The composed layer is not a category of procedures; a procedure that can be written in one vocabulary belongs to that vocabulary's layer.
 
-- **CER (Conditioned Emotional Response / Conditioned Suppression)** — Estes & Skinner (1941); operant baseline + pre-session CS→US pairing; suppression ratio on VI/VR baseline.
-- **PIT (Pavlovian-Instrumental Transfer)** — Rescorla & Solomon (1967); specific vs general transfer protocols on operant baseline with CS probes.
-- **Autoshaping** — Brown & Jenkins (1968); CS→US pairing producing sign-tracking under a free-operant or trial-based context.
-- **Omission (Negative Automaintenance)** — Williams & Williams (1969); autoshape with response-contingent US cancellation expressed via `@omission`.
-- **Two-process theory (Avoidance)** — Solomon & Wynne (1954); discriminated avoidance combining Pavlovian warning CS with operant avoidance response, expressed via `@avoidance`.
+Programs that use both vocabularies in one phase sequence:
+
+- **CER (Conditioned Emotional Response / Conditioned Suppression)** — Estes & Skinner (1941); operant baseline phase and a CS→US pairing phase; suppression ratio on VI/VR baseline.
+- **PIT (Pavlovian-Instrumental Transfer)** — Rescorla & Solomon (1967); instrumental training phase, Pavlovian training phase, and a transfer test phase.
+- **Two-process theory (Avoidance)** — Solomon & Wynne (1954); operant warm-up phase and a warning CS→US pairing with response-contingent US cancellation expressed via `@avoidance`.
+
+Fixtures written with respondent primitives only (no operant schedule in the program):
+
+- **Autoshaping** — Brown & Jenkins (1968); CS→US forward-delay pairing.
+- **Omission (Negative Automaintenance)** — Williams & Williams (1969); CS→US pairing with response-contingent US cancellation expressed via `@omission`.
 
 ## Current status
 

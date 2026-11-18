@@ -41,7 +41,7 @@
 | **Foundations (paradigm-neutral 形式基盤)** | CFG/LL(2) 形式文法、依存の型 (反応→刺激、刺激→刺激、時間→刺激、条件つき確率。contingent vs non-contingent)、時間スケール、刺激 (名前・物理的属性・onset/offset)、context。役割の名前 (SD, SΔ, CS, US, Sr+, Sr−) はオペラント層とレスポンデント層が定義する別名。基準はパース時にリテラル値で確定。CFG + 非TC。 | 破壊的変更は原則として避ける (例外は §8 参照) |
 | **Operant (三項随伴性: SD-R-SR)** | 伝統分類 (ratio / interval / time / differential / compound / progressive) による強化スケジュール、stateful operant スケジュール (Percentile, Adjusting, Interlocking)、trial-based operant スケジュール (MTS, Go/NoGo)。パラメータは宣言的 (リテラル値またはランタイム算出)。 | §8.1 additive 手順 + §2.1 admission gate (stateful / trial-based の拡張について) |
 | **Respondent (二項随伴性: CS-US)** | 最低限の Pavlovian primitives: `Pair.{ForwardDelay, ForwardTrace, Simultaneous, Backward}`、`Extinction`、`CSOnly`、`USOnly`、`Contingency(p_us_given_cs, p_us_given_no_cs)`、`TrulyRandom`、`ExplicitlyUnpaired`、`Compound`、`Serial`、`ITI`、`Differential(cs+, cs−)`。3rd-party 追加のための Tier-A 級 extension point を含む (§5)。この最低限を超える深さは `contingency-respondent-dsl` に委譲。 | Additive only；新 primitive は §2.1 admission 基準を満たす必要がある |
-| **Composed (operant × respondent)** | operant ベースラインと respondent ペアリングを組み合わせた合成手続き: conditioned suppression (CER)、Pavlovian-to-Instrumental Transfer (PIT)、autoshaping、omission (negative automaintenance)、two-process theory。operant + respondent 文法だけでは表現できない合成手続きが追加対象。 | Additive；既存の合成手続きは意味的に変更しない |
+| **Composed (1 つのプログラムで両方の語彙を使う)** | 手続きの分類ではない。どの手続きも単独の語彙 (operant か respondent) で書けることを前提にし、単独の語彙で書ける手続きはその層に置く。この層に置くのは、(a) 両方の語彙を 1 つの式・1 つの phase の列で使うプログラムの書き方 (条件性抑制 (CER) と Pavlovian-to-Instrumental Transfer (PIT) を例とする) と、(b) 両方の理論の層にまたがって手続きを読む解釈の道具 (two-process theory など) である。追加の対象は、プログラムが 1 つの式・phase の列で両方の語彙を要するとき、または解釈の道具が両方の理論の層にまたがるとき。 | Additive；既存のプログラムの parse の結果は変えない |
 | **Experiment (宣言的フェーズ構造)** | 多フェーズ実験デザイン。Core の ScheduleExpr ノードを、宣言的なフェーズ変更基準 (Stability, FixedSessions, PerformanceCriterion 等) とともに順序付きフェーズに編成する。JEAB 慣習に準拠: 共有アノテーションはフェーズ間で継承、フェーズ単位で override 可。Phase と Context は first-class 構成素。`schema/experiment/` 参照。 | Additive (新 Criterion 型の追加可)。他層のスキーマは変更しない |
 | **Annotation (metadata、program-scoped)** | 拡張理論・詳細手続き・解釈依存の付加情報。標準カテゴリは JEAB Method 節に準拠 (Subjects / Apparatus / Procedure / Measurement)。拡張 (例: `@cs`, `@us`, `@iti`, `@cs_interval` を提供する `respondent-annotator`、`@model(RW/PH/TD)` を提供する `learning-models-annotator`) は `annotations/extensions/` 配下。 | 理論の発展・衰退に追従して自由に増減。program-scoped |
 
@@ -157,8 +157,9 @@ Annotation 層自身も拡張可能である。下記の 4 つの JEAB カテゴ
 パッケージが配置される。本 DSL プロジェクトは次の 2 つの拡張を同梱する:
 
 - **`respondent-annotator`**(新設) — `@cs`、`@us`、`@iti`、`@cs_interval`
-  を提供し、合成 operant × respondent 手続きが respondent 層 primitive の
-  最小形式で表現される場合にも注釈できるようにする。§5 および
+  を提供し、respondent 層 primitive を単独で、または operant のスケジュールと
+  一緒に使うプログラムを、その primitive が最小形式で表現される場合にも
+  注釈できるようにする。§5 および
   `annotations/extensions/respondent-annotator.md` 参照。
 - **`learning-models-annotator`** — `@model(RW/PH/TD)` を提供し、schedule 式を
   連合学習モデル仕様と関連付ける。
@@ -475,9 +476,9 @@ Foundations + Operant + Respondent 文法に対する破壊的変更は **原則
    b. **Schedule Extension**(operant 層の拡張、§5.1–5.3) または
       **Respondent extension point**(respondent 層の拡張、§5.4) —
       手続きが構造的に属する層を選ぶ
-   c. **`composed/` への admission** — operant × respondent の合成手続き
-      であって `composed/` の admission 基準 (`architecture.md` 参照)
-      を満たすもの
+   c. **`composed/` への admission** — プログラムが 1 つの式・1 つの phase の
+      列で両方の語彙を要するとき (`architecture.md` 参照)。単独の語彙で
+      書ける手続きは、その語彙の層に置く
    d. **新しい Operant または Respondent primitive の追加** — 最終手段
       であり、§2.1 の学派確立基準に従う
 2. いずれの追加も **additive only**(既存の構文・意味を変更しない) と
@@ -500,8 +501,7 @@ Foundations + Operant + Respondent 文法に対する破壊的変更は **原則
 破壊的変更が避けられないと判断された場合:
 
 1. git コミットメッセージに変更を記録し、§8.2 のいずれの条件に該当するか、
-   および旧構造・新構造を明示する。当リポジトリは現時点で外部公開
-   チェックポイントを持たない (git remote 未設定); git 履歴が正式な記録である。
+   および旧構造・新構造を明示する。git 履歴が変更の正式な記録である。
 2. 変換ツールを同時に提供し、直前の設計で書かれた DSL を新しい設計に
    機械的に移行可能にする。
 3. 本文書および正典 spec ツリーをそれに応じて更新する。
