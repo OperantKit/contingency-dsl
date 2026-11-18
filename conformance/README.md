@@ -207,7 +207,7 @@ Timing rules the expected sequences follow:
 - In the operant program, the schedule clock stops while the reinforcer is presented and restarts at its offset.
 - Values are fixed (no `VT`, no variable ITI), so every run gives one sequence.
 
-How to run: each theory's runner executes **only its own vocabulary's program** with each `inputs[].responses` and compares the result with `expected`. No test package imports both runners; the expected sequence stands between them. The respondent program is run by respondent-sim (`tests/test_equivalence.py`). A fixture is added only when both vocabularies can write the arrangement with fixed values.
+How to run: each theory's runner executes **only its own vocabulary's program** with each `inputs[].responses` and compares the result with `expected`. No test package imports both runners; the expected sequence stands between them. The respondent program is run by respondent-sim and the operant program by contingency-py (each in `tests/test_equivalence.py`). A fixture is added only when both vocabularies can write the arrangement with fixed values.
 
 ### annotations/
 
