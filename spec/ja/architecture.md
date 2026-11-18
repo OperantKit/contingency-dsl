@@ -581,7 +581,7 @@ FR 5 @reinforcer("food") @subject("A") @clock("real", unit="s") @function("escap
 - `schema/operant/trial-based/grammar.ebnf` — Operant.TrialBased (MTS, Go/NoGo)
 - `schema/respondent/grammar.ebnf`、`schema/respondent/ast.schema.json` — Respondent Tier A primitive + extension point
 - `schema/experiment/phase-sequence.schema.json` — Experiment 層 (CER、PIT など両方の語彙を使うプログラムは、operant + respondent + 注釈プリミティブを組み合わせた `PhaseSequence` AST として符号化される。合成の層専用の AST スキーマは不要)
-- `schema/annotations/extensions/composed-annotator.schema.json` — Pavlov 型 primitive 上で反応随伴の US 制御規則を表現する合成層注釈 (`@omission`, `@avoidance`)
+- `schema/annotations/extensions/composed-annotator.schema.json` — `@omission` と `@avoidance`。レスポンデント primitive 上の反応→刺激の依存 (取りやめ・先送り) への、レスポンデントの層の別名
 - `schema/annotations/extensions/` — annotator 拡張スキーマ (learning-models、respondent-annotator など)
 - `schema/representations/` — 代替座標系
 

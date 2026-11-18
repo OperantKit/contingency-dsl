@@ -653,7 +653,7 @@ The `schema/` tree mirrors the directory structure:
 - `schema/operant/trial-based/grammar.ebnf` — Operant.TrialBased (MTS, Go/NoGo)
 - `schema/respondent/grammar.ebnf`, `schema/respondent/ast.schema.json` — Respondent Tier A primitives + extension point
 - `schema/experiment/phase-sequence.schema.json` — Experiment layer (programs that use both vocabularies, such as CER and PIT, are encoded as `PhaseSequence` AST trees built from operant + respondent + annotation primitives; no dedicated composed-layer AST schema is needed)
-- `schema/annotations/extensions/composed-annotator.schema.json` — composed-layer annotations (`@omission`, `@avoidance`) that express response-contingent US-modulation rules on Pavlovian primitives
+- `schema/annotations/extensions/composed-annotator.schema.json` — `@omission` and `@avoidance`, the respondent layer's aliases for response→stimulus dependencies (cancellation, postponement) on respondent primitives
 - `schema/annotations/extensions/` — annotator extension schemas (learning-models, respondent-annotator, etc.)
 - `schema/representations/` — alternative coordinate systems
 

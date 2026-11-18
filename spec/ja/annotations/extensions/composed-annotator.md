@@ -1,24 +1,29 @@
 # composed-annotator
 
-> 合成層のための注釈拡張。`@omission` と `@avoidance` —— CER, PIT,
-> autoshaping, omission, two-process-theory の各手続きを純粋な
-> Pavlovian 配置と区別する、応答随伴的な US 変調規則の 2 つ —— を定義する。
+> `@omission` と `@avoidance` —— レスポンデント・プリミティブに付ける、
+> 応答随伴的な US 変調規則の 2 つ —— を定義する注釈拡張。2 つは、中立の
+> 反応→刺激の依存の取りやめ・先送りの形への、レスポンデントの層の別名である
+> ([respondent/theory.md §0](../../respondent/theory.md) 参照)。拡張の名前
+> `composed-annotator` と schema はそのまま保つ。これらの注釈をオペラントの
+> phase と組み合わせるプログラム (2 過程理論) は合成のプログラムである。
 
 **カテゴリ.** Procedure (応答随伴的な US 規則)。
 
 **関連ドキュメント.**
-- [respondent-annotator](respondent-annotator.md) —— 合成手続きが
+- [respondent-annotator](respondent-annotator.md) —— これらの手続きが
   基盤とする `@cs` / `@us` / `@iti` / `@cs_interval` メタデータ。
-- [composed/omission.md](../../composed/omission.md) —— `@omission`
+- [respondent/omission.md](../../respondent/omission.md) —— `@omission`
   の正準用例である負の自動維持 (negative automaintenance)。
+- [respondent/avoidance.md](../../respondent/avoidance.md) —— `@avoidance`
+  で書くレスポンデントの語彙の回避手続き。
 - [composed/two-process-theory.md](../../composed/two-process-theory.md)
-  —— `@avoidance` の理論的枠組み。
+  —— 回避を両方の理論の層にまたがって読む解釈の枠組み。
 
 ---
 
 ## 1. 設計
 
-contingency-dsl の合成手続きは、Pavlovian プリミティブ (通常
+これらの注釈を使う手続きは、Pavlovian プリミティブ (通常
 `Pair.ForwardDelay`) を実験層のフェーズブロック内に置くことで表現される。
 構造的配置 (CS, US, ISI, 試行数, フェーズ基準, 共有 `@cs` / `@us`
 メタデータ) は Tier A / 実験層 AST ですでに完結している。

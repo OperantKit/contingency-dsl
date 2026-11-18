@@ -28,7 +28,7 @@ Pair.ForwardDelay(tone, shock, isi=5-s, cs_duration=10-s)
   @us("shock", intensity="0.5mA", modality="electrical")
 ```
 
-The respondent layer also has response→stimulus dependencies in its own vocabulary (`@omission`, `@avoidance`).
+The respondent layer also has response→stimulus dependencies in its own vocabulary. `@omission` and `@avoidance` are the respondent layer's aliases for the neutral response→stimulus dependency in its cancellation and postponement forms ([foundations/contingency-types.md](../foundations/contingency-types.md)); the procedures that use them are [Omission](omission.md) and [Avoidance](avoidance.md). The keywords and their schema are those of the composed-annotator extension ([composed-annotator](../annotations/extensions/composed-annotator.md)); only their placement as respondent-layer aliases is stated here.
 
 ### Notes: the Respondent Tradition's Effect Definitions and Valence
 
@@ -46,7 +46,7 @@ Skinner (1938) drew a structural distinction between **operant** (three-term) an
 The respondent tradition does not treat the two-term contingency as a "degenerate" three-term contingency in which the response position has been erased, because that reading would collapse the CS into an `SD` role and the CR into an operant `R`. The tradition gives three considerations against the collapse:
 
 1. **The CR is elicited, not emitted.** In Pavlov (1927), salivation is elicited by the CS after training; it is not a behavior whose future probability is modulated by its consequence. An operant response, by contrast, is emitted and is selected by the consequence that follows it (Skinner, 1938).
-2. **The US is unconditional on the subject's behavior.** In the canonical Pavlovian arrangement, the US is delivered whether or not the subject responds. When a response *is* required (or prohibited) for US delivery, the arrangement adds a response→stimulus dependency to the two-term contingency (see `composed/omission.md`).
+2. **The US is unconditional on the subject's behavior.** In the canonical Pavlovian arrangement, the US is delivered whether or not the subject responds. When a response *is* required (or prohibited) for US delivery, the arrangement adds a response→stimulus dependency to the two-term contingency (see [Omission](omission.md)).
 3. **CS predictiveness, not response strength, is the semantic target.** Rescorla (1967, 1968) established that the CS must *predict* the US in the statistical sense — `P(US | CS) ≠ P(US | ¬CS)` — for a CR to acquire. The semantic currency of the respondent layer is CS-US contingency, not response-reinforcer contingency.
 
 Accordingly, the contingency-dsl respondent grammar (`grammar.md §2`) has its own productions for `PairExpr`, `ContingencyExpr`, `ExtinctionExpr`, and so on, and does not reduce to operant productions. The two-term and three-term contingencies share only the paradigm-neutral foundations layer (`foundations/contingency-types.md`).
@@ -117,15 +117,17 @@ See `annotations/boundary-decision.md §2` (Q1–Q3) for the general principle: 
 
 ## 5. Relationship to the Composed Layer
 
-Four composed procedures (`composed/conditioned-suppression.md`, `composed/pit.md`, `composed/autoshaping.md`, `composed/omission.md`) combine an operant schedule with a respondent arrangement. In each case, the respondent constituent is a Tier A primitive from this layer; the operant constituent is a schedule from `operant/schedules/`. The theoretical integration is articulated in `composed/two-process-theory.md`, which summarizes the Rescorla–Solomon (1967) two-process account and its role as the unifying theoretical frame for the composed procedures.
+Two composed programs (`composed/conditioned-suppression.md`, `composed/pit.md`) combine an operant schedule with a respondent arrangement in one phase sequence. In each case, the respondent constituent is a Tier A primitive from this layer; the operant constituent is a schedule from `operant/schedules/`. `composed/two-process-theory.md` summarizes the Rescorla–Solomon (1967) two-process account, an interpretive tool that reads procedures across both theory layers.
 
-The present layer does not itself define the composed procedures; it provides the respondent vocabulary those procedures draw upon.
+Autoshaping, omission, and avoidance are written in the respondent vocabulary and are documented in this layer: [Autoshaping](autoshaping.md), [Omission](omission.md), [Avoidance](avoidance.md).
+
+The present layer does not itself define the composed programs; it provides the respondent vocabulary those procedures draw upon.
 
 ---
 
 ## 6. Interpretive Notes: the Respondent Tradition's Reading of Autoshaping and Omission
 
-The procedure documents (`composed/autoshaping.md`, `composed/omission.md`) record the arrangements and the observations only. This section states how the respondent tradition reads them. These are readings by that tradition, not conclusions of the DSL; the operant layer reserves a place for its own reading ([Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission)).
+The procedure documents ([Autoshaping](autoshaping.md), [Omission](omission.md)) record the arrangements and the observations only. This section states how the respondent tradition reads them. These are readings by that tradition, not conclusions of the DSL; the operant layer reserves a place for its own reading ([Operant Theory, Interpretive Notes](../operant/theory.md#interpretive-notes--the-operant-traditions-reading-of-autoshaping-and-omission)).
 
 **Autoshaping.** The respondent tradition reads the key peck that emerges in Brown and Jenkins (1968) as an elicited / evoked response directed at a CS, not a response selected by its consequence. On this reading, the response class emerges under the CS–US dependency alone.
 

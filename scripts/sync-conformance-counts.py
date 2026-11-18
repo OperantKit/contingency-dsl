@@ -77,7 +77,7 @@ def status_for(label: str, files: int, cases: int) -> str:
         if label == "Respondent":
             return "Forthcoming (Tier A primitive fixtures)"
         if label == "Composed":
-            return "Forthcoming (CER / PIT / autoshape / omission / two-process)"
+            return "Forthcoming (CER / PIT / two-process)"
         return "Forthcoming"
     if label == "Operant":
         return "✅ Primary coverage"

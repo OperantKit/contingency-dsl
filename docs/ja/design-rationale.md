@@ -37,7 +37,7 @@ DSL は**科学的カテゴリ**による 6 層で組織される (抽象的な�
 
 レスポンデント層には 14 個の Tier A primitive のみを置く — Rescorla (1967) の随伴性空間形式化が直接指定する手続きとその統制手続きである ([respondent/primitives.md](../../spec/ja/respondent/primitives.md) 参照)。より深いレスポンデント手続き (ブロッキング、オーバーシャドーイング、潜在制止、条件性制止、更新、復元、自然回復、対抗条件づけ、時機設定 等) はレスポンデント拡張ポイントを通じて拡張パッケージ `contingency-respondent-dsl` に委任する (design-philosophy §5.4 参照)。
 
-分割の根拠はスコープの規律である。contingency-dsl の主要カバー対象はオペラント手続き + JEAB 論文の再現であり、合成手続き (CER、PIT、自動反応形成、省略) を表現するのに必要なレスポンデント装備は Tier A で打ち止めになる。レスポンデント文献の全体を Core に入れると (i) primitive 数が桁違いに増え、(ii) 文脈依存的 primitive (例: ABA/ABC/AAB 更新) が paradigm-neutral な Foundations に負荷をかけ、(iii) 読者層の焦点が薄まる。拡張ポイントはこれらの代償を払わずに合成範囲を保持する。
+分割の根拠はスコープの規律である。contingency-dsl の主要カバー対象はオペラント手続き + JEAB 論文の再現であり、合成のプログラム (CER、PIT) とレスポンデントの層の手続き (自動反応形成、省略) を表現するのに必要なレスポンデント装備は Tier A で打ち止めになる。レスポンデント文献の全体を Core に入れると (i) primitive 数が桁違いに増え、(ii) 文脈依存的 primitive (例: ABA/ABC/AAB 更新) が paradigm-neutral な Foundations に負荷をかけ、(iii) 読者層の焦点が薄まる。拡張ポイントはこれらの代償を払わずに合成範囲を保持する。
 
 ### 参考文献
 

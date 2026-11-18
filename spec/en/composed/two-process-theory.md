@@ -5,8 +5,8 @@
 **Companion documents:**
 - [Conditioned Suppression (CER)](conditioned-suppression.md)
 - [Pavlovian-to-Instrumental Transfer (PIT)](pit.md)
-- [Autoshaping](autoshaping.md)
-- [Omission](omission.md)
+- [Autoshaping](../respondent/autoshaping.md)
+- [Omission](../respondent/omission.md)
 - [Respondent Theory](../respondent/theory.md) — two-term contingency as a distinct formal object.
 - [Operant Theory](../operant/theory.md) — three-term contingency.
 
@@ -23,7 +23,7 @@ Rescorla and Solomon (1967) refined and generalized the bifurcation into a unifi
 Rescorla and Solomon (1967) commit to four interlocking claims. Each claim is stated here in two parts: the *empirical pattern* that the procedures generate (what is observed when the procedures are run) and the *theoretical explanation* that two-process theory offers for that pattern.
 
 1. **Two distinct learning processes exist.**
-   - *Empirical pattern:* procedures that arrange only a two-term CS–US contingency (respondent layer) and procedures that arrange only a three-term SD–R–SR contingency (operant layer) produce distinguishable behavioral effects (e.g., the persistence of pecking under omission; see `composed/omission.md`).
+   - *Empirical pattern:* procedures that arrange only a two-term CS–US contingency (respondent layer) and procedures that arrange only a three-term SD–R–SR contingency (operant layer) produce distinguishable behavioral effects (e.g., the persistence of pecking under omission; see `respondent/omission.md`).
    - *Theoretical explanation (two-process theory):* the products of one process cannot be reduced to the products of the other. Pavlovian learning and instrumental learning are separate processes, not one process acting on different inputs. Pavlovian learning establishes relations between stimuli (CS → US); instrumental learning establishes relations between responses and consequences (R → Sr).
 
 2. **A CS paired with a US later influences behavior that was not part of the pairing.**
@@ -35,7 +35,7 @@ Rescorla and Solomon (1967) commit to four interlocking claims. Each claim is st
    - *Theoretical explanation (two-process theory):* the modulation is *mediated* (Rescorla and Solomon's term) by the CS's acquired motivational state rather than by direct response-contingent reinforcement. The DSL records the empirical independence; "mediation" is Rescorla and Solomon's causal language and is offered here only as the account that two-process theory provides.
 
 4. **The two processes can be experimentally dissociated.**
-   - *Empirical pattern:* procedures such as PIT (independent Pavlovian and instrumental training phases, followed by a transfer test) and omission (Pavlovian pairing combined with a response → US cancellation rule) produce distinctive behavioral effects (e.g., persistence of autoshaped pecking under omission; see `composed/omission.md`).
+   - *Empirical pattern:* procedures such as PIT (independent Pavlovian and instrumental training phases, followed by a transfer test) and omission (Pavlovian pairing combined with a response → US cancellation rule) produce distinctive behavioral effects (e.g., persistence of autoshaped pecking under omission; see `respondent/omission.md`).
    - *Theoretical explanation (two-process theory):* a single-process description of these procedures cannot accommodate the effects without contradiction; the procedures isolate the contributions of the two processes; behavior on a transfer test that depends on prior Pavlovian training — when that training was conducted without operant-response opportunity — cannot be attributed to the operant process alone.
 
 ## 3. Why Two-Process Theory Reads Four Procedures Together
@@ -68,7 +68,7 @@ The DSL does not commit to any particular modern elaboration of two-process theo
 
 This file is intentionally more theoretical than procedural. The procedural instances (CER, PIT, autoshaping, omission) appear in their own files and are written in neutral procedural vocabulary. The division of labor is:
 
-- **Procedural files** (`conditioned-suppression.md`, `pit.md`, `autoshaping.md`, `omission.md`) describe the arrangement that the DSL encodes and the empirical patterns the arrangement generates. Theoretical vocabulary from two-process theory or any other account is tagged as such where it appears.
+- **Procedural files** (`conditioned-suppression.md`, `pit.md`, and in the respondent layer `respondent/autoshaping.md`, `respondent/omission.md`) describe the arrangement that the DSL encodes and the empirical patterns the arrangement generates. Theoretical vocabulary from two-process theory or any other account is tagged as such where it appears.
 - **This file** documents the theoretical frame (Rescorla & Solomon, 1967) under which the four procedures are grouped. The Rescorla–Solomon vocabulary ("motivational state," "central state," "mediated by") appears here, but only as the explanation *two-process theory offers* — not as part of the DSL's own voice.
 
 Another interpretive account that reads procedures across both theory layers would be documented here or in a sibling file. Such an account does not change where a procedure is placed: that follows the vocabulary its program uses (design-philosophy §8.1).

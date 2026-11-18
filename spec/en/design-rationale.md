@@ -234,10 +234,11 @@ The six-layer volume distribution reflects the primary coverage target:
   Pavlovian procedures (blocking, overshadowing, latent inhibition,
   renewal, reinstatement, etc.) are delegated to
   `contingency-respondent-dsl` through the Respondent extension point.
-- **Composed layer — limited initial set, open-ended.** Five initial
-  procedures (conditioned suppression, PIT, autoshaping, omission,
-  two-process theory); further composed procedures admitted on a
-  case-by-case basis per the `composed/` admission criteria.
+- **Composed layer — programs and interpretive tools, open-ended.**
+  Programs that use both vocabularies in one phase sequence (conditioned
+  suppression, PIT) and interpretive tools that span both theory layers
+  (two-process theory); autoshaping, omission, and avoidance are written
+  in the respondent vocabulary and documented in the respondent layer.
 
 ### 5.3 Scientific Grounding
 

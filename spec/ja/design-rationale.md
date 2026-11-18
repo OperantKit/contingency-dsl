@@ -222,10 +222,10 @@ Respondent 層は意図的に最小限 (Tier A のみ) とし、伴侶パッケ�
   パヴロフ型手続き (blocking, overshadowing, latent inhibition, renewal,
   reinstatement 等) は、Respondent の拡張ポイントを通じて
   `contingency-respondent-dsl` に委譲される。
-- **Composed 層 — 限定された初期セット、将来拡張あり。** 5 つの
-  初期手続き (conditioned suppression, PIT, autoshaping, omission,
-  two-process theory)。追加の合成手続きは `composed/` の受け入れ基準に
-  従ってケースバイケースで受け入れる。
+- **Composed 層 — プログラムと解釈の道具、将来拡張あり。** 1 つの
+  phase の列で両方の語彙を使うプログラム (conditioned suppression, PIT) と、
+  両方の理論の層にまたがる解釈の道具 (two-process theory)。autoshaping・
+  omission・回避はレスポンデントの語彙で書き、レスポンデントの層で文書化する。
 
 ### 5.3 科学的根拠
 

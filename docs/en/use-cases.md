@@ -557,7 +557,7 @@ Phase(
 
 **What this does:** Eight sessions of forward-delay Pavlovian conditioning. Conditioned responding (e.g., freezing) is measured via apparatus-specific video-analysis pipelines; the DSL records the contingency and the CS/US/ITI metadata.
 
-**Why it exists:** Respondent-only procedures are the simplest expression of two-term CS-US contingencies. They establish the baseline associations that composed procedures (CER, PIT, autoshaping) subsequently exploit. Even when EAB papers use operant baselines as measurement platforms, respondent conditioning principles inform the interpretation.
+**Why it exists:** Respondent-only procedures are the simplest expression of two-term CS-US contingencies. They establish the baseline associations that composed programs (CER, PIT) subsequently exploit; autoshaping is itself a respondent-only procedure. Even when EAB papers use operant baselines as measurement platforms, respondent conditioning principles inform the interpretation.
 
 **Alternative respondent primitives for specific research questions:**
 
@@ -747,7 +747,8 @@ SpontaneousRecovery(cs=tone, recovery_interval=24h)
 | `Pair.ForwardDelay` / `Pair.Backward` / ... | Pavlovian (two-term) procedures, fear / appetitive conditioning | Cannot express respondent contingencies |
 | `Contingency(p, q)` / `TrulyRandom` / `ExplicitlyUnpaired` | Rescorla (1967) contingency-space controls | Cannot express the contingency-space formalism |
 | `Differential(cs+, cs−, us)` | A+/B− Pavlovian discrimination | Cannot express contrastive CS training |
-| Composed procedures (operant / respondent primitives inside `phase` blocks + `@omission` / `@avoidance` annotations) | CER / PIT / autoshaping / omission | Cannot express operant × respondent composites |
+| Composed programs (operant and respondent primitives inside `phase` blocks) | CER / PIT | Cannot express operant × respondent composites |
+| `@omission` / `@avoidance` on respondent primitives | Omission / avoidance in the respondent vocabulary | Cannot express response→US cancellation on a Pavlovian pair |
 | `@cs` / `@us` / `@iti` / `@cs_interval` | CS/US metadata on any primitive; cross-cuts Procedure/Apparatus/Measurement | Cannot record reader-friendly CS/US windows |
 | Respondent extension point | Tier B procedures (blocking, overshadowing, renewal, ...) via `contingency-respondent-dsl` | Tier B procedures require Core grammar changes |
 

@@ -1,25 +1,31 @@
 # composed-annotator
 
-> Annotation extension for the composed layer. Defines `@omission` and
-> `@avoidance` — the two response-contingent US-modulation rules that
-> distinguish CER, PIT, autoshaping, omission, and two-process-theory
-> preparations from a pure Pavlovian arrangement.
+> Annotation extension that defines `@omission` and `@avoidance` — the two
+> response-contingent US-modulation rules attached to a respondent primitive.
+> They are the respondent layer's aliases for the neutral response→stimulus
+> dependency in its cancellation and postponement forms (see
+> [respondent/theory.md §0](../../respondent/theory.md#0-stimulus-roles-as-aliases)).
+> The extension keeps the name `composed-annotator` and its schema; programs
+> that combine these annotations with an operant phase (two-process theory)
+> are composed programs.
 
 **Category.** Procedure (response-contingent US rules).
 
 **Companion documents.**
 - [respondent-annotator](respondent-annotator.md) — the `@cs` / `@us` /
-  `@iti` / `@cs_interval` metadata on which composed procedures build.
-- [composed/omission.md](../../composed/omission.md) — negative
+  `@iti` / `@cs_interval` metadata on which these procedures build.
+- [respondent/omission.md](../../respondent/omission.md) — negative
   automaintenance, the canonical use-case for `@omission`.
+- [respondent/avoidance.md](../../respondent/avoidance.md) — the
+  respondent-vocabulary avoidance procedure written with `@avoidance`.
 - [composed/two-process-theory.md](../../composed/two-process-theory.md)
-  — the theoretical frame for `@avoidance`.
+  — an interpretive frame that reads avoidance across both theory layers.
 
 ---
 
 ## 1. Design
 
-Composed procedures in the contingency-dsl are expressed by hosting a
+Procedures that use these annotations are expressed by hosting a
 Pavlovian primitive (`Pair.ForwardDelay`, typically) inside an
 experiment-layer phase block. The structural arrangement is already
 complete at that level: CS, US, ISI, trial count, phase criterion, and

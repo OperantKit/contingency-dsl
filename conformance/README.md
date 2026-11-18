@@ -13,7 +13,7 @@ conformance/
 │   ├── stateful/          — Stateful operant schedules (percentile, adjusting, interlocking)
 │   └── trial-based/       — Trial-based operant procedures (MTS matching-to-sample, GoNoGo)
 ├── respondent/            — Respondent (Pavlovian) primitive tests (Tier A: Pair variants, elementary, contingency controls, compound stimuli)
-├── composed/              — Programs using both vocabularies, and composed-annotator tests (CER, PIT, two-process, autoshape, omission)
+├── composed/              — Programs using both vocabularies (CER, PIT, two-process)
 ├── experiment/            — Experiment-layer tests (phase-sequence, criterion, annotation inheritance)
 ├── annotations/           — Annotation system tests (program-level, measurement, errors)
 │   └── extensions/        — Annotator extension tests (respondent-annotator)
@@ -147,12 +147,14 @@ Empty (placeholder). See `foundations/README.md` for the dividing principle and 
 | `elementary.json` | Extinction, CSOnly, USOnly, ITI, Compound, Serial, Differential |
 | `contingency-controls.json` | Contingency(p_us_given_cs, p_us_given_no_cs), TrulyRandom, ExplicitlyUnpaired |
 | `compound-stimulus.json` | Compound and Serial CS lists with mode variants |
+| `autoshape.json` | Autoshaping (Brown & Jenkins, 1968): CS→US forward-delay pairing |
+| `omission.json` | Omission (Williams & Williams, 1969): pairing with `@omission` |
 
 Tier B respondent primitives (blocking, overshadowing, latent inhibition, renewal, reinstatement, occasion-setting, higher-order conditioning) are out of scope here and live in the companion package `contingency-respondent-dsl`.
 
 ### composed/
 
-Five fixtures (CER, PIT, two-process, autoshape, omission). See `composed/README.md` for which of them use both vocabularies.
+Three fixtures (CER, PIT, two-process), each using both vocabularies. See `composed/README.md`.
 
 ### experiment/
 

@@ -22,6 +22,10 @@ Tier A primitive fixtures are populated:
 | `elementary.json` | Extinction, CSOnly, USOnly, ITI, Compound, Serial, Differential |
 | `contingency-controls.json` | Contingency(p_us_given_cs, p_us_given_no_cs), TrulyRandom, ExplicitlyUnpaired |
 | `compound-stimulus.json` | Compound and Serial CS lists with mode variants |
+| `autoshape.json` | Autoshaping (Brown & Jenkins, 1968): CS→US forward-delay pairing |
+| `omission.json` | Omission (Williams & Williams, 1969): CS→US pairing with response-contingent US cancellation via `@omission` |
+
+`@omission` and `@avoidance` are the respondent layer's aliases for the neutral response→stimulus dependency (cancellation, postponement); their schema is `schema/annotations/extensions/composed-annotator.schema.json`.
 
 ## Extension point
 
@@ -29,7 +33,7 @@ The respondent layer is extensible: Tier B primitives (conditioned inhibition, o
 
 ## Cross-paradigm composed procedures
 
-Procedures that layer respondent over operant (CER, PIT, autoshaping, omission, two-process theory) are tested in `../composed/`, not here. This directory covers **respondent-only** programs.
+Programs that use both the operant and the respondent vocabulary in one phase sequence (CER, PIT, two-process theory) are tested in `../composed/`, not here. This directory covers **respondent-only** programs, including autoshaping and omission.
 
 ## Format
 

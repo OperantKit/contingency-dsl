@@ -350,7 +350,7 @@ Differential(tone_plus, tone_minus)          -- short form; US from @us annotati
 
 ## Level 4.6: Composed Procedures
 
-> **Composed** procedures combine an operant baseline with a respondent (Pavlovian) component. Programs that use both vocabularies in one phase sequence live in the composed layer (`composed/`); a procedure that can be written in one vocabulary belongs to that vocabulary's layer. For full specifications, see [composed/conditioned-suppression.md](../../spec/en/composed/conditioned-suppression.md), [composed/pit.md](../../spec/en/composed/pit.md), [composed/autoshaping.md](../../spec/en/composed/autoshaping.md), and [composed/omission.md](../../spec/en/composed/omission.md).
+> **Composed** procedures combine an operant baseline with a respondent (Pavlovian) component. Programs that use both vocabularies in one phase sequence live in the composed layer (`composed/`); a procedure that can be written in one vocabulary belongs to that vocabulary's layer. For full specifications, see [composed/conditioned-suppression.md](../../spec/en/composed/conditioned-suppression.md), [composed/pit.md](../../spec/en/composed/pit.md). Autoshaping and omission are written in the respondent vocabulary; see [respondent/autoshaping.md](../../spec/en/respondent/autoshaping.md) and [respondent/omission.md](../../spec/en/respondent/omission.md).
 
 ### Conditioned Suppression (CER)
 

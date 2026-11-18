@@ -11,7 +11,7 @@ The annotation system has two tiers:
 
 1. **Four recommended JEAB-aligned annotators** — `procedure-annotator`, `subjects-annotator`, `apparatus-annotator`, `measurement-annotator`. These map 1:1 to JEAB Method section headings.
 2. **Extensions** (under `annotations/extensions/`) — annotators that fall outside the four JEAB categories. Two are shipped with this project:
-   - `respondent-annotator` — `@cs`, `@us`, `@iti`, `@cs_interval` for CS/US metadata on respondent primitives and composed procedures.
+   - `respondent-annotator` — `@cs`, `@us`, `@iti`, `@cs_interval` for CS/US metadata on respondent primitives and composed programs.
    - `learning-models-annotator` — `@model(RW)`, `@model(PH)`, `@model(TD)` for associating an expression with an associative-learning model.
 
 All annotators compose via Cartesian product (Operant layer rules); their annotation keywords are disjoint.
@@ -318,7 +318,7 @@ Extensions under `annotations/extensions/` are annotators that fall outside the 
 
 ### E1. respondent-annotator — CS/US/ITI/cs_interval Metadata
 
-Declares **respondent-procedure metadata** that cross-cuts the Procedure / Apparatus / Measurement categories. Used on Tier A respondent primitives (see [syntax-guide.md](syntax-guide.md) Level 4.5) and on composed procedures (CER, PIT, autoshaping, omission).
+Declares **respondent-procedure metadata** that cross-cuts the Procedure / Apparatus / Measurement categories. Used on Tier A respondent primitives (see [syntax-guide.md](syntax-guide.md) Level 4.5) and on the procedures that build on them (CER, PIT, autoshaping, omission).
 
 | Keyword | Purpose | Example |
 |---------|---------|---------|

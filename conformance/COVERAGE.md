@@ -20,8 +20,8 @@ implementation checklist, prevents test duplication, and exposes untested paths.
 | **Operant** | 19 | 552 | ✅ Primary coverage |
 | **Operant-Stateful** | 4 | 92 | ✅ Full coverage |
 | **Operant-Trial-Based** | 3 | 121 | ✅ Full coverage |
-| **Respondent** | 5 | 32 | ✅ Full coverage |
-| **Composed** | 5 | 5 | ✅ Full coverage |
+| **Respondent** | 7 | 34 | ✅ Full coverage |
+| **Composed** | 3 | 3 | ✅ Full coverage |
 | **Experiment** | 5 | 70 | ✅ Full coverage |
 | **Annotations** | 11 | 241 | ✅ Full coverage (incl. respondent-annotator extension stub) |
 | **Representations (T-τ)** | 5 | 42 | ✅ Full coverage |

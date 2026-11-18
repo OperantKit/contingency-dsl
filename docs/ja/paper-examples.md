@@ -394,7 +394,7 @@ Phase(
 **注記:**
 - オペラント production は出現しない。反応→US の依存は設定されていない。創発キーつつきは測定アノテーション (図示せず) 経由で記録する。
 - CS は**局在的**(特定チャンバー操作体に紐づく)。これがサイン・トラッキングをゴール・トラッキングから区別する。
-- 手続きは [composed/autoshaping.md](../../spec/ja/composed/autoshaping.md)、それについてのレスポンデントの伝統の読みは [respondent/theory.md §6](../../spec/ja/respondent/theory.md) を参照。
+- 手続きは [respondent/autoshaping.md](../../spec/ja/respondent/autoshaping.md)、それについてのレスポンデントの伝統の読みは [respondent/theory.md §6](../../spec/ja/respondent/theory.md) を参照。
 
 ---
 
@@ -426,7 +426,7 @@ phase omission_contingency:
 **注記:**
 - `@omission(response="key_peck", during="cs")` 注釈がパヴロフ型 primitive に対する反応→US キャンセル規則を宣言する。アナライザ／実行器のパスが注釈を解釈し、指定窓内で該当反応が出現するたびにその試行の US 呈示を抑制する。
 - Williams & Williams (1969) は省略随伴性下で約 40 セッションにわたって大部分の強化子を失いつつもつつきが持続することを示した。この持続性についてのレスポンデントの伝統の読みは [respondent/theory.md §6](../../spec/ja/respondent/theory.md) にある。
-- 仕様全体は [composed/omission.md](../../spec/ja/composed/omission.md) を参照。
+- 仕様全体は [respondent/omission.md](../../spec/ja/respondent/omission.md) を参照。
 
 ---
 

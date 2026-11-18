@@ -2006,7 +2006,7 @@ where `merge(shared, local)` = `local` for keys present in both, `shared` for ke
 
 ## Interpretive Notes — the Operant Tradition's Reading of Autoshaping and Omission
 
-The procedure documents `composed/autoshaping.md` and `composed/omission.md` record the arrangements and the observations only, and the respondent tradition's reading of them is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission). This section is the place for the operant tradition's reading of the same procedures. It is not written yet; readings are added here only with citations to the primary sources.
+The procedure documents `respondent/autoshaping.md` and `respondent/omission.md` record the arrangements and the observations only, and the respondent tradition's reading of them is in [Respondent Theory §6](../respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission). This section is the place for the operant tradition's reading of the same procedures. It is not written yet; readings are added here only with citations to the primary sources.
 
 ---
 

@@ -390,7 +390,7 @@ Phase(
 **Notes:**
 - No operant production appears: no response→US dependency is programmed. The emerged key-peck is recorded via measurement annotations (not shown).
 - The CS is **localized** (attached to a chamber operandum); this is what distinguishes sign-tracking from goal-tracking.
-- See [composed/autoshaping.md](../../spec/en/composed/autoshaping.md) for the procedure, and [respondent/theory.md §6](../../spec/en/respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission) for the respondent tradition's reading of it.
+- See [respondent/autoshaping.md](../../spec/en/respondent/autoshaping.md) for the procedure, and [respondent/theory.md §6](../../spec/en/respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission) for the respondent tradition's reading of it.
 
 ---
 
@@ -422,7 +422,7 @@ phase omission_contingency:
 **Notes:**
 - The `@omission(response="key_peck", during="cs")` annotation declares the response→US-cancellation rule on the Pavlovian primitive. An analyzer/executor pass interprets the annotation: any matching response during the specified window suppresses US delivery on that trial.
 - Williams and Williams (1969) showed that pecking persists across ~40 sessions under the omission contingency despite losing most reinforcers. The respondent tradition's reading of this persistence is in [respondent/theory.md §6](../../spec/en/respondent/theory.md#6-interpretive-notes-the-respondent-traditions-reading-of-autoshaping-and-omission).
-- See [composed/omission.md](../../spec/en/composed/omission.md) for the full specification.
+- See [respondent/omission.md](../../spec/en/respondent/omission.md) for the full specification.
 
 ---
 

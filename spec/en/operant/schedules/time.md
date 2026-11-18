@@ -78,6 +78,21 @@ Chain(FR 5, FT 30-s)            -- chained ratio-then-time link
 
 Because Time schedules are response-independent, they often serve as **control conditions** against which the effect of response contingencies can be measured (Herrnstein & Morse, 1957; Rachlin & Baum, 1972).
 
+### 6.1 Signaled Fixed Time: the Autoshaping Arrangement in Operant Vocabulary
+
+The autoshaping arrangement ([Autoshaping](../../respondent/autoshaping.md), written there in the respondent vocabulary as `Pair.ForwardDelay`) can also be written in the operant vocabulary as a chain of two time schedules whose second link is signaled:
+
+```
+Chain(FT 52-s, FT 8-s) @sd("key_light", component=2)
+```
+
+- In the first link (`FT 52-s`) the key is dark.
+- Completing the first link starts the second link, whose stimulus is the key light. `@sd("key_light", component=2)` names that stimulus (a schedule-level annotation with a component index; see `annotations/design.md`).
+- When the second link's `FT 8-s` elapses, the reinforcer is presented and the chain starts again.
+- No response is required at any point, because every link is a time schedule.
+
+The program is written to arrange the same stimulus sequence as `Pair.ForwardDelay(key_light, food, isi=8-s, cs_duration=8-s)` with a fixed 52-s interval between trials: the key light turns on, stays on for 8 s, and food follows at its offset. The values are those of the example, not of a particular study. Whether the two programs produce the same stimulus sequence for the same response sequence is not yet checked by an execution test.
+
 ## 7. Errors and Warnings
 
 | Code | Condition | Severity |

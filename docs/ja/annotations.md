@@ -11,7 +11,7 @@
 
 1. **JEAB 準拠の 4 推奨 annotator** — `procedure-annotator`、`subjects-annotator`、`apparatus-annotator`、`measurement-annotator`。いずれも JEAB Method 節の見出しと 1:1 対応する。
 2. **拡張 annotator**(`annotations/extensions/` 配下) — 4 カテゴリに属さない annotator。本プロジェクトは 2 つを同梱する:
-   - `respondent-annotator` — `@cs`、`@us`、`@iti`、`@cs_interval`。レスポンデント primitive および合成手続きの CS/US メタデータを記述する。
+   - `respondent-annotator` — `@cs`、`@us`、`@iti`、`@cs_interval`。レスポンデント primitive および合成のプログラムの CS/US メタデータを記述する。
    - `learning-models-annotator` — `@model(RW)`、`@model(PH)`、`@model(TD)`。スケジュール式を連合学習モデルと関連づける。
 
 すべての annotator は直積 (Cartesian product) で合成可能 (Operant 層の規則)。注釈キーワードは互いに素である。
@@ -315,7 +315,7 @@ Conc(VI 30-s, VI 60-s, COD=2-s)
 
 ### E1. respondent-annotator — CS/US/ITI/cs_interval メタデータ
 
-Procedure / Apparatus / Measurement の各カテゴリをまたいで付加される**レスポンデント手続きのメタデータ**を宣言する。Tier A レスポンデント primitive ([syntax-guide.md](syntax-guide.md) レベル 4.5 参照) および合成手続き (CER、PIT、自動反応形成、省略) に用いる。
+Procedure / Apparatus / Measurement の各カテゴリをまたいで付加される**レスポンデント手続きのメタデータ**を宣言する。Tier A レスポンデント primitive ([syntax-guide.md](syntax-guide.md) レベル 4.5 参照) およびそれを使う手続き (CER、PIT、自動反応形成、省略) に用いる。
 
 | キーワード | 目的 | 例 |
 |-----------|------|-----|

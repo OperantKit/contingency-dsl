@@ -78,8 +78,8 @@ extension point (see design-philosophy §5.4).
 
 The rationale for this split is scope discipline. The principal coverage
 target of contingency-dsl is operant procedures + JEAB paper reproduction;
-the respondent machinery required to express composed procedures (CER,
-PIT, autoshaping, omission) bottoms out at the Tier A set. Admitting the
+the respondent machinery required to express composed programs (CER,
+PIT) and respondent-layer procedures (autoshaping, omission) bottoms out at the Tier A set. Admitting the
 full respondent literature into the Core would (i) expand the primitive
 set by an order of magnitude, (ii) require context-sensitive primitives
 (e.g., renewal across ABA/ABC/AAB contexts) that strain the paradigm-
