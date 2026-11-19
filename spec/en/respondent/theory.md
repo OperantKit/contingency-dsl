@@ -17,8 +17,10 @@ The foundations layer defines stimuli by name and physical properties and define
 
 | Alias | Symbol | Position in the paradigm-neutral dependency types |
 |---|---|---|
-| Unconditioned stimulus | US | The later stimulus of a stimulus→stimulus dependency |
-| Conditioned stimulus | CS | The earlier stimulus of a stimulus→stimulus dependency |
+| Unconditioned stimulus | US | The stimulus given as the `us` argument of a respondent constructor (`Pair.*`, `USOnly`, `TrulyRandom`, `ExplicitlyUnpaired`, `Differential`), or the stimulus whose presentation probability `Contingency(p_us_given_cs, p_us_given_no_cs)` states |
+| Conditioned stimulus | CS | The stimulus given as the `cs` argument (or an element of `cs_list`, `cs_positive`, `cs_negative`) of a respondent constructor |
+
+The roles are assigned by the argument the researcher places a stimulus in, not by temporal order: `Pair.Backward(us, cs, isi)` presents the US first, `Pair.Simultaneous(cs, us)` presents both at once, and `USOnly` and `CSOnly` present one stimulus with no stimulus→stimulus dependency.
 
 **CS and US are primitive-level.** In the respondent layer, CS and US are constructor arguments: `Pair.ForwardDelay(cs, us, isi, cs_duration)`, `Contingency(p_us_given_cs, p_us_given_no_cs)`, etc. Their physical properties are attached via `@cs` and `@us` annotations (provided by `annotations/extensions/respondent-annotator`).
 

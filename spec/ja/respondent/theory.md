@@ -17,8 +17,10 @@
 
 | 別名 | 記号 | パラダイム中立な依存の型の中の位置 |
 |---|---|---|
-| 無条件刺激 | US | 刺激→刺激の依存の、後に来る側の刺激 |
-| 条件刺激 | CS | 刺激→刺激の依存の、先に来る側の刺激 |
+| 無条件刺激 | US | レスポンデントの構成子 (`Pair.*`・`USOnly`・`TrulyRandom`・`ExplicitlyUnpaired`・`Differential`) の `us` の引数に置いた刺激、または `Contingency(p_us_given_cs, p_us_given_no_cs)` が呈示の確率を述べる刺激 |
+| 条件刺激 | CS | レスポンデントの構成子の `cs` の引数 (または `cs_list`・`cs_positive`・`cs_negative` の要素) に置いた刺激 |
+
+役割は、研究者が刺激をどの引数に置いたかで決まり、時間の順では決まらない。`Pair.Backward(us, cs, isi)` は US を先に呈示し、`Pair.Simultaneous(cs, us)` は 2 つを同時に呈示し、`USOnly` と `CSOnly` は刺激→刺激の依存の無い 1 つの刺激を呈示する。
 
 **CS と US はプリミティブレベル.** レスポンデント層では、CS と US は構成子の引数である: `Pair.ForwardDelay(cs, us, isi, cs_duration)`、`Contingency(p_us_given_cs, p_us_given_no_cs)` 等。物理的属性は `@cs` と `@us` の注釈 (`annotations/extensions/respondent-annotator` が提供) で付ける。
 
