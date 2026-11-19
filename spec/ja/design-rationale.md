@@ -223,8 +223,8 @@ Respondent 層は意図的に最小限 (Tier A のみ) とし、伴侶パッケ�
   reinstatement 等) は、Respondent の拡張ポイントを通じて
   `contingency-respondent-dsl` に委譲される。
 - **Composed 層 — プログラムと解釈の道具、将来拡張あり。** 1 つの
-  phase の列で両方の語彙を使うプログラム (conditioned suppression, PIT) と、
-  両方の理論の層にまたがる解釈の道具 (two-process theory)。autoshaping・
+  phase の列で両方の語彙を使うプログラム (条件性抑制 (conditioned suppression)・
+  PIT) と、両方の理論の層にまたがる解釈の道具 (two-process theory)。autoshaping・
   omission・回避はレスポンデントの語彙で書き、レスポンデントの層で文書化する。
 
 ### 5.3 科学的根拠
