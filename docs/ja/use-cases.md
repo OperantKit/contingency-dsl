@@ -668,7 +668,7 @@ SpontaneousRecovery(cs=tone, recovery_interval=24h)
 | 前向き／痕跡／同時／後向きペアリング、随伴性空間、差別条件づけ | **Tier A primitive**(Core) |
 | ITI 構造、消去、CS 単独／US 単独提示 | **Tier A primitive**(Core) |
 | ブロッキング、オーバーシャドーイング、潜在制止、条件性制止 | **レスポンデント拡張**(`contingency-respondent-dsl` 経由) |
-| 更新、復元、自然回復、対抗条件づけ | **レスポンデント拡張**(`contingency-respondent-dsl` 経由) |
+| 更新、復元、自発的回復、対抗条件づけ | **レスポンデント拡張**(`contingency-respondent-dsl` 経由) |
 | いずれの層にも未登録の新しい構造的 CS-US 関係 | **レスポンデント拡張**(カスタム registry) |
 
 **respondent-annotator との区別.** respondent-annotator (`@cs`、`@us`、`@iti`、`@cs_interval`) は既存 primitive に**メタデータ**を付加する。レスポンデント拡張ポイントは自身の文法を持つ**新しい primitive**を追加する。両者は直交する機構である: 注釈は parse tree を変えないが、拡張は変える。
