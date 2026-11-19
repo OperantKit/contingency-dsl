@@ -315,7 +315,7 @@ PhaseSequence(
 ```
 
 **Notes:**
-- US delivery is Pavlovian (response-independent), which structurally distinguishes CER from punishment.
+- The US depends on the CS (a stimulus→stimulus dependency) and not on the response. This is the procedural difference from punishment, where the punisher depends on the response (a response→stimulus dependency).
 - The operant baseline and the Pavlovian overlay coexist within the same `Phase` because the two contingencies operate concurrently.
 - See [composed/conditioned-suppression.md](../../spec/en/composed/conditioned-suppression.md) for the full composed specification.
 

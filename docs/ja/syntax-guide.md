@@ -364,7 +364,7 @@ Phase(
 @us(label="shock", intensity="0.5mA", delivery="unsignaled")
 ```
 
-食物系オペラント・ベースライン (VI 60-s) とパヴロフ型オーバーレイが同一フェーズに共存する。US 提示は反応非依存 (パヴロフ型) であり、これが CER を罰から構造的に区別する。Estes & Skinner (1941); Annau & Kamin (1961)。
+食物系オペラント・ベースライン (VI 60-s) とパヴロフ型オーバーレイが同一フェーズに共存する。US は CS に依存して出て (刺激→刺激の依存)、反応には依存しない。これが罰との手続きの上での違いで、罰では罰子が反応に依存して出る (反応→刺激の依存)。[composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md) §4 を参照。Estes & Skinner (1941); Annau & Kamin (1961)。
 
 ### パヴロフ-道具的転移 (PIT)
 

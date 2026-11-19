@@ -47,8 +47,10 @@ the same axis produces an architecture that:
    under a common "Paradigm" node either (a) forces an artificial
    parameterization that obscures their distinct grammars, or (b)
    collapses the structures into one, misrepresenting the discipline.
-   Operant and Respondent are therefore first-class siblings, not
-   specializations of a common super-relation.
+   Operant and Respondent are therefore first-class siblings: neither
+   layer is defined in terms of the other, and each names the stimulus
+   and dependency types of the foundations layer with its own vocabulary
+   (see [foundations/contingency-types.md](../../spec/en/foundations/contingency-types.md)).
 
 3. **Gives programs that use both vocabularies a place of their own.**
    Every procedure is expected to be writable in one vocabulary, and a

@@ -365,7 +365,7 @@ Phase(
 @us(label="shock", intensity="0.5mA", delivery="unsignaled")
 ```
 
-An appetitive operant baseline (VI 60-s) coexists with a Pavlovian overlay in the same phase. US delivery is Pavlovian (not response-contingent), which is what distinguishes CER from punishment. Estes & Skinner (1941); Annau & Kamin (1961).
+An appetitive operant baseline (VI 60-s) coexists with a Pavlovian overlay in the same phase. The US depends on the CS (a stimulus→stimulus dependency) and not on the response; this is the procedural difference from punishment, where the punisher depends on the response (a response→stimulus dependency). See [composed/conditioned-suppression.md](../../spec/en/composed/conditioned-suppression.md) §4. Estes & Skinner (1941); Annau & Kamin (1961).
 
 ### Pavlovian-to-Instrumental Transfer (PIT)
 

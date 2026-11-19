@@ -605,7 +605,7 @@ Extensions considered essential for basic EAB research:
 )
 ```
 
-- Context definition is decisive in renewal research (Bouton, 2004)
+- Renewal designs (Bouton, 2004) change the context between phases (e.g., ABA), so the context must be declared to write them
 - Program level (constant throughout the session)
 
 #### 8.1.5 `@logging` — Data Recording Specifications `Tier 2 (production)`

@@ -319,7 +319,7 @@ PhaseSequence(
 ```
 
 **注記:**
-- US 提示はパヴロフ型 (反応非依存) であり、これが CER を罰から構造的に区別する。
+- US は CS に依存して出て (刺激→刺激の依存)、反応には依存しない。これが罰との手続きの上での違いで、罰では罰子が反応に依存して出る (反応→刺激の依存)。
 - オペラント・ベースラインとパヴロフ型オーバーレイは同一 `Phase` 内で共存する。両随伴性が同時に作用するためである。
 - 合成仕様の全体は [composed/conditioned-suppression.md](../../spec/ja/composed/conditioned-suppression.md) を参照。
 
