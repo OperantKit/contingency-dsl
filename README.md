@@ -94,7 +94,7 @@ Parsers live in separate packages:
 - [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) — Python reference parser
 - [contingency-dsl-rs](https://github.com/OperantKit/contingency-dsl-rs) — Rust reference parser
 
-Both read the cases in `conformance/`, and count as the same language by passing them.
+Both read the cases in `conformance/`, and count as the same language by passing them. The Rust parser does not match or read all of them yet; its README lists what is left.
 
 ## Documentation
 

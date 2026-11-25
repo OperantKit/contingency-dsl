@@ -94,7 +94,7 @@ Pair.ForwardDelay(cs=Tone, us=Shock, isi=10s, cs_duration=12s)
 - [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) — Python のリファレンスパーサ
 - [contingency-dsl-rs](https://github.com/OperantKit/contingency-dsl-rs) — Rust のリファレンスパーサ
 
-どちらも `conformance/` のケースを読み、それに合格することで同じ言語とみなします。
+どちらも `conformance/` のケースを読み、それに合格することで同じ言語とみなします。Rust のパーサには、まだ一致しない、または読んでいないケースがあります。残りはその README に書かれています。
 
 ## 文書
 
