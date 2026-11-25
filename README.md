@@ -91,7 +91,10 @@ Deeper Pavlovian procedures (blocking, overshadowing, latent inhibition, renewal
 
 Parsers live in separate packages:
 
-- **contingency-dsl-py** — Python reference parser (sole reference implementation)
+- [contingency-dsl-py](https://github.com/OperantKit/contingency-dsl-py) — Python reference parser
+- [contingency-dsl-rs](https://github.com/OperantKit/contingency-dsl-rs) — Rust reference parser
+
+Both read the cases in `conformance/`, and count as the same language by passing them.
 
 ## Documentation
 
